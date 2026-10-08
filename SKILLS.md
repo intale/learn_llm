@@ -67,10 +67,17 @@ course-owned preparation algorithms and concept-library restrictions below. It
 does not extend to taught tokenizer, tensor, autodiff, decoder, training or
 inference algorithms, or weaken their evidence and review gates.
 
+The external workflow has its own `docker/nemo-curator.Dockerfile`; official
+provisioning may use network, but all runs remain `--network none` with supplied
+assets and NVIDIA passthrough. Keep NeMo/CUDA/Python preparation dependencies out
+of the Rust/site image and embed no corpus or model. Current Chapter 41 replaces
+the former corpus Chapters 41–43; only future44–85 renumber42–83. Preserve old
+run/review/cache evidence as history, never as new NeMo execution proof.
+
 This policy is not execution or provisioning authority: no GPU/cloud purchase,
 remote execution, download, install or preparation run is implied. Report actual
 GPU availability without claiming unrun practical results. Repairs remain held,
-Chapters 41+ remain English-first, and no routine screenshot gate is added.
+Chapters 40+ remain English-first, and no routine screenshot gate is added.
 
 ## Sources of truth and ownership
 

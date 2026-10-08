@@ -1,0 +1,1 @@
+Limit: structural identity checks do not prove teaching/review quality, GPU correctness or full-corpus rights/privacy/overlap release. Bulk preparation remains separately pending.

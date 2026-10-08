@@ -1,16 +1,12 @@
 use course_asset_fetch::{FetchError, TransportConfig, admitted_url, build_flag, client, response};
-use functional_artifact_cache::filesystem::{CacheLayout, FileLayout, FileSource, FileStore};
-use llm_from_scratch::{
-    artifact_identity::sha256,
-    functional::artifact::{
-        acquisition::acquire_bundle,
-        canonical_manifest::{
-            DatasetArtifactManifestV2, MAX_MANIFEST_BYTES, PayloadEntry, Producer,
-        },
-        inventory::AssetSource,
-        lineage::{AcquisitionError, DatasetPolicy},
-    },
+use functional_artifact_cache::artifact::{
+    acquisition::acquire_bundle,
+    canonical_manifest::{DatasetArtifactManifestV2, MAX_MANIFEST_BYTES, PayloadEntry, Producer},
+    inventory::AssetSource,
+    lineage::{AcquisitionError, DatasetPolicy},
 };
+use functional_artifact_cache::filesystem::{CacheLayout, FileLayout, FileSource, FileStore};
+use llm_from_scratch::artifact_identity::sha256;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{
@@ -249,10 +245,8 @@ fn execute() -> Result<Value, FetchError> {
     // Operational readback reuses exact configured layout, not guessed names.
     let mut check =
         FileSource::new(output, asset.storage.files.clone()).map_err(|_| FetchError::Storage)?;
-    llm_from_scratch::functional::artifact::inventory::verify_bundle(
-        &manifest, &policy, &mut check,
-    )
-    .map_err(|_| FetchError::Content)?;
+    functional_artifact_cache::artifact::inventory::verify_bundle(&manifest, &policy, &mut check)
+        .map_err(|_| FetchError::Content)?;
     Ok(
         json!({"schema_version":2,"enabled":true,"status":"downloaded-not-admitted","final_payload_bytes":proof.total_bytes(),"artifact_id":proof.artifact_id()}),
     )

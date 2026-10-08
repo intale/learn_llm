@@ -36,7 +36,7 @@ export function parseCacheArguments(args){
  if(selection.selection==='explicit')keys.push('runtime-image','expected-image-id');
  if(Object.keys(p).sort().join()!==keys.sort().join())fail();return p;
 }
-export function buildTools(root,run,id,{runtime,filtering=false}={}){
+export function buildTools(root,run,id,{runtime}={}){
  if(!existsSync(join(run,'publish')))mkdirSync(join(run,'publish'),{mode:0o700});
  if(!existsSync(join(run,'cargo-cache'))){
   const cache=join(run,'cargo-cache');mkdirSync(cache,{mode:0o700});
@@ -44,12 +44,12 @@ export function buildTools(root,run,id,{runtime,filtering=false}={}){
  }
  if(!existsSync(join(run,'validation')))mkdirSync(join(run,'validation'),{mode:0o700});
  const attempt=readdirSync(join(run,'validation')).filter(name=>/^cache-tools-v2-[0-9]+$/.test(name)).length+1;
- const args=[run.split('/').at(-1),`cache-tools-v2-${attempt}`,id,'--','cargo','build','--locked','--offline','-p','functional-artifact-cache',...(filtering?['--release','--bins']:['--bin','functional-artifact-cache'])];
- const result=spawnSync(join(root,'scripts/run-functional-rust-overlay.sh'),args,{encoding:'utf8',maxBuffer:2097152});if(result.error||result.status!==0)fail();
- const profile=filtering?'release':'debug',binary=join(run,`rust-target/${profile}/functional-artifact-cache`);
+ const args=[run.split('/').at(-1),`cache-tools-v2-${attempt}`,id,'--','cargo','build','--locked','--offline','-p','functional-artifact-cache','--bin','functional-artifact-cache'];
+ const overlay=input(root,run,'scripts/run-functional-rust-overlay.sh');
+ const result=spawnSync('bash',[overlay,...args],{encoding:'utf8',maxBuffer:2097152});if(result.error||result.status!==0)fail();
+ const profile='debug',binary=join(run,`rust-target/${profile}/functional-artifact-cache`);
  const runtimeIdentity=runtime?checkRuntimeUnchanged(runtime,imageId):null;
  const receipt={schema_version:2,image_id:id,source_tree_sha256:sourceHash(root,run),binary:{path:`tool-binary-v2-${attempt}`,sha256:sha(readFileSync(binary))},cargo_profile:profile,build_argv:args,network:'none',cargo_locked:true,...(runtimeIdentity?{runtime_identity:runtimeIdentity}:{})};copyFileSync(binary,join(run,receipt.binary.path));
- if(filtering){const path=`filter-tool-binary-v1-${attempt}`,bytes=readFileSync(join(run,`rust-target/${profile}/llm-functional-corpus-filter`));writeFileSync(join(run,path),bytes,{flag:'wx',mode:0o755});receipt.filter_binary={path,sha256:sha(bytes)};}
  save(join(run,`tool-build-receipt-v2-${attempt}.json`),receipt);return receipt;
 }
 export function tool(root,run,id){const names=readdirSync(run).filter(name=>/^tool-build-receipt-v2-[0-9]+\.json$/.test(name)).sort((a,b)=>Number(a.match(/([0-9]+)\.json$/)[1])-Number(b.match(/([0-9]+)\.json$/)[1]));if(!names.length)fail();const receipt=parse(join(run,names.at(-1)));validateRuntimeBinding(receipt,id);if(receipt.schema_version!==2||receipt.source_tree_sha256!==sourceHash(root,run)||!/^tool-binary-v2-[0-9]+$/.test(receipt.binary.path))fail();const binary=ownedPath(join(run,receipt.binary.path),{root:run,directory:false});if(sha(readFileSync(binary))!==receipt.binary.sha256)fail();return {receipt,binary,receiptPath:join(run,names.at(-1))};}
@@ -76,7 +76,9 @@ function selfTest(root,run,config,opts,id,runtime){
 }
 export function runCacheCommand(args,{root=process.cwd()}={}){
  const opts=parseCacheArguments(args);if(opts.mode==='--help'){console.log('Offline v2 cache: build-tools --run-id RUN; self-test --run-id RUN --step STEP --target TARGET; publish/verify add --input; replay adds --receipt. Optional paired --runtime-image REF --expected-image-id sha256:ID selects an existing local image; otherwise the public workspace default remains. Independently selected policy and explicit physical layout.');return 0;}
- if(opts.mode==='publish-generated'){const result=spawnSync(process.execPath,['--max-old-space-size=128',fileURLToPath(new URL('./run-functional-corpus-filtering.mjs',import.meta.url)),...args],{cwd:root,stdio:'inherit'});return result.status??2;}
+ // No current bulk-preparation executable is frozen yet. Never route the
+ // external NeMo job through removed Rust filtering machinery.
+ if(opts.mode==='publish-generated')fail();
  const run=resolve(root,'.build/runs',opts['run-id']);ownedPath(run,{root:resolve(root,'.build/runs')});const config=parse(input(root,run,'configs/functional-artifact-cache-targets.json'));if(config.schema_version!==2)fail();const runtime=image(config,opts),id=runtime.image_id;if(opts.mode==='build-tools'){buildTools(root,run,id,{runtime});return 0;}
  const target=config.targets[opts.target];if(!target||target.step_id!==opts.step||!target.modes.includes(opts.mode)||target.validator!=='rust-dataset-v2')fail();metadata(root,config);if(opts.mode==='self-test'){selfTest(root,run,config,opts,id,runtime);return 0;}
  if(target.policy_kind!=='production-source-policy')fail();const envelope=parse(input(root,run,target.asset_config)),asset=envelope.assets?.[target.asset_id];if(envelope.schema_version!==2||envelope.default_asset!==target.asset_id||!asset)fail();

@@ -1,0 +1,840 @@
+{
+  "schema_version": 1,
+  "compatibility_id": "functional-corpus-preparation-compatibility-v6",
+  "authority": "User merges41/42/43 as external NeMo Chapter41; Rust loads prepared JSONL; future44..85 renumber42..83; repairs/Russian40+ held; separate NVIDIA image, no change to Rust LLM backend.",
+  "historical_compatibility_path": "configs/functional-execution-compatibility-v5.json",
+  "historical_compatibility_sha256": "b31900ee1e361901cfbf082a839536848dda7b5e52bef46e03369307fbc96114",
+  "origin_plan_sha256": "be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d",
+  "origin_plan_projection_sha256": "7174356295ed4be990159663a4693de077cc7315bdd6072a5cec3b8a963e6a63",
+  "origin_build_id": "extend-course-to-functional-laptop-llm-20260810",
+  "historical_queue_projection": [
+    {
+      "id": "audit-functional-laptop-llm-capability-gaps",
+      "depends_on": [
+        "add-ch02-bpe-cheat-sheet-term"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "define-functional-laptop-llm-resource-contract",
+      "depends_on": [
+        "audit-functional-laptop-llm-capability-gaps"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "design-functional-laptop-llm-curriculum-extension",
+      "depends_on": [
+        "define-functional-laptop-llm-resource-contract"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces",
+      "depends_on": [
+        "design-functional-laptop-llm-curriculum-extension"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "establish-functional-offline-workspace-execution-boundary",
+      "depends_on": [
+        "design-functional-laptop-llm-curriculum-extension"
+      ],
+      "status": "invalidated"
+    },
+    {
+      "id": "establish-ch40-course-toolchain-v2",
+      "depends_on": [
+        "design-functional-laptop-llm-curriculum-extension"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "establish-functional-firefox-execution-boundary",
+      "depends_on": [
+        "establish-ch40-course-toolchain-v2"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "repair-ch39-literal-command-flags",
+      "depends_on": [
+        "establish-functional-firefox-execution-boundary"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "reframe-functional-reference-core-surfaces",
+      "depends_on": [
+        "establish-functional-firefox-execution-boundary"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "establish-functional-successor-static-integration",
+      "depends_on": [
+        "reframe-functional-reference-core-surfaces"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "implement-ch40-reference-core-handoff",
+      "depends_on": [
+        "establish-functional-successor-static-integration"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "implement-ch41-governed-corpus-acquisition",
+      "depends_on": [
+        "implement-ch40-reference-core-handoff"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "correct-ch41-executable-practice-commands",
+      "depends_on": [
+        "implement-ch41-governed-corpus-acquisition"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "capture-functional-tinystories-source-metadata",
+      "depends_on": [
+        "correct-ch41-executable-practice-commands"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "establish-functional-artifact-cache-execution-boundary",
+      "depends_on": [
+        "implement-ch41-governed-corpus-acquisition",
+        "capture-functional-tinystories-source-metadata"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "setup-conditional-course-corpus-image-build",
+      "depends_on": [
+        "establish-functional-artifact-cache-execution-boundary"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "simplify-corpus-build-curl",
+      "depends_on": [
+        "setup-conditional-course-corpus-image-build"
+      ],
+      "status": "invalidated"
+    },
+    {
+      "id": "configure-functional-corpus-assets",
+      "depends_on": [
+        "setup-conditional-course-corpus-image-build"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "refactor-ch41-content-only-boundary",
+      "depends_on": [
+        "configure-functional-corpus-assets"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "test-artifact-core-and-name-validation-limits",
+      "depends_on": [
+        "refactor-ch41-content-only-boundary"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "setup-library-owned-corpus-transport",
+      "depends_on": [
+        "refactor-ch41-content-only-boundary"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "prepare-explicit-cached-corpus-runtime",
+      "depends_on": [
+        "setup-library-owned-corpus-transport"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "acquire-functional-tinystories-raw-pair",
+      "depends_on": [
+        "configure-functional-corpus-assets",
+        "setup-library-owned-corpus-transport",
+        "prepare-explicit-cached-corpus-runtime"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "repair-ch41-visible-history-parity",
+      "depends_on": [
+        "refactor-ch41-content-only-boundary",
+        "acquire-functional-tinystories-raw-pair"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "implement-ch42-deterministic-corpus-filtering",
+      "depends_on": [
+        "acquire-functional-tinystories-raw-pair",
+        "repair-ch41-visible-history-parity"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "execute-functional-corpus-filtering",
+      "depends_on": [
+        "implement-ch42-deterministic-corpus-filtering"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "implement-ch43-deduplication-decontamination",
+      "depends_on": [
+        "execute-functional-corpus-filtering"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "execute-functional-corpus-dedup-split",
+      "depends_on": [
+        "implement-ch43-deduplication-decontamination"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch44-scalable-bpe-tokenizer",
+      "depends_on": [
+        "execute-functional-corpus-dedup-split"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "execute-functional-tokenizer-and-tokenized-splits",
+      "depends_on": [
+        "implement-ch44-scalable-bpe-tokenizer"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch45-padded-variable-batches",
+      "depends_on": [
+        "execute-functional-tokenizer-and-tokenized-splits"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch46-packed-sequence-masks",
+      "depends_on": [
+        "implement-ch45-padded-variable-batches"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch47-depth-stable-decoder",
+      "depends_on": [
+        "implement-ch46-packed-sequence-masks"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch48-configurable-decoder-core",
+      "depends_on": [
+        "implement-ch47-depth-stable-decoder"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch49-dropout-semantics",
+      "depends_on": [
+        "implement-ch48-configurable-decoder-core"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch50-dependency-error-contract",
+      "depends_on": [
+        "implement-ch49-dropout-semantics"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "admit-functional-supporting-dependency-graph",
+      "depends_on": [
+        "implement-ch50-dependency-error-contract"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch51-serving-config-admission",
+      "depends_on": [
+        "admit-functional-supporting-dependency-graph"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "establish-functional-gpu-execution-boundary",
+      "depends_on": [
+        "implement-ch51-serving-config-admission"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch52-accelerator-tensor-parity",
+      "depends_on": [
+        "establish-functional-gpu-execution-boundary"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch53-mixed-precision-training",
+      "depends_on": [
+        "implement-ch52-accelerator-tensor-parity"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch54-memory-bounded-training",
+      "depends_on": [
+        "implement-ch53-mixed-precision-training"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch55-optimizer-schedules-clipping",
+      "depends_on": [
+        "implement-ch54-memory-bounded-training"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch56-tensor-artifact-interchange",
+      "depends_on": [
+        "implement-ch55-optimizer-schedules-clipping"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch57-immutable-artifact-persistence",
+      "depends_on": [
+        "implement-ch56-tensor-artifact-interchange"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch58-exact-job-resume",
+      "depends_on": [
+        "implement-ch57-immutable-artifact-persistence"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch59-resource-observability",
+      "depends_on": [
+        "implement-ch58-exact-job-resume"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch60-multi-seed-evaluation",
+      "depends_on": [
+        "implement-ch59-resource-observability"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch61-quantized-gguf-artifacts",
+      "depends_on": [
+        "implement-ch60-multi-seed-evaluation"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch62-laptop-hardware-admission",
+      "depends_on": [
+        "implement-ch61-quantized-gguf-artifacts"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "freeze-functional-from-scratch-experiment",
+      "depends_on": [
+        "implement-ch62-laptop-hardware-admission"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch63-gqa-context-policy",
+      "depends_on": [
+        "freeze-functional-from-scratch-experiment"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch64-online-tiled-attention",
+      "depends_on": [
+        "implement-ch63-gqa-context-policy"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "execute-functional-seed-sensitivity-profile",
+      "depends_on": [
+        "implement-ch64-online-tiled-attention"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "execute-functional-from-scratch-pretraining",
+      "depends_on": [
+        "execute-functional-seed-sensitivity-profile"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch65-kv-block-pool",
+      "depends_on": [
+        "execute-functional-from-scratch-pretraining"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch66-nucleus-penalties-logprobs",
+      "depends_on": [
+        "implement-ch65-kv-block-pool"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch67-stop-strings-unicode-streaming",
+      "depends_on": [
+        "implement-ch66-nucleus-penalties-logprobs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch68-continuous-batch-scheduling",
+      "depends_on": [
+        "implement-ch67-stop-strings-unicode-streaming"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch69-cancellation-backpressure-budgets",
+      "depends_on": [
+        "implement-ch68-continuous-batch-scheduling"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch70-loopback-serving-metrics",
+      "depends_on": [
+        "implement-ch69-cancellation-backpressure-budgets"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch71-lora-sft-adapters",
+      "depends_on": [
+        "implement-ch70-loopback-serving-metrics"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch72-direct-preference-optimization",
+      "depends_on": [
+        "implement-ch71-lora-sft-adapters"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch73-qlora-boundary",
+      "depends_on": [
+        "implement-ch72-direct-preference-optimization"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch74-prefix-cache-reuse",
+      "depends_on": [
+        "implement-ch73-qlora-boundary"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch75-rope-context-scaling",
+      "depends_on": [
+        "implement-ch74-prefix-cache-reuse"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch76-retrieval-provenance",
+      "depends_on": [
+        "implement-ch75-rope-context-scaling"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch77-constrained-json-decoding",
+      "depends_on": [
+        "implement-ch76-retrieval-provenance"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch78-authorized-tools",
+      "depends_on": [
+        "implement-ch77-constrained-json-decoding"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch79-safety-privacy-model-card",
+      "depends_on": [
+        "implement-ch78-authorized-tools"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch80-from-scratch-laptop-capstone",
+      "depends_on": [
+        "implement-ch79-safety-privacy-model-card"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "select-functional-open-model",
+      "depends_on": [
+        "implement-ch80-from-scratch-laptop-capstone"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "acquire-functional-open-model",
+      "depends_on": [
+        "select-functional-open-model"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "freeze-functional-adaptation-experiment",
+      "depends_on": [
+        "acquire-functional-open-model"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "execute-functional-sft-adaptation",
+      "depends_on": [
+        "freeze-functional-adaptation-experiment"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "execute-functional-direct-preference-update",
+      "depends_on": [
+        "execute-functional-sft-adaptation"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch81-import-adapt-serve-capstone",
+      "depends_on": [
+        "execute-functional-direct-preference-update"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch82-advanced-decoding-serving",
+      "depends_on": [
+        "implement-ch81-import-adapt-serve-capstone"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch83-distributed-schedule-simulation",
+      "depends_on": [
+        "implement-ch82-advanced-decoding-serving"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch84-moe-routing-simulation",
+      "depends_on": [
+        "implement-ch83-distributed-schedule-simulation"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implement-ch85-persistence-scale-decision",
+      "depends_on": [
+        "implement-ch84-moe-routing-simulation"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "audit-functional-successor-preclosure",
+      "depends_on": [
+        "implement-ch85-persistence-scale-decision"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "close-functional-laptop-llm-curriculum-extension",
+      "depends_on": [
+        "audit-functional-successor-preclosure"
+      ],
+      "status": "pending"
+    }
+  ],
+  "delta": {
+    "schema_version": 1,
+    "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+    "origin_plan_sha256": "be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d",
+    "chapter": {
+      "chapter_id": "41-corpus-preparation",
+      "concept_id": "corpus-preparation",
+      "order": 41,
+      "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
+      "depends_on": [
+        "implement-ch40-reference-core-handoff"
+      ],
+      "outcome": "Explain why a training corpus needs documented selection, quality inspection, duplicate control and protected evaluation boundaries; configure NVIDIA NeMo Curator to prepare text; export tool-neutral JSONL and load that prepared corpus through a bounded, caller-supplied Rust reader.",
+      "scope_boundary": "NeMo Curator is an external, replaceable preparation tool with a separately provisioned NVIDIA/CUDA image. Its Python and shell examples are the user-authorized exception for this chapter, not a CUDA backend or a concept-implementing library inside the Rust LLM. A checksum, heuristic pass, duplicate-removal result or disjoint split is not proof of permission, privacy, representativeness, universal decontamination or model quality. The worked GPU pipeline uses course-authored fixtures, not an invented full-corpus result.",
+      "teaching_formula_id": "teaching-formula-ch41-corpus-preparation",
+      "formula": {
+        "notation": "r_{\\mathrm{keep}}=\\frac{N_{\\mathrm{prepared}}}{N_{\\mathrm{input}}}",
+        "meaning": "The dimensionless fraction of input documents remaining after the declared preparation stages. Both counts refer to documents, not tokens or bytes. The fraction is undefined for zero input documents and does not measure corpus quality. Stage-local rates use the population entering that stage, not automatically the original input population."
+      },
+      "historical_contrast": "Datasheets for Datasets made dataset context and intended use reviewable; C4 analysis showed that filtering can change whose text survives; later deduplication experiments connected repeated training text with memorization and evaluation validity. Documentation, removal counts and overlap checks provide different evidence. The Rust contrast loads supplied repeated and prepared records without reenacting or replacing those external preparation algorithms.",
+      "historical_sources": [
+        {
+          "role": "earlier",
+          "source_id": "SRC-DTH-DATA-01",
+          "year": 2018
+        },
+        {
+          "role": "later",
+          "source_id": "SRC-DTH-DATA-03",
+          "year": 2022
+        }
+      ],
+      "additional_evidence_sources": [
+        "SRC-DTH-DATA-02",
+        "SRC-DTH-DATA-05",
+        "SRC-DTH-DATA-06",
+        "SRC-DTH-EVAL-04"
+      ],
+      "technical_sources": [
+        {
+          "url": "https://github.com/NVIDIA-NeMo/Curator/tree/v1.3.0",
+          "revision": "6b956ce8965820de1b638fedf6de0cbcf0cc46ba",
+          "claim": "Pinned external pipeline and stage APIs; exact and fuzzy duplicate identification are followed by a separate duplicate-removal workflow."
+        },
+        {
+          "url": "https://docs.nvidia.com/nemo/curator/v26.07/curate-text",
+          "claim": "External text curation workflow and its limitations; moving main documentation is not the executable API pin."
+        },
+        {
+          "url": "https://catalog.ngc.nvidia.com/orgs/nvidia/-/containers/nemo-curator/26.07",
+          "claim": "Official separate NeMo Curator container distribution; actual image identity and package version must be verified before execution."
+        }
+      ],
+      "rust_owner_ids": [
+        "owner-ch41"
+      ],
+      "rust_owner_paths": [
+        "rust/crates/llm-from-scratch/src/data/prepared_corpus.rs"
+      ],
+      "rust_contribution": "Load one JSON object per physical line using standard BufRead and Serde JSON. Require string id/text, preserve other metadata and enforce caller-selected read limits. Do not implement filtering, privacy detection, exact/near deduplication, component construction, split assignment, source retrieval or asset persistence in the Rust LLM library.",
+      "prepared_corpus_contract": {
+        "format": "UTF-8 JSON Lines, one object per physical line; LF/CRLF and a final record without a newline accepted; blank lines are malformed records",
+        "required_fields": {
+          "id": "nonblank string, opaque caller-selected identity",
+          "text": "nonblank decoded string; content is preserved without normalization"
+        },
+        "extra_fields": "preserved as tool-neutral metadata using Serde JSON values",
+        "reader": "functional::data::prepared_corpus::PreparedCorpusReader<R: std::io::BufRead>",
+        "limits": "positive maximum source-record bytes including line ending, document count and cumulative decoded UTF-8 text bytes; checked counts",
+        "error_state": "terminal iterator after first error; no failed document is counted or returned; earlier returned documents are not rolled back; caller stages all-or-nothing publication when needed",
+        "input_output_authority": "reader supplied by caller; no HTTP, filename, dataset identity, checksum, directory layout or destination adapter hardcoded in the loader",
+        "split_handoff": "Preparation supplies frozen whole-document train/validation/test selections plus provenance and measured overlap evidence. New Chapter 42 learns BPE from the explicitly selected training readers only. The loader does not certify those selections."
+      },
+      "visualization": {
+        "decision": "useful",
+        "evidence": "An ordered source-to-prepared-to-training handoff distinguishes document removal, held-out roles and Rust loading without presenting retained text as safe. Exact fixture stage counts come from recorded NeMo execution; loading counts come from the Rust report.",
+        "visualization_id": "corpus-preparation"
+      },
+      "practice": "Run the separate offline NVIDIA NeMo fixture pipeline, inspect its actual stage counts and output texts, then feed prepared JSONL to the Rust stdin reader. Explain duplicate weighting, why an exclusion rate is not quality, and why train-only tokenizer learning must preserve held-out boundaries. Include copyable commands and their prerequisites; no prediction prompt.",
+      "integration_evidence": "Record the pinned NeMo image/package/config and the actual bounded GPU fixture output. Freeze the supplied source-group assignments before results, join them using Pandas and refuse missing/ambiguous groups or an existing split field. Fixture families a/e/f are training, b validation and c test; surviving role counts are one each, not evidence of statistical model quality or completeness of related-source discovery. Record source provenance, exclusions, duplicate policies, split identities and overlap scope separately. Regenerate the Rust summary from all-role prepared JSONL and training-only JSONL and verify schema/limit/I/O failures. Full approved-corpus curation is a separately scheduled lifecycle job, not a chapter-fixture claim; no new dataset or model acquisition is authorized by this migration.",
+      "handoff": "New Chapter 42 (formerly 44) consumes prepared JSONL training shards and their frozen selection/provenance receipt, not old handwritten RetainedSelection/SourceBinding/filter/dedup APIs. Its BPE algorithm, ties, token IDs and training-only learning remain unchanged.",
+      "capability_ids": [
+        "CAP-DTH-DATA-01",
+        "CAP-DTH-DATA-02",
+        "CAP-DTH-DATA-03",
+        "CAP-DTH-DATA-04"
+      ],
+      "finding_ids": [
+        "F02",
+        "P04"
+      ],
+      "claim_ids": [
+        "CLAIM-02"
+      ],
+      "overbroad_surface_ids": [],
+      "resource_profiles": [
+        {
+          "profile_id": "8gb-gpu-core",
+          "mode": "consumes"
+        }
+      ],
+      "active_locales": [
+        "en"
+      ],
+      "english_outputs": [
+        "site/src/content/chapters/en/41-corpus-preparation.mdx",
+        "site/src/i18n/functional-catalogs/en/41-corpus-preparation.json",
+        "site/src/content/cheat-sheets/en/41-corpus-preparation.json"
+      ],
+      "russian_outputs": [],
+      "special_gates": [
+        "english-two-review-two-adjudication",
+        "static-firefox-only"
+      ],
+      "lifecycle_cost": {
+        "cpu": "C3",
+        "gpu": "G1",
+        "network": "N0",
+        "paid": "none"
+      },
+      "implementation_cost": {
+        "class": "large",
+        "cpu": "C3",
+        "gpu": "G1",
+        "network": "N1",
+        "paid": "none",
+        "authority": "Bounded primary-source lookup and official separate image provisioning may use network; every container run has --network none. Actual fixture work only, no automatic bulk preparation, seed training, model download, paid service or remote GPU. Agent development has no elapsed-time stop; product/profile/test limits remain."
+      },
+      "cost_authority_steps": [
+        "merge-ch41-nemo-corpus-preparation-20261007",
+        "execute-functional-nemo-corpus-preparation"
+      ],
+      "execution_hold": "Existing-chapter repairs and Russian41+ remain held. New merged41 implementation is authorized. Later full prepared-corpus lifecycle execution requires its declared preflight and validation, not reuse of old filtered output as proof of NeMo execution."
+    },
+    "pipeline": {
+      "schema_version": 1,
+      "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+      "path": "resource_projection.execution_boundaries.data_pipeline",
+      "preserve_exact_subtrees": [
+        "resource_projection.prepared_input",
+        "resource_projection.prepared_input_architecture",
+        "resource_projection.execution_boundaries.data_pipeline.standalone_tokenizer_oracle"
+      ],
+      "preserve_except_chapter_reference_mapping": [
+        "resource_projection.execution_boundaries.data_pipeline.course_reference_tokenizer"
+      ],
+      "replacement_first_steps": [
+        {
+          "step_id": "execute-functional-nemo-corpus-preparation",
+          "target_id": "nemo-corpus-preparation-v1",
+          "status": "pending-bulk-configuration-and-resource-preflight",
+          "implementation_boundary": "External NVIDIA NeMo Curator workflows and mature supporting JSONL/raw-format/table libraries; no corpus filtering, privacy detector, deduplicator or split algorithm in the Rust LLM crate",
+          "separate_image_dockerfile": "docker/nemo-curator.Dockerfile",
+          "separate_image_base": "nvcr.io/nvidia/nemo-curator@sha256:a9615e68a91af484e52aa35d5c6be0d92e02dc43767f44df7a22de31298fe80a",
+          "chapter_exercise_recipe": "tools/nemo-curator/prepare_corpus.py",
+          "chapter_exercise_scope": "At most 4194304 source bytes and 4096 records by default; quality/exact removal plus caller-predeclared known source-group assignment; this recipe is not the full-corpus executable",
+          "bulk_executable_owner": "execute-functional-nemo-corpus-preparation",
+          "bulk_execution_gate": "Before execution, freeze a supported mature raw-format adapter, pinned library workflows, exact/fuzzy ID/removal replay and group evidence, source/rights/privacy disposition, predeclared group roles, protected evaluation checks, complete resource admission and a closed offline command. Record that command in the lifecycle step; missing supported behavior blocks this job and does not license custom Rust preparation algorithms or use of old filtered results as NeMo output.",
+          "input_receipt": "artifacts/functional-laptop/acquisition/tinystories/receipt.json",
+          "input_mount": "/artifacts/input:ro",
+          "receipt_mount": "/receipts/input.json:ro",
+          "output_mount": "/output:rw-run-scoped",
+          "output_receipt": "artifacts/functional-laptop/data/prepared-corpus-v1/receipt.json",
+          "integration_receipts": [],
+          "output_roles": [
+            "prepared-training-jsonl",
+            "prepared-validation-jsonl",
+            "prepared-test-jsonl",
+            "source-and-selection-provenance",
+            "quality-and-duplicate-policy-outcomes",
+            "related-group-and-protected-evaluation-evidence",
+            "privacy-and-rights-release-disposition"
+          ],
+          "interchange": "Caller-selected UTF-8 JSONL readers with nonblank string id/text and retained metadata; frozen whole-document split selections and measured overlap evidence remain separate from the loader's syntactic validation",
+          "network": "none",
+          "gpu_requirement": "Compatible NVIDIA GPU/driver and NVIDIA Container Toolkit for the external tool; the Rust loader and scalar reference remain CPU-usable",
+          "publication": "validate-manifest-inventory-hashes-then-fsync-and-atomic-same-filesystem-promotion",
+          "algorithm_boundary": "NeMo owns preparation operations. Rust owns the bounded prepared-document reader and all subsequent tokenizer/LLM algorithms. Operational cache/source/store plumbing owns no new learner preparation algorithms."
+        }
+      ],
+      "preserve_tokenizer_step_except": {
+        "step_id": "execute-functional-tokenizer-and-tokenized-splits",
+        "input_receipt": "artifacts/functional-laptop/data/prepared-corpus-v1/receipt.json"
+      },
+      "bundle_chain": [
+        "tinystories-raw-pair-v1",
+        "prepared-corpus-v1",
+        "tokenizer-and-tokenized-splits-v1"
+      ],
+      "preserve_pipeline_fields": [
+        "consumer_mount",
+        "producer_publish"
+      ],
+      "data_capability_mapping": {
+        "chapter_id": "41-corpus-preparation",
+        "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "capability_ids": [
+          "CAP-DTH-DATA-01",
+          "CAP-DTH-DATA-02",
+          "CAP-DTH-DATA-03",
+          "CAP-DTH-DATA-04"
+        ],
+        "receipt_parent": "artifacts/functional-laptop/chapters/41-corpus-preparation/capabilities/",
+        "evidence_scope": "Documented teaching, actual bounded NeMo fixture and prepared-reader behavior. Full source/rights/privacy/near-duplicate/protected-evaluation release evidence is owned by the separately pending bulk lifecycle job; the tiny fixture cannot close those full-corpus gates."
+      },
+      "current_artifact_cache_target_replacement": {
+        "remove_current_targets": [
+          "corpus-filtering-v1",
+          "corpus-dedup-split-v1"
+        ],
+        "add": {
+          "step_id": "execute-functional-nemo-corpus-preparation",
+          "target_id": "nemo-corpus-preparation-v1",
+          "modes": [
+            "publish-generated",
+            "verify"
+          ],
+          "output_receipt": "artifacts/functional-laptop/data/prepared-corpus-v1/receipt.json"
+        }
+      },
+      "live_queue": {
+        "bulk_depends_on": [
+          "merge-ch41-nemo-corpus-preparation-20261007",
+          "acquire-functional-tinystories-raw-pair"
+        ],
+        "next_tokenizer_step": "implement-ch42-scalable-bpe-tokenizer",
+        "next_tokenizer_depends_on": [
+          "execute-functional-nemo-corpus-preparation"
+        ],
+        "historical_rule": "Keep all prior completed/failed/interrupted run and original queue records unchanged. Current bindings are revision2 amendments, not evidence that new bulk or renumbered steps already executed."
+      },
+      "future_packet_handoff": "Replace old RetainedSelection/SourceBinding/filter/dedup Rust APIs and old filtered/deduplicated bundle receipts with prepared JSONL, caller-supplied read streams and the new prepared-corpus receipt. Preserve exact training-only tokenizer learning, byte/tie/token rules and all unrelated implementation and resource boundaries."
+    },
+    "localization_policy": {
+      "first_english_only_chapter": 40,
+      "last_bilingual_chapter": 39,
+      "authority": "User explicitly deferred Russian40 on2026-10-07; preserve historical localization evidence."
+    }
+  },
+  "current_plan_projection_sha256": "95b2a3dca0c37628c380c7be21e203c1129711ce972122e59b6a9a42b4a7dcea",
+  "queue_status": "Current integrated migration running; separately pending bulk and renumbered steps become live only after coherent publication.",
+  "chapter40_seam": "Only explicit current Chapter40 handoff and user-deferred Russian locale ownership/gates change; current English contract projection, formulas, Rust and recorded output stay unchanged. Historical publication/receipts remain history; current navigation/render is freshly reviewed."
+}

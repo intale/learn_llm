@@ -9,7 +9,7 @@ import {readRegularFile} from './check-functional-step-receipt.mjs';
 import {readFunctionalChapterLocaleConfiguration} from './functional-chapter-locale-config.mjs';
 import {demoPaths} from './check-functional-rust-examples.mjs';
 import {parseRegistryFragment,readFunctionalPlan,ownedSources} from './check-functional-rust-ownership.mjs';
-import {readPrivateBuildScope} from './check-functional-site-content.mjs';
+import {readPrivateBuildScope,privateReviewCandidateForChapter} from './check-functional-site-content.mjs';
 
 export function contractDispatch(chapterId) {
   if (!/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(chapterId))throw new Error('invalid chapter ID');
@@ -42,9 +42,13 @@ export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
   const chapter=config.byChapter[data.chapter_id];
   if(!chapter||chapter.order!==data.order)throw new Error('contract chapter/order absent from exact functional plan');
   const privateScope=readPrivateBuildScope(root);
-  const requiredLocales=privateScope?.chapterId===data.chapter_id
-    ? Object.keys(privateScope.sourceHashes):chapter.activeLocales;
-  const parsed=validateChapterContractText(source,{sourceName:path,supportedLocales:requiredLocales});
+  const privateCandidate=privateReviewCandidateForChapter(privateScope,data.chapter_id);
+  const requiredLocales=privateCandidate ? Object.keys(privateCandidate.sourceHashes):chapter.activeLocales;
+  // The explicit current private group validates the declared current locales.
+  // This is structure only; selectedEN lesson integration never certifiesRU.
+  const structuralLocales=privateScope?.schemaVersion===2 && data.chapter_id==='40-reference-core-handoff'
+    ? chapter.activeLocales : requiredLocales;
+  const parsed=validateChapterContractText(source,{sourceName:path,supportedLocales:structuralLocales});
   const binding=validateDemoContractBinding(data,readFunctionalPlan(root));
   if(structureOnly)return parsed;
   if(binding.fragment) {

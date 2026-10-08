@@ -1,0 +1,12 @@
+
+running 7 tests
+test registry_parser_preserves_exact_owned_ascii_grammar ... ok
+test an_empty_registry_is_valid_without_partial_chapter_modules ... ok
+test caller_revision_or_rewritten_hashes_cannot_rebind_the_baseline ... ok
+test lib_prefix_and_course_source_only_census_remain_exact ... ok
+test duplicate_unknown_noncanonical_and_oversized_json_are_rejected ... ok
+test missing_extra_duplicate_or_stale_bytes_never_produce_proof ... ok
+test exact_compiled_reference_produces_an_immutable_identity ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+

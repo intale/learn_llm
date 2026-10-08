@@ -1,0 +1,36 @@
+{
+  "chapter_id": "40-reference-core-handoff",
+  "locale": "en",
+  "title": "The fixed scalar reference",
+  "description": "Terms for interpreting the tiny decoder's input identity, regression evidence, replay and checkpoint limits.",
+  "terms": [
+    {
+      "term": "Scalar reference decoder",
+      "definition": "The unchanged 1,188-parameter CPU decoder used as a small, inspectable comparison point before extending the LLM pipeline."
+    },
+    {
+      "term": "Reference input identity",
+      "definition": "The digest binding the tiny decoder configuration, exact corpus and split bytes, and verified scalar-reference source. It identifies inputs, not model capability."
+    },
+    {
+      "term": "Fixed-fixture regression evidence",
+      "definition": "A known result reproduced on unchanged data to detect changed behavior, rather than an independent estimate of generalization."
+    },
+    {
+      "term": "Overlapping window-target slot",
+      "definition": "One target position inside one causal window. Overlapping windows can score the same within-document transition occurrence repeatedly; this reference scores 1,744 slots representing 442 occurrences."
+    },
+    {
+      "term": "Bitwise training replay",
+      "definition": "A separately executed repeat of the same frozen training schedule that matches recorded training behavior and state bit for bit within this execution; it is not an independent seed sample or a measurement of variation across seeds."
+    },
+    {
+      "term": "Checkpoint round trip",
+      "definition": "Saving and loading persisted decoder, optimizer and tokenizer state exactly, with a fixed logit probe. This narrow check does not establish complete job resumption."
+    },
+    {
+      "term": "Cached generation agreement",
+      "definition": "Agreement between the KV-cached and complete-prefix paths on generated tokens, decisions and RNG state for the fixed prompt and sampling settings, not proof of useful language quality."
+    }
+  ]
+}

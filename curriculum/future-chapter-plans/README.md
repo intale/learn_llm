@@ -7,7 +7,7 @@ learner-facing lessons, approved English, or permission to execute the extension
 
 The accepted scope remains
 [the functional laptop extension plan](../functional-laptop-llm-extension-plan.md).
-Its 46 chapters, capability ownership, resource profiles, queue and conditional
+Its current 44 chapters (40–83), capability ownership, resource profiles, queue and conditional
 PostgreSQL decision are not replaced by this directory. BUILD_STATE.yaml and
 DECISIONS.md remain the text-file scheduling authority. No event store, database
 or new project ledger is introduced.
@@ -42,21 +42,20 @@ user-selected model: 16,777,216 image-input bytes / 65,536 input tokens,
 limits after a report, not a required context, reserved development effort or
 permission to capture screenshots proactively.
 
-Repairs and implementation are held pending. Planning completion never releases
-that hold. Before execution, obtain the user's explicit instruction to resume,
-then reconcile the frozen execution checker's prior lifecycle assertions in a
-new compatibility run. Preserve all historical runs and all substantive
-curriculum/resource/queue checks. That reconciliation is also pending now.
+Current implementation authority is recorded by the live queue and user request,
+not packet readiness. Existing Chapter6/8–10 repairs remain held until explicitly
+requested, and Russian40+ remains deferred. The user-approved current revision
+merges old41/42/43 into external corpus preparation Chapter41, renumbers only
+future44–85 to42–83 and preserves all original runs/reviews/cache/source bytes.
+Compatibility-v6 carries the current delta without relabeling historical steps.
 
-On 2026-10-03 the user released implementation of Chapter 40 and its necessary
-setup only, and explicitly directed that repairs remain postponed until a separate
-request. `reconcile-ch40-execution-lifecycle` owns the compatibility binding that
-decouples the pending Chapter 6/8–10 maintenance from that execution prefix.
-The original repair step is not skipped, completed or claimed. All four declared
-setup predecessors still require their own acceptance and dedicated commits;
-this scheduling release cannot substitute for their missing outputs. Chapter 41
-and later implementation/acquisition remain held. Original run artifacts and
-the frozen extension plan remain historical evidence, not rewritten records.
+NeMo Curator is a replaceable external preparation tool in a separate NVIDIA
+image. Python/shell/library preparation is the explicitly scoped exception; Rust
+only reads prepared JSONL here and still owns subsequent tokenizer/LLM algorithms.
+The bounded chapter fixture is not full-corpus release. Its separately pending
+bulk lifecycle job must freeze source ingress, rights/privacy, exact/fuzzy replay,
+related groups, predeclared roles, protected evaluation and resource admission
+before supplying the next training-only tokenizer input.
 
 The user's existing-library hashing instruction is bound by the separate
 `amend-ch40-foundation-artifact-identity` setup amendment and its v2 compatibility
@@ -73,7 +72,7 @@ historical evidence. This internal amendment publishes no lesson or dependency.
 
 ### Current learner-facing authoring policy (2026-10-02)
 
-All future Chapter 40–85 packets follow **problem definition → solution → history →
+All future Chapter 40–83 packets follow **problem definition → solution → history →
 visualization and small optional practice**. The opening explains the concrete
 problem, why it arises and why the chapter's capability is needed. It contains
 no questions for the student, including rhetorical questions or predictions.
@@ -116,63 +115,62 @@ must honor this explicit presentation amendment without weakening substantive
 checks. No implementation, repair, chapter publication or new chapter planning
 is started by this reconciliation.
 
-[index.json](index.json) enumerates every Chapter 40–85 with its stable planning
+[index.json](index.json) enumerates every Chapter 40–83 with its stable planning
 step, proposed packet path and status. A `pending` entry is a queued plan, not a
 missing completed artifact. A `planning-ready` entry means its internal packet
 passed a planning-consistency check; it does not mean the chapter exists or its
 content has passed publication review.
 
-Completed planning checkpoints:
+Current packet inventory (44 entries):
 
-- [Chapter 40: scalar-reference handoff](40-reference-core-handoff.md).
-- [Chapter 41: governed corpus acquisition](41-governed-corpus-acquisition.md).
-- [Chapter 42: deterministic corpus filtering](42-deterministic-corpus-filtering.md).
-- [Chapter 43: deduplication and decontamination](43-deduplication-decontamination.md).
-- [Chapter 44: scalable BPE tokenizer](44-scalable-bpe-tokenizer.md).
-- [Chapter 45: padded variable-length batches](45-padded-variable-batches.md).
-- [Chapter 46: packed sequence masks](46-packed-sequence-masks.md).
-- [Chapter 47: depth-aware initialization and health](47-depth-stable-decoder.md).
-- [Chapter 48: configurable decoder core](48-configurable-decoder-core.md).
-- [Chapter 49: dropout semantics](49-dropout-semantics.md).
-- [Chapter 50: dependency and error contract](50-dependency-error-contract.md).
-- [Chapter 51: serving configuration and admission](51-serving-config-admission.md).
-- [Chapter 52: accelerator tensor parity](52-accelerator-tensor-parity.md).
-- [Chapter 53: mixed-precision training](53-mixed-precision-training.md).
-- [Chapter 54: memory-bounded training](54-memory-bounded-training.md).
-- [Chapter 55: optimizer schedules and clipping](55-optimizer-schedules-clipping.md).
-- [Chapter 56: tensor artifact interchange](56-tensor-artifact-interchange.md).
-- [Chapter 57: immutable artifact persistence](57-immutable-artifact-persistence.md).
-- [Chapter 58: exact job resume](58-exact-job-resume.md).
-- [Chapter 59: resource observability](59-resource-observability.md).
-- [Chapter 60: multi-seed evaluation](60-multi-seed-evaluation.md).
-- [Chapter 61: quantized GGUF artifacts](61-quantized-gguf-artifacts.md).
-- [Chapter 62: laptop hardware admission](62-laptop-hardware-admission.md).
-- [Chapter 63: GQA and context policy](63-gqa-context-policy.md).
-- [Chapter 64: online tiled attention](64-online-tiled-attention.md).
-- [Chapter 65: KV block pool](65-kv-block-pool.md).
-- [Chapter 66: nucleus penalties and logprobs](66-nucleus-penalties-logprobs.md).
-- [Chapter 67: stop strings and Unicode streaming](67-stop-strings-unicode-streaming.md).
-- [Chapter 68: continuous batch scheduling](68-continuous-batch-scheduling.md).
-- [Chapter 69: cancellation, backpressure, and budgets](69-cancellation-backpressure-budgets.md).
-- [Chapter 70: loopback serving and metrics](70-loopback-serving-metrics.md).
-- [Chapter 71: LoRA and response-masked SFT adapters](71-lora-sft-adapters.md).
-- [Chapter 72: direct preference optimization](72-direct-preference-optimization.md).
-- [Chapter 73: the QLoRA boundary](73-qlora-boundary.md).
-- [Chapter 74: exact prefix-cache reuse](74-prefix-cache-reuse.md).
-- [Chapter 75: partial RoPE and context scaling](75-rope-context-scaling.md).
-- [Chapter 76: authorized retrieval with visible provenance](76-retrieval-provenance.md).
-- [Chapter 77: constrained JSON decoding](77-constrained-json-decoding.md).
-- [Chapter 78: authorized local tools](78-authorized-tools.md).
-- [Chapter 79: safety, privacy and the model card](79-safety-privacy-model-card.md).
-- [Chapter 80: the from-scratch laptop capstone](80-from-scratch-laptop-capstone.md).
-- [Chapter 81: import, adapt and serve one successor](81-import-adapt-serve-capstone.md).
-- [Chapter 82: bounded decoding and serving comparisons](82-advanced-decoding-serving.md).
-- [Chapter 83: distributed arithmetic and schedule simulation](83-distributed-schedule-simulation.md).
-- [Chapter 84: sparse-expert routing and queue simulation](84-moe-routing-simulation.md).
-- [Chapter 85: evidence-gated persistence selection](85-persistence-scale-decision.md).
+- [40-reference-core-handoff](40-reference-core-handoff.md).
+- [41-corpus-preparation](41-corpus-preparation.md).
+- [42-scalable-bpe-tokenizer](42-scalable-bpe-tokenizer.md).
+- [43-padded-variable-batches](43-padded-variable-batches.md).
+- [44-packed-sequence-masks](44-packed-sequence-masks.md).
+- [45-depth-stable-decoder](45-depth-stable-decoder.md).
+- [46-configurable-decoder-core](46-configurable-decoder-core.md).
+- [47-dropout-semantics](47-dropout-semantics.md).
+- [48-dependency-error-contract](48-dependency-error-contract.md).
+- [49-serving-config-admission](49-serving-config-admission.md).
+- [50-accelerator-tensor-parity](50-accelerator-tensor-parity.md).
+- [51-mixed-precision-training](51-mixed-precision-training.md).
+- [52-memory-bounded-training](52-memory-bounded-training.md).
+- [53-optimizer-schedules-clipping](53-optimizer-schedules-clipping.md).
+- [54-tensor-artifact-interchange](54-tensor-artifact-interchange.md).
+- [55-immutable-artifact-persistence](55-immutable-artifact-persistence.md).
+- [56-exact-job-resume](56-exact-job-resume.md).
+- [57-resource-observability](57-resource-observability.md).
+- [58-multi-seed-evaluation](58-multi-seed-evaluation.md).
+- [59-quantized-gguf-artifacts](59-quantized-gguf-artifacts.md).
+- [60-laptop-hardware-admission](60-laptop-hardware-admission.md).
+- [61-gqa-context-policy](61-gqa-context-policy.md).
+- [62-online-tiled-attention](62-online-tiled-attention.md).
+- [63-kv-block-pool](63-kv-block-pool.md).
+- [64-nucleus-penalties-logprobs](64-nucleus-penalties-logprobs.md).
+- [65-stop-strings-unicode-streaming](65-stop-strings-unicode-streaming.md).
+- [66-continuous-batch-scheduling](66-continuous-batch-scheduling.md).
+- [67-cancellation-backpressure-budgets](67-cancellation-backpressure-budgets.md).
+- [68-loopback-serving-metrics](68-loopback-serving-metrics.md).
+- [69-lora-sft-adapters](69-lora-sft-adapters.md).
+- [70-direct-preference-optimization](70-direct-preference-optimization.md).
+- [71-qlora-boundary](71-qlora-boundary.md).
+- [72-prefix-cache-reuse](72-prefix-cache-reuse.md).
+- [73-rope-context-scaling](73-rope-context-scaling.md).
+- [74-retrieval-provenance](74-retrieval-provenance.md).
+- [75-constrained-json-decoding](75-constrained-json-decoding.md).
+- [76-authorized-tools](76-authorized-tools.md).
+- [77-safety-privacy-model-card](77-safety-privacy-model-card.md).
+- [78-from-scratch-laptop-capstone](78-from-scratch-laptop-capstone.md).
+- [79-import-adapt-serve-capstone](79-import-adapt-serve-capstone.md).
+- [80-advanced-decoding-serving](80-advanced-decoding-serving.md).
+- [81-distributed-schedule-simulation](81-distributed-schedule-simulation.md).
+- [82-moe-routing-simulation](82-moe-routing-simulation.md).
+- [83-persistence-scale-decision](83-persistence-scale-decision.md).
 
-All 46 Chapter 40–85 packets are planning-ready. The execution and repair hold
-remains in effect; packet completion does not authorize implementation.
+Every current packet is an internal planning handoff, not publication approval.
+Origin planning IDs and exact hashes remain historical evidence; reissued42–83
+packets name this actual migration amendment, not invented completed aliases.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 
@@ -196,8 +194,9 @@ does not apply must state why and identify the replacement evidence.
 4. **Rust design and ownership.** Existing versus proposed modules and signatures,
    data representation, invariants, mutations, errors, dependency roles,
    resource bounds, serialization/compatibility boundaries and downstream API
-   handoff. Rust owns every taught decision. Mature supporting libraries may
-   handle plumbing; do not bury the lesson's algorithm in a dependency.
+   handoff. Rust owns every subsequent taught LLM decision. Chapter41
+   explicitly delegates external preparation to replaceable NeMo/library tools;
+   its Rust reader does not curate. Supporting libraries handle plumbing.
 5. **Test and failure matrix.** Named cases with inputs, observable success/failure,
    numerical tolerances, state/output after failure, and what the case does not
    prove. Cover boundary cases and restart/cleanup where applicable. Avoid
@@ -212,7 +211,7 @@ does not apply must state why and identify the replacement evidence.
    reason for no diagram plus the evidence that teaches the relationship.
 8. **Serial implementation procedure.** Small ordered actions with stop conditions
    and intermediate artifacts. Respect the canonical step's output ownership.
-   Keep the bilingual chapter a coherent vertical delivery; phases inside it
+   Keep the active-locale chapter a coherent vertical delivery; phases inside it
    are not permission to publish half a chapter or start unrelated infrastructure.
 9. **Validation and review handoffs.** Exact commands and working-directory
    expectations; mark existing commands versus future prerequisite-owned
@@ -255,7 +254,8 @@ useful, explain the learning reason rather than site/build machinery.
 
 Canonical-English authoring follows the repository skill. Every future formula
 in learner-facing prose uses the math pipeline. Derive diagrams and numerical
-examples from Rust traces. Do not author translated copy as part of an English
+examples from actual Rust traces and, for external Chapter41 preparation, recorded
+NeMo execution with explicitly separate producer scope. Do not author translated copy as part of an English
 packet, and do not let implementation notes leak into learner-facing prose.
 
 ## One executor and independent review
@@ -269,9 +269,13 @@ the frozen cost records' eight-successful-context accounting with this permitted
 author-context reuse during the already-required execution compatibility run;
 do not silently change those records or invent an extra author-thread gate.
 
-The executor can author, implement, run deterministic validation and self-audit.
-It cannot approve its own English for publication. Its lack of sub-agents does
-not remove or weaken the course's independence rules.
+The content executor authors, implements and self-audits, then inspects returned
+validation evidence. Current AGENTS requires a separately provisioned machinery
+thread inheriting the selected model/effort for commands and deterministic
+packaging. An external orchestrator supplies that worker when the content
+executor cannot spawn agents. Queue those operations serially when necessary;
+unavailable machinery is not permission to execute it in the content context.
+The content executor cannot approve its own English or replace fresh reviews.
 
 After English source, rendered HTML, role requirements and inventory are frozen,
 handoff to an externally provisioned review workflow: two fresh, distinct
@@ -287,13 +291,11 @@ verdicts passing for the same unchanged candidate. A rejected or invalid record
 requires the protocol's fresh replacement context, never a repaired JSON record.
 Content changes invalidate dependent review evidence.
 
-Translate Russian directly from that approved English revision using the
-localization skill. Obtain its independent bilingual and target-only reviews and
-affected Firefox rendered-layout evidence. Do not self-certify those gates
-because only one execution context is available. If external review capacity is
-unavailable, checkpoint staged artifacts and the missing gate; no publication.
-Do not add an extra discretionary human approval gate for otherwise completed
-localization.
+Russian40+ authoring, review and publication remain deferred by the user. Do not
+create placeholders or make missing Russian artifacts block eligible English
+delivery. If the user later resumes Russian, translate directly from the approved
+English revision using the localization skill and its independent gates.
+
 
 ## Planning validation and updates
 
@@ -303,7 +305,7 @@ through every tiny example; audit expected tests and scope claims; and verify it
 predecessor/successor interfaces. Record substantive findings and resolutions.
 This is internal planning review, not any of the four English publication roles.
 
-Deterministic checks may verify the 46-entry inventory, status/path/step alignment,
+Deterministic checks may verify the current44-entry inventory, status/path/step alignment,
 required section coverage, relative links, YAML/JSON syntax, unchanged held steps,
 and that no course implementation file changed. They do not prove pedagogy,
 technical truth, language quality or review soundness. Run `git diff --check`
@@ -318,11 +320,10 @@ run artifacts. Do not start a future chapter merely because its plan is ready.
 
 ## Known deferred gates
 
-- The repair `repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces` and all
-  functional implementation/acquisition steps remain pending and unchanged.
-- The frozen functional checker needs a separately authorized lifecycle
-  compatibility run before execution resumes. Its failure under the planning
-  phase must not be presented as a passing live execution check.
+- The repair `repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces` stays held.
+- Full external preparation is separately pending; tiny exercise evidence cannot
+  close its full-corpus release conditions. Historical v1–v5 checker/lifecycle
+  assertions remain preserved; current numbering/queue is the explicit v6 delta.
 - Source `SRC-DTH-EVAL-01` labels arXiv `2002.06305` as "On the Stability of
   Fine-tuning BERT". The linked primary record is instead "Fine-Tuning Pretrained
   Language Models: Weight Initializations, Data Orders, and Early Stopping"

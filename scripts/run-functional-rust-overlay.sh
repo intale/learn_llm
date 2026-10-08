@@ -18,6 +18,9 @@ case $2 in
   *) fail 'unsupported Cargo subcommand; provisioning and arbitrary executables are excluded' ;;
 esac
 
+stdin_args=()
+if [[ $2 == run ]]; then stdin_args=(-i); fi
+
 repository_root=$(pwd -P)
 [[ -f $repository_root/Cargo.toml && -d $repository_root/rust && -d $repository_root/configs ]] || fail 'invoke from repository root'
 run="$repository_root/.build/runs/$run_id"
@@ -41,6 +44,7 @@ printf '%s\0' "$@" > "$evidence/argv.nul"
 
 set +e
 docker run --rm --pull never --network none \
+  "${stdin_args[@]}" \
   "${deletion_mount[@]}" \
   --tmpfs /work:rw,nosuid,nodev,size=512m,mode=0755 \
   -v "$repository_root:/repo:ro" -v "$run/publish:/staged:ro" \
@@ -55,7 +59,11 @@ tar -C /repo -cf - Cargo.toml Cargo.lock rust configs | tar -C /work -xf -
 cd /staged
 find . -type f -print0 | tar --null -T - -cf - | tar -C /work -xf -
 if [ -f /deletions.json ]; then
-  node /repo/scripts/lib/functional-staging-deletions.mjs /deletions.json /work
+  if [ -f /staged/scripts/lib/functional-staging-deletions.mjs ]; then
+    node /staged/scripts/lib/functional-staging-deletions.mjs /deletions.json /work
+  else
+    node /repo/scripts/lib/functional-staging-deletions.mjs /deletions.json /work
+  fi
 fi
 cd /work
 find Cargo.toml Cargo.lock rust configs -type f -print0 | sort -z | xargs -0 sha256sum > /evidence/input-hashes.txt

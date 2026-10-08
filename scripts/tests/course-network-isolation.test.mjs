@@ -39,17 +39,17 @@ test('./course run passes the no-network policy to its Docker runtime container'
   assert.equal(result.status, 0, result.stderr);
   const calls = readFileSync(tracePath, 'utf8').trim().split('\n').map((line) => line.split(' '));
   assert.equal(calls.length, 2, 'the workflow builds, then runs the workspace image');
-  assert.deepEqual(calls[1], ['run', '--rm', '--network', 'none', 'learn-llm-workspace:local', 'printf', 'offline']);
+  assert.deepEqual(calls[1], ['run', '--rm', '-i', '--network', 'none', 'learn-llm-workspace:local', 'printf', 'offline']);
 });
 
-test('./course run dispatches all four Chapter41 learner Cargo vectors with fixture-only setup', () => {
-  const vectors = [['cargo', 'run', '--offline', '--locked', '-p', 'ch41-governed-corpus-acquisition']];
+test('./course run dispatches the prepared-reader Cargo vectors with fixture-only setup', () => {
+  const vectors = [['cargo', 'run', '--offline', '--locked', '-p', 'ch41-corpus-preparation']];
   for (const name of [
-    'size_digest_truncation_and_overrun_are_separate_failures',
-    'provenance_changes_identity_without_changing_raw_digests',
-    'failure_preserves_prior_bundle_without_publishing_partial_candidate',
+    'loads_the_explicitly_hand_prepared_course_fixture',
+    'malformed_later_input_has_no_success_summary',
+    'summary_retains_only_three_document_descriptions',
   ]) vectors.push(['cargo', 'test', '--offline', '--locked', '-p',
-    'ch41-governed-corpus-acquisition', '--test', 'governed_acquisition', name, '--', '--exact']);
+    'ch41-corpus-preparation', '--lib', 'tests::' + name, '--', '--exact']);
   for (const argv of vectors) {
     const temp = mkdtempSync(path.join(tmpdir(), 'course-command-forwarding-'));
     const bashEnvironment = path.join(temp, 'docker-function.sh');
@@ -64,7 +64,29 @@ test('./course run dispatches all four Chapter41 learner Cargo vectors with fixt
     assert.equal(calls.length, 2);
     assert.deepEqual(calls[0].slice(0, 4), ['build', '--target', 'workspace', '-t']);
     assert.ok(calls[0].includes('COURSE_CORPUS=false'));
-    assert.deepEqual(calls[1], ['run', '--rm', '--network', 'none', 'learn-llm-workspace:local', ...argv]);
+    assert.deepEqual(calls[1], ['run', '--rm', '-i', '--network', 'none', 'learn-llm-workspace:local', ...argv]);
+  }
+});
+
+test('./course run forwards redirected input unchanged without allocating a TTY', () => {
+  const temp = mkdtempSync(path.join(tmpdir(), 'course-stdin-'));
+  const bashEnvironment = path.join(temp, 'docker-function.sh');
+  const tracePath = path.join(temp, 'docker-argv.jsonl');
+  writeFileSync(bashEnvironment, 'docker() { printf \'%s\\n\' "$*" >> "$DOCKER_TRACE"; if [[ $1 == run ]]; then cat; fi; }\n');
+  for (const input of [Buffer.from('{"id":"a","text":"one"}\n'), Buffer.alloc(0), Buffer.from('not-json\n')]) {
+    const result = spawnSync('bash', ['course', 'run', 'cargo', 'run', '--offline', '--locked', '-p', 'ch41-corpus-preparation'], {
+      cwd: repositoryRoot, input,
+      env: {...process.env, COURSE_CORPUS: 'false', BASH_ENV: bashEnvironment, DOCKER_TRACE: tracePath},
+    });
+    assert.equal(result.status, 0);
+    assert.deepEqual(result.stdout, input, 'transport neither parses nor changes supplied bytes');
+  }
+  const calls = readFileSync(tracePath, 'utf8').trim().split('\n').map(line => line.split(' '));
+  for (const args of calls.filter(argv => argv[0] === 'run')) {
+    assert.ok(args.includes('-i'));
+    assert.ok(!args.includes('-t') && !args.includes('--tty'));
+    assert.deepEqual(args.slice(0, 5), ['run', '--rm', '-i', '--network', 'none']);
+    assert.deepEqual(args.slice(-6), ['cargo', 'run', '--offline', '--locked', '-p', 'ch41-corpus-preparation']);
   }
 });
 

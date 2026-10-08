@@ -1,0 +1,5 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch41-corpus-preparation v0.1.0 (/work/rust/demos/ch41-corpus-preparation)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.78s
+     Running unittests src/lib.rs (/target/debug/deps/ch41_corpus_preparation-4d03be8760042b77)
+     Running unittests src/main.rs (/target/debug/deps/ch41_corpus_preparation-b8102faf9ca6a34c)

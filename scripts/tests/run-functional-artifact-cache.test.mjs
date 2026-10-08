@@ -19,11 +19,11 @@ test('closed public command refuses arbitrary source and ignored option',()=>{
  assert.equal(parseCacheArguments(['build-tools','--run-id','20261006T000000Z-example-01']).mode,'build-tools');
 });
 test('generated publication has a closed producer-bound command rather than arbitrary candidate input',()=>{
- const base=['publish-generated','--run-id','20261007T000000Z-filter-01','--step','execute-functional-corpus-filtering','--target','corpus-filtering-v1'];
+ const base=['publish-generated','--run-id','20261007T000000Z-nemo-01','--step','execute-functional-nemo-corpus-preparation','--target','nemo-corpus-preparation-v1'];
  assert.equal(parseCacheArguments(base).mode,'publish-generated');
  for(const extra of [['--input','/candidate'],['--receipt','/self-declared'],['--url','https://example.invalid']])assert.throws(()=>parseCacheArguments([...base,...extra]));
  const code=readFileSync(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url),'utf8');
- assert.ok(code.includes("filtering?['--release','--bins']"));assert.ok(code.includes("cargo_profile:profile,build_argv:args"));
+ assert.ok(!code.includes("filtering?['--release','--bins']"));assert.ok(code.includes("cargo_profile:profile,build_argv:args"));
 });
 test('runtime evidence binds actual workflow image and offline boundary',()=>{const image='sha256:'+'f'.repeat(64);assert.equal(validateRuntimeBinding({image_id:image,network:'none',cargo_locked:true},image),true);for(const record of [{image_id:'sha256:'+'a'.repeat(64),network:'none',cargo_locked:true},{image_id:image,network:'bridge',cargo_locked:true}])assert.throws(()=>validateRuntimeBinding(record,image));});
 const roots={runRoot:'/run-owned',inputRoot:'/candidate',cacheRoot:'/cache-owned',digest,policyKind:'production-source-policy',targetKind:'raw-pair'};
@@ -58,8 +58,10 @@ const fs=require('node:fs'),path=require('node:path'),args=process.argv.slice(2)
 if(args[0]==='image'){if(process.env.STUB_MISSING==='1')process.exit(1);const count=fs.readFileSync(trace,'utf8').trim().split('\\n').map(JSON.parse).filter(a=>a[0]==='image').length;process.stdout.write('sha256:'+(process.env.STUB_DRIFT==='1'&&count>1?'c':'a').repeat(64)+'\\n');}
 else if(args[0]==='run'){if(args.at(-1).includes('rustc --version'))process.stdout.write('rustc 1.93.1 (stub)\\nv22.12.0\\n');else{const mount=args.find(a=>a.startsWith('type=bind,source=')&&a.endsWith('target=/cache')),source=mount.split(',')[1].slice('source='.length);fs.mkdirSync(path.join(source,'registry'));}}else process.exit(3);
 `,{mode:0o755});
- mkdirSync(join(root,'scripts'));writeFileSync(join(root,'scripts/run-functional-rust-overlay.sh'),`#!/usr/bin/env node
+ mkdirSync(join(root,'scripts'));writeFileSync(join(root,'scripts/run-functional-rust-overlay.sh'),`#!/usr/bin/env bash
+exec node - "$@" <<'JS'
 const fs=require('node:fs'),path=require('node:path'),args=process.argv.slice(2),run=path.join(process.cwd(),'.build/runs',args[0]);fs.appendFileSync(process.env.DOCKER_TRACE,JSON.stringify(['overlay',...args])+'\\n');fs.mkdirSync(path.join(run,'rust-target/debug'),{recursive:true});fs.writeFileSync(path.join(run,'rust-target/debug/functional-artifact-cache'),'stub binary');
+JS
 `,{mode:0o755});
  return {root,run,trace,env:{...process.env,PATH:bin+':'+process.env.PATH,DOCKER_TRACE:trace,STUB_DRIFT:drift?'1':'0',STUB_MISSING:missing?'1':'0'}};
 }
@@ -73,9 +75,17 @@ test('actual cache caller refuses missing or mismatched runtime before any conta
 test('actual cache caller refuses persistent post-compilation tag drift without an accepted tool receipt',()=>{
  const fixture=cacheFixture({drift:true}),result=invokeCache(fixture,['--runtime-image',reference,'--expected-image-id',image]);assert.equal(result.status,2);assert.ok(existsSync(join(fixture.run,'rust-target/debug/functional-artifact-cache')));assert.equal(existsSync(join(fixture.run,'tool-build-receipt-v2-1.json')),false);
 });
-test('actual generated-cache dispatch uses its complete sibling module, not an incomplete staged module',()=>{
- const fixture=cacheFixture(),staged=join(fixture.run,'publish/scripts/lib');mkdirSync(staged,{recursive:true});writeFileSync(join(staged,'run-functional-corpus-filtering.mjs'),"throw Error('INCOMPLETE_STAGE_SELECTED');\n");
- const result=spawnSync(process.execPath,[fileURLToPath(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url)),'publish-generated','--run-id',runId,'--step','execute-functional-corpus-filtering','--target','corpus-filtering-v1'],{cwd:fixture.root,env:fixture.env,encoding:'utf8'});
- assert.equal(result.status,2);assert.match(result.stderr,/Functional corpus filtering refused/);assert.doesNotMatch(result.stderr,/INCOMPLETE_STAGE_SELECTED|ERR_MODULE_NOT_FOUND/);assert.equal(existsSync(fixture.trace),false);
- const source=readFileSync(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url),'utf8');assert.ok(source.includes("['--max-old-space-size=128',fileURLToPath(new URL('./run-functional-corpus-filtering.mjs',import.meta.url))"));
+test('build uses an owned staged overlay via Bash rather than publishing it early',()=>{
+ const fixture=cacheFixture(),stage=join(fixture.run,'publish/scripts');mkdirSync(stage,{recursive:true});
+ const canonical=join(fixture.root,'scripts/run-functional-rust-overlay.sh');
+ writeFileSync(join(stage,'run-functional-rust-overlay.sh'),readFileSync(canonical));
+ writeFileSync(canonical,'#!/usr/bin/env bash\nexit 91\n');
+ const result=invokeCache(fixture);assert.equal(result.status,0,result.stderr);
+ assert.ok(existsSync(join(fixture.run,'tool-build-receipt-v2-1.json')));
+});
+test('unfrozen external preparation refuses before Docker or any removedRust dispatch',()=>{
+ const fixture=cacheFixture();
+ const result=spawnSync(process.execPath,[fileURLToPath(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url)),'publish-generated','--run-id',runId,'--step','execute-functional-nemo-corpus-preparation','--target','nemo-corpus-preparation-v1'],{cwd:fixture.root,env:fixture.env,encoding:'utf8'});
+ assert.equal(result.status,2);assert.match(result.stderr,/Artifact cache boundary refused/);assert.doesNotMatch(result.stderr,/ERR_MODULE_NOT_FOUND/);assert.equal(existsSync(fixture.trace),false);
+ const source=readFileSync(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url),'utf8');assert.ok(!source.includes('run-functional-corpus-filtering.mjs'));assert.ok(!source.includes('filtering=false'));assert.ok(!source.includes('filter_binary'));
 });

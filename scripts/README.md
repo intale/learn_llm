@@ -1,83 +1,43 @@
 # Maintained development-script helpers
 
-## Full offline corpus filtering and generated-cache admission
+## Current external corpus preparation and revision2 migration
 
-`scripts/run-functional-corpus-filtering.sh` composes the accepted Chapter42 Rust
-filter with the existing operational `functional-artifact-cache` tool. It does
-not define new filtering rules or grant acquisition authority. Invoke from the
-repository root after the ledger's exact filtering step is claimed and its
-root-owned full-transform phase is released:
+Current Chapter41 uses the replaceable external NVIDIA NeMo Curator1.3.0
+recipe in tools/nemo-curator/, with a separate docker/nemo-curator.Dockerfile.
+The ordinary Rust/site Dockerfile remains unchanged. Provision the official
+pinned image with network enabled; every recipe/runtime invocation disables
+networking. No model or corpus is baked into the separate image.
 
-```bash
-scripts/run-functional-corpus-filtering.sh run \
-  --run-id <claimed-run-id> --step execute-functional-corpus-filtering \
-  --target execute-functional-corpus-filtering-v1 \
-  --runtime-image <existing-local-reference> --expected-image-id sha256:<exact-id>
+The chapter validates a six-row GPU fixture and a caller-supplied prepared JSONL
+Rust reader only. The separately pending execute-functional-nemo-corpus-preparation
+job must freeze its complete bulk pipeline, approved input/source framing,
+privacy/rights/related-group/protected-evaluation gates, limits and closed command
+before execution. Its cache target deliberately refuses publication while that
+configuration is pending. Never relabel historical Rust-filter outputs as NeMo
+outputs. Original raw cache entries, acquisition metadata and sealed reviews remain
+immutable historical evidence; their reusable generic cache/store plumbing is
+retained in rust/tools/functional-artifact-cache/src/artifact/.
+
+scripts/lib/functional-corpus-migration-v2.mjs exposes the closed, versioned
+current projection: deriveCurrentCorpusPlan(origin,delta),
+validateCurrentCorpusPlan(current,origin,delta), mapCurrentReferences(text),
+mapCurrentValue(value), currentChapterNumber(number) and jsonDigest(value).
+Only old corpus41/42/43 merge to current41; future44–85 map once to42–83.
+The approved Chapter40 handoff amendment is explicit; all other Chapter40
+fields, original v1–v5 audit/checker constants, exact resources, reference
+hashes and unrelated decoder prepared-input/GPT2 contracts remain unchanged.
+Compatibility-v6 binds the original plan/queue projection and current author delta.
+These deterministic checks prove identities and permitted changes, not teaching
+quality, external-tool correctness or full-corpus clearance.
+
+From the repository root, run the focused tests and structural checker in the
+owning step's pinned offline development environment:
+
+```sh
+node scripts/tests/check-functional-migration-v2.test.mjs
+node scripts/check-functional-laptop-llm-plan.mjs --root .
+node scripts/tests/run-functional-artifact-cache.test.mjs
 ```
-
-The paired runtime flags select an already cached image; omitting both retains
-the public workspace default. The closed registry selects the raw receipt,
-accepted production binding, explicit source layout and frozen phase spec.
-`run` builds the two already-admitted operational binaries in release mode,
-then performs generation, complete eligible-output verification, atomic cache
-publication and immutable/eligible replay under one7200-second workload envelope.
-Compilation/preparation is separate from that taught workload envelope; no image
-assembly, dependency installation or raw acquisition occurs. Every container
-uses `--network none` and checksum-selected read-only raw inputs.
-
-Generation stdout is the untouched canonical Rust producer record. Its selected
-source SHA (`corpus_filter.rs`) is distinct from the executed binary SHA;
-entrypoint, full source tree, image and tool-build hashes remain independently
-bound. Generated policy is selected from that actual hash-bound producer record,
-never from a candidate's self-declared metadata. The combined retained payload
-preserves each original source/payload/hash/span occurrence and does not select
-train/evaluation splits. Original attribution/license/rights are preserved.
-
-`bash scripts/run-functional-artifact-cache.sh publish-generated --run-id RUN --step
-execute-functional-corpus-filtering --target corpus-filtering-v1` and the filter
-wrapper's `verify --run-id RUN --step execute-functional-corpus-filtering --target
-execute-functional-corpus-filtering-v1` reuse this same producer closure and
-deadline, perform read-only revalidation, and never repeat filtering. Pair the
-same explicit runtime flags when the original run used a non-default image.
-
-Outputs and evidence remain in the claimed run. Only bounded manifest/receipt/
-audit are promoted; raw/generated corpus bytes stay in ignored artifact cache.
-Failures retain private partial bytes, do not emit a successful phase receipt,
-and never append to a prior output. Use a fresh run/private destination after
-failure. A CID file and exact run label bind cancellation cleanup; a forced stop
-removes only that owned container and verifies absence. An in-container standard
-`timeout` also bounds an orphaned workload after host disconnection.
-
-The controller reserves256MiB of the8GiB host ceiling for itself, applies the
-remaining cap to each nonconcurrent container, and records cgroup `memory.peak`,
-`cpu.stat`, current-exec Linux `/proc/self/status` `VmHWM` (KiB converted to
-bytes), and exact workload exits. Save observations before enforcing limits.
-`getrusage` maximum is diagnostic only because it can include pre-exec launcher
-history. Required observations
-missing means refusal, not zero. Counted disk is selected raw + private generated
-output + pending/published cache copy + binaries/controls/evidence, with a
-predeclared upper bound inside12GB. Cargo caches and compilation targets are
-development preparation, not corpus workload artifacts. Limits are never reset
-between generation/publication/replay. Findings+semantic receipt remain strictly
-below100MiB, fail rather than truncate, and assert no comprehensive privacy,
-benchmark, quality or model-redistribution clearance.
-
-Focused plumbing tests: `node --test scripts/tests/run-functional-corpus-filtering.test.mjs
-scripts/tests/run-functional-artifact-cache.test.mjs`; operational integration:
-`cargo test --offline --locked -p functional-artifact-cache --test
-functional_corpus_filter_runner` in the selected pinned offline overlay. These
-checks do not re-review English or run the full corpus.
-
-If a generator completed but a later orchestration check failed, a fresh claimed
-run may select its immutable producer stdout/invocation/completion/manifest and
-resource evidence through a closed root-frozen `filter-continuation.json`.
-`publish-generated` independently verifies every payload and eligible occurrence,
-then uses the same atomic cache publication/replay. It never repeats filtering
-or copies corpus bodies, and retains the original phase-start/time/CPU charges.
-The original run stays failed. An unavailable old controller peak remains
-unavailable, not zero or a later-process estimate. Validation is the configured/
-accounted workload-plus-controller envelope, measured original cgroup workload,
-and measured current continuation—not a retrospective measured whole-host total.
 
 These small modules support deterministic repository tooling; they do not
 implement learner-facing LLM algorithms or grant callers additional authority.
@@ -86,7 +46,7 @@ the owning `BUILD_STATE.yaml` step.
 
 ## Functional successor integration
 
-`site/src/i18n/functional-chapter-locales.json` is the separate exact40–85
+`site/src/i18n/functional-chapter-locales.json` is the separate exact40–83
 projection:40 is English/Russian,41+ English-only while Russian is held. The
 revision78 base manifest and both readers are immutable. The composed Node/typed
 helpers validate the separate projection without changing those base exports.
@@ -114,6 +74,24 @@ localized contract/lesson projection, neutral signature, catalog metadata and
 sheet identities. Unknown, missing, extra, unsafe or drifting inputs refuse.
 Run `node scripts/check-functional-step-receipt.mjs <chapter-id>`.
 
+Current Chapter40 revision2 uses the separately named
+`artifacts/functional-laptop/chapters/40-reference-core-handoff/publication-receipt-r02.json`.
+The revision2 functional configuration selects only this current receipt; an
+absent one stops activation, never reuses the retained original receipt.
+`publicationReceiptPath(id, contentRevision)`,
+`publicationInputPaths(id, activeLocales, contentRevision)` and
+`languageVerifierInvocations(id, activeLocales, root, contentRevision)` use
+closed revision-aware mappings. Their default revision1 preserves original40
+paths/verifiers. Unknown Chapter40 revisions and unknown chapter IDs refuse.
+Both current40revision2 and41 directly inventory the SAME shared41 English
+spec/four seals, scope `ch40-ch41.en.corpus-handoff`;40 additionally requires
+its fresh `ru-r02` localization archive. No duplicate English aliases or old
+review/receipt overwrite. The exact frozen English40contract projection at
+`audits/functional-laptop/reviews/41-corpus-preparation/english/contract-projections/40.en.json`
+must equal the maintained English projection of the final bilingual contract.
+The full final contract/locale bytes remain independently receipt-bound, and
+the maintained language verifiers still require all actual judgments to pass.
+
 Private review uses only the existing `./course review RUN --check` staging
 overlay. That Docker target sets `COURSE_BUILD_ROLE=private-review`; production
 refuses a private descriptor. In the stage only, create
@@ -126,8 +104,31 @@ The English-only40 candidate keeps declared final bilingual language links; only
 its exact absent Russian equivalent is tolerated by private link audit. Production
 checks every link. This rendering mechanism grants no author/review approval.
 
+For the current coherent merged41 review only, the same private file also accepts
+closed `schemaVersion:2`, `scopeId`, and exactly two ordered `candidates`. Each
+candidate has only `chapterId`, `contentRevision`, and `sourceHashes:{en:SHA256}`:
+current `40-reference-core-handoff` revision2, then `41-corpus-preparation` at
+its actual source revision. Both source hashes and revisions are checked. The
+first candidate must directly follow verified production; the second must be
+the next chapter. Gaps, reversed/duplicate/extra/unowned members or Russian
+candidate bytes refuse. This is private English rendering only, not a receipt,
+review verdict or production override. Single-candidate version1 remains
+unchanged; production still requires current bilingual40 and English41 receipts.
+The declared final40 locale-switch/hreflang remains bilingual during private
+English rendering; only its absent private Russian equivalent is exempted from
+the existing narrowly scoped static-link check.
+For this explicit version2 group only, Chapter40's retained complete contract
+is structure-checked against final declared English/Russian fields, while lesson
+integration/parity uses selected English only. Retained Russian fields are not
+current translation or review evidence. Version1 and final bilingual production
+validation are unchanged.
+The fully validated version2 pair reads production evidence only before its
+first candidate. Candidate receipts cannot approve the private group; an invalid
+unselected predecessor still refuses. Default production and version1 keep the
+original full receipt checks, including refusal of stale Chapter40 evidence.
+
 Contract checking dispatches0..39 through the unchanged demo checker. Every exact
-frozen Chapter40–85 uses its `rust/demos/ch<chapter-id>/` package main/lib sources
+frozen Chapter40–83 uses its `rust/demos/ch<chapter-id>/` package main/lib sources
 and `expected.txt`, retaining shared private/production locale/publication gates.
 Callers require exact membership in the loaded plan/configuration before opening
 Rust sources or executing Cargo. `demoPaths(id)` checks only path syntax/range;
@@ -138,15 +139,25 @@ complete source coverage and unchanged ownership-map-v1 grammar.
 `check-functional-rust-examples.mjs --all|--chapter <id>` executes the selected
 chapter demo and compares byte-identical stdout. `--all` skips known future demos
 whose main source is absent; an explicitly selected missing demo fails rather
-than claiming execution. Regressions enumerate all46 actual plan IDs and check
+than claiming execution. Regressions enumerate all44 current plan IDs and check
 unknown selections, package/source drift, shared-source ownership and exact bytes:
 `node --test scripts/tests/check-functional-rust-examples.test.mjs scripts/tests/check-functional-chapter-contract.test.mjs`.
+When a selected demo supplies `fixtures/prepared.jsonl`, this checker forwards
+its exact regular-file bytes (at most1MiB) to Cargo standard input. It does not
+parse, generate, filter or retrieve the fixture. Demos without that file,
+including Chapter40, retain their original no-input behavior. Chapter41's
+`rust/demos/ch41-corpus-preparation/fixtures/prepared.jsonl` is explicitly manually
+prepared learner input; its origin is documented in the adjacent fixture README,
+not presented as NeMo output. The owning run records its exact SHA-256. Empty,
+exact-cap and oversized-input cases are covered in the maintained tests; expected
+stdout always remains a byte-for-byte comparison against the selected demo.
 `check-functional-rust-ownership.mjs` still validates protected reference hashes
-and registered source coverage. Chapter41's standard URL/header/filesystem supporting dependencies
-are separately pinned, fully allowlisted and cached; they never perform course
-manifest/policy/identity/budget/restart decisions. No registry serialization change.
+and registered source coverage. General artifact source/store/manifest plumbing
+lives in the operational cache package, not the LLM core. Existing admitted
+serialization/hash/filesystem/HTTP dependencies remain pinned and allowlisted;
+no external package graph changes are needed for this relocation.
 
-`node scripts/check-functional-chapter-reviews.mjs ch41-governed-corpus-acquisition`
+`node scripts/check-functional-chapter-reviews.mjs ch41-corpus-preparation`
 dispatches the maintained complete English four-chain verifier at the exact
 Chapter41 `english/` review root. It adds no Russian check under the user hold,
 preserves the existing reference-core and measured-PostgreSQL dispatches, and
@@ -366,27 +377,27 @@ tool and checks its `targetOnly` binding through routing and read-only verificat
 Course-specific extraction, full original-file provenance, locale-owned contract
 projections and inventory snapshot generation remain immutable per-run work.
 
-### Chapter41 content-only source and destination boundary
+### Operational content-only source and destination boundary
 
-The shared artifact modules accept opaque logical IDs, independently selected
-v2 content/provenance records, standard Read/Write and staged AssetSource/AssetStore
-interfaces. They contain no filesystem layout, HTTP protocol or fixed corpus
-recipe. The filesystem implementation is external operational tooling with
-explicit FileLayout mappings and an explicit metadata filename.
+The four generic artifact modules now live in
+rust/tools/functional-artifact-cache/src/artifact/. They accept opaque logical
+IDs, independently selected v2 content/provenance records, standard Read/Write
+and staged AssetSource/AssetStore interfaces. They are operational plumbing,
+not Chapter41 preparation algorithms. FileLayout maps payload IDs and metadata
+filenames explicitly; core artifact_identity.rs remains the unchanged Chapter40
+hash/identity helper. Chapter41's only shared LLM module is
+functional::data::prepared_corpus: a bounded caller-supplied JSONL reader.
 
-node scripts/check-functional-acquisition.mjs --chapter 41-governed-corpus-acquisition
-checks only wiring and the generated synthetic report. Rust tests prove content
-cases; the configured filesystem and real offline cache gates prove their own
-operational cases, not arbitrary database transaction or crash guarantees.
-The prior HTTP worker/client/response loops are purged, not compatibility APIs.
-Historical publication/review/run evidence remains immutable; the current
-English candidate requires its own fresh reviews and adjudications.
+Historical old chapter/filtering APIs, demos and wrappers are removed from the
+current tree without compatibility aliases. Their immutable runs, receipts,
+cache bodies and sealed review records remain historical evidence. NeMo recipe
+and Rust-loader validations have separate scopes; neither certifies a bulk corpus.
 
 ### Maintained artifact-cache boundary
 
 `scripts/run-functional-artifact-cache.sh` owns closed Docker mount/target
 orchestration. Its dedicated Rust plumbing package,
-`rust/tools/functional-artifact-cache`, calls the existing Chapter41 manifest,
+`rust/tools/functional-artifact-cache`, calls its cache-local generic manifest,
 source-policy, inventory, atomic-publication and replay APIs. It implements no
 new course algorithm. Production records cannot select synthetic fixture policy;
 external target/metadata/producer hashes bind provenance before Rust admission.
@@ -394,8 +405,8 @@ Replay uses the accepted immutable acquisition `content-v2-production-binding.js
 current unrelated Dockerfile or global-registry hashes. A new acquisition binds
 its actual producer bytes; changing a verifier does not silently change source
 provenance or require downloading an unchanged valid artifact again.
-Future filtered/model validators are unavailable until their owning chapter
-registers them. A raw-pair validator never admits a filtered bundle.
+The external prepared-corpus validator is pending its independently frozen bulk
+job; a raw-pair validator never admits a prepared or model bundle.
 
 All container invocations are offline. Source transfer belongs to an explicitly
 selected network-enabled Docker image build; publication, verification and
@@ -417,8 +428,8 @@ docker build --build-arg COURSE_CORPUS=false --target workspace -t learn-llm-wor
 mkdir -p .build/runs/20261006T000000Z-cache-example-01
 chmod 700 .build/runs/20261006T000000Z-cache-example-01
 bash scripts/run-functional-artifact-cache.sh build-tools --run-id 20261006T000000Z-cache-example-01
-bash scripts/run-functional-artifact-cache.sh self-test --run-id 20261006T000000Z-cache-example-01 --step refactor-ch41-content-only-boundary --target artifact-cache-v2
-node scripts/check-functional-artifact-cache-receipt.mjs --step refactor-ch41-content-only-boundary --receipt .build/runs/20261006T000000Z-cache-example-01/artifact-cache-receipt-v2-1.json
+bash scripts/run-functional-artifact-cache.sh self-test --run-id 20261006T000000Z-cache-example-01 --step merge-ch41-nemo-corpus-preparation-20261007 --target artifact-cache-v2
+node scripts/check-functional-artifact-cache-receipt.mjs --step merge-ch41-nemo-corpus-preparation-20261007 --receipt .build/runs/20261006T000000Z-cache-example-01/artifact-cache-receipt-v2-1.json
 ```
 
 After image cleanup, rebuild the same existing Dockerfile workspace target using
@@ -572,12 +583,12 @@ output authority. Symlinks, traversal, duplicates and unrelated trees refuse.
 `configs/functional-corpus-assets.json` owns selected source identities, URLs,
 revisions, counts, digests, allowed hosts, metadata identity and resource caps.
 The cache target registry references its file and asset ID. Its separate fixture
-policy file belongs to the Chapter41 demo. Shared library code contains neither
+policy is configs/functional-artifact-cache-fixture-policy.json. Operational code contains neither
 the production asset nor the fixture's literal source definition. A manifest
 cannot authorize its own expected policy: the selected configuration and actual
 producer binding are independently supplied and validated.
 
-The core content entrypoints accept the standard `std::io::Read` interface:
+The operational content entrypoints accept the standard `std::io::Read` interface:
 `read_manifest` consumes a reader, while `AssetSource` supplies independently
 inventoried payload readers to `verify_bundle`. Callers open files, supply memory
 cursors, or provide another reader. `verify_payload_into` additionally accepts
@@ -604,6 +615,6 @@ HTTP retrieval remains outside the content library. The `course-asset-fetch`
 machinery binary uses reqwest for response parsing, limited redirects and HTTP
 errors, and feeds its standard reader into the content boundary. It disables
 automatic retries, implicit Referer headers and proxies; configured HTTPS
-destination checks precede following redirects. The Chapter41 fixture uses
-memory readers and a memory store, not retrieval protocol examples. Actual corpus
-acquisition remains separately pending; synthetic verification is not a download.
+destination checks precede following redirects. The retained cache fixture uses
+memory readers and a memory store, not learner retrieval examples. Approved raw
+acquisition evidence remains historical; synthetic verification is not a download.

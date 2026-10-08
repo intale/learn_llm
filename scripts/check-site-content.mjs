@@ -17,7 +17,7 @@ import {
   validateChapterRouteScope,
   validateDiagramComponentCss,
 } from '../site/scripts/css-scope-validation.mjs';
-import {readPrivateBuildScope,selectFunctionalBuildSets} from './check-functional-site-content.mjs';
+import {readPrivateBuildScope,selectFunctionalBuildSets,privateReviewCandidateForChapter} from './check-functional-site-content.mjs';
 
 export { REFERENCE_LOCALE, SUPPORTED_LOCALES } from './locale-config.mjs';
 
@@ -1832,15 +1832,22 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     localeConfiguration,
   );
   const privateScope = readPrivateBuildScope(repositoryRoot);
-  const requiredLocales = (chapterId) =>
-    privateScope?.chapterId === chapterId ? Object.keys(privateScope.sourceHashes) :
-      activeLocalesForChapter(chapterLocaleConfiguration, chapterId);
+  const requiredLocales = (chapterId) => {
+    const candidate = privateReviewCandidateForChapter(privateScope, chapterId);
+    return candidate ? Object.keys(candidate.sourceHashes) : activeLocalesForChapter(chapterLocaleConfiguration, chapterId);
+  };
   const mode = args[0] && !args[0].startsWith('--') ? args[0] : 'all';
   const chapter = readOption(args, '--chapter');
   const locale = readOption(args, '--locale');
   const catalogCount = validateCatalogParity(repositoryRoot, localeConfiguration);
   const diagramCount = validateDiagramComponents(repositoryRoot);
   const documents = readChapterDocuments(repositoryRoot, registeredLocales);
+  // The explicit current private pair retains40's oldRU source only as history.
+  // Compare selectedEN documents; never relabel that retainedRU as current.
+  const parityDocuments = privateScope?.schemaVersion === 2 ? documents.filter(document => {
+    const candidate = privateReviewCandidateForChapter(privateScope, document.data.chapter_id);
+    return !candidate || Object.hasOwn(candidate.sourceHashes, document.data.locale);
+  }) : documents;
 
   if (mode === 'chapter') {
     if (!chapter || !registeredLocales.includes(locale)) {
@@ -1881,8 +1888,8 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
 
   if (mode === 'parity') {
     const selected = chapter
-      ? documents.filter((document) => document.data.chapter_id === chapter)
-      : documents;
+      ? parityDocuments.filter((document) => document.data.chapter_id === chapter)
+      : parityDocuments;
     if (chapter && selected.length === 0) {
       throw new ContentValidationError(['no sources found for chapter ' + chapter]);
     }
@@ -1904,7 +1911,7 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     throw new ContentValidationError(['unknown content-check mode "' + mode + '"']);
   }
 
-  validateAllChapterSets(documents, {
+  validateAllChapterSets(parityDocuments, {
     requiredLocales,
     referenceLocale,
   });

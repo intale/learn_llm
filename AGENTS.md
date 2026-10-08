@@ -36,6 +36,16 @@ filtering and deduplication; the chapter's Rust code only loads the prepared
 corpus. Keep the prepared-corpus interchange tool-agnostic so another preparation
 tool can supply it later.
 
+Use the separate `docker/nemo-curator.Dockerfile` for that external preparation
+workflow. Its network-enabled official image provisioning is distinct from
+offline `--network none` runs with supplied input/output mounts and NVIDIA
+passthrough. Do not add NeMo, CUDA or Python preparation dependencies to the
+Rust/site Dockerfile, or embed a corpus or model in the separate image.
+
+Current Chapter 41 replaces the old corpus Chapters 41–43. Only the remaining
+future Chapters 44–85 are renumbered to 42–83; original runs, sealed reviews and
+raw/cache artifacts remain historical evidence and must not be relabeled.
+
 This scoped exception supersedes the Rust-only examples and concept-implementing
 library restrictions for external corpus preparation only. It does not permit
 dependencies to implement taught tokenizer, tensor, autodiff, decoder, training
@@ -45,7 +55,7 @@ remain in force.
 The prerequisite policy alone authorizes no GPU/cloud purchase, remote execution,
 downloads, installs or preparation run. Record unavailable GPU execution honestly;
 do not substitute an unrun workflow for measured evidence. Held repairs,
-Russian authoring for Chapters 41+, and routine screenshots remain excluded.
+Russian authoring for Chapters 40+, and routine screenshots remain excluded.
 
 ### Supported browser environment
 
@@ -338,7 +348,7 @@ contexts, routes, receipts, mapping, and evaluator evidence.
 
 ### Localization source and review
 
-Until further user notice, Chapters 41 and higher are delivered in English
+Until further user notice, Chapters 40 and higher are delivered in English
 first. Russian authoring, review and publication for every learner-facing surface
 of those chapters are deferred: lessons, catalogs, metadata, diagram labels,
 accessibility copy, exercises, answers, navigation and cheat sheets. The user
@@ -348,8 +358,11 @@ technical, static and sole-Firefox gates; absent deferred Russian artifacts must
 not block English delivery or introduce another translation-approval pause.
 Do not create placeholder Russian content or present English copy as Russian.
 This override supersedes older coherent bilingual-delivery requirements only for
-Chapters 41 and higher. Preserve the existing bilingual policy for Chapters 0–40,
+Chapters 40 and higher. Preserve the existing bilingual policy for Chapters 0–39,
 including the current Chapter 38 correction, and retain localization architecture.
+The user explicitly removed the current Russian Chapter 40 products; do not
+author, validate or publish them until requested. Preserve historical Russian
+Chapter 40 publications, reviews, runs and immutable data as history.
 Keep frozen historical plans and run records unchanged. When claiming a future
 step, record the reconciliation of its live outputs, acceptance and validation
 selectors with this explicit override rather than silently editing history.

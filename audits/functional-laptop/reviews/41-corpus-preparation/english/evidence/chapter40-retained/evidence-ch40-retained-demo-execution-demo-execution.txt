@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005T081707Z-implement-ch40-reference-core-handoff-02",
+  "publication": "staged only; chapter incomplete",
+  "operation": {
+    "container": "ch40-demo-rust-01",
+    "image": "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5",
+    "entrypoint": [
+      "bash"
+    ],
+    "command": [
+      "-lc",
+      "set -e; cp /source/Cargo.toml /source/Cargo.lock /workspace/; cp -r /source/rust/. /workspace/rust/; cp -r /source/configs/. /workspace/configs/; cd /workspace; mkdir -p /tmp/ch40-demo; cp Cargo.lock /tmp/ch40-demo/prior-Cargo.lock; cargo tree --locked --offline -p llm-from-scratch --edges normal,build,dev --prefix none --format \"{p}|features={f}\" > /tmp/ch40-demo/prior-reference-dependencies.txt; cp -r /stage/rust/. /workspace/rust/; rustfmt --edition 2024 rust/demos/ch40-reference-core-handoff/src/lib.rs rust/demos/ch40-reference-core-handoff/src/main.rs rust/demos/ch40-reference-core-handoff/tests/reference_handoff.rs; cargo metadata --offline --format-version 1 > /tmp/ch40-demo/metadata.json 2> /tmp/ch40-demo/lock-refresh.stderr; python3 -c \"import tomllib; old=tomllib.load(open(\\\"/tmp/ch40-demo/prior-Cargo.lock\\\",\\\"rb\\\")); new=tomllib.load(open(\\\"Cargo.lock\\\",\\\"rb\\\")); key=lambda p:(p[\\\"name\\\"],p[\\\"version\\\"],p.get(\\\"source\\\")); newer={key(p):p for p in new[\\\"package\\\"]}; assert all(newer.get(key(p))==p for p in old[\\\"package\\\"]),\\\"existing locked record changed\\\"; added=[p for p in new[\\\"package\\\"] if key(p) not in {key(q) for q in old[\\\"package\\\"]}]; assert len(added)==1 and added[0][\\\"name\\\"]==\\\"ch40-reference-core-handoff\\\" and \\\"source\\\" not in added[0],\\\"unexpected lock addition\\\"; print(\\\"PASS all existing versions/checksums/edges preserved; only local Ch40 demo added\\\")\" > /tmp/ch40-demo/lock-comparison.stdout; cargo tree --locked --offline -p llm-from-scratch --edges normal,build,dev --prefix none --format \"{p}|features={f}\" > /tmp/ch40-demo/current-reference-dependencies.txt; cmp /tmp/ch40-demo/prior-reference-dependencies.txt /tmp/ch40-demo/current-reference-dependencies.txt; cp Cargo.lock /tmp/ch40-demo/Cargo.lock; TIMEFORMAT=\"real %R user %U sys %S\"; { time cargo test --locked -p ch40-reference-core-handoff; } > /tmp/ch40-demo/tests.stdout 2> /tmp/ch40-demo/tests.stderr; { time cargo run --quiet --locked -p ch40-reference-core-handoff; } > /tmp/ch40-demo/run.stdout 2> /tmp/ch40-demo/run.stderr"
+    ],
+    "networkMode": "none",
+    "exitCode": 0,
+    "startedAt": "2026-10-05T08:26:23.552132134Z",
+    "finishedAt": "2026-10-05T08:26:38.021397614Z"
+  },
+  "files": [
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/Cargo.lock",
+      "bytes": 9101,
+      "sha256": "00f3b0df0653e2a56e70a869a83defb20e81ca7d742a67a995c3ee140afaf171"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/rust/demos/ch40-reference-core-handoff/Cargo.toml",
+      "bytes": 259,
+      "sha256": "7b21c067e1cbcb712b6d20cdc0b9ba2b857081c116352b3d356bd6e56f1a5fb1"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/rust/demos/ch40-reference-core-handoff/src/lib.rs",
+      "bytes": 12222,
+      "sha256": "3d17dc057871e8a478a8a2e65648257add2c7d4fa736b37f4292115943add713"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/rust/demos/ch40-reference-core-handoff/src/main.rs",
+      "bytes": 1432,
+      "sha256": "8af0583e291d1ab7c2661470d4c470776c3c3f05fe062c102f19cb5ee22a8101"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/rust/demos/ch40-reference-core-handoff/tests/reference_handoff.rs",
+      "bytes": 6562,
+      "sha256": "61fb964976a62c742b6660e1df364f212abc30af1336743dfcb007a89121d2ec"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/rust/demos/ch40-reference-core-handoff/expected.txt",
+      "bytes": 1904,
+      "sha256": "f2e07dd9b69369fe928e6c7577cdf8ae67d82f620f0887d6ddcc4d7608b9fe90"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/Cargo.lock",
+      "bytes": 9101,
+      "sha256": "00f3b0df0653e2a56e70a869a83defb20e81ca7d742a67a995c3ee140afaf171"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/current-reference-dependencies.txt",
+      "bytes": 1086,
+      "sha256": "091993887bb0111c7c89c544d9557f98750c5b6cbaf83f31f6304423aba4271e"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/lock-comparison.stdout",
+      "bytes": 81,
+      "sha256": "860a6abb54da614e42756309dcf2d1f6a8c5d58f0665f9d6e22a4a80cb78a9e8"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/lock-refresh.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/metadata.json",
+      "bytes": 153739,
+      "sha256": "98d6734e1642ad99b09b80286d150e818d5617d326ed9edd55024831839378ac"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/prior-Cargo.lock",
+      "bytes": 8978,
+      "sha256": "36cf6f4508b33365474d6f961577b7a38e00e446744a91f4d7a40e37d79dc7da"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/prior-reference-dependencies.txt",
+      "bytes": 1086,
+      "sha256": "091993887bb0111c7c89c544d9557f98750c5b6cbaf83f31f6304423aba4271e"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/run.stderr",
+      "bytes": 32,
+      "sha256": "5e84c8a50a203821af2d2ebcd318ec7d6eea65311f7381f79f94691e134f0073"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/run.stdout",
+      "bytes": 1904,
+      "sha256": "f2e07dd9b69369fe928e6c7577cdf8ae67d82f620f0887d6ddcc4d7608b9fe90"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/tests.stderr",
+      "bytes": 620,
+      "sha256": "5afb87922a7786eec505a4865db793e7482a44ce45b03333adf7cacbbeaac7c6"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/demo-01/tests.stdout",
+      "bytes": 705,
+      "sha256": "c8763f806ef8d99770ba644c701dd71b6419b5d39a693f5d7917ad4127dfe024"
+    }
+  ],
+  "results": {
+    "integrationTestsPassed": 4,
+    "integrationTestBodySeconds": 5.38,
+    "testWallIncludingCompilationSeconds": 8.346,
+    "binaryExitCode": 0,
+    "binaryWallSeconds": 5.906,
+    "stdoutBytes": 1904,
+    "stdoutSha256": "f2e07dd9b69369fe928e6c7577cdf8ae67d82f620f0887d6ddcc4d7608b9fe90",
+    "referenceIdentity": "cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648",
+    "goldenCopiedWithoutEditing": true,
+    "oldReportEqualExceptApprovedIdentity": true,
+    "lock": "Only new local Ch40 package; all existing package records, versions, checksums and dependency edges identical",
+    "referenceLibraryFeatures": "before/after Cargo tree exact-byte identical"
+  },
+  "cost": {
+    "countBasis": "frozen schedules and executed control flow, not new telemetry",
+    "newCapstoneInvocations": 3,
+    "newTrainingSchedules": 6,
+    "newValidTrainingTargets": 12288,
+    "cumulativeValidTrainingTargetsIncludingRun01": 24576,
+    "newTrainingEpochCheckpointEvaluations": 12,
+    "newValidationEpochCheckpointEvaluations": 12,
+    "newDecoderFinalTestSlots": 5232,
+    "newBigramFinalTestSlots": 5232,
+    "newProbeForwardCalls": 4,
+    "newProbeTokensPerCall": 2,
+    "newGenerationTrajectories": 4,
+    "newGenerationDecisions": 12,
+    "note": "Failure-at-checkpoint test is charged training and final evaluation, not downstream probe/generation. Cumulative other work adds these charges to preserved run01 receipt."
+  },
+  "reuse": "Exact staged demo/config/lock/source-helper/source-census/fixtures/image hashes must remain matching; no canonical chapter publication or semantic judgment by deterministic gates."
+}

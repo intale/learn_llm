@@ -6,3 +6,5 @@ const receipt={schema_version:2,step_id:'refactor-ch41-content-only-boundary',ta
 test('current receipt structural fixture passes',()=>assert.equal(validateCacheReceipt(receipt),true));
 test('missing false or extra checks refuse',()=>{for(const change of [r=>delete r.checks.corrupt_payload_refused,r=>r.checks.actual_publication=false,r=>r.checks.unexecuted=true]){const r=structuredClone(receipt);change(r);assert.throws(()=>validateCacheReceipt(r));}});
 test('network identity schema and policy substitution refuse',()=>{for(const [key,value]of [['network','bridge'],['evidence_kind','production-source-policy'],['artifact_id','../escape'],['image_id','latest'],['schema_version',1]])assert.throws(()=>validateCacheReceipt({...receipt,[key]:value}));});
+
+test('current migration receipt requires an explicit owning step without relabeling history',()=>{const current={...receipt,step_id:'merge-ch41-nemo-corpus-preparation-20261007'};assert.equal(validateCacheReceipt(current,{step:current.step_id}),true);assert.throws(()=>validateCacheReceipt(current));assert.equal(validateCacheReceipt(receipt),true);});

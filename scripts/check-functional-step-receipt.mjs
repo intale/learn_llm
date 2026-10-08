@@ -9,7 +9,7 @@ import {spawnSync} from 'node:child_process';
 import {canonicalJson} from '../.agents/skills/author-llm-course-english/scripts/english-review.mjs';
 import {FUNCTIONAL_CHAPTER_IDS, functionalChapterSignature} from '../site/src/lib/functional-course-publication.mjs';
 import {parseJsonFrontmatter} from './check-site-content.mjs';
-import {validateContractLesson} from './check-chapter-contract.mjs';
+import {validateContractLesson,localizedContractProjection} from './check-chapter-contract.mjs';
 
 export const MAX_RECEIPT_BYTES = 32768;
 export const MAX_INPUT_FILE_BYTES = 16 * 1024 * 1024;
@@ -42,12 +42,28 @@ export function jsonFile(root, path, limit = MAX_INPUT_FILE_BYTES, canonical = f
   return value;
 }
 
-export function publicationInputPaths(chapterId, activeLocales) {
+function publicationRevision(chapterId, contentRevision) {
+  if (!Number.isSafeInteger(contentRevision) || contentRevision < 1 ||
+      (chapterId === '40-reference-core-handoff' && contentRevision > 2))
+    throw new Error('unsupported publication revision');
+}
+export function publicationReceiptPath(chapterId, contentRevision = 1) {
+  if (!FUNCTIONAL_CHAPTER_IDS.includes(chapterId)) throw new Error('unknown chapter receipt');
+  publicationRevision(chapterId, contentRevision);
+  return 'artifacts/functional-laptop/chapters/' + chapterId +
+    (chapterId === '40-reference-core-handoff' && contentRevision === 2 ?
+      '/publication-receipt-r02.json' : '/publication-receipt.json');
+}
+
+export function publicationInputPaths(chapterId, activeLocales, contentRevision = 1) {
   if (!FUNCTIONAL_CHAPTER_IDS.includes(chapterId) ||
-      JSON.stringify(activeLocales) !== JSON.stringify(chapterId.startsWith('40-') ? ['en','ru'] : ['en']))
+      JSON.stringify(activeLocales) !== JSON.stringify(chapterId.startsWith('40-') && contentRevision === 1 ? ['en','ru'] : ['en']))
     throw new Error('unknown chapter or inactive-locale inventory');
+  publicationRevision(chapterId, contentRevision);
   const base = 'audits/functional-laptop/reviews/' + chapterId;
-  const english = base + (chapterId==='41-governed-corpus-acquisition'?'/english-history-v5':'/english');
+  const current40 = chapterId === '40-reference-core-handoff' && contentRevision === 2;
+  const english = (current40 ? 'audits/functional-laptop/reviews/41-corpus-preparation' : base) + '/english';
+  const russian = base + (current40 ? '/ru-r02' : '/ru');
   return [
     'curriculum/chapters/' + chapterId + '.md',
     ...activeLocales.flatMap(locale => [
@@ -61,22 +77,24 @@ export function publicationInputPaths(chapterId, activeLocales) {
     english + '/adjudication-seals/technical-pedagogical/receipt.json',
     english + '/adjudication-seals/isolated-surface/receipt.json',
     ...(activeLocales.includes('ru') ? [
-      base + '/ru/spec.json', base + '/ru/bilingual.raw.json', base + '/ru/target-only.raw.json',
+      russian + '/spec.json', russian + '/bilingual.raw.json', russian + '/target-only.raw.json',
     ] : []),
   ].sort();
 }
 
-export function languageVerifierInvocations(chapterId, activeLocales, root) {
-  publicationInputPaths(chapterId, activeLocales);
+export function languageVerifierInvocations(chapterId, activeLocales, root, contentRevision = 1) {
+  publicationInputPaths(chapterId, activeLocales, contentRevision);
   const base = 'audits/functional-laptop/reviews/' + chapterId;
   // Chapter40's immutable routed artifacts retain their original relative
   // candidate paths. Flat English aliases are publication inventory copies,
   // not replacement routing identities. Other chapter conventions are intact.
-  const isChapter40 = chapterId === '40-reference-core-handoff';
-  const isChapter41 = chapterId === '41-governed-corpus-acquisition';
-  const english = base + (isChapter40 ? '/english-candidate-03' : isChapter41 ? '/english-history-v5' : '/english');
-  const reviewRouting = english + (isChapter40 || isChapter41 ? '/review-routing/review-routing.json' : '/review-routing.json');
-  const adjudicationRouting = english + (isChapter40 || isChapter41 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
+  const isChapter40 = chapterId === '40-reference-core-handoff' && contentRevision === 1;
+  const current40 = chapterId === '40-reference-core-handoff' && contentRevision === 2;
+  const english = (current40 ? 'audits/functional-laptop/reviews/41-corpus-preparation' : base) +
+    (isChapter40 ? '/english-candidate-03' : '/english');
+  const reviewRouting = english + (isChapter40 ? '/review-routing/review-routing.json' : '/review-routing.json');
+  const adjudicationRouting = english + (isChapter40 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
+  const russian = base + (current40 ? '/ru-r02' : '/ru');
   const commands = [{executable: process.execPath, args: [
     resolve(root, '.agents/skills/author-llm-course-english/scripts/english-review.mjs'),
     'verify', '--spec', english + '/spec.json', '--bundle', english + '/bundle',
@@ -87,22 +105,59 @@ export function languageVerifierInvocations(chapterId, activeLocales, root) {
   ]}];
   if (activeLocales.includes('ru')) commands.push({executable: process.execPath, args: [
     resolve(root, '.agents/skills/localize-llm-course/scripts/localization-review.mjs'),
-    'verify', '--spec', base + '/ru/spec.json', '--bundle', base + '/ru/bundle',
-    '--bilingual-record', base + '/ru/bilingual.raw.json',
-    '--target-only-record', base + '/ru/target-only.raw.json', '--root', root,
+    'verify', '--spec', russian + '/spec.json', '--bundle', russian + '/bundle',
+    '--bilingual-record', russian + '/bilingual.raw.json',
+    '--target-only-record', russian + '/target-only.raw.json', '--root', root,
   ]});
   return commands;
 }
 
+// Exact identity/projection checks only. The maintained English verifier still
+// supplies all four independent judgments and publication-byte validation.
+export function verifySharedEnglishProjection(root, chapterId, contentRevision, contract) {
+  publicationRevision(chapterId, contentRevision);
+  if (!(chapterId === '40-reference-core-handoff' && contentRevision === 2) &&
+      chapterId !== '41-corpus-preparation') return;
+  const english = 'audits/functional-laptop/reviews/41-corpus-preparation/english';
+  const spec = jsonFile(root, english + '/spec.json');
+  if (spec.scopeId !== 'ch40-ch41.en.corpus-handoff' || !Array.isArray(spec.sourceDocuments))
+    throw new Error('current40/41 require exact shared English scope');
+  const expected = {
+    'source.ch40.contract': english + '/contract-projections/40.en.json',
+    'source.ch40.lesson': 'site/src/content/chapters/en/40-reference-core-handoff.mdx',
+    'source.ch40.catalog': 'site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json',
+    'source.ch40.sheet': 'site/src/content/cheat-sheets/en/40-reference-core-handoff.json',
+    'source.ch40.figure': 'site/src/components/chapters/ReferenceCoreHandoffDiagram.astro',
+    'source.lesson': 'site/src/content/chapters/en/41-corpus-preparation.mdx',
+    'source.catalog': 'site/src/i18n/functional-catalogs/en/41-corpus-preparation.json',
+  };
+  let projection;
+  for (const [id, path] of Object.entries(expected)) {
+    const matching = spec.sourceDocuments.filter(source => source.id === id);
+    if (matching.length !== 1 || matching[0].publicationPath !== path)
+      throw new Error('shared English source coverage/path drift: ' + id);
+    const source = matching[0], bytes = readRegularFile(root, path);
+    if (hash(bytes) !== source.file?.sha256 ||
+        !readRegularFile(root, source.file.path).equals(bytes))
+      throw new Error('shared English source byte drift: ' + id);
+    if (id === 'source.ch40.contract') projection = bytes;
+  }
+  const current40 = chapterId === '40-reference-core-handoff' ? contract :
+    parseJsonFrontmatter(readRegularFile(root, 'curriculum/chapters/40-reference-core-handoff.md').toString()).data;
+  const recomputed = Buffer.from(canonicalJson(localizedContractProjection(current40, 'en')));
+  if (!projection.equals(recomputed)) throw new Error('current40 English contract projection drift');
+}
 
-export function verifyPublicationReceipt(root, chapter, {run = spawnSync} = {}) {
-  const receiptPath = 'artifacts/functional-laptop/chapters/' + chapter.chapterId + '/publication-receipt.json';
+
+export function verifyPublicationReceipt(root, chapter, {run = spawnSync, contentRevision = 1} = {}) {
+  const receiptPath = publicationReceiptPath(chapter.chapterId, contentRevision);
   const receipt = jsonFile(root, receiptPath, MAX_RECEIPT_BYTES, true);
   closed(receipt, ['schemaVersion','chapterId','contentRevision','files'], 'publication receipt');
   if (receipt.schemaVersion !== 1 || receipt.chapterId !== chapter.chapterId ||
-      !Number.isSafeInteger(receipt.contentRevision) || receipt.contentRevision < 1)
+      !Number.isSafeInteger(receipt.contentRevision) || receipt.contentRevision < 1 ||
+      (chapter.chapterId === '40-reference-core-handoff' && receipt.contentRevision !== contentRevision))
     throw new Error('receipt identity drift');
-  const paths = publicationInputPaths(chapter.chapterId, chapter.activeLocales);
+  const paths = publicationInputPaths(chapter.chapterId, chapter.activeLocales, receipt.contentRevision);
   closed(receipt.files, paths, 'receipt file inventory');
   let total = 0;
   for (const path of paths) {
@@ -139,7 +194,8 @@ export function verifyPublicationReceipt(root, chapter, {run = spawnSync} = {}) 
     if (sheet.chapter_id !== chapter.chapterId || sheet.locale !== locale || !Array.isArray(sheet.terms) ||
         sheet.terms.length < 5) throw new Error('sheet identity/terms drift');
   }
-  for (const invocation of languageVerifierInvocations(chapter.chapterId, chapter.activeLocales, root)) {
+  verifySharedEnglishProjection(root, chapter.chapterId, receipt.contentRevision, contract);
+  for (const invocation of languageVerifierInvocations(chapter.chapterId, chapter.activeLocales, root, receipt.contentRevision)) {
     const result = run(invocation.executable, invocation.args, {cwd:root, encoding:'utf8', shell:false});
     if (result.error || result.status !== 0)
       throw new Error('maintained language verifier refused: ' + (result.error?.message ?? result.stderr ?? result.status));
@@ -151,9 +207,10 @@ export function verifyPublicationReceipt(root, chapter, {run = spawnSync} = {}) 
 export function readPublicationEvidence(root, configuration) {
   const evidence = {};
   for (const chapter of configuration.functional.chapters) {
-    const path = 'artifacts/functional-laptop/chapters/' + chapter.chapterId + '/publication-receipt.json';
+    const contentRevision = chapter.chapterId === '40-reference-core-handoff' && configuration.functional.planRevision === 2 ? 2 : 1;
+    const path = publicationReceiptPath(chapter.chapterId, contentRevision);
     if (!existsSync(resolve(root,path))) break;
-    evidence[chapter.chapterId] = verifyPublicationReceipt(root,chapter);
+    evidence[chapter.chapterId] = verifyPublicationReceipt(root,chapter,{contentRevision});
   }
   return Object.freeze(evidence);
 }
@@ -162,8 +219,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     const chapterId = process.argv[2];
-    const chapter = {chapterId,order:Number(chapterId?.slice(0,2)),activeLocales:chapterId?.startsWith('40-')?['en','ru']:['en']};
-    verifyPublicationReceipt(root, chapter);
+    const source = parseJsonFrontmatter(readRegularFile(root, 'site/src/content/chapters/en/' + chapterId + '.mdx').toString());
+    const chapter = {chapterId,order:Number(chapterId?.slice(0,2)),activeLocales:chapterId?.startsWith('40-') && source.data.content_revision === 1?['en','ru']:['en']};
+    verifyPublicationReceipt(root, chapter, {contentRevision: source.data.content_revision});
     console.log('Functional publication receipt verified: ' + chapterId);
   } catch (error) {console.error(error.message);process.exitCode=1;}
 }

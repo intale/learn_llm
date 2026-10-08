@@ -11,7 +11,7 @@ reference decoder. This CPU implementation uses explicit scalar loops and
 parts in a deterministic 1,188-parameter training-to-generation example; it
 does not establish useful language quality or laptop-scale performance.
 
-The separately planned Chapters 40–85 extend that reference toward a functional
+The separately planned Chapters 40–83 extend that reference toward a functional
 laptop training and inference path. A completed plan is not an implemented
 chapter or a measured hardware result. The published course indexes below show
 which chapters are actually available.

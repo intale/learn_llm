@@ -5,17 +5,17 @@ import {fileURLToPath} from 'node:url';
 import {parseRegistryFragment,ownedSources,readFunctionalPlan,checkFunctionalRustOwnership} from '../check-functional-rust-ownership.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const owners=ownedSources(readFunctionalPlan(root));
-const filename='ch41-governed-corpus-acquisition.module';
-const good='version=1\nmodule=functional::artifact::acquisition\nsource=src/artifact/acquisition.rs\n';
+const filename='ch41-corpus-preparation.module';
+const good='version=1\nmodule=functional::data::prepared_corpus\nsource=src/data/prepared_corpus.rs\n';
 test('Node grammar exactly preserves approved module mapping',()=>{
   assert.deepEqual(parseRegistryFragment(filename,Buffer.from(good),owners),
-    [{module:'functional::artifact::acquisition',source:'src/artifact/acquisition.rs'}]);
+    [{module:'functional::data::prepared_corpus',source:'src/data/prepared_corpus.rs'}]);
 });
 test('malformed/duplicate/unsafe/cross-owner fragment corpus refuses',()=>{
   for(const bad of [good.replace('version=1','version=2'),good.replace('module=','unknown='),
-    good.replace('artifact::','other::'),good.replace('src/','../src/'),
+    good.replace('data::','other::'),good.replace('src/','../src/'),
     good.replaceAll('\n','\r\n'),good.trimEnd(),good+'\n',good+'\n'+good,
-    good.replace('acquisition.rs','acquisitiön.rs')])
+    good.replace('prepared_corpus.rs','prepared_corpüs.rs')])
     assert.throws(()=>parseRegistryFragment(filename,Buffer.from(bad),owners));
   assert.throws(()=>parseRegistryFragment('ch40-reference-core-handoff.module',Buffer.from(good),owners));
   assert(!owners.some(o=>o.fragment==='ch40-reference-core-handoff.module'));

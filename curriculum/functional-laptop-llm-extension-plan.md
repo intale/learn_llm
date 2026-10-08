@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "functional-laptop-llm-extension",
-  "plan_revision": 1,
+  "plan_revision": 2,
   "predecessor_plan_id": "tiny-decoder-llm-rust",
   "input_predecessor_revision": 77,
   "published_predecessor_revision": 78,
@@ -13,9 +13,9 @@
     "ru"
   ],
   "model_family": "causal-decoder-only-autoregressive-text-token",
-  "chapter_count": 46,
+  "chapter_count": 44,
   "first_chapter": "40-reference-core-handoff",
-  "last_chapter": "85-persistence-scale-decision",
+  "last_chapter": 83,
   "published_predecessor_sha256": "20fda59082cdb47d69b25f9095d85f70e10ec5fd200cdd5fc245a8d76bf4c72a",
   "design_input_identities": {
     "constants_sha256": "3129cbde349f8fad45982713a865fc0769796ef6a53e7eb572020d8e5cc40a22",
@@ -444,7 +444,7 @@
         "wall_seconds_max": 108000
       },
       {
-        "step_id": "implement-ch61-quantized-gguf-artifacts",
+        "step_id": "implement-ch59-quantized-gguf-artifacts",
         "profile_id": "8gb-gpu-smoke",
         "mode": "executes-provisional-device-smoke",
         "seeds": [],
@@ -473,7 +473,7 @@
         "wall_seconds_max": 10800
       },
       {
-        "step_id": "implement-ch81-import-adapt-serve-capstone",
+        "step_id": "implement-ch79-import-adapt-serve-capstone",
         "profile_id": "8gb-adapter",
         "mode": "executes",
         "seeds": [
@@ -498,8 +498,8 @@
         "establish-functional-offline-workspace-execution-boundary",
         "establish-functional-firefox-execution-boundary",
         "establish-functional-artifact-cache-execution-boundary",
-        "execute-functional-corpus-filtering",
-        "execute-functional-corpus-dedup-split",
+        "execute-functional-nemo-corpus-preparation",
+        "execute-functional-nemo-corpus-preparation",
         "execute-functional-tokenizer-and-tokenized-splits",
         "establish-functional-gpu-execution-boundary"
       ],
@@ -641,23 +641,23 @@
             ]
           },
           {
-            "step_id": "implement-ch41-governed-corpus-acquisition",
-            "target_id": "implement-ch41-governed-corpus-acquisition-v1",
+            "step_id": "merge-ch41-nemo-corpus-preparation-20261007",
+            "target_id": "merge-ch41-nemo-corpus-preparation-20261007-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/41-governed-corpus-acquisition.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 41-governed-corpus-acquisition",
-              "node scripts/check-functional-rust-examples.mjs --chapter 41-governed-corpus-acquisition",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/41-corpus-preparation.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 41-corpus-preparation",
+              "node scripts/check-functional-rust-examples.mjs --chapter 41-corpus-preparation",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/spec.json --bundle audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/bundle --review-routing audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/review-routing.json --review-seals audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/41-governed-corpus-acquisition/ru/spec.json --bundle audits/functional-laptop/reviews/41-governed-corpus-acquisition/ru/bundle --bilingual-record audits/functional-laptop/reviews/41-governed-corpus-acquisition/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/41-governed-corpus-acquisition/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 41-governed-corpus-acquisition",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 41-governed-corpus-acquisition",
-              "npm --prefix site run check:parity -- --chapter 41-governed-corpus-acquisition",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/41-corpus-preparation/english/spec.json --bundle audits/functional-laptop/reviews/41-corpus-preparation/english/bundle --review-routing audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing.json --review-seals audits/functional-laptop/reviews/41-corpus-preparation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/41-corpus-preparation/ru/spec.json --bundle audits/functional-laptop/reviews/41-corpus-preparation/ru/bundle --bilingual-record audits/functional-laptop/reviews/41-corpus-preparation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/41-corpus-preparation/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 41-corpus-preparation",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 41-corpus-preparation",
+              "npm --prefix site run check:parity -- --chapter 41-corpus-preparation",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -722,23 +722,23 @@
             "network": "none"
           },
           {
-            "step_id": "implement-ch42-deterministic-corpus-filtering",
-            "target_id": "implement-ch42-deterministic-corpus-filtering-v1",
+            "step_id": "merge-ch41-nemo-corpus-preparation-20261007",
+            "target_id": "merge-ch41-nemo-corpus-preparation-20261007-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/42-deterministic-corpus-filtering.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 42-deterministic-corpus-filtering",
-              "node scripts/check-functional-rust-examples.mjs --chapter 42-deterministic-corpus-filtering",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/41-corpus-preparation.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 41-corpus-preparation",
+              "node scripts/check-functional-rust-examples.mjs --chapter 41-corpus-preparation",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/spec.json --bundle audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/bundle --review-routing audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/review-routing.json --review-seals audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/42-deterministic-corpus-filtering/ru/spec.json --bundle audits/functional-laptop/reviews/42-deterministic-corpus-filtering/ru/bundle --bilingual-record audits/functional-laptop/reviews/42-deterministic-corpus-filtering/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/42-deterministic-corpus-filtering/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 42-deterministic-corpus-filtering",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 42-deterministic-corpus-filtering",
-              "npm --prefix site run check:parity -- --chapter 42-deterministic-corpus-filtering",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/41-corpus-preparation/english/spec.json --bundle audits/functional-laptop/reviews/41-corpus-preparation/english/bundle --review-routing audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing.json --review-seals audits/functional-laptop/reviews/41-corpus-preparation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/41-corpus-preparation/ru/spec.json --bundle audits/functional-laptop/reviews/41-corpus-preparation/ru/bundle --bilingual-record audits/functional-laptop/reviews/41-corpus-preparation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/41-corpus-preparation/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 41-corpus-preparation",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 41-corpus-preparation",
+              "npm --prefix site run check:parity -- --chapter 41-corpus-preparation",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -762,23 +762,23 @@
             ]
           },
           {
-            "step_id": "implement-ch43-deduplication-decontamination",
-            "target_id": "implement-ch43-deduplication-decontamination-v1",
+            "step_id": "merge-ch41-nemo-corpus-preparation-20261007",
+            "target_id": "merge-ch41-nemo-corpus-preparation-20261007-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/43-deduplication-decontamination.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 43-deduplication-decontamination",
-              "node scripts/check-functional-rust-examples.mjs --chapter 43-deduplication-decontamination",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/41-corpus-preparation.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 41-corpus-preparation",
+              "node scripts/check-functional-rust-examples.mjs --chapter 41-corpus-preparation",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/43-deduplication-decontamination/english/spec.json --bundle audits/functional-laptop/reviews/43-deduplication-decontamination/english/bundle --review-routing audits/functional-laptop/reviews/43-deduplication-decontamination/english/review-routing.json --review-seals audits/functional-laptop/reviews/43-deduplication-decontamination/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/43-deduplication-decontamination/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/43-deduplication-decontamination/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/43-deduplication-decontamination/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/43-deduplication-decontamination/ru/spec.json --bundle audits/functional-laptop/reviews/43-deduplication-decontamination/ru/bundle --bilingual-record audits/functional-laptop/reviews/43-deduplication-decontamination/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/43-deduplication-decontamination/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 43-deduplication-decontamination",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 43-deduplication-decontamination",
-              "npm --prefix site run check:parity -- --chapter 43-deduplication-decontamination",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/41-corpus-preparation/english/spec.json --bundle audits/functional-laptop/reviews/41-corpus-preparation/english/bundle --review-routing audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing.json --review-seals audits/functional-laptop/reviews/41-corpus-preparation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/41-corpus-preparation/ru/spec.json --bundle audits/functional-laptop/reviews/41-corpus-preparation/ru/bundle --bilingual-record audits/functional-laptop/reviews/41-corpus-preparation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/41-corpus-preparation/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 41-corpus-preparation",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 41-corpus-preparation",
+              "npm --prefix site run check:parity -- --chapter 41-corpus-preparation",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -802,23 +802,23 @@
             ]
           },
           {
-            "step_id": "implement-ch44-scalable-bpe-tokenizer",
-            "target_id": "implement-ch44-scalable-bpe-tokenizer-v1",
+            "step_id": "implement-ch42-scalable-bpe-tokenizer",
+            "target_id": "implement-ch42-scalable-bpe-tokenizer-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/44-scalable-bpe-tokenizer.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 44-scalable-bpe-tokenizer",
-              "node scripts/check-functional-rust-examples.mjs --chapter 44-scalable-bpe-tokenizer",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/42-scalable-bpe-tokenizer.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 42-scalable-bpe-tokenizer",
+              "node scripts/check-functional-rust-examples.mjs --chapter 42-scalable-bpe-tokenizer",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/spec.json --bundle audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/bundle --review-routing audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/review-routing.json --review-seals audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/ru/spec.json --bundle audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/ru/bundle --bilingual-record audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/44-scalable-bpe-tokenizer/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 44-scalable-bpe-tokenizer",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 44-scalable-bpe-tokenizer",
-              "npm --prefix site run check:parity -- --chapter 44-scalable-bpe-tokenizer",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/spec.json --bundle audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/bundle --review-routing audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/review-routing.json --review-seals audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/ru/spec.json --bundle audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/ru/bundle --bilingual-record audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/42-scalable-bpe-tokenizer/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 42-scalable-bpe-tokenizer",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 42-scalable-bpe-tokenizer",
+              "npm --prefix site run check:parity -- --chapter 42-scalable-bpe-tokenizer",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -842,23 +842,23 @@
             ]
           },
           {
-            "step_id": "implement-ch45-padded-variable-batches",
-            "target_id": "implement-ch45-padded-variable-batches-v1",
+            "step_id": "implement-ch43-padded-variable-batches",
+            "target_id": "implement-ch43-padded-variable-batches-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/45-padded-variable-batches.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 45-padded-variable-batches",
-              "node scripts/check-functional-rust-examples.mjs --chapter 45-padded-variable-batches",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/43-padded-variable-batches.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 43-padded-variable-batches",
+              "node scripts/check-functional-rust-examples.mjs --chapter 43-padded-variable-batches",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/45-padded-variable-batches/english/spec.json --bundle audits/functional-laptop/reviews/45-padded-variable-batches/english/bundle --review-routing audits/functional-laptop/reviews/45-padded-variable-batches/english/review-routing.json --review-seals audits/functional-laptop/reviews/45-padded-variable-batches/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/45-padded-variable-batches/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/45-padded-variable-batches/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/45-padded-variable-batches/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/45-padded-variable-batches/ru/spec.json --bundle audits/functional-laptop/reviews/45-padded-variable-batches/ru/bundle --bilingual-record audits/functional-laptop/reviews/45-padded-variable-batches/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/45-padded-variable-batches/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 45-padded-variable-batches",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 45-padded-variable-batches",
-              "npm --prefix site run check:parity -- --chapter 45-padded-variable-batches",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/43-padded-variable-batches/english/spec.json --bundle audits/functional-laptop/reviews/43-padded-variable-batches/english/bundle --review-routing audits/functional-laptop/reviews/43-padded-variable-batches/english/review-routing.json --review-seals audits/functional-laptop/reviews/43-padded-variable-batches/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/43-padded-variable-batches/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/43-padded-variable-batches/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/43-padded-variable-batches/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/43-padded-variable-batches/ru/spec.json --bundle audits/functional-laptop/reviews/43-padded-variable-batches/ru/bundle --bilingual-record audits/functional-laptop/reviews/43-padded-variable-batches/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/43-padded-variable-batches/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 43-padded-variable-batches",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 43-padded-variable-batches",
+              "npm --prefix site run check:parity -- --chapter 43-padded-variable-batches",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -882,23 +882,23 @@
             ]
           },
           {
-            "step_id": "implement-ch46-packed-sequence-masks",
-            "target_id": "implement-ch46-packed-sequence-masks-v1",
+            "step_id": "implement-ch44-packed-sequence-masks",
+            "target_id": "implement-ch44-packed-sequence-masks-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/46-packed-sequence-masks.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 46-packed-sequence-masks",
-              "node scripts/check-functional-rust-examples.mjs --chapter 46-packed-sequence-masks",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/44-packed-sequence-masks.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 44-packed-sequence-masks",
+              "node scripts/check-functional-rust-examples.mjs --chapter 44-packed-sequence-masks",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/46-packed-sequence-masks/english/spec.json --bundle audits/functional-laptop/reviews/46-packed-sequence-masks/english/bundle --review-routing audits/functional-laptop/reviews/46-packed-sequence-masks/english/review-routing.json --review-seals audits/functional-laptop/reviews/46-packed-sequence-masks/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/46-packed-sequence-masks/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/46-packed-sequence-masks/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/46-packed-sequence-masks/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/46-packed-sequence-masks/ru/spec.json --bundle audits/functional-laptop/reviews/46-packed-sequence-masks/ru/bundle --bilingual-record audits/functional-laptop/reviews/46-packed-sequence-masks/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/46-packed-sequence-masks/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 46-packed-sequence-masks",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 46-packed-sequence-masks",
-              "npm --prefix site run check:parity -- --chapter 46-packed-sequence-masks",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/44-packed-sequence-masks/english/spec.json --bundle audits/functional-laptop/reviews/44-packed-sequence-masks/english/bundle --review-routing audits/functional-laptop/reviews/44-packed-sequence-masks/english/review-routing.json --review-seals audits/functional-laptop/reviews/44-packed-sequence-masks/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/44-packed-sequence-masks/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/44-packed-sequence-masks/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/44-packed-sequence-masks/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/44-packed-sequence-masks/ru/spec.json --bundle audits/functional-laptop/reviews/44-packed-sequence-masks/ru/bundle --bilingual-record audits/functional-laptop/reviews/44-packed-sequence-masks/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/44-packed-sequence-masks/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 44-packed-sequence-masks",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 44-packed-sequence-masks",
+              "npm --prefix site run check:parity -- --chapter 44-packed-sequence-masks",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -922,23 +922,23 @@
             ]
           },
           {
-            "step_id": "implement-ch47-depth-stable-decoder",
-            "target_id": "implement-ch47-depth-stable-decoder-v1",
+            "step_id": "implement-ch45-depth-stable-decoder",
+            "target_id": "implement-ch45-depth-stable-decoder-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/47-depth-stable-decoder.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 47-depth-stable-decoder",
-              "node scripts/check-functional-rust-examples.mjs --chapter 47-depth-stable-decoder",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/45-depth-stable-decoder.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 45-depth-stable-decoder",
+              "node scripts/check-functional-rust-examples.mjs --chapter 45-depth-stable-decoder",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/47-depth-stable-decoder/english/spec.json --bundle audits/functional-laptop/reviews/47-depth-stable-decoder/english/bundle --review-routing audits/functional-laptop/reviews/47-depth-stable-decoder/english/review-routing.json --review-seals audits/functional-laptop/reviews/47-depth-stable-decoder/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/47-depth-stable-decoder/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/47-depth-stable-decoder/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/47-depth-stable-decoder/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/47-depth-stable-decoder/ru/spec.json --bundle audits/functional-laptop/reviews/47-depth-stable-decoder/ru/bundle --bilingual-record audits/functional-laptop/reviews/47-depth-stable-decoder/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/47-depth-stable-decoder/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 47-depth-stable-decoder",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 47-depth-stable-decoder",
-              "npm --prefix site run check:parity -- --chapter 47-depth-stable-decoder",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/45-depth-stable-decoder/english/spec.json --bundle audits/functional-laptop/reviews/45-depth-stable-decoder/english/bundle --review-routing audits/functional-laptop/reviews/45-depth-stable-decoder/english/review-routing.json --review-seals audits/functional-laptop/reviews/45-depth-stable-decoder/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/45-depth-stable-decoder/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/45-depth-stable-decoder/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/45-depth-stable-decoder/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/45-depth-stable-decoder/ru/spec.json --bundle audits/functional-laptop/reviews/45-depth-stable-decoder/ru/bundle --bilingual-record audits/functional-laptop/reviews/45-depth-stable-decoder/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/45-depth-stable-decoder/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 45-depth-stable-decoder",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 45-depth-stable-decoder",
+              "npm --prefix site run check:parity -- --chapter 45-depth-stable-decoder",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -962,23 +962,23 @@
             ]
           },
           {
-            "step_id": "implement-ch48-configurable-decoder-core",
-            "target_id": "implement-ch48-configurable-decoder-core-v1",
+            "step_id": "implement-ch46-configurable-decoder-core",
+            "target_id": "implement-ch46-configurable-decoder-core-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/48-configurable-decoder-core.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 48-configurable-decoder-core",
-              "node scripts/check-functional-rust-examples.mjs --chapter 48-configurable-decoder-core",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/46-configurable-decoder-core.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 46-configurable-decoder-core",
+              "node scripts/check-functional-rust-examples.mjs --chapter 46-configurable-decoder-core",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/48-configurable-decoder-core/english/spec.json --bundle audits/functional-laptop/reviews/48-configurable-decoder-core/english/bundle --review-routing audits/functional-laptop/reviews/48-configurable-decoder-core/english/review-routing.json --review-seals audits/functional-laptop/reviews/48-configurable-decoder-core/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/48-configurable-decoder-core/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/48-configurable-decoder-core/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/48-configurable-decoder-core/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/48-configurable-decoder-core/ru/spec.json --bundle audits/functional-laptop/reviews/48-configurable-decoder-core/ru/bundle --bilingual-record audits/functional-laptop/reviews/48-configurable-decoder-core/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/48-configurable-decoder-core/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 48-configurable-decoder-core",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 48-configurable-decoder-core",
-              "npm --prefix site run check:parity -- --chapter 48-configurable-decoder-core",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/46-configurable-decoder-core/english/spec.json --bundle audits/functional-laptop/reviews/46-configurable-decoder-core/english/bundle --review-routing audits/functional-laptop/reviews/46-configurable-decoder-core/english/review-routing.json --review-seals audits/functional-laptop/reviews/46-configurable-decoder-core/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/46-configurable-decoder-core/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/46-configurable-decoder-core/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/46-configurable-decoder-core/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/46-configurable-decoder-core/ru/spec.json --bundle audits/functional-laptop/reviews/46-configurable-decoder-core/ru/bundle --bilingual-record audits/functional-laptop/reviews/46-configurable-decoder-core/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/46-configurable-decoder-core/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 46-configurable-decoder-core",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 46-configurable-decoder-core",
+              "npm --prefix site run check:parity -- --chapter 46-configurable-decoder-core",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1002,23 +1002,23 @@
             ]
           },
           {
-            "step_id": "implement-ch49-dropout-semantics",
-            "target_id": "implement-ch49-dropout-semantics-v1",
+            "step_id": "implement-ch47-dropout-semantics",
+            "target_id": "implement-ch47-dropout-semantics-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/49-dropout-semantics.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 49-dropout-semantics",
-              "node scripts/check-functional-rust-examples.mjs --chapter 49-dropout-semantics",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/47-dropout-semantics.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 47-dropout-semantics",
+              "node scripts/check-functional-rust-examples.mjs --chapter 47-dropout-semantics",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/49-dropout-semantics/english/spec.json --bundle audits/functional-laptop/reviews/49-dropout-semantics/english/bundle --review-routing audits/functional-laptop/reviews/49-dropout-semantics/english/review-routing.json --review-seals audits/functional-laptop/reviews/49-dropout-semantics/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/49-dropout-semantics/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/49-dropout-semantics/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/49-dropout-semantics/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/49-dropout-semantics/ru/spec.json --bundle audits/functional-laptop/reviews/49-dropout-semantics/ru/bundle --bilingual-record audits/functional-laptop/reviews/49-dropout-semantics/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/49-dropout-semantics/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 49-dropout-semantics",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 49-dropout-semantics",
-              "npm --prefix site run check:parity -- --chapter 49-dropout-semantics",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/47-dropout-semantics/english/spec.json --bundle audits/functional-laptop/reviews/47-dropout-semantics/english/bundle --review-routing audits/functional-laptop/reviews/47-dropout-semantics/english/review-routing.json --review-seals audits/functional-laptop/reviews/47-dropout-semantics/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/47-dropout-semantics/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/47-dropout-semantics/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/47-dropout-semantics/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/47-dropout-semantics/ru/spec.json --bundle audits/functional-laptop/reviews/47-dropout-semantics/ru/bundle --bilingual-record audits/functional-laptop/reviews/47-dropout-semantics/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/47-dropout-semantics/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 47-dropout-semantics",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 47-dropout-semantics",
+              "npm --prefix site run check:parity -- --chapter 47-dropout-semantics",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1042,23 +1042,23 @@
             ]
           },
           {
-            "step_id": "implement-ch50-dependency-error-contract",
-            "target_id": "implement-ch50-dependency-error-contract-v1",
+            "step_id": "implement-ch48-dependency-error-contract",
+            "target_id": "implement-ch48-dependency-error-contract-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/50-dependency-error-contract.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 50-dependency-error-contract",
-              "node scripts/check-functional-rust-examples.mjs --chapter 50-dependency-error-contract",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/48-dependency-error-contract.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 48-dependency-error-contract",
+              "node scripts/check-functional-rust-examples.mjs --chapter 48-dependency-error-contract",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/50-dependency-error-contract/english/spec.json --bundle audits/functional-laptop/reviews/50-dependency-error-contract/english/bundle --review-routing audits/functional-laptop/reviews/50-dependency-error-contract/english/review-routing.json --review-seals audits/functional-laptop/reviews/50-dependency-error-contract/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/50-dependency-error-contract/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/50-dependency-error-contract/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/50-dependency-error-contract/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/50-dependency-error-contract/ru/spec.json --bundle audits/functional-laptop/reviews/50-dependency-error-contract/ru/bundle --bilingual-record audits/functional-laptop/reviews/50-dependency-error-contract/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/50-dependency-error-contract/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 50-dependency-error-contract",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 50-dependency-error-contract",
-              "npm --prefix site run check:parity -- --chapter 50-dependency-error-contract",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/48-dependency-error-contract/english/spec.json --bundle audits/functional-laptop/reviews/48-dependency-error-contract/english/bundle --review-routing audits/functional-laptop/reviews/48-dependency-error-contract/english/review-routing.json --review-seals audits/functional-laptop/reviews/48-dependency-error-contract/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/48-dependency-error-contract/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/48-dependency-error-contract/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/48-dependency-error-contract/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/48-dependency-error-contract/ru/spec.json --bundle audits/functional-laptop/reviews/48-dependency-error-contract/ru/bundle --bilingual-record audits/functional-laptop/reviews/48-dependency-error-contract/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/48-dependency-error-contract/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 48-dependency-error-contract",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 48-dependency-error-contract",
+              "npm --prefix site run check:parity -- --chapter 48-dependency-error-contract",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1117,23 +1117,23 @@
             ]
           },
           {
-            "step_id": "implement-ch51-serving-config-admission",
-            "target_id": "implement-ch51-serving-config-admission-v1",
+            "step_id": "implement-ch49-serving-config-admission",
+            "target_id": "implement-ch49-serving-config-admission-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/51-serving-config-admission.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 51-serving-config-admission",
-              "node scripts/check-functional-rust-examples.mjs --chapter 51-serving-config-admission",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/49-serving-config-admission.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 49-serving-config-admission",
+              "node scripts/check-functional-rust-examples.mjs --chapter 49-serving-config-admission",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/51-serving-config-admission/english/spec.json --bundle audits/functional-laptop/reviews/51-serving-config-admission/english/bundle --review-routing audits/functional-laptop/reviews/51-serving-config-admission/english/review-routing.json --review-seals audits/functional-laptop/reviews/51-serving-config-admission/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/51-serving-config-admission/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/51-serving-config-admission/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/51-serving-config-admission/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/51-serving-config-admission/ru/spec.json --bundle audits/functional-laptop/reviews/51-serving-config-admission/ru/bundle --bilingual-record audits/functional-laptop/reviews/51-serving-config-admission/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/51-serving-config-admission/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 51-serving-config-admission",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 51-serving-config-admission",
-              "npm --prefix site run check:parity -- --chapter 51-serving-config-admission",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/49-serving-config-admission/english/spec.json --bundle audits/functional-laptop/reviews/49-serving-config-admission/english/bundle --review-routing audits/functional-laptop/reviews/49-serving-config-admission/english/review-routing.json --review-seals audits/functional-laptop/reviews/49-serving-config-admission/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/49-serving-config-admission/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/49-serving-config-admission/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/49-serving-config-admission/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/49-serving-config-admission/ru/spec.json --bundle audits/functional-laptop/reviews/49-serving-config-admission/ru/bundle --bilingual-record audits/functional-laptop/reviews/49-serving-config-admission/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/49-serving-config-admission/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 49-serving-config-admission",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 49-serving-config-admission",
+              "npm --prefix site run check:parity -- --chapter 49-serving-config-admission",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1167,23 +1167,23 @@
             ]
           },
           {
-            "step_id": "implement-ch52-accelerator-tensor-parity",
-            "target_id": "implement-ch52-accelerator-tensor-parity-v1",
+            "step_id": "implement-ch50-accelerator-tensor-parity",
+            "target_id": "implement-ch50-accelerator-tensor-parity-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/52-accelerator-tensor-parity.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 52-accelerator-tensor-parity",
-              "node scripts/check-functional-rust-examples.mjs --chapter 52-accelerator-tensor-parity",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/50-accelerator-tensor-parity.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 50-accelerator-tensor-parity",
+              "node scripts/check-functional-rust-examples.mjs --chapter 50-accelerator-tensor-parity",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/spec.json --bundle audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/bundle --review-routing audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/review-routing.json --review-seals audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/52-accelerator-tensor-parity/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/52-accelerator-tensor-parity/ru/spec.json --bundle audits/functional-laptop/reviews/52-accelerator-tensor-parity/ru/bundle --bilingual-record audits/functional-laptop/reviews/52-accelerator-tensor-parity/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/52-accelerator-tensor-parity/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 52-accelerator-tensor-parity",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 52-accelerator-tensor-parity",
-              "npm --prefix site run check:parity -- --chapter 52-accelerator-tensor-parity",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/spec.json --bundle audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/bundle --review-routing audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/review-routing.json --review-seals audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/50-accelerator-tensor-parity/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/50-accelerator-tensor-parity/ru/spec.json --bundle audits/functional-laptop/reviews/50-accelerator-tensor-parity/ru/bundle --bilingual-record audits/functional-laptop/reviews/50-accelerator-tensor-parity/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/50-accelerator-tensor-parity/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 50-accelerator-tensor-parity",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 50-accelerator-tensor-parity",
+              "npm --prefix site run check:parity -- --chapter 50-accelerator-tensor-parity",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1217,23 +1217,23 @@
             ]
           },
           {
-            "step_id": "implement-ch53-mixed-precision-training",
-            "target_id": "implement-ch53-mixed-precision-training-v1",
+            "step_id": "implement-ch51-mixed-precision-training",
+            "target_id": "implement-ch51-mixed-precision-training-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/53-mixed-precision-training.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 53-mixed-precision-training",
-              "node scripts/check-functional-rust-examples.mjs --chapter 53-mixed-precision-training",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/51-mixed-precision-training.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 51-mixed-precision-training",
+              "node scripts/check-functional-rust-examples.mjs --chapter 51-mixed-precision-training",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/53-mixed-precision-training/english/spec.json --bundle audits/functional-laptop/reviews/53-mixed-precision-training/english/bundle --review-routing audits/functional-laptop/reviews/53-mixed-precision-training/english/review-routing.json --review-seals audits/functional-laptop/reviews/53-mixed-precision-training/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/53-mixed-precision-training/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/53-mixed-precision-training/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/53-mixed-precision-training/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/53-mixed-precision-training/ru/spec.json --bundle audits/functional-laptop/reviews/53-mixed-precision-training/ru/bundle --bilingual-record audits/functional-laptop/reviews/53-mixed-precision-training/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/53-mixed-precision-training/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 53-mixed-precision-training",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 53-mixed-precision-training",
-              "npm --prefix site run check:parity -- --chapter 53-mixed-precision-training",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/51-mixed-precision-training/english/spec.json --bundle audits/functional-laptop/reviews/51-mixed-precision-training/english/bundle --review-routing audits/functional-laptop/reviews/51-mixed-precision-training/english/review-routing.json --review-seals audits/functional-laptop/reviews/51-mixed-precision-training/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/51-mixed-precision-training/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/51-mixed-precision-training/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/51-mixed-precision-training/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/51-mixed-precision-training/ru/spec.json --bundle audits/functional-laptop/reviews/51-mixed-precision-training/ru/bundle --bilingual-record audits/functional-laptop/reviews/51-mixed-precision-training/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/51-mixed-precision-training/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 51-mixed-precision-training",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 51-mixed-precision-training",
+              "npm --prefix site run check:parity -- --chapter 51-mixed-precision-training",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1267,23 +1267,23 @@
             ]
           },
           {
-            "step_id": "implement-ch54-memory-bounded-training",
-            "target_id": "implement-ch54-memory-bounded-training-v1",
+            "step_id": "implement-ch52-memory-bounded-training",
+            "target_id": "implement-ch52-memory-bounded-training-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/54-memory-bounded-training.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 54-memory-bounded-training",
-              "node scripts/check-functional-rust-examples.mjs --chapter 54-memory-bounded-training",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/52-memory-bounded-training.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 52-memory-bounded-training",
+              "node scripts/check-functional-rust-examples.mjs --chapter 52-memory-bounded-training",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/54-memory-bounded-training/english/spec.json --bundle audits/functional-laptop/reviews/54-memory-bounded-training/english/bundle --review-routing audits/functional-laptop/reviews/54-memory-bounded-training/english/review-routing.json --review-seals audits/functional-laptop/reviews/54-memory-bounded-training/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/54-memory-bounded-training/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/54-memory-bounded-training/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/54-memory-bounded-training/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/54-memory-bounded-training/ru/spec.json --bundle audits/functional-laptop/reviews/54-memory-bounded-training/ru/bundle --bilingual-record audits/functional-laptop/reviews/54-memory-bounded-training/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/54-memory-bounded-training/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 54-memory-bounded-training",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 54-memory-bounded-training",
-              "npm --prefix site run check:parity -- --chapter 54-memory-bounded-training",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/52-memory-bounded-training/english/spec.json --bundle audits/functional-laptop/reviews/52-memory-bounded-training/english/bundle --review-routing audits/functional-laptop/reviews/52-memory-bounded-training/english/review-routing.json --review-seals audits/functional-laptop/reviews/52-memory-bounded-training/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/52-memory-bounded-training/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/52-memory-bounded-training/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/52-memory-bounded-training/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/52-memory-bounded-training/ru/spec.json --bundle audits/functional-laptop/reviews/52-memory-bounded-training/ru/bundle --bilingual-record audits/functional-laptop/reviews/52-memory-bounded-training/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/52-memory-bounded-training/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 52-memory-bounded-training",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 52-memory-bounded-training",
+              "npm --prefix site run check:parity -- --chapter 52-memory-bounded-training",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1317,23 +1317,23 @@
             ]
           },
           {
-            "step_id": "implement-ch55-optimizer-schedules-clipping",
-            "target_id": "implement-ch55-optimizer-schedules-clipping-v1",
+            "step_id": "implement-ch53-optimizer-schedules-clipping",
+            "target_id": "implement-ch53-optimizer-schedules-clipping-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/55-optimizer-schedules-clipping.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 55-optimizer-schedules-clipping",
-              "node scripts/check-functional-rust-examples.mjs --chapter 55-optimizer-schedules-clipping",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/53-optimizer-schedules-clipping.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 53-optimizer-schedules-clipping",
+              "node scripts/check-functional-rust-examples.mjs --chapter 53-optimizer-schedules-clipping",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/spec.json --bundle audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/bundle --review-routing audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/review-routing.json --review-seals audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/55-optimizer-schedules-clipping/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/55-optimizer-schedules-clipping/ru/spec.json --bundle audits/functional-laptop/reviews/55-optimizer-schedules-clipping/ru/bundle --bilingual-record audits/functional-laptop/reviews/55-optimizer-schedules-clipping/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/55-optimizer-schedules-clipping/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 55-optimizer-schedules-clipping",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 55-optimizer-schedules-clipping",
-              "npm --prefix site run check:parity -- --chapter 55-optimizer-schedules-clipping",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/spec.json --bundle audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/bundle --review-routing audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/review-routing.json --review-seals audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/53-optimizer-schedules-clipping/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/53-optimizer-schedules-clipping/ru/spec.json --bundle audits/functional-laptop/reviews/53-optimizer-schedules-clipping/ru/bundle --bilingual-record audits/functional-laptop/reviews/53-optimizer-schedules-clipping/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/53-optimizer-schedules-clipping/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 53-optimizer-schedules-clipping",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 53-optimizer-schedules-clipping",
+              "npm --prefix site run check:parity -- --chapter 53-optimizer-schedules-clipping",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1367,23 +1367,23 @@
             ]
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
-            "target_id": "implement-ch56-tensor-artifact-interchange-v1",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
+            "target_id": "implement-ch54-tensor-artifact-interchange-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/56-tensor-artifact-interchange.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 56-tensor-artifact-interchange",
-              "node scripts/check-functional-rust-examples.mjs --chapter 56-tensor-artifact-interchange",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/54-tensor-artifact-interchange.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 54-tensor-artifact-interchange",
+              "node scripts/check-functional-rust-examples.mjs --chapter 54-tensor-artifact-interchange",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/spec.json --bundle audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/bundle --review-routing audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/review-routing.json --review-seals audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/56-tensor-artifact-interchange/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/56-tensor-artifact-interchange/ru/spec.json --bundle audits/functional-laptop/reviews/56-tensor-artifact-interchange/ru/bundle --bilingual-record audits/functional-laptop/reviews/56-tensor-artifact-interchange/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/56-tensor-artifact-interchange/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 56-tensor-artifact-interchange",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 56-tensor-artifact-interchange",
-              "npm --prefix site run check:parity -- --chapter 56-tensor-artifact-interchange",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/spec.json --bundle audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/bundle --review-routing audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/review-routing.json --review-seals audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/54-tensor-artifact-interchange/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/54-tensor-artifact-interchange/ru/spec.json --bundle audits/functional-laptop/reviews/54-tensor-artifact-interchange/ru/bundle --bilingual-record audits/functional-laptop/reviews/54-tensor-artifact-interchange/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/54-tensor-artifact-interchange/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 54-tensor-artifact-interchange",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 54-tensor-artifact-interchange",
+              "npm --prefix site run check:parity -- --chapter 54-tensor-artifact-interchange",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1392,8 +1392,8 @@
             ],
             "input_receipts": [
               "artifacts/functional-laptop/execution-boundaries/offline-workspace/validation-oracle-toolchains-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-fixture-receipt.json",
               "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json"
             ],
             "mounts": [
@@ -1426,23 +1426,23 @@
             ]
           },
           {
-            "step_id": "implement-ch57-immutable-artifact-persistence",
-            "target_id": "implement-ch57-immutable-artifact-persistence-v1",
+            "step_id": "implement-ch55-immutable-artifact-persistence",
+            "target_id": "implement-ch55-immutable-artifact-persistence-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/57-immutable-artifact-persistence.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 57-immutable-artifact-persistence",
-              "node scripts/check-functional-rust-examples.mjs --chapter 57-immutable-artifact-persistence",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/55-immutable-artifact-persistence.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 55-immutable-artifact-persistence",
+              "node scripts/check-functional-rust-examples.mjs --chapter 55-immutable-artifact-persistence",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/spec.json --bundle audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/bundle --review-routing audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/review-routing.json --review-seals audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/57-immutable-artifact-persistence/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/57-immutable-artifact-persistence/ru/spec.json --bundle audits/functional-laptop/reviews/57-immutable-artifact-persistence/ru/bundle --bilingual-record audits/functional-laptop/reviews/57-immutable-artifact-persistence/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/57-immutable-artifact-persistence/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 57-immutable-artifact-persistence",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 57-immutable-artifact-persistence",
-              "npm --prefix site run check:parity -- --chapter 57-immutable-artifact-persistence",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/spec.json --bundle audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/bundle --review-routing audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/review-routing.json --review-seals audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/55-immutable-artifact-persistence/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/55-immutable-artifact-persistence/ru/spec.json --bundle audits/functional-laptop/reviews/55-immutable-artifact-persistence/ru/bundle --bilingual-record audits/functional-laptop/reviews/55-immutable-artifact-persistence/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/55-immutable-artifact-persistence/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 55-immutable-artifact-persistence",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 55-immutable-artifact-persistence",
+              "npm --prefix site run check:parity -- --chapter 55-immutable-artifact-persistence",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1476,23 +1476,23 @@
             ]
           },
           {
-            "step_id": "implement-ch58-exact-job-resume",
-            "target_id": "implement-ch58-exact-job-resume-v1",
+            "step_id": "implement-ch56-exact-job-resume",
+            "target_id": "implement-ch56-exact-job-resume-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/58-exact-job-resume.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 58-exact-job-resume",
-              "node scripts/check-functional-rust-examples.mjs --chapter 58-exact-job-resume",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/56-exact-job-resume.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 56-exact-job-resume",
+              "node scripts/check-functional-rust-examples.mjs --chapter 56-exact-job-resume",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/58-exact-job-resume/english/spec.json --bundle audits/functional-laptop/reviews/58-exact-job-resume/english/bundle --review-routing audits/functional-laptop/reviews/58-exact-job-resume/english/review-routing.json --review-seals audits/functional-laptop/reviews/58-exact-job-resume/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/58-exact-job-resume/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/58-exact-job-resume/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/58-exact-job-resume/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/58-exact-job-resume/ru/spec.json --bundle audits/functional-laptop/reviews/58-exact-job-resume/ru/bundle --bilingual-record audits/functional-laptop/reviews/58-exact-job-resume/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/58-exact-job-resume/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 58-exact-job-resume",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 58-exact-job-resume",
-              "npm --prefix site run check:parity -- --chapter 58-exact-job-resume",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/56-exact-job-resume/english/spec.json --bundle audits/functional-laptop/reviews/56-exact-job-resume/english/bundle --review-routing audits/functional-laptop/reviews/56-exact-job-resume/english/review-routing.json --review-seals audits/functional-laptop/reviews/56-exact-job-resume/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/56-exact-job-resume/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/56-exact-job-resume/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/56-exact-job-resume/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/56-exact-job-resume/ru/spec.json --bundle audits/functional-laptop/reviews/56-exact-job-resume/ru/bundle --bilingual-record audits/functional-laptop/reviews/56-exact-job-resume/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/56-exact-job-resume/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 56-exact-job-resume",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 56-exact-job-resume",
+              "npm --prefix site run check:parity -- --chapter 56-exact-job-resume",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1526,23 +1526,23 @@
             ]
           },
           {
-            "step_id": "implement-ch59-resource-observability",
-            "target_id": "implement-ch59-resource-observability-v1",
+            "step_id": "implement-ch57-resource-observability",
+            "target_id": "implement-ch57-resource-observability-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/59-resource-observability.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 59-resource-observability",
-              "node scripts/check-functional-rust-examples.mjs --chapter 59-resource-observability",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/57-resource-observability.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 57-resource-observability",
+              "node scripts/check-functional-rust-examples.mjs --chapter 57-resource-observability",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/59-resource-observability/english/spec.json --bundle audits/functional-laptop/reviews/59-resource-observability/english/bundle --review-routing audits/functional-laptop/reviews/59-resource-observability/english/review-routing.json --review-seals audits/functional-laptop/reviews/59-resource-observability/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/59-resource-observability/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/59-resource-observability/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/59-resource-observability/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/59-resource-observability/ru/spec.json --bundle audits/functional-laptop/reviews/59-resource-observability/ru/bundle --bilingual-record audits/functional-laptop/reviews/59-resource-observability/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/59-resource-observability/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 59-resource-observability",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 59-resource-observability",
-              "npm --prefix site run check:parity -- --chapter 59-resource-observability",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/57-resource-observability/english/spec.json --bundle audits/functional-laptop/reviews/57-resource-observability/english/bundle --review-routing audits/functional-laptop/reviews/57-resource-observability/english/review-routing.json --review-seals audits/functional-laptop/reviews/57-resource-observability/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/57-resource-observability/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/57-resource-observability/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/57-resource-observability/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/57-resource-observability/ru/spec.json --bundle audits/functional-laptop/reviews/57-resource-observability/ru/bundle --bilingual-record audits/functional-laptop/reviews/57-resource-observability/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/57-resource-observability/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 57-resource-observability",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 57-resource-observability",
+              "npm --prefix site run check:parity -- --chapter 57-resource-observability",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1576,23 +1576,23 @@
             ]
           },
           {
-            "step_id": "implement-ch60-multi-seed-evaluation",
-            "target_id": "implement-ch60-multi-seed-evaluation-v1",
+            "step_id": "implement-ch58-multi-seed-evaluation",
+            "target_id": "implement-ch58-multi-seed-evaluation-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/60-multi-seed-evaluation.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 60-multi-seed-evaluation",
-              "node scripts/check-functional-rust-examples.mjs --chapter 60-multi-seed-evaluation",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/58-multi-seed-evaluation.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 58-multi-seed-evaluation",
+              "node scripts/check-functional-rust-examples.mjs --chapter 58-multi-seed-evaluation",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/60-multi-seed-evaluation/english/spec.json --bundle audits/functional-laptop/reviews/60-multi-seed-evaluation/english/bundle --review-routing audits/functional-laptop/reviews/60-multi-seed-evaluation/english/review-routing.json --review-seals audits/functional-laptop/reviews/60-multi-seed-evaluation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/60-multi-seed-evaluation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/60-multi-seed-evaluation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/60-multi-seed-evaluation/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/60-multi-seed-evaluation/ru/spec.json --bundle audits/functional-laptop/reviews/60-multi-seed-evaluation/ru/bundle --bilingual-record audits/functional-laptop/reviews/60-multi-seed-evaluation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/60-multi-seed-evaluation/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 60-multi-seed-evaluation",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 60-multi-seed-evaluation",
-              "npm --prefix site run check:parity -- --chapter 60-multi-seed-evaluation",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/58-multi-seed-evaluation/english/spec.json --bundle audits/functional-laptop/reviews/58-multi-seed-evaluation/english/bundle --review-routing audits/functional-laptop/reviews/58-multi-seed-evaluation/english/review-routing.json --review-seals audits/functional-laptop/reviews/58-multi-seed-evaluation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/58-multi-seed-evaluation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/58-multi-seed-evaluation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/58-multi-seed-evaluation/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/58-multi-seed-evaluation/ru/spec.json --bundle audits/functional-laptop/reviews/58-multi-seed-evaluation/ru/bundle --bilingual-record audits/functional-laptop/reviews/58-multi-seed-evaluation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/58-multi-seed-evaluation/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 58-multi-seed-evaluation",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 58-multi-seed-evaluation",
+              "npm --prefix site run check:parity -- --chapter 58-multi-seed-evaluation",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1731,23 +1731,23 @@
             ]
           },
           {
-            "step_id": "implement-ch61-quantized-gguf-artifacts",
-            "target_id": "implement-ch61-quantized-gguf-artifacts-v1",
+            "step_id": "implement-ch59-quantized-gguf-artifacts",
+            "target_id": "implement-ch59-quantized-gguf-artifacts-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/61-quantized-gguf-artifacts.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 61-quantized-gguf-artifacts",
-              "node scripts/check-functional-rust-examples.mjs --chapter 61-quantized-gguf-artifacts",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/59-quantized-gguf-artifacts.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 59-quantized-gguf-artifacts",
+              "node scripts/check-functional-rust-examples.mjs --chapter 59-quantized-gguf-artifacts",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/spec.json --bundle audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/bundle --review-routing audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/review-routing.json --review-seals audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/61-quantized-gguf-artifacts/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/61-quantized-gguf-artifacts/ru/spec.json --bundle audits/functional-laptop/reviews/61-quantized-gguf-artifacts/ru/bundle --bilingual-record audits/functional-laptop/reviews/61-quantized-gguf-artifacts/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/61-quantized-gguf-artifacts/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 61-quantized-gguf-artifacts",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 61-quantized-gguf-artifacts",
-              "npm --prefix site run check:parity -- --chapter 61-quantized-gguf-artifacts",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/spec.json --bundle audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/bundle --review-routing audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/review-routing.json --review-seals audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/59-quantized-gguf-artifacts/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/59-quantized-gguf-artifacts/ru/spec.json --bundle audits/functional-laptop/reviews/59-quantized-gguf-artifacts/ru/bundle --bilingual-record audits/functional-laptop/reviews/59-quantized-gguf-artifacts/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/59-quantized-gguf-artifacts/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 59-quantized-gguf-artifacts",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 59-quantized-gguf-artifacts",
+              "npm --prefix site run check:parity -- --chapter 59-quantized-gguf-artifacts",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1781,23 +1781,23 @@
             ]
           },
           {
-            "step_id": "implement-ch62-laptop-hardware-admission",
-            "target_id": "implement-ch62-laptop-hardware-admission-v1",
+            "step_id": "implement-ch60-laptop-hardware-admission",
+            "target_id": "implement-ch60-laptop-hardware-admission-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/62-laptop-hardware-admission.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 62-laptop-hardware-admission",
-              "node scripts/check-functional-rust-examples.mjs --chapter 62-laptop-hardware-admission",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/60-laptop-hardware-admission.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 60-laptop-hardware-admission",
+              "node scripts/check-functional-rust-examples.mjs --chapter 60-laptop-hardware-admission",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/62-laptop-hardware-admission/english/spec.json --bundle audits/functional-laptop/reviews/62-laptop-hardware-admission/english/bundle --review-routing audits/functional-laptop/reviews/62-laptop-hardware-admission/english/review-routing.json --review-seals audits/functional-laptop/reviews/62-laptop-hardware-admission/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/62-laptop-hardware-admission/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/62-laptop-hardware-admission/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/62-laptop-hardware-admission/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/62-laptop-hardware-admission/ru/spec.json --bundle audits/functional-laptop/reviews/62-laptop-hardware-admission/ru/bundle --bilingual-record audits/functional-laptop/reviews/62-laptop-hardware-admission/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/62-laptop-hardware-admission/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 62-laptop-hardware-admission",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 62-laptop-hardware-admission",
-              "npm --prefix site run check:parity -- --chapter 62-laptop-hardware-admission",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/60-laptop-hardware-admission/english/spec.json --bundle audits/functional-laptop/reviews/60-laptop-hardware-admission/english/bundle --review-routing audits/functional-laptop/reviews/60-laptop-hardware-admission/english/review-routing.json --review-seals audits/functional-laptop/reviews/60-laptop-hardware-admission/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/60-laptop-hardware-admission/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/60-laptop-hardware-admission/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/60-laptop-hardware-admission/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/60-laptop-hardware-admission/ru/spec.json --bundle audits/functional-laptop/reviews/60-laptop-hardware-admission/ru/bundle --bilingual-record audits/functional-laptop/reviews/60-laptop-hardware-admission/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/60-laptop-hardware-admission/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 60-laptop-hardware-admission",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 60-laptop-hardware-admission",
+              "npm --prefix site run check:parity -- --chapter 60-laptop-hardware-admission",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1873,23 +1873,23 @@
             ]
           },
           {
-            "step_id": "implement-ch63-gqa-context-policy",
-            "target_id": "implement-ch63-gqa-context-policy-v1",
+            "step_id": "implement-ch61-gqa-context-policy",
+            "target_id": "implement-ch61-gqa-context-policy-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/63-gqa-context-policy.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 63-gqa-context-policy",
-              "node scripts/check-functional-rust-examples.mjs --chapter 63-gqa-context-policy",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/61-gqa-context-policy.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 61-gqa-context-policy",
+              "node scripts/check-functional-rust-examples.mjs --chapter 61-gqa-context-policy",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/63-gqa-context-policy/english/spec.json --bundle audits/functional-laptop/reviews/63-gqa-context-policy/english/bundle --review-routing audits/functional-laptop/reviews/63-gqa-context-policy/english/review-routing.json --review-seals audits/functional-laptop/reviews/63-gqa-context-policy/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/63-gqa-context-policy/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/63-gqa-context-policy/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/63-gqa-context-policy/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/63-gqa-context-policy/ru/spec.json --bundle audits/functional-laptop/reviews/63-gqa-context-policy/ru/bundle --bilingual-record audits/functional-laptop/reviews/63-gqa-context-policy/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/63-gqa-context-policy/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 63-gqa-context-policy",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 63-gqa-context-policy",
-              "npm --prefix site run check:parity -- --chapter 63-gqa-context-policy",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/61-gqa-context-policy/english/spec.json --bundle audits/functional-laptop/reviews/61-gqa-context-policy/english/bundle --review-routing audits/functional-laptop/reviews/61-gqa-context-policy/english/review-routing.json --review-seals audits/functional-laptop/reviews/61-gqa-context-policy/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/61-gqa-context-policy/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/61-gqa-context-policy/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/61-gqa-context-policy/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/61-gqa-context-policy/ru/spec.json --bundle audits/functional-laptop/reviews/61-gqa-context-policy/ru/bundle --bilingual-record audits/functional-laptop/reviews/61-gqa-context-policy/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/61-gqa-context-policy/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 61-gqa-context-policy",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 61-gqa-context-policy",
+              "npm --prefix site run check:parity -- --chapter 61-gqa-context-policy",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -1923,23 +1923,23 @@
             ]
           },
           {
-            "step_id": "implement-ch64-online-tiled-attention",
-            "target_id": "implement-ch64-online-tiled-attention-v1",
+            "step_id": "implement-ch62-online-tiled-attention",
+            "target_id": "implement-ch62-online-tiled-attention-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/64-online-tiled-attention.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 64-online-tiled-attention",
-              "node scripts/check-functional-rust-examples.mjs --chapter 64-online-tiled-attention",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/62-online-tiled-attention.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 62-online-tiled-attention",
+              "node scripts/check-functional-rust-examples.mjs --chapter 62-online-tiled-attention",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/64-online-tiled-attention/english/spec.json --bundle audits/functional-laptop/reviews/64-online-tiled-attention/english/bundle --review-routing audits/functional-laptop/reviews/64-online-tiled-attention/english/review-routing.json --review-seals audits/functional-laptop/reviews/64-online-tiled-attention/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/64-online-tiled-attention/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/64-online-tiled-attention/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/64-online-tiled-attention/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/64-online-tiled-attention/ru/spec.json --bundle audits/functional-laptop/reviews/64-online-tiled-attention/ru/bundle --bilingual-record audits/functional-laptop/reviews/64-online-tiled-attention/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/64-online-tiled-attention/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 64-online-tiled-attention",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 64-online-tiled-attention",
-              "npm --prefix site run check:parity -- --chapter 64-online-tiled-attention",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/62-online-tiled-attention/english/spec.json --bundle audits/functional-laptop/reviews/62-online-tiled-attention/english/bundle --review-routing audits/functional-laptop/reviews/62-online-tiled-attention/english/review-routing.json --review-seals audits/functional-laptop/reviews/62-online-tiled-attention/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/62-online-tiled-attention/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/62-online-tiled-attention/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/62-online-tiled-attention/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/62-online-tiled-attention/ru/spec.json --bundle audits/functional-laptop/reviews/62-online-tiled-attention/ru/bundle --bilingual-record audits/functional-laptop/reviews/62-online-tiled-attention/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/62-online-tiled-attention/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 62-online-tiled-attention",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 62-online-tiled-attention",
+              "npm --prefix site run check:parity -- --chapter 62-online-tiled-attention",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2059,23 +2059,23 @@
             ]
           },
           {
-            "step_id": "implement-ch65-kv-block-pool",
-            "target_id": "implement-ch65-kv-block-pool-v1",
+            "step_id": "implement-ch63-kv-block-pool",
+            "target_id": "implement-ch63-kv-block-pool-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/65-kv-block-pool.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 65-kv-block-pool",
-              "node scripts/check-functional-rust-examples.mjs --chapter 65-kv-block-pool",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/63-kv-block-pool.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 63-kv-block-pool",
+              "node scripts/check-functional-rust-examples.mjs --chapter 63-kv-block-pool",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/65-kv-block-pool/english/spec.json --bundle audits/functional-laptop/reviews/65-kv-block-pool/english/bundle --review-routing audits/functional-laptop/reviews/65-kv-block-pool/english/review-routing.json --review-seals audits/functional-laptop/reviews/65-kv-block-pool/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/65-kv-block-pool/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/65-kv-block-pool/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/65-kv-block-pool/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/65-kv-block-pool/ru/spec.json --bundle audits/functional-laptop/reviews/65-kv-block-pool/ru/bundle --bilingual-record audits/functional-laptop/reviews/65-kv-block-pool/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/65-kv-block-pool/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 65-kv-block-pool",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 65-kv-block-pool",
-              "npm --prefix site run check:parity -- --chapter 65-kv-block-pool",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/63-kv-block-pool/english/spec.json --bundle audits/functional-laptop/reviews/63-kv-block-pool/english/bundle --review-routing audits/functional-laptop/reviews/63-kv-block-pool/english/review-routing.json --review-seals audits/functional-laptop/reviews/63-kv-block-pool/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/63-kv-block-pool/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/63-kv-block-pool/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/63-kv-block-pool/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/63-kv-block-pool/ru/spec.json --bundle audits/functional-laptop/reviews/63-kv-block-pool/ru/bundle --bilingual-record audits/functional-laptop/reviews/63-kv-block-pool/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/63-kv-block-pool/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 63-kv-block-pool",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 63-kv-block-pool",
+              "npm --prefix site run check:parity -- --chapter 63-kv-block-pool",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2109,23 +2109,23 @@
             ]
           },
           {
-            "step_id": "implement-ch66-nucleus-penalties-logprobs",
-            "target_id": "implement-ch66-nucleus-penalties-logprobs-v1",
+            "step_id": "implement-ch64-nucleus-penalties-logprobs",
+            "target_id": "implement-ch64-nucleus-penalties-logprobs-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/66-nucleus-penalties-logprobs.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 66-nucleus-penalties-logprobs",
-              "node scripts/check-functional-rust-examples.mjs --chapter 66-nucleus-penalties-logprobs",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/64-nucleus-penalties-logprobs.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 64-nucleus-penalties-logprobs",
+              "node scripts/check-functional-rust-examples.mjs --chapter 64-nucleus-penalties-logprobs",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/spec.json --bundle audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/bundle --review-routing audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/review-routing.json --review-seals audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/ru/spec.json --bundle audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/ru/bundle --bilingual-record audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/66-nucleus-penalties-logprobs/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 66-nucleus-penalties-logprobs",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 66-nucleus-penalties-logprobs",
-              "npm --prefix site run check:parity -- --chapter 66-nucleus-penalties-logprobs",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/spec.json --bundle audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/bundle --review-routing audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/review-routing.json --review-seals audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/ru/spec.json --bundle audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/ru/bundle --bilingual-record audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/64-nucleus-penalties-logprobs/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 64-nucleus-penalties-logprobs",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 64-nucleus-penalties-logprobs",
+              "npm --prefix site run check:parity -- --chapter 64-nucleus-penalties-logprobs",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2159,23 +2159,23 @@
             ]
           },
           {
-            "step_id": "implement-ch67-stop-strings-unicode-streaming",
-            "target_id": "implement-ch67-stop-strings-unicode-streaming-v1",
+            "step_id": "implement-ch65-stop-strings-unicode-streaming",
+            "target_id": "implement-ch65-stop-strings-unicode-streaming-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/67-stop-strings-unicode-streaming.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 67-stop-strings-unicode-streaming",
-              "node scripts/check-functional-rust-examples.mjs --chapter 67-stop-strings-unicode-streaming",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/65-stop-strings-unicode-streaming.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 65-stop-strings-unicode-streaming",
+              "node scripts/check-functional-rust-examples.mjs --chapter 65-stop-strings-unicode-streaming",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/spec.json --bundle audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/bundle --review-routing audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/review-routing.json --review-seals audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/ru/spec.json --bundle audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/ru/bundle --bilingual-record audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/67-stop-strings-unicode-streaming/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 67-stop-strings-unicode-streaming",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 67-stop-strings-unicode-streaming",
-              "npm --prefix site run check:parity -- --chapter 67-stop-strings-unicode-streaming",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/spec.json --bundle audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/bundle --review-routing audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/review-routing.json --review-seals audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/ru/spec.json --bundle audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/ru/bundle --bilingual-record audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/65-stop-strings-unicode-streaming/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 65-stop-strings-unicode-streaming",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 65-stop-strings-unicode-streaming",
+              "npm --prefix site run check:parity -- --chapter 65-stop-strings-unicode-streaming",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2209,23 +2209,23 @@
             ]
           },
           {
-            "step_id": "implement-ch68-continuous-batch-scheduling",
-            "target_id": "implement-ch68-continuous-batch-scheduling-v1",
+            "step_id": "implement-ch66-continuous-batch-scheduling",
+            "target_id": "implement-ch66-continuous-batch-scheduling-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/68-continuous-batch-scheduling.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 68-continuous-batch-scheduling",
-              "node scripts/check-functional-rust-examples.mjs --chapter 68-continuous-batch-scheduling",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/66-continuous-batch-scheduling.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 66-continuous-batch-scheduling",
+              "node scripts/check-functional-rust-examples.mjs --chapter 66-continuous-batch-scheduling",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/spec.json --bundle audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/bundle --review-routing audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/review-routing.json --review-seals audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/68-continuous-batch-scheduling/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/68-continuous-batch-scheduling/ru/spec.json --bundle audits/functional-laptop/reviews/68-continuous-batch-scheduling/ru/bundle --bilingual-record audits/functional-laptop/reviews/68-continuous-batch-scheduling/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/68-continuous-batch-scheduling/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 68-continuous-batch-scheduling",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 68-continuous-batch-scheduling",
-              "npm --prefix site run check:parity -- --chapter 68-continuous-batch-scheduling",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/spec.json --bundle audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/bundle --review-routing audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/review-routing.json --review-seals audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/66-continuous-batch-scheduling/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/66-continuous-batch-scheduling/ru/spec.json --bundle audits/functional-laptop/reviews/66-continuous-batch-scheduling/ru/bundle --bilingual-record audits/functional-laptop/reviews/66-continuous-batch-scheduling/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/66-continuous-batch-scheduling/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 66-continuous-batch-scheduling",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 66-continuous-batch-scheduling",
+              "npm --prefix site run check:parity -- --chapter 66-continuous-batch-scheduling",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2259,23 +2259,23 @@
             ]
           },
           {
-            "step_id": "implement-ch69-cancellation-backpressure-budgets",
-            "target_id": "implement-ch69-cancellation-backpressure-budgets-v1",
+            "step_id": "implement-ch67-cancellation-backpressure-budgets",
+            "target_id": "implement-ch67-cancellation-backpressure-budgets-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/69-cancellation-backpressure-budgets.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 69-cancellation-backpressure-budgets",
-              "node scripts/check-functional-rust-examples.mjs --chapter 69-cancellation-backpressure-budgets",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/67-cancellation-backpressure-budgets.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 67-cancellation-backpressure-budgets",
+              "node scripts/check-functional-rust-examples.mjs --chapter 67-cancellation-backpressure-budgets",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/spec.json --bundle audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/bundle --review-routing audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/review-routing.json --review-seals audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/ru/spec.json --bundle audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/ru/bundle --bilingual-record audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/69-cancellation-backpressure-budgets/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 69-cancellation-backpressure-budgets",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 69-cancellation-backpressure-budgets",
-              "npm --prefix site run check:parity -- --chapter 69-cancellation-backpressure-budgets",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/spec.json --bundle audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/bundle --review-routing audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/review-routing.json --review-seals audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/ru/spec.json --bundle audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/ru/bundle --bilingual-record audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/67-cancellation-backpressure-budgets/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 67-cancellation-backpressure-budgets",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 67-cancellation-backpressure-budgets",
+              "npm --prefix site run check:parity -- --chapter 67-cancellation-backpressure-budgets",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2309,23 +2309,23 @@
             ]
           },
           {
-            "step_id": "implement-ch70-loopback-serving-metrics",
-            "target_id": "implement-ch70-loopback-serving-metrics-v1",
+            "step_id": "implement-ch68-loopback-serving-metrics",
+            "target_id": "implement-ch68-loopback-serving-metrics-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/70-loopback-serving-metrics.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 70-loopback-serving-metrics",
-              "node scripts/check-functional-rust-examples.mjs --chapter 70-loopback-serving-metrics",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/68-loopback-serving-metrics.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 68-loopback-serving-metrics",
+              "node scripts/check-functional-rust-examples.mjs --chapter 68-loopback-serving-metrics",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/70-loopback-serving-metrics/english/spec.json --bundle audits/functional-laptop/reviews/70-loopback-serving-metrics/english/bundle --review-routing audits/functional-laptop/reviews/70-loopback-serving-metrics/english/review-routing.json --review-seals audits/functional-laptop/reviews/70-loopback-serving-metrics/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/70-loopback-serving-metrics/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/70-loopback-serving-metrics/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/70-loopback-serving-metrics/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/70-loopback-serving-metrics/ru/spec.json --bundle audits/functional-laptop/reviews/70-loopback-serving-metrics/ru/bundle --bilingual-record audits/functional-laptop/reviews/70-loopback-serving-metrics/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/70-loopback-serving-metrics/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 70-loopback-serving-metrics",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 70-loopback-serving-metrics",
-              "npm --prefix site run check:parity -- --chapter 70-loopback-serving-metrics",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/68-loopback-serving-metrics/english/spec.json --bundle audits/functional-laptop/reviews/68-loopback-serving-metrics/english/bundle --review-routing audits/functional-laptop/reviews/68-loopback-serving-metrics/english/review-routing.json --review-seals audits/functional-laptop/reviews/68-loopback-serving-metrics/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/68-loopback-serving-metrics/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/68-loopback-serving-metrics/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/68-loopback-serving-metrics/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/68-loopback-serving-metrics/ru/spec.json --bundle audits/functional-laptop/reviews/68-loopback-serving-metrics/ru/bundle --bilingual-record audits/functional-laptop/reviews/68-loopback-serving-metrics/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/68-loopback-serving-metrics/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 68-loopback-serving-metrics",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 68-loopback-serving-metrics",
+              "npm --prefix site run check:parity -- --chapter 68-loopback-serving-metrics",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2359,23 +2359,23 @@
             ]
           },
           {
-            "step_id": "implement-ch71-lora-sft-adapters",
-            "target_id": "implement-ch71-lora-sft-adapters-v1",
+            "step_id": "implement-ch69-lora-sft-adapters",
+            "target_id": "implement-ch69-lora-sft-adapters-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/71-lora-sft-adapters.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 71-lora-sft-adapters",
-              "node scripts/check-functional-rust-examples.mjs --chapter 71-lora-sft-adapters",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/69-lora-sft-adapters.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 69-lora-sft-adapters",
+              "node scripts/check-functional-rust-examples.mjs --chapter 69-lora-sft-adapters",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/71-lora-sft-adapters/english/spec.json --bundle audits/functional-laptop/reviews/71-lora-sft-adapters/english/bundle --review-routing audits/functional-laptop/reviews/71-lora-sft-adapters/english/review-routing.json --review-seals audits/functional-laptop/reviews/71-lora-sft-adapters/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/71-lora-sft-adapters/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/71-lora-sft-adapters/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/71-lora-sft-adapters/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/71-lora-sft-adapters/ru/spec.json --bundle audits/functional-laptop/reviews/71-lora-sft-adapters/ru/bundle --bilingual-record audits/functional-laptop/reviews/71-lora-sft-adapters/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/71-lora-sft-adapters/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 71-lora-sft-adapters",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 71-lora-sft-adapters",
-              "npm --prefix site run check:parity -- --chapter 71-lora-sft-adapters",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/69-lora-sft-adapters/english/spec.json --bundle audits/functional-laptop/reviews/69-lora-sft-adapters/english/bundle --review-routing audits/functional-laptop/reviews/69-lora-sft-adapters/english/review-routing.json --review-seals audits/functional-laptop/reviews/69-lora-sft-adapters/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/69-lora-sft-adapters/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/69-lora-sft-adapters/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/69-lora-sft-adapters/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/69-lora-sft-adapters/ru/spec.json --bundle audits/functional-laptop/reviews/69-lora-sft-adapters/ru/bundle --bilingual-record audits/functional-laptop/reviews/69-lora-sft-adapters/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/69-lora-sft-adapters/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 69-lora-sft-adapters",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 69-lora-sft-adapters",
+              "npm --prefix site run check:parity -- --chapter 69-lora-sft-adapters",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2409,23 +2409,23 @@
             ]
           },
           {
-            "step_id": "implement-ch72-direct-preference-optimization",
-            "target_id": "implement-ch72-direct-preference-optimization-v1",
+            "step_id": "implement-ch70-direct-preference-optimization",
+            "target_id": "implement-ch70-direct-preference-optimization-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/72-direct-preference-optimization.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 72-direct-preference-optimization",
-              "node scripts/check-functional-rust-examples.mjs --chapter 72-direct-preference-optimization",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/70-direct-preference-optimization.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 70-direct-preference-optimization",
+              "node scripts/check-functional-rust-examples.mjs --chapter 70-direct-preference-optimization",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/72-direct-preference-optimization/english/spec.json --bundle audits/functional-laptop/reviews/72-direct-preference-optimization/english/bundle --review-routing audits/functional-laptop/reviews/72-direct-preference-optimization/english/review-routing.json --review-seals audits/functional-laptop/reviews/72-direct-preference-optimization/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/72-direct-preference-optimization/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/72-direct-preference-optimization/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/72-direct-preference-optimization/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/72-direct-preference-optimization/ru/spec.json --bundle audits/functional-laptop/reviews/72-direct-preference-optimization/ru/bundle --bilingual-record audits/functional-laptop/reviews/72-direct-preference-optimization/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/72-direct-preference-optimization/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 72-direct-preference-optimization",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 72-direct-preference-optimization",
-              "npm --prefix site run check:parity -- --chapter 72-direct-preference-optimization",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/70-direct-preference-optimization/english/spec.json --bundle audits/functional-laptop/reviews/70-direct-preference-optimization/english/bundle --review-routing audits/functional-laptop/reviews/70-direct-preference-optimization/english/review-routing.json --review-seals audits/functional-laptop/reviews/70-direct-preference-optimization/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/70-direct-preference-optimization/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/70-direct-preference-optimization/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/70-direct-preference-optimization/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/70-direct-preference-optimization/ru/spec.json --bundle audits/functional-laptop/reviews/70-direct-preference-optimization/ru/bundle --bilingual-record audits/functional-laptop/reviews/70-direct-preference-optimization/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/70-direct-preference-optimization/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 70-direct-preference-optimization",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 70-direct-preference-optimization",
+              "npm --prefix site run check:parity -- --chapter 70-direct-preference-optimization",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2587,23 +2587,23 @@
             ]
           },
           {
-            "step_id": "implement-ch73-qlora-boundary",
-            "target_id": "implement-ch73-qlora-boundary-v1",
+            "step_id": "implement-ch71-qlora-boundary",
+            "target_id": "implement-ch71-qlora-boundary-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/73-qlora-boundary.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 73-qlora-boundary",
-              "node scripts/check-functional-rust-examples.mjs --chapter 73-qlora-boundary",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/71-qlora-boundary.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 71-qlora-boundary",
+              "node scripts/check-functional-rust-examples.mjs --chapter 71-qlora-boundary",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/73-qlora-boundary/english/spec.json --bundle audits/functional-laptop/reviews/73-qlora-boundary/english/bundle --review-routing audits/functional-laptop/reviews/73-qlora-boundary/english/review-routing.json --review-seals audits/functional-laptop/reviews/73-qlora-boundary/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/73-qlora-boundary/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/73-qlora-boundary/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/73-qlora-boundary/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/73-qlora-boundary/ru/spec.json --bundle audits/functional-laptop/reviews/73-qlora-boundary/ru/bundle --bilingual-record audits/functional-laptop/reviews/73-qlora-boundary/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/73-qlora-boundary/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 73-qlora-boundary",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 73-qlora-boundary",
-              "npm --prefix site run check:parity -- --chapter 73-qlora-boundary",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/71-qlora-boundary/english/spec.json --bundle audits/functional-laptop/reviews/71-qlora-boundary/english/bundle --review-routing audits/functional-laptop/reviews/71-qlora-boundary/english/review-routing.json --review-seals audits/functional-laptop/reviews/71-qlora-boundary/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/71-qlora-boundary/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/71-qlora-boundary/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/71-qlora-boundary/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/71-qlora-boundary/ru/spec.json --bundle audits/functional-laptop/reviews/71-qlora-boundary/ru/bundle --bilingual-record audits/functional-laptop/reviews/71-qlora-boundary/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/71-qlora-boundary/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 71-qlora-boundary",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 71-qlora-boundary",
+              "npm --prefix site run check:parity -- --chapter 71-qlora-boundary",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2637,23 +2637,23 @@
             ]
           },
           {
-            "step_id": "implement-ch74-prefix-cache-reuse",
-            "target_id": "implement-ch74-prefix-cache-reuse-v1",
+            "step_id": "implement-ch72-prefix-cache-reuse",
+            "target_id": "implement-ch72-prefix-cache-reuse-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/74-prefix-cache-reuse.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 74-prefix-cache-reuse",
-              "node scripts/check-functional-rust-examples.mjs --chapter 74-prefix-cache-reuse",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/72-prefix-cache-reuse.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 72-prefix-cache-reuse",
+              "node scripts/check-functional-rust-examples.mjs --chapter 72-prefix-cache-reuse",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/74-prefix-cache-reuse/english/spec.json --bundle audits/functional-laptop/reviews/74-prefix-cache-reuse/english/bundle --review-routing audits/functional-laptop/reviews/74-prefix-cache-reuse/english/review-routing.json --review-seals audits/functional-laptop/reviews/74-prefix-cache-reuse/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/74-prefix-cache-reuse/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/74-prefix-cache-reuse/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/74-prefix-cache-reuse/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/74-prefix-cache-reuse/ru/spec.json --bundle audits/functional-laptop/reviews/74-prefix-cache-reuse/ru/bundle --bilingual-record audits/functional-laptop/reviews/74-prefix-cache-reuse/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/74-prefix-cache-reuse/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 74-prefix-cache-reuse",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 74-prefix-cache-reuse",
-              "npm --prefix site run check:parity -- --chapter 74-prefix-cache-reuse",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/72-prefix-cache-reuse/english/spec.json --bundle audits/functional-laptop/reviews/72-prefix-cache-reuse/english/bundle --review-routing audits/functional-laptop/reviews/72-prefix-cache-reuse/english/review-routing.json --review-seals audits/functional-laptop/reviews/72-prefix-cache-reuse/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/72-prefix-cache-reuse/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/72-prefix-cache-reuse/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/72-prefix-cache-reuse/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/72-prefix-cache-reuse/ru/spec.json --bundle audits/functional-laptop/reviews/72-prefix-cache-reuse/ru/bundle --bilingual-record audits/functional-laptop/reviews/72-prefix-cache-reuse/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/72-prefix-cache-reuse/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 72-prefix-cache-reuse",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 72-prefix-cache-reuse",
+              "npm --prefix site run check:parity -- --chapter 72-prefix-cache-reuse",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2687,23 +2687,23 @@
             ]
           },
           {
-            "step_id": "implement-ch75-rope-context-scaling",
-            "target_id": "implement-ch75-rope-context-scaling-v1",
+            "step_id": "implement-ch73-rope-context-scaling",
+            "target_id": "implement-ch73-rope-context-scaling-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/75-rope-context-scaling.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 75-rope-context-scaling",
-              "node scripts/check-functional-rust-examples.mjs --chapter 75-rope-context-scaling",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/73-rope-context-scaling.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 73-rope-context-scaling",
+              "node scripts/check-functional-rust-examples.mjs --chapter 73-rope-context-scaling",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/75-rope-context-scaling/english/spec.json --bundle audits/functional-laptop/reviews/75-rope-context-scaling/english/bundle --review-routing audits/functional-laptop/reviews/75-rope-context-scaling/english/review-routing.json --review-seals audits/functional-laptop/reviews/75-rope-context-scaling/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/75-rope-context-scaling/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/75-rope-context-scaling/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/75-rope-context-scaling/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/75-rope-context-scaling/ru/spec.json --bundle audits/functional-laptop/reviews/75-rope-context-scaling/ru/bundle --bilingual-record audits/functional-laptop/reviews/75-rope-context-scaling/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/75-rope-context-scaling/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 75-rope-context-scaling",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 75-rope-context-scaling",
-              "npm --prefix site run check:parity -- --chapter 75-rope-context-scaling",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/73-rope-context-scaling/english/spec.json --bundle audits/functional-laptop/reviews/73-rope-context-scaling/english/bundle --review-routing audits/functional-laptop/reviews/73-rope-context-scaling/english/review-routing.json --review-seals audits/functional-laptop/reviews/73-rope-context-scaling/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/73-rope-context-scaling/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/73-rope-context-scaling/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/73-rope-context-scaling/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/73-rope-context-scaling/ru/spec.json --bundle audits/functional-laptop/reviews/73-rope-context-scaling/ru/bundle --bilingual-record audits/functional-laptop/reviews/73-rope-context-scaling/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/73-rope-context-scaling/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 73-rope-context-scaling",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 73-rope-context-scaling",
+              "npm --prefix site run check:parity -- --chapter 73-rope-context-scaling",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2737,23 +2737,23 @@
             ]
           },
           {
-            "step_id": "implement-ch76-retrieval-provenance",
-            "target_id": "implement-ch76-retrieval-provenance-v1",
+            "step_id": "implement-ch74-retrieval-provenance",
+            "target_id": "implement-ch74-retrieval-provenance-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/76-retrieval-provenance.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 76-retrieval-provenance",
-              "node scripts/check-functional-rust-examples.mjs --chapter 76-retrieval-provenance",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/74-retrieval-provenance.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 74-retrieval-provenance",
+              "node scripts/check-functional-rust-examples.mjs --chapter 74-retrieval-provenance",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/76-retrieval-provenance/english/spec.json --bundle audits/functional-laptop/reviews/76-retrieval-provenance/english/bundle --review-routing audits/functional-laptop/reviews/76-retrieval-provenance/english/review-routing.json --review-seals audits/functional-laptop/reviews/76-retrieval-provenance/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/76-retrieval-provenance/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/76-retrieval-provenance/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/76-retrieval-provenance/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/76-retrieval-provenance/ru/spec.json --bundle audits/functional-laptop/reviews/76-retrieval-provenance/ru/bundle --bilingual-record audits/functional-laptop/reviews/76-retrieval-provenance/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/76-retrieval-provenance/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 76-retrieval-provenance",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 76-retrieval-provenance",
-              "npm --prefix site run check:parity -- --chapter 76-retrieval-provenance",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/74-retrieval-provenance/english/spec.json --bundle audits/functional-laptop/reviews/74-retrieval-provenance/english/bundle --review-routing audits/functional-laptop/reviews/74-retrieval-provenance/english/review-routing.json --review-seals audits/functional-laptop/reviews/74-retrieval-provenance/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/74-retrieval-provenance/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/74-retrieval-provenance/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/74-retrieval-provenance/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/74-retrieval-provenance/ru/spec.json --bundle audits/functional-laptop/reviews/74-retrieval-provenance/ru/bundle --bilingual-record audits/functional-laptop/reviews/74-retrieval-provenance/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/74-retrieval-provenance/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 74-retrieval-provenance",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 74-retrieval-provenance",
+              "npm --prefix site run check:parity -- --chapter 74-retrieval-provenance",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2787,23 +2787,23 @@
             ]
           },
           {
-            "step_id": "implement-ch77-constrained-json-decoding",
-            "target_id": "implement-ch77-constrained-json-decoding-v1",
+            "step_id": "implement-ch75-constrained-json-decoding",
+            "target_id": "implement-ch75-constrained-json-decoding-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/77-constrained-json-decoding.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 77-constrained-json-decoding",
-              "node scripts/check-functional-rust-examples.mjs --chapter 77-constrained-json-decoding",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/75-constrained-json-decoding.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 75-constrained-json-decoding",
+              "node scripts/check-functional-rust-examples.mjs --chapter 75-constrained-json-decoding",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/77-constrained-json-decoding/english/spec.json --bundle audits/functional-laptop/reviews/77-constrained-json-decoding/english/bundle --review-routing audits/functional-laptop/reviews/77-constrained-json-decoding/english/review-routing.json --review-seals audits/functional-laptop/reviews/77-constrained-json-decoding/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/77-constrained-json-decoding/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/77-constrained-json-decoding/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/77-constrained-json-decoding/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/77-constrained-json-decoding/ru/spec.json --bundle audits/functional-laptop/reviews/77-constrained-json-decoding/ru/bundle --bilingual-record audits/functional-laptop/reviews/77-constrained-json-decoding/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/77-constrained-json-decoding/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 77-constrained-json-decoding",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 77-constrained-json-decoding",
-              "npm --prefix site run check:parity -- --chapter 77-constrained-json-decoding",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/75-constrained-json-decoding/english/spec.json --bundle audits/functional-laptop/reviews/75-constrained-json-decoding/english/bundle --review-routing audits/functional-laptop/reviews/75-constrained-json-decoding/english/review-routing.json --review-seals audits/functional-laptop/reviews/75-constrained-json-decoding/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/75-constrained-json-decoding/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/75-constrained-json-decoding/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/75-constrained-json-decoding/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/75-constrained-json-decoding/ru/spec.json --bundle audits/functional-laptop/reviews/75-constrained-json-decoding/ru/bundle --bilingual-record audits/functional-laptop/reviews/75-constrained-json-decoding/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/75-constrained-json-decoding/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 75-constrained-json-decoding",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 75-constrained-json-decoding",
+              "npm --prefix site run check:parity -- --chapter 75-constrained-json-decoding",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2837,23 +2837,23 @@
             ]
           },
           {
-            "step_id": "implement-ch78-authorized-tools",
-            "target_id": "implement-ch78-authorized-tools-v1",
+            "step_id": "implement-ch76-authorized-tools",
+            "target_id": "implement-ch76-authorized-tools-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/78-authorized-tools.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 78-authorized-tools",
-              "node scripts/check-functional-rust-examples.mjs --chapter 78-authorized-tools",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/76-authorized-tools.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 76-authorized-tools",
+              "node scripts/check-functional-rust-examples.mjs --chapter 76-authorized-tools",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/78-authorized-tools/english/spec.json --bundle audits/functional-laptop/reviews/78-authorized-tools/english/bundle --review-routing audits/functional-laptop/reviews/78-authorized-tools/english/review-routing.json --review-seals audits/functional-laptop/reviews/78-authorized-tools/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/78-authorized-tools/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/78-authorized-tools/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/78-authorized-tools/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/78-authorized-tools/ru/spec.json --bundle audits/functional-laptop/reviews/78-authorized-tools/ru/bundle --bilingual-record audits/functional-laptop/reviews/78-authorized-tools/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/78-authorized-tools/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 78-authorized-tools",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 78-authorized-tools",
-              "npm --prefix site run check:parity -- --chapter 78-authorized-tools",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/76-authorized-tools/english/spec.json --bundle audits/functional-laptop/reviews/76-authorized-tools/english/bundle --review-routing audits/functional-laptop/reviews/76-authorized-tools/english/review-routing.json --review-seals audits/functional-laptop/reviews/76-authorized-tools/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/76-authorized-tools/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/76-authorized-tools/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/76-authorized-tools/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/76-authorized-tools/ru/spec.json --bundle audits/functional-laptop/reviews/76-authorized-tools/ru/bundle --bilingual-record audits/functional-laptop/reviews/76-authorized-tools/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/76-authorized-tools/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 76-authorized-tools",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 76-authorized-tools",
+              "npm --prefix site run check:parity -- --chapter 76-authorized-tools",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2887,23 +2887,23 @@
             ]
           },
           {
-            "step_id": "implement-ch79-safety-privacy-model-card",
-            "target_id": "implement-ch79-safety-privacy-model-card-v1",
+            "step_id": "implement-ch77-safety-privacy-model-card",
+            "target_id": "implement-ch77-safety-privacy-model-card-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/79-safety-privacy-model-card.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 79-safety-privacy-model-card",
-              "node scripts/check-functional-rust-examples.mjs --chapter 79-safety-privacy-model-card",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/77-safety-privacy-model-card.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 77-safety-privacy-model-card",
+              "node scripts/check-functional-rust-examples.mjs --chapter 77-safety-privacy-model-card",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/79-safety-privacy-model-card/english/spec.json --bundle audits/functional-laptop/reviews/79-safety-privacy-model-card/english/bundle --review-routing audits/functional-laptop/reviews/79-safety-privacy-model-card/english/review-routing.json --review-seals audits/functional-laptop/reviews/79-safety-privacy-model-card/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/79-safety-privacy-model-card/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/79-safety-privacy-model-card/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/79-safety-privacy-model-card/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/79-safety-privacy-model-card/ru/spec.json --bundle audits/functional-laptop/reviews/79-safety-privacy-model-card/ru/bundle --bilingual-record audits/functional-laptop/reviews/79-safety-privacy-model-card/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/79-safety-privacy-model-card/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 79-safety-privacy-model-card",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 79-safety-privacy-model-card",
-              "npm --prefix site run check:parity -- --chapter 79-safety-privacy-model-card",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/77-safety-privacy-model-card/english/spec.json --bundle audits/functional-laptop/reviews/77-safety-privacy-model-card/english/bundle --review-routing audits/functional-laptop/reviews/77-safety-privacy-model-card/english/review-routing.json --review-seals audits/functional-laptop/reviews/77-safety-privacy-model-card/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/77-safety-privacy-model-card/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/77-safety-privacy-model-card/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/77-safety-privacy-model-card/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/77-safety-privacy-model-card/ru/spec.json --bundle audits/functional-laptop/reviews/77-safety-privacy-model-card/ru/bundle --bilingual-record audits/functional-laptop/reviews/77-safety-privacy-model-card/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/77-safety-privacy-model-card/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 77-safety-privacy-model-card",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 77-safety-privacy-model-card",
+              "npm --prefix site run check:parity -- --chapter 77-safety-privacy-model-card",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2937,23 +2937,23 @@
             ]
           },
           {
-            "step_id": "implement-ch80-from-scratch-laptop-capstone",
-            "target_id": "implement-ch80-from-scratch-laptop-capstone-v1",
+            "step_id": "implement-ch78-from-scratch-laptop-capstone",
+            "target_id": "implement-ch78-from-scratch-laptop-capstone-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/80-from-scratch-laptop-capstone.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 80-from-scratch-laptop-capstone",
-              "node scripts/check-functional-rust-examples.mjs --chapter 80-from-scratch-laptop-capstone",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/78-from-scratch-laptop-capstone.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 78-from-scratch-laptop-capstone",
+              "node scripts/check-functional-rust-examples.mjs --chapter 78-from-scratch-laptop-capstone",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/spec.json --bundle audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/bundle --review-routing audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/review-routing.json --review-seals audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/ru/spec.json --bundle audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/ru/bundle --bilingual-record audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/80-from-scratch-laptop-capstone/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 80-from-scratch-laptop-capstone",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 80-from-scratch-laptop-capstone",
-              "npm --prefix site run check:parity -- --chapter 80-from-scratch-laptop-capstone",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/spec.json --bundle audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/bundle --review-routing audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/review-routing.json --review-seals audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/ru/spec.json --bundle audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/ru/bundle --bilingual-record audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/78-from-scratch-laptop-capstone/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 78-from-scratch-laptop-capstone",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 78-from-scratch-laptop-capstone",
+              "npm --prefix site run check:parity -- --chapter 78-from-scratch-laptop-capstone",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -2987,23 +2987,23 @@
             ]
           },
           {
-            "step_id": "implement-ch81-import-adapt-serve-capstone",
-            "target_id": "implement-ch81-import-adapt-serve-capstone-v1",
+            "step_id": "implement-ch79-import-adapt-serve-capstone",
+            "target_id": "implement-ch79-import-adapt-serve-capstone-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/81-import-adapt-serve-capstone.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 81-import-adapt-serve-capstone",
-              "node scripts/check-functional-rust-examples.mjs --chapter 81-import-adapt-serve-capstone",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/79-import-adapt-serve-capstone.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 79-import-adapt-serve-capstone",
+              "node scripts/check-functional-rust-examples.mjs --chapter 79-import-adapt-serve-capstone",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/spec.json --bundle audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/bundle --review-routing audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/review-routing.json --review-seals audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/81-import-adapt-serve-capstone/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/81-import-adapt-serve-capstone/ru/spec.json --bundle audits/functional-laptop/reviews/81-import-adapt-serve-capstone/ru/bundle --bilingual-record audits/functional-laptop/reviews/81-import-adapt-serve-capstone/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/81-import-adapt-serve-capstone/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 81-import-adapt-serve-capstone",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 81-import-adapt-serve-capstone",
-              "npm --prefix site run check:parity -- --chapter 81-import-adapt-serve-capstone",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/spec.json --bundle audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/bundle --review-routing audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/review-routing.json --review-seals audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/79-import-adapt-serve-capstone/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/79-import-adapt-serve-capstone/ru/spec.json --bundle audits/functional-laptop/reviews/79-import-adapt-serve-capstone/ru/bundle --bilingual-record audits/functional-laptop/reviews/79-import-adapt-serve-capstone/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/79-import-adapt-serve-capstone/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 79-import-adapt-serve-capstone",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 79-import-adapt-serve-capstone",
+              "npm --prefix site run check:parity -- --chapter 79-import-adapt-serve-capstone",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -3037,23 +3037,23 @@
             ]
           },
           {
-            "step_id": "implement-ch82-advanced-decoding-serving",
-            "target_id": "implement-ch82-advanced-decoding-serving-v1",
+            "step_id": "implement-ch80-advanced-decoding-serving",
+            "target_id": "implement-ch80-advanced-decoding-serving-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/82-advanced-decoding-serving.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 82-advanced-decoding-serving",
-              "node scripts/check-functional-rust-examples.mjs --chapter 82-advanced-decoding-serving",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/80-advanced-decoding-serving.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 80-advanced-decoding-serving",
+              "node scripts/check-functional-rust-examples.mjs --chapter 80-advanced-decoding-serving",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/82-advanced-decoding-serving/english/spec.json --bundle audits/functional-laptop/reviews/82-advanced-decoding-serving/english/bundle --review-routing audits/functional-laptop/reviews/82-advanced-decoding-serving/english/review-routing.json --review-seals audits/functional-laptop/reviews/82-advanced-decoding-serving/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/82-advanced-decoding-serving/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/82-advanced-decoding-serving/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/82-advanced-decoding-serving/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/82-advanced-decoding-serving/ru/spec.json --bundle audits/functional-laptop/reviews/82-advanced-decoding-serving/ru/bundle --bilingual-record audits/functional-laptop/reviews/82-advanced-decoding-serving/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/82-advanced-decoding-serving/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 82-advanced-decoding-serving",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 82-advanced-decoding-serving",
-              "npm --prefix site run check:parity -- --chapter 82-advanced-decoding-serving",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/80-advanced-decoding-serving/english/spec.json --bundle audits/functional-laptop/reviews/80-advanced-decoding-serving/english/bundle --review-routing audits/functional-laptop/reviews/80-advanced-decoding-serving/english/review-routing.json --review-seals audits/functional-laptop/reviews/80-advanced-decoding-serving/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/80-advanced-decoding-serving/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/80-advanced-decoding-serving/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/80-advanced-decoding-serving/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/80-advanced-decoding-serving/ru/spec.json --bundle audits/functional-laptop/reviews/80-advanced-decoding-serving/ru/bundle --bilingual-record audits/functional-laptop/reviews/80-advanced-decoding-serving/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/80-advanced-decoding-serving/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 80-advanced-decoding-serving",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 80-advanced-decoding-serving",
+              "npm --prefix site run check:parity -- --chapter 80-advanced-decoding-serving",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -3087,23 +3087,23 @@
             ]
           },
           {
-            "step_id": "implement-ch83-distributed-schedule-simulation",
-            "target_id": "implement-ch83-distributed-schedule-simulation-v1",
+            "step_id": "implement-ch81-distributed-schedule-simulation",
+            "target_id": "implement-ch81-distributed-schedule-simulation-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/83-distributed-schedule-simulation.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 83-distributed-schedule-simulation",
-              "node scripts/check-functional-rust-examples.mjs --chapter 83-distributed-schedule-simulation",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/81-distributed-schedule-simulation.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 81-distributed-schedule-simulation",
+              "node scripts/check-functional-rust-examples.mjs --chapter 81-distributed-schedule-simulation",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/spec.json --bundle audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/bundle --review-routing audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/review-routing.json --review-seals audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/83-distributed-schedule-simulation/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/83-distributed-schedule-simulation/ru/spec.json --bundle audits/functional-laptop/reviews/83-distributed-schedule-simulation/ru/bundle --bilingual-record audits/functional-laptop/reviews/83-distributed-schedule-simulation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/83-distributed-schedule-simulation/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 83-distributed-schedule-simulation",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 83-distributed-schedule-simulation",
-              "npm --prefix site run check:parity -- --chapter 83-distributed-schedule-simulation",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/spec.json --bundle audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/bundle --review-routing audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/review-routing.json --review-seals audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/81-distributed-schedule-simulation/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/81-distributed-schedule-simulation/ru/spec.json --bundle audits/functional-laptop/reviews/81-distributed-schedule-simulation/ru/bundle --bilingual-record audits/functional-laptop/reviews/81-distributed-schedule-simulation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/81-distributed-schedule-simulation/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 81-distributed-schedule-simulation",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 81-distributed-schedule-simulation",
+              "npm --prefix site run check:parity -- --chapter 81-distributed-schedule-simulation",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -3137,23 +3137,23 @@
             ]
           },
           {
-            "step_id": "implement-ch84-moe-routing-simulation",
-            "target_id": "implement-ch84-moe-routing-simulation-v1",
+            "step_id": "implement-ch82-moe-routing-simulation",
+            "target_id": "implement-ch82-moe-routing-simulation-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/84-moe-routing-simulation.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 84-moe-routing-simulation",
-              "node scripts/check-functional-rust-examples.mjs --chapter 84-moe-routing-simulation",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/82-moe-routing-simulation.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 82-moe-routing-simulation",
+              "node scripts/check-functional-rust-examples.mjs --chapter 82-moe-routing-simulation",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/84-moe-routing-simulation/english/spec.json --bundle audits/functional-laptop/reviews/84-moe-routing-simulation/english/bundle --review-routing audits/functional-laptop/reviews/84-moe-routing-simulation/english/review-routing.json --review-seals audits/functional-laptop/reviews/84-moe-routing-simulation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/84-moe-routing-simulation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/84-moe-routing-simulation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/84-moe-routing-simulation/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/84-moe-routing-simulation/ru/spec.json --bundle audits/functional-laptop/reviews/84-moe-routing-simulation/ru/bundle --bilingual-record audits/functional-laptop/reviews/84-moe-routing-simulation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/84-moe-routing-simulation/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 84-moe-routing-simulation",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 84-moe-routing-simulation",
-              "npm --prefix site run check:parity -- --chapter 84-moe-routing-simulation",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/82-moe-routing-simulation/english/spec.json --bundle audits/functional-laptop/reviews/82-moe-routing-simulation/english/bundle --review-routing audits/functional-laptop/reviews/82-moe-routing-simulation/english/review-routing.json --review-seals audits/functional-laptop/reviews/82-moe-routing-simulation/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/82-moe-routing-simulation/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/82-moe-routing-simulation/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/82-moe-routing-simulation/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/82-moe-routing-simulation/ru/spec.json --bundle audits/functional-laptop/reviews/82-moe-routing-simulation/ru/bundle --bilingual-record audits/functional-laptop/reviews/82-moe-routing-simulation/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/82-moe-routing-simulation/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 82-moe-routing-simulation",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 82-moe-routing-simulation",
+              "npm --prefix site run check:parity -- --chapter 82-moe-routing-simulation",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -3187,23 +3187,23 @@
             ]
           },
           {
-            "step_id": "implement-ch85-persistence-scale-decision",
-            "target_id": "implement-ch85-persistence-scale-decision-v1",
+            "step_id": "implement-ch83-persistence-scale-decision",
+            "target_id": "implement-ch83-persistence-scale-decision-v1",
             "commands": [
               "node scripts/check-functional-laptop-llm-plan.mjs",
-              "npm --prefix site run check:contract -- ../curriculum/chapters/85-persistence-scale-decision.md",
-              "node scripts/check-functional-rust-ownership.mjs --chapter 85-persistence-scale-decision",
-              "node scripts/check-functional-rust-examples.mjs --chapter 85-persistence-scale-decision",
+              "npm --prefix site run check:contract -- ../curriculum/chapters/83-persistence-scale-decision.md",
+              "node scripts/check-functional-rust-ownership.mjs --chapter 83-persistence-scale-decision",
+              "node scripts/check-functional-rust-examples.mjs --chapter 83-persistence-scale-decision",
               "cargo fmt --all -- --check",
               "cargo clippy --workspace --all-targets --locked -- -D warnings",
               "cargo test --workspace --locked",
               "scripts/check-rust-dependencies.sh",
               "scripts/check-rust-demos.sh",
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/85-persistence-scale-decision/english/spec.json --bundle audits/functional-laptop/reviews/85-persistence-scale-decision/english/bundle --review-routing audits/functional-laptop/reviews/85-persistence-scale-decision/english/review-routing.json --review-seals audits/functional-laptop/reviews/85-persistence-scale-decision/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/85-persistence-scale-decision/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/85-persistence-scale-decision/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/85-persistence-scale-decision/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/85-persistence-scale-decision/ru/spec.json --bundle audits/functional-laptop/reviews/85-persistence-scale-decision/ru/bundle --bilingual-record audits/functional-laptop/reviews/85-persistence-scale-decision/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/85-persistence-scale-decision/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 85-persistence-scale-decision",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 85-persistence-scale-decision",
-              "npm --prefix site run check:parity -- --chapter 85-persistence-scale-decision",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/83-persistence-scale-decision/english/spec.json --bundle audits/functional-laptop/reviews/83-persistence-scale-decision/english/bundle --review-routing audits/functional-laptop/reviews/83-persistence-scale-decision/english/review-routing.json --review-seals audits/functional-laptop/reviews/83-persistence-scale-decision/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/83-persistence-scale-decision/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/83-persistence-scale-decision/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/83-persistence-scale-decision/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/83-persistence-scale-decision/ru/spec.json --bundle audits/functional-laptop/reviews/83-persistence-scale-decision/ru/bundle --bilingual-record audits/functional-laptop/reviews/83-persistence-scale-decision/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/83-persistence-scale-decision/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 83-persistence-scale-decision",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 83-persistence-scale-decision",
+              "npm --prefix site run check:parity -- --chapter 83-persistence-scale-decision",
               "npm --prefix site run check:content",
               "npm --prefix site run check",
               "npm --prefix site run test -- --run",
@@ -3312,8 +3312,8 @@
             ]
           },
           {
-            "step_id": "execute-functional-corpus-filtering",
-            "target_id": "execute-functional-corpus-filtering-v1",
+            "step_id": "execute-functional-nemo-corpus-preparation",
+            "target_id": "execute-functional-nemo-corpus-preparation-v1",
             "commands": [
               "cargo test --locked -p llm-from-scratch --test functional_corpus_filter_runner",
               "cargo run --release --locked -p llm-from-scratch --bin llm-functional-corpus-filter -- --spec configs/functional-data-pipeline/corpus-filter-v1.json --input-receipt /receipts/input.json --input /artifacts/input --output /output --run-receipt /output/corpus-filtering-v1-run-receipt.json",
@@ -3345,8 +3345,8 @@
             ]
           },
           {
-            "step_id": "execute-functional-corpus-dedup-split",
-            "target_id": "execute-functional-corpus-dedup-split-v1",
+            "step_id": "execute-functional-nemo-corpus-preparation",
+            "target_id": "execute-functional-nemo-corpus-preparation-v1",
             "commands": [
               "cargo test --locked -p llm-from-scratch --test functional_corpus_dedup_split_runner",
               "cargo run --release --locked -p llm-from-scratch --bin llm-functional-corpus-dedup-split -- --spec configs/functional-data-pipeline/corpus-dedup-split-v1.json --input-receipt /receipts/input.json --input /artifacts/input --output /output --run-receipt /output/corpus-dedup-split-v1-run-receipt.json",
@@ -3449,13 +3449,13 @@
             ]
           },
           {
-            "step_id": "implement-ch85-persistence-scale-decision",
+            "step_id": "implement-ch83-persistence-scale-decision",
             "target_id": "persistence-scale-oracle-v1",
             "commands": [
               "cargo run --release --locked -p llm-from-scratch --bin llm-functional-persistence-scale-oracle -- --spec configs/functional-persistence-scale-oracle-v1.json --preflight-receipt /output/persistence-scale-preflight-receipt.json --writer-operation-trace /output/writer-operation-trace.json --snapshot-state-transcript /output/snapshot-state-transcript.json --file-snapshot-output-inventory /output/file-snapshot-output-inventory.json --file-snapshot-evidence /output/file-snapshot-limit-evidence-receipt.json --receipt /output/persistence-scale-decision-receipt.json",
               "cargo test --locked -p llm-from-scratch --test functional_persistence_scale_oracle",
-              "node --test scripts/tests/build-functional-ch85-content-inventory.test.mjs scripts/tests/check-functional-persistence-scale-receipt.test.mjs",
-              "node scripts/build-functional-ch85-content-inventory.mjs --content-revision memory-file-default-v1 --output /output/base-content-inventory.json",
+              "node --test scripts/tests/build-functional-ch83-content-inventory.test.mjs scripts/tests/check-functional-persistence-scale-receipt.test.mjs",
+              "node scripts/build-functional-ch83-content-inventory.mjs --content-revision memory-file-default-v1 --output /output/base-content-inventory.json",
               "node scripts/check-functional-persistence-scale-receipt.mjs --spec configs/functional-persistence-scale-oracle-v1.json --preflight /output/persistence-scale-preflight-receipt.json --writer-operation-trace /output/writer-operation-trace.json --snapshot-state-transcript /output/snapshot-state-transcript.json --file-snapshot-output-inventory /output/file-snapshot-output-inventory.json --file-snapshot-evidence /output/file-snapshot-limit-evidence-receipt.json --receipt /output/persistence-scale-decision-receipt.json"
             ],
             "receipt_path": "/output/persistence-scale-decision-receipt.json",
@@ -3622,12 +3622,12 @@
           },
           {
             "step_id": "publish-functional-postgresql-pgvector-advanced-lab",
-            "target_id": "publish-postgresql-ch85-measured-postgresql-v1-v1",
+            "target_id": "publish-postgresql-ch83-measured-postgresql-v1-v1",
             "commands": [
-              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/spec.json --bundle audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/bundle --review-routing audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/review-routing.json --review-seals audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/english/adjudication-seals",
-              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/ru/spec.json --bundle audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/ru/bundle --bilingual-record audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/ru/target-only.raw.json",
-              "npm --prefix site run check:chapter -- --locale en --chapter 85-persistence-scale-decision",
-              "npm --prefix site run check:chapter -- --locale ru --chapter 85-persistence-scale-decision",
+              "node .agents/skills/author-llm-course-english/scripts/english-review.mjs verify --spec audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/spec.json --bundle audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/bundle --review-routing audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/review-routing.json --review-seals audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/review-seals --adjudication-bundle audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/adjudication-bundle --adjudication-routing audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/adjudication-routing.json --adjudication-seals audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/english/adjudication-seals",
+              "node .agents/skills/localize-llm-course/scripts/localization-review.mjs verify --spec audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/ru/spec.json --bundle audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/ru/bundle --bilingual-record audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/ru/bilingual.raw.json --target-only-record audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/ru/target-only.raw.json",
+              "npm --prefix site run check:chapter -- --locale en --chapter 83-persistence-scale-decision",
+              "npm --prefix site run check:chapter -- --locale ru --chapter 83-persistence-scale-decision",
               "npm --prefix site run build",
               "node scripts/check-functional-laptop-llm-plan.mjs"
             ],
@@ -3784,8 +3784,8 @@
               "/receipts/dense-oracle.json:ro": "artifacts/functional-laptop/acquisition/open-model/selected-dense-source-logits-receipt.json",
               "/receipts/oracle-publication.json:ro": "artifacts/functional-laptop/acquisition/open-model/selected-oracles-cache-publication-receipt.json",
               "/receipts/ch44.json:ro": "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt.json",
-              "/receipts/ch56.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-              "/receipts/ch61.json:ro": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
+              "/receipts/ch56.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+              "/receipts/ch61.json:ro": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
               "/receipts/runtime.json:ro": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json"
             },
             "input_cache_mounts": {
@@ -3805,8 +3805,8 @@
               "artifacts/functional-laptop/acquisition/open-model/selected-dense-source-logits-receipt.json",
               "artifacts/functional-laptop/acquisition/open-model/selected-oracles-cache-publication-receipt.json",
               "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-              "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+              "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
               "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json"
             ],
             "runtime_selector_required_fields": [
@@ -3829,16 +3829,16 @@
             ]
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
-            "target_id": "ch56-course-interchange-v1",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
+            "target_id": "ch54-course-interchange-v1",
             "commands": [
               "cargo run --release --locked -p llm-from-scratch --bin llm-functional-dense-interchange-ci -- --mode import-convert --spec configs/functional-dense-interchange-fixtures-v1.json --source-a /artifacts/source-a --source-a-receipt /receipts/source-a.json --source-b /artifacts/source-b --source-b-receipt /receipts/source-b.json --tokenizer-receipt /receipts/tokenizer.json --output /output --run-receipt /output/course-interchange-run-receipt.json",
               "cargo test --locked -p llm-from-scratch --test functional_dense_fixture_interchange -- --exact source_to_course_interchange",
               "node scripts/check-functional-dense-fixture-receipt.mjs --mode dth --spec configs/functional-dense-interchange-fixtures-v1.json --receipt-a /output/transformers-fixture-receipt.json --receipt-b /output/llama2c-fixture-receipt.json"
             ],
             "input_receipt_mounts": {
-              "/receipts/source-a.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
-              "/receipts/source-b.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
+              "/receipts/source-a.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
+              "/receipts/source-b.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
               "/receipts/tokenizer.json:ro": "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/course-reference-tokenizer-lineage-receipt.json"
             },
             "input_cache_mounts": {
@@ -3875,8 +3875,8 @@
             ]
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
-            "target_id": "ch56-two-dense-fixtures-tiny-ci-v1",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
+            "target_id": "ch54-two-dense-fixtures-tiny-ci-v1",
             "commands": [
               "cargo run --release --locked -p llm-from-scratch --bin llm-functional-dense-interchange-ci -- --mode tiny-ci-and-compose-isa --spec configs/functional-dense-interchange-fixtures-v1.json --fixture-a /artifacts/fixture-a --fixture-a-receipt /receipts/fixture-a.json --fixture-b /artifacts/fixture-b --fixture-b-receipt /receipts/fixture-b.json --output /output",
               "cargo test --locked -p llm-from-scratch --test functional_dense_fixture_interchange -- --exact two_independent_dense_fixtures_tiny_ci",
@@ -3884,8 +3884,8 @@
               "node scripts/check-functional-dense-fixture-receipt.mjs --mode isa --spec configs/functional-dense-interchange-fixtures-v1.json --receipt /output/independent-dense-fixture-integration-receipt.json"
             ],
             "input_receipt_mounts": {
-              "/receipts/fixture-a.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
-              "/receipts/fixture-b.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+              "/receipts/fixture-a.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
+              "/receipts/fixture-b.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
             },
             "input_cache_mounts": {
               "/artifacts/fixture-a:ro": "receipt-selected-transformers-final-entry",
@@ -8582,14 +8582,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch41-governed-corpus-acquisition",
-            "target_id": "chapter-41-governed-corpus-acquisition-v1",
+            "step_id": "merge-ch41-nemo-corpus-preparation-20261007",
+            "target_id": "chapter-41-corpus-preparation-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:41-governed-corpus-acquisition",
+            "selector": "@chapter:41-corpus-preparation",
             "specs": [
-              "site/tests/e2e/ch41-governed-corpus-acquisition.spec.ts"
+              "site/tests/e2e/ch41-corpus-preparation.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8603,14 +8603,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch42-deterministic-corpus-filtering",
-            "target_id": "chapter-42-deterministic-corpus-filtering-v1",
+            "step_id": "merge-ch41-nemo-corpus-preparation-20261007",
+            "target_id": "chapter-41-corpus-preparation-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:42-deterministic-corpus-filtering",
+            "selector": "@chapter:41-corpus-preparation",
             "specs": [
-              "site/tests/e2e/ch42-deterministic-corpus-filtering.spec.ts"
+              "site/tests/e2e/ch41-corpus-preparation.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8624,14 +8624,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch43-deduplication-decontamination",
-            "target_id": "chapter-43-deduplication-decontamination-v1",
+            "step_id": "merge-ch41-nemo-corpus-preparation-20261007",
+            "target_id": "chapter-41-corpus-preparation-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:43-deduplication-decontamination",
+            "selector": "@chapter:41-corpus-preparation",
             "specs": [
-              "site/tests/e2e/ch43-deduplication-decontamination.spec.ts"
+              "site/tests/e2e/ch41-corpus-preparation.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8645,14 +8645,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch44-scalable-bpe-tokenizer",
-            "target_id": "chapter-44-scalable-bpe-tokenizer-v1",
+            "step_id": "implement-ch42-scalable-bpe-tokenizer",
+            "target_id": "chapter-42-scalable-bpe-tokenizer-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:44-scalable-bpe-tokenizer",
+            "selector": "@chapter:42-scalable-bpe-tokenizer",
             "specs": [
-              "site/tests/e2e/ch44-scalable-bpe-tokenizer.spec.ts"
+              "site/tests/e2e/ch42-scalable-bpe-tokenizer.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8666,14 +8666,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch45-padded-variable-batches",
-            "target_id": "chapter-45-padded-variable-batches-v1",
+            "step_id": "implement-ch43-padded-variable-batches",
+            "target_id": "chapter-43-padded-variable-batches-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:45-padded-variable-batches",
+            "selector": "@chapter:43-padded-variable-batches",
             "specs": [
-              "site/tests/e2e/ch45-padded-variable-batches.spec.ts"
+              "site/tests/e2e/ch43-padded-variable-batches.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8687,14 +8687,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch46-packed-sequence-masks",
-            "target_id": "chapter-46-packed-sequence-masks-v1",
+            "step_id": "implement-ch44-packed-sequence-masks",
+            "target_id": "chapter-44-packed-sequence-masks-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:46-packed-sequence-masks",
+            "selector": "@chapter:44-packed-sequence-masks",
             "specs": [
-              "site/tests/e2e/ch46-packed-sequence-masks.spec.ts"
+              "site/tests/e2e/ch44-packed-sequence-masks.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8708,14 +8708,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch47-depth-stable-decoder",
-            "target_id": "chapter-47-depth-stable-decoder-v1",
+            "step_id": "implement-ch45-depth-stable-decoder",
+            "target_id": "chapter-45-depth-stable-decoder-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:47-depth-stable-decoder",
+            "selector": "@chapter:45-depth-stable-decoder",
             "specs": [
-              "site/tests/e2e/ch47-depth-stable-decoder.spec.ts"
+              "site/tests/e2e/ch45-depth-stable-decoder.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8729,14 +8729,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch48-configurable-decoder-core",
-            "target_id": "chapter-48-configurable-decoder-core-v1",
+            "step_id": "implement-ch46-configurable-decoder-core",
+            "target_id": "chapter-46-configurable-decoder-core-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:48-configurable-decoder-core",
+            "selector": "@chapter:46-configurable-decoder-core",
             "specs": [
-              "site/tests/e2e/ch48-configurable-decoder-core.spec.ts"
+              "site/tests/e2e/ch46-configurable-decoder-core.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8750,14 +8750,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch49-dropout-semantics",
-            "target_id": "chapter-49-dropout-semantics-v1",
+            "step_id": "implement-ch47-dropout-semantics",
+            "target_id": "chapter-47-dropout-semantics-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:49-dropout-semantics",
+            "selector": "@chapter:47-dropout-semantics",
             "specs": [
-              "site/tests/e2e/ch49-dropout-semantics.spec.ts"
+              "site/tests/e2e/ch47-dropout-semantics.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8771,14 +8771,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch50-dependency-error-contract",
-            "target_id": "chapter-50-dependency-error-contract-v1",
+            "step_id": "implement-ch48-dependency-error-contract",
+            "target_id": "chapter-48-dependency-error-contract-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:50-dependency-error-contract",
+            "selector": "@chapter:48-dependency-error-contract",
             "specs": [
-              "site/tests/e2e/ch50-dependency-error-contract.spec.ts"
+              "site/tests/e2e/ch48-dependency-error-contract.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8792,14 +8792,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch51-serving-config-admission",
-            "target_id": "chapter-51-serving-config-admission-v1",
+            "step_id": "implement-ch49-serving-config-admission",
+            "target_id": "chapter-49-serving-config-admission-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:51-serving-config-admission",
+            "selector": "@chapter:49-serving-config-admission",
             "specs": [
-              "site/tests/e2e/ch51-serving-config-admission.spec.ts"
+              "site/tests/e2e/ch49-serving-config-admission.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8813,14 +8813,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch52-accelerator-tensor-parity",
-            "target_id": "chapter-52-accelerator-tensor-parity-v1",
+            "step_id": "implement-ch50-accelerator-tensor-parity",
+            "target_id": "chapter-50-accelerator-tensor-parity-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:52-accelerator-tensor-parity",
+            "selector": "@chapter:50-accelerator-tensor-parity",
             "specs": [
-              "site/tests/e2e/ch52-accelerator-tensor-parity.spec.ts"
+              "site/tests/e2e/ch50-accelerator-tensor-parity.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8834,14 +8834,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch53-mixed-precision-training",
-            "target_id": "chapter-53-mixed-precision-training-v1",
+            "step_id": "implement-ch51-mixed-precision-training",
+            "target_id": "chapter-51-mixed-precision-training-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:53-mixed-precision-training",
+            "selector": "@chapter:51-mixed-precision-training",
             "specs": [
-              "site/tests/e2e/ch53-mixed-precision-training.spec.ts"
+              "site/tests/e2e/ch51-mixed-precision-training.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8855,14 +8855,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch54-memory-bounded-training",
-            "target_id": "chapter-54-memory-bounded-training-v1",
+            "step_id": "implement-ch52-memory-bounded-training",
+            "target_id": "chapter-52-memory-bounded-training-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:54-memory-bounded-training",
+            "selector": "@chapter:52-memory-bounded-training",
             "specs": [
-              "site/tests/e2e/ch54-memory-bounded-training.spec.ts"
+              "site/tests/e2e/ch52-memory-bounded-training.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8876,14 +8876,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch55-optimizer-schedules-clipping",
-            "target_id": "chapter-55-optimizer-schedules-clipping-v1",
+            "step_id": "implement-ch53-optimizer-schedules-clipping",
+            "target_id": "chapter-53-optimizer-schedules-clipping-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:55-optimizer-schedules-clipping",
+            "selector": "@chapter:53-optimizer-schedules-clipping",
             "specs": [
-              "site/tests/e2e/ch55-optimizer-schedules-clipping.spec.ts"
+              "site/tests/e2e/ch53-optimizer-schedules-clipping.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8897,14 +8897,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
-            "target_id": "chapter-56-tensor-artifact-interchange-v1",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
+            "target_id": "chapter-54-tensor-artifact-interchange-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:56-tensor-artifact-interchange",
+            "selector": "@chapter:54-tensor-artifact-interchange",
             "specs": [
-              "site/tests/e2e/ch56-tensor-artifact-interchange.spec.ts"
+              "site/tests/e2e/ch54-tensor-artifact-interchange.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8918,14 +8918,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch57-immutable-artifact-persistence",
-            "target_id": "chapter-57-immutable-artifact-persistence-v1",
+            "step_id": "implement-ch55-immutable-artifact-persistence",
+            "target_id": "chapter-55-immutable-artifact-persistence-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:57-immutable-artifact-persistence",
+            "selector": "@chapter:55-immutable-artifact-persistence",
             "specs": [
-              "site/tests/e2e/ch57-immutable-artifact-persistence.spec.ts"
+              "site/tests/e2e/ch55-immutable-artifact-persistence.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8939,14 +8939,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch58-exact-job-resume",
-            "target_id": "chapter-58-exact-job-resume-v1",
+            "step_id": "implement-ch56-exact-job-resume",
+            "target_id": "chapter-56-exact-job-resume-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:58-exact-job-resume",
+            "selector": "@chapter:56-exact-job-resume",
             "specs": [
-              "site/tests/e2e/ch58-exact-job-resume.spec.ts"
+              "site/tests/e2e/ch56-exact-job-resume.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8960,14 +8960,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch59-resource-observability",
-            "target_id": "chapter-59-resource-observability-v1",
+            "step_id": "implement-ch57-resource-observability",
+            "target_id": "chapter-57-resource-observability-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:59-resource-observability",
+            "selector": "@chapter:57-resource-observability",
             "specs": [
-              "site/tests/e2e/ch59-resource-observability.spec.ts"
+              "site/tests/e2e/ch57-resource-observability.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -8981,14 +8981,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch60-multi-seed-evaluation",
-            "target_id": "chapter-60-multi-seed-evaluation-v1",
+            "step_id": "implement-ch58-multi-seed-evaluation",
+            "target_id": "chapter-58-multi-seed-evaluation-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:60-multi-seed-evaluation",
+            "selector": "@chapter:58-multi-seed-evaluation",
             "specs": [
-              "site/tests/e2e/ch60-multi-seed-evaluation.spec.ts"
+              "site/tests/e2e/ch58-multi-seed-evaluation.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9002,14 +9002,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch61-quantized-gguf-artifacts",
-            "target_id": "chapter-61-quantized-gguf-artifacts-v1",
+            "step_id": "implement-ch59-quantized-gguf-artifacts",
+            "target_id": "chapter-59-quantized-gguf-artifacts-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:61-quantized-gguf-artifacts",
+            "selector": "@chapter:59-quantized-gguf-artifacts",
             "specs": [
-              "site/tests/e2e/ch61-quantized-gguf-artifacts.spec.ts"
+              "site/tests/e2e/ch59-quantized-gguf-artifacts.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9023,14 +9023,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch62-laptop-hardware-admission",
-            "target_id": "chapter-62-laptop-hardware-admission-v1",
+            "step_id": "implement-ch60-laptop-hardware-admission",
+            "target_id": "chapter-60-laptop-hardware-admission-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:62-laptop-hardware-admission",
+            "selector": "@chapter:60-laptop-hardware-admission",
             "specs": [
-              "site/tests/e2e/ch62-laptop-hardware-admission.spec.ts"
+              "site/tests/e2e/ch60-laptop-hardware-admission.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9044,14 +9044,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch63-gqa-context-policy",
-            "target_id": "chapter-63-gqa-context-policy-v1",
+            "step_id": "implement-ch61-gqa-context-policy",
+            "target_id": "chapter-61-gqa-context-policy-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:63-gqa-context-policy",
+            "selector": "@chapter:61-gqa-context-policy",
             "specs": [
-              "site/tests/e2e/ch63-gqa-context-policy.spec.ts"
+              "site/tests/e2e/ch61-gqa-context-policy.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9065,14 +9065,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch64-online-tiled-attention",
-            "target_id": "chapter-64-online-tiled-attention-v1",
+            "step_id": "implement-ch62-online-tiled-attention",
+            "target_id": "chapter-62-online-tiled-attention-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:64-online-tiled-attention",
+            "selector": "@chapter:62-online-tiled-attention",
             "specs": [
-              "site/tests/e2e/ch64-online-tiled-attention.spec.ts"
+              "site/tests/e2e/ch62-online-tiled-attention.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9086,14 +9086,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch65-kv-block-pool",
-            "target_id": "chapter-65-kv-block-pool-v1",
+            "step_id": "implement-ch63-kv-block-pool",
+            "target_id": "chapter-63-kv-block-pool-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:65-kv-block-pool",
+            "selector": "@chapter:63-kv-block-pool",
             "specs": [
-              "site/tests/e2e/ch65-kv-block-pool.spec.ts"
+              "site/tests/e2e/ch63-kv-block-pool.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9107,14 +9107,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch66-nucleus-penalties-logprobs",
-            "target_id": "chapter-66-nucleus-penalties-logprobs-v1",
+            "step_id": "implement-ch64-nucleus-penalties-logprobs",
+            "target_id": "chapter-64-nucleus-penalties-logprobs-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:66-nucleus-penalties-logprobs",
+            "selector": "@chapter:64-nucleus-penalties-logprobs",
             "specs": [
-              "site/tests/e2e/ch66-nucleus-penalties-logprobs.spec.ts"
+              "site/tests/e2e/ch64-nucleus-penalties-logprobs.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9128,14 +9128,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch67-stop-strings-unicode-streaming",
-            "target_id": "chapter-67-stop-strings-unicode-streaming-v1",
+            "step_id": "implement-ch65-stop-strings-unicode-streaming",
+            "target_id": "chapter-65-stop-strings-unicode-streaming-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:67-stop-strings-unicode-streaming",
+            "selector": "@chapter:65-stop-strings-unicode-streaming",
             "specs": [
-              "site/tests/e2e/ch67-stop-strings-unicode-streaming.spec.ts"
+              "site/tests/e2e/ch65-stop-strings-unicode-streaming.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9149,14 +9149,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch68-continuous-batch-scheduling",
-            "target_id": "chapter-68-continuous-batch-scheduling-v1",
+            "step_id": "implement-ch66-continuous-batch-scheduling",
+            "target_id": "chapter-66-continuous-batch-scheduling-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:68-continuous-batch-scheduling",
+            "selector": "@chapter:66-continuous-batch-scheduling",
             "specs": [
-              "site/tests/e2e/ch68-continuous-batch-scheduling.spec.ts"
+              "site/tests/e2e/ch66-continuous-batch-scheduling.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9170,14 +9170,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch69-cancellation-backpressure-budgets",
-            "target_id": "chapter-69-cancellation-backpressure-budgets-v1",
+            "step_id": "implement-ch67-cancellation-backpressure-budgets",
+            "target_id": "chapter-67-cancellation-backpressure-budgets-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:69-cancellation-backpressure-budgets",
+            "selector": "@chapter:67-cancellation-backpressure-budgets",
             "specs": [
-              "site/tests/e2e/ch69-cancellation-backpressure-budgets.spec.ts"
+              "site/tests/e2e/ch67-cancellation-backpressure-budgets.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9191,14 +9191,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch70-loopback-serving-metrics",
-            "target_id": "chapter-70-loopback-serving-metrics-v1",
+            "step_id": "implement-ch68-loopback-serving-metrics",
+            "target_id": "chapter-68-loopback-serving-metrics-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:70-loopback-serving-metrics",
+            "selector": "@chapter:68-loopback-serving-metrics",
             "specs": [
-              "site/tests/e2e/ch70-loopback-serving-metrics.spec.ts"
+              "site/tests/e2e/ch68-loopback-serving-metrics.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9212,14 +9212,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch71-lora-sft-adapters",
-            "target_id": "chapter-71-lora-sft-adapters-v1",
+            "step_id": "implement-ch69-lora-sft-adapters",
+            "target_id": "chapter-69-lora-sft-adapters-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:71-lora-sft-adapters",
+            "selector": "@chapter:69-lora-sft-adapters",
             "specs": [
-              "site/tests/e2e/ch71-lora-sft-adapters.spec.ts"
+              "site/tests/e2e/ch69-lora-sft-adapters.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9233,14 +9233,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch72-direct-preference-optimization",
-            "target_id": "chapter-72-direct-preference-optimization-v1",
+            "step_id": "implement-ch70-direct-preference-optimization",
+            "target_id": "chapter-70-direct-preference-optimization-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:72-direct-preference-optimization",
+            "selector": "@chapter:70-direct-preference-optimization",
             "specs": [
-              "site/tests/e2e/ch72-direct-preference-optimization.spec.ts"
+              "site/tests/e2e/ch70-direct-preference-optimization.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9254,14 +9254,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch73-qlora-boundary",
-            "target_id": "chapter-73-qlora-boundary-v1",
+            "step_id": "implement-ch71-qlora-boundary",
+            "target_id": "chapter-71-qlora-boundary-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:73-qlora-boundary",
+            "selector": "@chapter:71-qlora-boundary",
             "specs": [
-              "site/tests/e2e/ch73-qlora-boundary.spec.ts"
+              "site/tests/e2e/ch71-qlora-boundary.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9275,14 +9275,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch74-prefix-cache-reuse",
-            "target_id": "chapter-74-prefix-cache-reuse-v1",
+            "step_id": "implement-ch72-prefix-cache-reuse",
+            "target_id": "chapter-72-prefix-cache-reuse-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:74-prefix-cache-reuse",
+            "selector": "@chapter:72-prefix-cache-reuse",
             "specs": [
-              "site/tests/e2e/ch74-prefix-cache-reuse.spec.ts"
+              "site/tests/e2e/ch72-prefix-cache-reuse.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9296,14 +9296,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch75-rope-context-scaling",
-            "target_id": "chapter-75-rope-context-scaling-v1",
+            "step_id": "implement-ch73-rope-context-scaling",
+            "target_id": "chapter-73-rope-context-scaling-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:75-rope-context-scaling",
+            "selector": "@chapter:73-rope-context-scaling",
             "specs": [
-              "site/tests/e2e/ch75-rope-context-scaling.spec.ts"
+              "site/tests/e2e/ch73-rope-context-scaling.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9317,14 +9317,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch76-retrieval-provenance",
-            "target_id": "chapter-76-retrieval-provenance-v1",
+            "step_id": "implement-ch74-retrieval-provenance",
+            "target_id": "chapter-74-retrieval-provenance-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:76-retrieval-provenance",
+            "selector": "@chapter:74-retrieval-provenance",
             "specs": [
-              "site/tests/e2e/ch76-retrieval-provenance.spec.ts"
+              "site/tests/e2e/ch74-retrieval-provenance.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9338,14 +9338,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch77-constrained-json-decoding",
-            "target_id": "chapter-77-constrained-json-decoding-v1",
+            "step_id": "implement-ch75-constrained-json-decoding",
+            "target_id": "chapter-75-constrained-json-decoding-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:77-constrained-json-decoding",
+            "selector": "@chapter:75-constrained-json-decoding",
             "specs": [
-              "site/tests/e2e/ch77-constrained-json-decoding.spec.ts"
+              "site/tests/e2e/ch75-constrained-json-decoding.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9359,14 +9359,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch78-authorized-tools",
-            "target_id": "chapter-78-authorized-tools-v1",
+            "step_id": "implement-ch76-authorized-tools",
+            "target_id": "chapter-76-authorized-tools-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:78-authorized-tools",
+            "selector": "@chapter:76-authorized-tools",
             "specs": [
-              "site/tests/e2e/ch78-authorized-tools.spec.ts"
+              "site/tests/e2e/ch76-authorized-tools.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9380,14 +9380,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch79-safety-privacy-model-card",
-            "target_id": "chapter-79-safety-privacy-model-card-v1",
+            "step_id": "implement-ch77-safety-privacy-model-card",
+            "target_id": "chapter-77-safety-privacy-model-card-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:79-safety-privacy-model-card",
+            "selector": "@chapter:77-safety-privacy-model-card",
             "specs": [
-              "site/tests/e2e/ch79-safety-privacy-model-card.spec.ts"
+              "site/tests/e2e/ch77-safety-privacy-model-card.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9401,14 +9401,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch80-from-scratch-laptop-capstone",
-            "target_id": "chapter-80-from-scratch-laptop-capstone-v1",
+            "step_id": "implement-ch78-from-scratch-laptop-capstone",
+            "target_id": "chapter-78-from-scratch-laptop-capstone-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:80-from-scratch-laptop-capstone",
+            "selector": "@chapter:78-from-scratch-laptop-capstone",
             "specs": [
-              "site/tests/e2e/ch80-from-scratch-laptop-capstone.spec.ts"
+              "site/tests/e2e/ch78-from-scratch-laptop-capstone.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9422,14 +9422,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch81-import-adapt-serve-capstone",
-            "target_id": "chapter-81-import-adapt-serve-capstone-v1",
+            "step_id": "implement-ch79-import-adapt-serve-capstone",
+            "target_id": "chapter-79-import-adapt-serve-capstone-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:81-import-adapt-serve-capstone",
+            "selector": "@chapter:79-import-adapt-serve-capstone",
             "specs": [
-              "site/tests/e2e/ch81-import-adapt-serve-capstone.spec.ts"
+              "site/tests/e2e/ch79-import-adapt-serve-capstone.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9443,14 +9443,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch82-advanced-decoding-serving",
-            "target_id": "chapter-82-advanced-decoding-serving-v1",
+            "step_id": "implement-ch80-advanced-decoding-serving",
+            "target_id": "chapter-80-advanced-decoding-serving-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:82-advanced-decoding-serving",
+            "selector": "@chapter:80-advanced-decoding-serving",
             "specs": [
-              "site/tests/e2e/ch82-advanced-decoding-serving.spec.ts"
+              "site/tests/e2e/ch80-advanced-decoding-serving.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9464,14 +9464,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch83-distributed-schedule-simulation",
-            "target_id": "chapter-83-distributed-schedule-simulation-v1",
+            "step_id": "implement-ch81-distributed-schedule-simulation",
+            "target_id": "chapter-81-distributed-schedule-simulation-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:83-distributed-schedule-simulation",
+            "selector": "@chapter:81-distributed-schedule-simulation",
             "specs": [
-              "site/tests/e2e/ch83-distributed-schedule-simulation.spec.ts"
+              "site/tests/e2e/ch81-distributed-schedule-simulation.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9485,14 +9485,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch84-moe-routing-simulation",
-            "target_id": "chapter-84-moe-routing-simulation-v1",
+            "step_id": "implement-ch82-moe-routing-simulation",
+            "target_id": "chapter-82-moe-routing-simulation-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:84-moe-routing-simulation",
+            "selector": "@chapter:82-moe-routing-simulation",
             "specs": [
-              "site/tests/e2e/ch84-moe-routing-simulation.spec.ts"
+              "site/tests/e2e/ch82-moe-routing-simulation.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9506,14 +9506,14 @@
             "runtime_network": "none"
           },
           {
-            "step_id": "implement-ch85-persistence-scale-decision",
-            "target_id": "chapter-85-persistence-scale-decision-v1",
+            "step_id": "implement-ch83-persistence-scale-decision",
+            "target_id": "chapter-83-persistence-scale-decision-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@chapter:85-persistence-scale-decision",
+            "selector": "@chapter:83-persistence-scale-decision",
             "specs": [
-              "site/tests/e2e/ch85-persistence-scale-decision.spec.ts"
+              "site/tests/e2e/ch83-persistence-scale-decision.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -9549,13 +9549,13 @@
           },
           {
             "step_id": "publish-functional-postgresql-pgvector-advanced-lab",
-            "target_id": "chapter-85-persistence-scale-decision-measured-postgresql-v1-v1",
+            "target_id": "chapter-83-persistence-scale-decision-measured-postgresql-v1-v1",
             "project": "firefox",
             "phase": "test",
             "suite": "grep",
-            "selector": "@functional-postgresql-ch85-measured",
+            "selector": "@functional-postgresql-ch83-measured",
             "specs": [
-              "site/tests/e2e/ch85-persistence-scale-decision.spec.ts"
+              "site/tests/e2e/ch83-persistence-scale-decision.spec.ts"
             ],
             "locale_matrix": [
               "en",
@@ -10385,9 +10385,9 @@
                 ],
                 "parity_prerequisite_receipts": {
                   "tokenizer_oracle": "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt.json",
-                  "dense_interchange": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-                  "course_importer": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json",
-                  "quantizer_implementation": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
+                  "dense_interchange": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+                  "course_importer": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json",
+                  "quantizer_implementation": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
                   "prompt_inventory": "configs/functional-data-pipeline/dense-bridge-prompt-inventory-v1.json"
                 },
                 "supported_config_keys": [
@@ -12630,17 +12630,17 @@
             }
           },
           {
-            "step_id": "implement-ch61-quantized-gguf-artifacts",
-            "target_id": "implement-ch61-quantized-gguf-artifacts-v1",
+            "step_id": "implement-ch59-quantized-gguf-artifacts",
+            "target_id": "implement-ch59-quantized-gguf-artifacts-v1",
             "modes": [
               "publish-generated",
               "verify"
             ],
-            "phase_spec": "configs/functional-artifact-cache-targets.json#implement-ch61-quantized-gguf-artifacts-v1",
+            "phase_spec": "configs/functional-artifact-cache-targets.json#implement-ch59-quantized-gguf-artifacts-v1",
             "input_receipts": [],
             "input_cache_mounts": {},
-            "producer_receipt": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
-            "output_receipt": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
+            "producer_receipt": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
+            "output_receipt": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
             "output_roles": [
               "course-fixture-gguf",
               "course-fixture-quantized-tensors",
@@ -12900,13 +12900,13 @@
             ]
           },
           {
-            "step_id": "implement-ch81-import-adapt-serve-capstone",
-            "target_id": "implement-ch81-import-adapt-serve-capstone-v1",
+            "step_id": "implement-ch79-import-adapt-serve-capstone",
+            "target_id": "implement-ch79-import-adapt-serve-capstone-v1",
             "modes": [
               "publish-generated",
               "verify"
             ],
-            "phase_spec": "configs/functional-artifact-cache-targets.json#implement-ch81-import-adapt-serve-capstone-v1",
+            "phase_spec": "configs/functional-artifact-cache-targets.json#implement-ch79-import-adapt-serve-capstone-v1",
             "input_receipts": [
               "artifacts/functional-laptop/acquisition/open-model/receipt.json",
               "artifacts/functional-laptop/acquisition/open-model/selected-tokenizer-integration-receipt.json",
@@ -12920,8 +12920,8 @@
               "/artifacts/cache-1:ro": "entry-selected-by-artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
               "/artifacts/cache-2:ro": "entry-selected-by-artifacts/functional-laptop/experiments/adaptation/dpo-receipt.json"
             },
-            "producer_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/gpu-execution-receipt.json",
-            "output_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/gpu-execution-receipt.json",
+            "producer_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/gpu-execution-receipt.json",
+            "output_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/gpu-execution-receipt.json",
             "output_roles": [
               "exact-selected-integration-matrix-inputs",
               "adapter-evaluation-five-seed-attempts",
@@ -12976,106 +12976,6 @@
               "artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
               "artifacts/functional-laptop/experiments/adaptation/dpo-receipt.json"
             ]
-          },
-          {
-            "step_id": "execute-functional-corpus-filtering",
-            "target_id": "corpus-filtering-v1",
-            "modes": [
-              "publish-generated",
-              "verify"
-            ],
-            "phase_spec": "configs/functional-data-pipeline/corpus-filter-v1.json",
-            "input_receipts": [
-              "artifacts/functional-laptop/acquisition/tinystories/receipt.json"
-            ],
-            "input_cache_mounts": [
-              "/artifacts/input:ro"
-            ],
-            "output_receipt": "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json",
-            "output_roles": [
-              "privacy-filtered-corpus",
-              "filter-policy-rejections",
-              "source-lineage"
-            ],
-            "network_by_mode": {
-              "publish-generated": "none",
-              "verify": "none"
-            },
-            "cache_mount_by_mode": {
-              "publish-generated": "exact-validated-offline-run-output-to-cache-rw",
-              "verify": "exact-output-digest-entry-ro"
-            },
-            "output_mount": "/output:rw-run-scoped",
-            "additional_input_receipts": [],
-            "output_receipts": [
-              "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json"
-            ],
-            "offline_transform_target": "execute-functional-corpus-filtering-v1",
-            "source_runs": [
-              {
-                "target_id": "execute-functional-corpus-filtering-v1",
-                "run_receipt": "/output/corpus-filtering-v1-run-receipt.json",
-                "output_directory": "/output",
-                "required_sha256_fields": [
-                  "input_receipt_sha256",
-                  "phase_spec_sha256",
-                  "focused_test_command_sha256",
-                  "output_payload_inventory_sha256",
-                  "semantic_receipt_sha256"
-                ]
-              }
-            ],
-            "publication_rule": "the single offline run executes the focused Rust test before the exact transform, emits a run/output inventory receipt, and only those validated bytes may be atomically published; artifact transform mode and post-publication reruns are forbidden"
-          },
-          {
-            "step_id": "execute-functional-corpus-dedup-split",
-            "target_id": "corpus-dedup-split-v1",
-            "modes": [
-              "publish-generated",
-              "verify"
-            ],
-            "phase_spec": "configs/functional-data-pipeline/corpus-dedup-split-v1.json",
-            "input_receipts": [
-              "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json"
-            ],
-            "input_cache_mounts": [
-              "/artifacts/input:ro"
-            ],
-            "output_receipt": "artifacts/functional-laptop/data/deduplicated-split-corpus-v1/receipt.json",
-            "output_roles": [
-              "deduplicated-corpus",
-              "decontamination-rejections",
-              "frozen-train-valid-test-splits"
-            ],
-            "network_by_mode": {
-              "publish-generated": "none",
-              "verify": "none"
-            },
-            "cache_mount_by_mode": {
-              "publish-generated": "exact-validated-offline-run-output-to-cache-rw",
-              "verify": "exact-output-digest-entry-ro"
-            },
-            "output_mount": "/output:rw-run-scoped",
-            "additional_input_receipts": [],
-            "output_receipts": [
-              "artifacts/functional-laptop/data/deduplicated-split-corpus-v1/receipt.json"
-            ],
-            "offline_transform_target": "execute-functional-corpus-dedup-split-v1",
-            "source_runs": [
-              {
-                "target_id": "execute-functional-corpus-dedup-split-v1",
-                "run_receipt": "/output/corpus-dedup-split-v1-run-receipt.json",
-                "output_directory": "/output",
-                "required_sha256_fields": [
-                  "input_receipt_sha256",
-                  "phase_spec_sha256",
-                  "focused_test_command_sha256",
-                  "output_payload_inventory_sha256",
-                  "semantic_receipt_sha256"
-                ]
-              }
-            ],
-            "publication_rule": "the single offline run executes the focused Rust test before the exact transform, emits a run/output inventory receipt, and only those validated bytes may be atomically published; artifact transform mode and post-publication reruns are forbidden"
           },
           {
             "step_id": "execute-functional-tokenizer-and-tokenized-splits",
@@ -13149,7 +13049,7 @@
             "publication_rule": "bind the exact current-run output inventories from both closed targets, promote the transform bundle and three semantic receipts atomically, then verify canonical hashes; no canonical receipt is read before promotion and no duplicate transform or ambiguous run output may be chosen"
           },
           {
-            "step_id": "implement-ch85-persistence-scale-decision",
+            "step_id": "implement-ch83-persistence-scale-decision",
             "target_id": "persistence-scale-decision-v1",
             "modes": [
               "publish-generated",
@@ -13168,14 +13068,14 @@
             "source_output_directory": "/output",
             "input_receipts": [],
             "output_receipts": [
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-preflight-receipt.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-decision-receipt.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/writer-operation-trace.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/snapshot-state-transcript.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/file-snapshot-output-inventory.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/file-snapshot-limit-evidence-receipt.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/base-content-inventory.json",
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-publication-receipt.json"
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-preflight-receipt.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-decision-receipt.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/writer-operation-trace.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/snapshot-state-transcript.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/file-snapshot-output-inventory.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/file-snapshot-limit-evidence-receipt.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/base-content-inventory.json",
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-publication-receipt.json"
             ],
             "required_publication_fields": [
               "source_output_inventory_sha256",
@@ -13302,7 +13202,7 @@
               "retry_evidence_sha256",
               "license_scope_disposition"
             ],
-            "license_scope_gate": "receipt must retain exact OpenAI MIT text and explicitly adjudicate its scope for hosted encoder.json/vocab.bpe redistribution; unresolved scope blocks publication and Chapter 45",
+            "license_scope_gate": "receipt must retain exact OpenAI MIT text and explicitly adjudicate its scope for hosted encoder.json/vocab.bpe redistribution; unresolved scope blocks publication and Chapter 43",
             "network_by_mode": {
               "acquire": "declared-N3-exact-four-files",
               "publish": "none",
@@ -13332,8 +13232,8 @@
               "artifacts/functional-laptop/acquisition/open-model/selected-dense-source-logits-receipt.json",
               "artifacts/functional-laptop/acquisition/open-model/selected-oracles-cache-publication-receipt.json",
               "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-              "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json"
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+              "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json"
             ],
             "input_cache_mounts": [
               "/artifacts/selected-payload:ro=entry-selected-by-artifacts/functional-laptop/acquisition/open-model/receipt.json",
@@ -13448,7 +13348,7 @@
             "publication_rule": "the course binary first emits the immutable semantic transform receipt, then the packager hashes that receipt plus the already-built executable, manifest, bundle and lineage candidate into the final run/output inventory receipt; publish exactly that final network-none inventory before the Python/regex oracle image starts; the oracle image never builds Rust or sees Docker"
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
             "target_id": "transformers-4.57.1-fixture-a",
             "modes": [
               "publish-generated",
@@ -13462,11 +13362,11 @@
             "source_output_directory": "/output/fixture-a",
             "source_output_inventory_sha256_field": "producer_output_directory_inventory_sha256",
             "output_receipts": [
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-manifest-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json"
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-manifest-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json"
             ],
-            "publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
+            "publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
             "cache_entry_path": ".build/artifact-cache/functional-v1/sha256/<transformers-4.57.1-fixture-a-source-cache-entry-sha256>/payload",
             "cache_entry_digest_field": "cache_entry_sha256",
             "payload_inventory_sha256_field": "payload_inventory_sha256",
@@ -13486,7 +13386,7 @@
             "output_mount": "/output:rw-run-scoped"
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
             "target_id": "llama2c-350e04fe-fixture-b",
             "modes": [
               "publish-generated",
@@ -13500,11 +13400,11 @@
             "source_output_directory": "/output/fixture-b",
             "source_output_inventory_sha256_field": "producer_output_directory_inventory_sha256",
             "output_receipts": [
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-manifest-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json"
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-manifest-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json"
             ],
-            "publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
+            "publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
             "cache_entry_path": ".build/artifact-cache/functional-v1/sha256/<llama2c-350e04fe-fixture-b-source-cache-entry-sha256>/payload",
             "cache_entry_digest_field": "cache_entry_sha256",
             "payload_inventory_sha256_field": "payload_inventory_sha256",
@@ -13524,8 +13424,8 @@
             "output_mount": "/output:rw-run-scoped"
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
-            "target_id": "ch56-course-fixtures-v1",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
+            "target_id": "ch54-course-fixtures-v1",
             "modes": [
               "publish-generated",
               "verify"
@@ -13535,27 +13435,27 @@
             "source_output_directory": "/output",
             "source_output_inventory_sha256_field": "course_interchange_output_inventory_sha256",
             "input_receipts": [
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
               "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/course-reference-tokenizer-lineage-receipt.json"
             ],
             "output_receipts": [
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/course-interchange-run-receipt.json"
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/course-interchange-run-receipt.json"
             ],
             "output_bundle_mapping": {
               "fixture-a": {
                 "source": "/output/fixture-a",
                 "dth_receipt": "/output/transformers-fixture-receipt.json",
-                "publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json"
+                "publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json"
               },
               "fixture-b": {
                 "source": "/output/fixture-b",
                 "dth_receipt": "/output/llama2c-fixture-receipt.json",
-                "publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+                "publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
               }
             },
             "required_publication_fields": [
@@ -13583,26 +13483,26 @@
             "output_mount": "/output:rw-run-scoped"
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
-            "target_id": "ch56-independent-dense-fixture-admission-v1",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
+            "target_id": "ch54-independent-dense-fixture-admission-v1",
             "modes": [
               "publish-generated",
               "verify"
             ],
             "phase_spec": "configs/functional-dense-interchange-fixtures-v1.json#isa-admission",
             "input_receipts": [
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-fixture-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-fixture-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
             ],
             "source_run_receipt": "/output/two-fixture-tiny-ci-receipt.json",
             "source_candidate_receipt": "/output/independent-dense-fixture-integration-receipt.json",
             "source_output_inventory_sha256_field": "tiny_ci_output_inventory_sha256",
             "output_receipts": [
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/two-fixture-tiny-ci-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-              "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-admission-publication-receipt.json"
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/two-fixture-tiny-ci-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+              "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-admission-publication-receipt.json"
             ],
             "required_publication_fields": [
               "source_run_receipt_sha256",
@@ -13978,54 +13878,73 @@
               "verify": "exact-canonical-receipt-ro"
             },
             "publication_rule": "validate the exact offline aggregate run receipt after its GPU input is atomically published; fsync source and parent; atomically rename to the distinct canonical aggregate receipt; verify canonical bytes read-only"
+          },
+          {
+            "step_id": "execute-functional-nemo-corpus-preparation",
+            "target_id": "nemo-corpus-preparation-v1",
+            "modes": [
+              "publish-generated",
+              "verify"
+            ],
+            "output_receipt": "artifacts/functional-laptop/data/prepared-corpus-v1/receipt.json",
+            "status": "pending-bulk-configuration-and-resource-preflight",
+            "input_receipts": [
+              "artifacts/functional-laptop/acquisition/tinystories/receipt.json"
+            ],
+            "output_roles": [
+              "prepared-training-jsonl",
+              "prepared-validation-jsonl",
+              "prepared-test-jsonl",
+              "source-and-selection-provenance",
+              "quality-and-duplicate-policy-outcomes",
+              "related-group-and-protected-evaluation-evidence",
+              "privacy-and-rights-release-disposition"
+            ],
+            "network_by_mode": {
+              "publish-generated": "none",
+              "verify": "none"
+            },
+            "cache_mount_by_mode": {
+              "publish-generated": "exact-cache-root-rw",
+              "verify": "exact-digest-entry-ro"
+            },
+            "output_mount": "/output:rw-run-scoped"
           }
         ]
       },
       "data_pipeline": {
         "steps": [
           {
-            "step_id": "execute-functional-corpus-filtering",
-            "target_id": "corpus-filtering-v1",
-            "implementation_binary": "rust/crates/llm-from-scratch/src/bin/llm-functional-corpus-filter.rs",
-            "phase_spec": "configs/functional-data-pipeline/corpus-filter-v1.json",
-            "focused_test": "rust/crates/llm-from-scratch/tests/functional_corpus_filter_runner.rs",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-corpus-filter -- --spec configs/functional-data-pipeline/corpus-filter-v1.json --input-receipt /receipts/input.json --input /artifacts/input --output /output",
+            "step_id": "execute-functional-nemo-corpus-preparation",
+            "target_id": "nemo-corpus-preparation-v1",
+            "status": "pending-bulk-configuration-and-resource-preflight",
+            "implementation_boundary": "External NVIDIA NeMo Curator workflows and mature supporting JSONL/raw-format/table libraries; no corpus filtering, privacy detector, deduplicator or split algorithm in the Rust LLM crate",
+            "separate_image_dockerfile": "docker/nemo-curator.Dockerfile",
+            "separate_image_base": "nvcr.io/nvidia/nemo-curator@sha256:a9615e68a91af484e52aa35d5c6be0d92e02dc43767f44df7a22de31298fe80a",
+            "chapter_exercise_recipe": "tools/nemo-curator/prepare_corpus.py",
+            "chapter_exercise_scope": "At most 4194304 source bytes and 4096 records by default; quality/exact removal plus caller-predeclared known source-group assignment; this recipe is not the full-corpus executable",
+            "bulk_executable_owner": "execute-functional-nemo-corpus-preparation",
+            "bulk_execution_gate": "Before execution, freeze a supported mature raw-format adapter, pinned library workflows, exact/fuzzy ID/removal replay and group evidence, source/rights/privacy disposition, predeclared group roles, protected evaluation checks, complete resource admission and a closed offline command. Record that command in the lifecycle step; missing supported behavior blocks this job and does not license custom Rust preparation algorithms or use of old filtered results as NeMo output.",
             "input_receipt": "artifacts/functional-laptop/acquisition/tinystories/receipt.json",
             "input_mount": "/artifacts/input:ro",
             "receipt_mount": "/receipts/input.json:ro",
             "output_mount": "/output:rw-run-scoped",
-            "output_receipt": "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json",
+            "output_receipt": "artifacts/functional-laptop/data/prepared-corpus-v1/receipt.json",
             "integration_receipts": [],
             "output_roles": [
-              "privacy-filtered-corpus",
-              "filter-policy-rejections",
-              "source-lineage"
+              "prepared-training-jsonl",
+              "prepared-validation-jsonl",
+              "prepared-test-jsonl",
+              "source-and-selection-provenance",
+              "quality-and-duplicate-policy-outcomes",
+              "related-group-and-protected-evaluation-evidence",
+              "privacy-and-rights-release-disposition"
             ],
+            "interchange": "Caller-selected UTF-8 JSONL readers with nonblank string id/text and retained metadata; frozen whole-document split selections and measured overlap evidence remain separate from the loader's syntactic validation",
             "network": "none",
+            "gpu_requirement": "Compatible NVIDIA GPU/driver and NVIDIA Container Toolkit for the external tool; the Rust loader and scalar reference remain CPU-usable",
             "publication": "validate-manifest-inventory-hashes-then-fsync-and-atomic-same-filesystem-promotion",
-            "algorithm_boundary": "binary calls only immediately preceding chapter course-owned algorithm; cache runner supplies plumbing and cannot implement the transform"
-          },
-          {
-            "step_id": "execute-functional-corpus-dedup-split",
-            "target_id": "corpus-dedup-split-v1",
-            "implementation_binary": "rust/crates/llm-from-scratch/src/bin/llm-functional-corpus-dedup-split.rs",
-            "phase_spec": "configs/functional-data-pipeline/corpus-dedup-split-v1.json",
-            "focused_test": "rust/crates/llm-from-scratch/tests/functional_corpus_dedup_split_runner.rs",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-corpus-dedup-split -- --spec configs/functional-data-pipeline/corpus-dedup-split-v1.json --input-receipt /receipts/input.json --input /artifacts/input --output /output",
-            "input_receipt": "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json",
-            "input_mount": "/artifacts/input:ro",
-            "receipt_mount": "/receipts/input.json:ro",
-            "output_mount": "/output:rw-run-scoped",
-            "output_receipt": "artifacts/functional-laptop/data/deduplicated-split-corpus-v1/receipt.json",
-            "integration_receipts": [],
-            "output_roles": [
-              "deduplicated-corpus",
-              "decontamination-rejections",
-              "frozen-train-valid-test-splits"
-            ],
-            "network": "none",
-            "publication": "validate-manifest-inventory-hashes-then-fsync-and-atomic-same-filesystem-promotion",
-            "algorithm_boundary": "binary calls only immediately preceding chapter course-owned algorithm; cache runner supplies plumbing and cannot implement the transform"
+            "algorithm_boundary": "NeMo owns preparation operations. Rust owns the bounded prepared-document reader and all subsequent tokenizer/LLM algorithms. Operational cache/source/store plumbing owns no new learner preparation algorithms."
           },
           {
             "step_id": "execute-functional-tokenizer-and-tokenized-splits",
@@ -14034,7 +13953,7 @@
             "phase_spec": "configs/functional-data-pipeline/tokenizer-and-tokenized-splits-v1.json",
             "focused_test": "rust/crates/llm-from-scratch/tests/functional_tokenizer_splits_runner.rs",
             "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-tokenizer-splits -- --spec configs/functional-data-pipeline/tokenizer-and-tokenized-splits-v1.json --input-receipt /receipts/input.json --input /artifacts/input --output /output",
-            "input_receipt": "artifacts/functional-laptop/data/deduplicated-split-corpus-v1/receipt.json",
+            "input_receipt": "artifacts/functional-laptop/data/prepared-corpus-v1/receipt.json",
             "input_mount": "/artifacts/input:ro",
             "receipt_mount": "/receipts/input.json:ro",
             "output_mount": "/output:rw-run-scoped",
@@ -14142,8 +14061,7 @@
         },
         "bundle_chain": [
           "tinystories-raw-pair-v1",
-          "filtered-corpus-v1",
-          "deduplicated-split-corpus-v1",
+          "prepared-corpus-v1",
           "tokenizer-and-tokenized-splits-v1"
         ],
         "consumer_mount": "exact-receipt-selected-entry-read-only",
@@ -14162,7 +14080,7 @@
           "8gb-adapter"
         ],
         "provisional_receipt": "artifacts/functional-laptop/execution-boundaries/gpu/preflight-receipt.json",
-        "definitive_receipt_owner": "implement-ch62-laptop-hardware-admission",
+        "definitive_receipt_owner": "implement-ch60-laptop-hardware-admission",
         "runtime_network": "none",
         "target_registry": [
           {
@@ -14257,16 +14175,16 @@
             }
           },
           {
-            "step_id": "implement-ch52-accelerator-tensor-parity",
-            "target_id": "implement-ch52-accelerator-tensor-parity-v1",
+            "step_id": "implement-ch50-accelerator-tensor-parity",
+            "target_id": "implement-ch50-accelerator-tensor-parity-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch52-accelerator-tensor-parity-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch52-accelerator-tensor-parity-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch52-accelerator-tensor-parity/bundle --receipt /run-output/implement-ch52-accelerator-tensor-parity/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/52-accelerator-tensor-parity/gpu-execution-receipt.json",
+            "phase_id": "implement-ch50-accelerator-tensor-parity-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch50-accelerator-tensor-parity-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch50-accelerator-tensor-parity/bundle --receipt /run-output/implement-ch50-accelerator-tensor-parity/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/50-accelerator-tensor-parity/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14277,7 +14195,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch52-accelerator-tensor-parity:rw",
+            "output_mount": "/run-output/implement-ch50-accelerator-tensor-parity:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14287,14 +14205,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch52-accelerator-tensor-parity/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch52-accelerator-tensor-parity/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch50-accelerator-tensor-parity/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch50-accelerator-tensor-parity/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch52-accelerator-tensor-parity/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch52-accelerator-tensor-parity/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/52-accelerator-tensor-parity/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch50-accelerator-tensor-parity/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch50-accelerator-tensor-parity/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/50-accelerator-tensor-parity/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14344,20 +14262,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch52-accelerator-tensor-parity-v1"
+              "kernel_id": "implement-ch50-accelerator-tensor-parity-v1"
             }
           },
           {
-            "step_id": "implement-ch53-mixed-precision-training",
-            "target_id": "implement-ch53-mixed-precision-training-v1",
+            "step_id": "implement-ch51-mixed-precision-training",
+            "target_id": "implement-ch51-mixed-precision-training-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch53-mixed-precision-training-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch53-mixed-precision-training-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch53-mixed-precision-training/bundle --receipt /run-output/implement-ch53-mixed-precision-training/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/53-mixed-precision-training/gpu-execution-receipt.json",
+            "phase_id": "implement-ch51-mixed-precision-training-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch51-mixed-precision-training-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch51-mixed-precision-training/bundle --receipt /run-output/implement-ch51-mixed-precision-training/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/51-mixed-precision-training/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14368,7 +14286,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch53-mixed-precision-training:rw",
+            "output_mount": "/run-output/implement-ch51-mixed-precision-training:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14378,14 +14296,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch53-mixed-precision-training/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch53-mixed-precision-training/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch51-mixed-precision-training/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch51-mixed-precision-training/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch53-mixed-precision-training/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch53-mixed-precision-training/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/53-mixed-precision-training/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch51-mixed-precision-training/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch51-mixed-precision-training/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/51-mixed-precision-training/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14435,20 +14353,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch53-mixed-precision-training-v1"
+              "kernel_id": "implement-ch51-mixed-precision-training-v1"
             }
           },
           {
-            "step_id": "implement-ch54-memory-bounded-training",
-            "target_id": "implement-ch54-memory-bounded-training-v1",
+            "step_id": "implement-ch52-memory-bounded-training",
+            "target_id": "implement-ch52-memory-bounded-training-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch54-memory-bounded-training-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch54-memory-bounded-training-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch54-memory-bounded-training/bundle --receipt /run-output/implement-ch54-memory-bounded-training/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/54-memory-bounded-training/gpu-execution-receipt.json",
+            "phase_id": "implement-ch52-memory-bounded-training-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch52-memory-bounded-training-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch52-memory-bounded-training/bundle --receipt /run-output/implement-ch52-memory-bounded-training/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/52-memory-bounded-training/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14459,7 +14377,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch54-memory-bounded-training:rw",
+            "output_mount": "/run-output/implement-ch52-memory-bounded-training:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14469,14 +14387,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch54-memory-bounded-training/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch54-memory-bounded-training/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch52-memory-bounded-training/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch52-memory-bounded-training/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch54-memory-bounded-training/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch54-memory-bounded-training/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/54-memory-bounded-training/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch52-memory-bounded-training/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch52-memory-bounded-training/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/52-memory-bounded-training/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14526,20 +14444,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch54-memory-bounded-training-v1"
+              "kernel_id": "implement-ch52-memory-bounded-training-v1"
             }
           },
           {
-            "step_id": "implement-ch55-optimizer-schedules-clipping",
-            "target_id": "implement-ch55-optimizer-schedules-clipping-v1",
+            "step_id": "implement-ch53-optimizer-schedules-clipping",
+            "target_id": "implement-ch53-optimizer-schedules-clipping-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch55-optimizer-schedules-clipping-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch55-optimizer-schedules-clipping-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch55-optimizer-schedules-clipping/bundle --receipt /run-output/implement-ch55-optimizer-schedules-clipping/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/55-optimizer-schedules-clipping/gpu-execution-receipt.json",
+            "phase_id": "implement-ch53-optimizer-schedules-clipping-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch53-optimizer-schedules-clipping-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch53-optimizer-schedules-clipping/bundle --receipt /run-output/implement-ch53-optimizer-schedules-clipping/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/53-optimizer-schedules-clipping/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14550,7 +14468,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch55-optimizer-schedules-clipping:rw",
+            "output_mount": "/run-output/implement-ch53-optimizer-schedules-clipping:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14560,14 +14478,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch55-optimizer-schedules-clipping/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch55-optimizer-schedules-clipping/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch53-optimizer-schedules-clipping/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch53-optimizer-schedules-clipping/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch55-optimizer-schedules-clipping/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch55-optimizer-schedules-clipping/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/55-optimizer-schedules-clipping/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch53-optimizer-schedules-clipping/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch53-optimizer-schedules-clipping/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/53-optimizer-schedules-clipping/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14617,20 +14535,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch55-optimizer-schedules-clipping-v1"
+              "kernel_id": "implement-ch53-optimizer-schedules-clipping-v1"
             }
           },
           {
-            "step_id": "implement-ch58-exact-job-resume",
-            "target_id": "implement-ch58-exact-job-resume-v1",
+            "step_id": "implement-ch56-exact-job-resume",
+            "target_id": "implement-ch56-exact-job-resume-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch58-exact-job-resume-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch58-exact-job-resume-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch58-exact-job-resume/bundle --receipt /run-output/implement-ch58-exact-job-resume/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/58-exact-job-resume/gpu-execution-receipt.json",
+            "phase_id": "implement-ch56-exact-job-resume-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch56-exact-job-resume-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch56-exact-job-resume/bundle --receipt /run-output/implement-ch56-exact-job-resume/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/56-exact-job-resume/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14641,7 +14559,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch58-exact-job-resume:rw",
+            "output_mount": "/run-output/implement-ch56-exact-job-resume:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14651,14 +14569,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch58-exact-job-resume/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch58-exact-job-resume/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch56-exact-job-resume/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch56-exact-job-resume/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch58-exact-job-resume/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch58-exact-job-resume/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/58-exact-job-resume/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch56-exact-job-resume/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch56-exact-job-resume/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/56-exact-job-resume/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14708,20 +14626,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch58-exact-job-resume-v1"
+              "kernel_id": "implement-ch56-exact-job-resume-v1"
             }
           },
           {
-            "step_id": "implement-ch59-resource-observability",
-            "target_id": "implement-ch59-resource-observability-v1",
+            "step_id": "implement-ch57-resource-observability",
+            "target_id": "implement-ch57-resource-observability-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch59-resource-observability-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch59-resource-observability-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch59-resource-observability/bundle --receipt /run-output/implement-ch59-resource-observability/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/59-resource-observability/gpu-execution-receipt.json",
+            "phase_id": "implement-ch57-resource-observability-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch57-resource-observability-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch57-resource-observability/bundle --receipt /run-output/implement-ch57-resource-observability/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/57-resource-observability/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14732,7 +14650,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch59-resource-observability:rw",
+            "output_mount": "/run-output/implement-ch57-resource-observability:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14742,14 +14660,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch59-resource-observability/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch59-resource-observability/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch57-resource-observability/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch57-resource-observability/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch59-resource-observability/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch59-resource-observability/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/59-resource-observability/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch57-resource-observability/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch57-resource-observability/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/57-resource-observability/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14799,20 +14717,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch59-resource-observability-v1"
+              "kernel_id": "implement-ch57-resource-observability-v1"
             }
           },
           {
-            "step_id": "implement-ch60-multi-seed-evaluation",
-            "target_id": "implement-ch60-multi-seed-evaluation-v1",
+            "step_id": "implement-ch58-multi-seed-evaluation",
+            "target_id": "implement-ch58-multi-seed-evaluation-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch60-multi-seed-evaluation-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch60-multi-seed-evaluation-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch60-multi-seed-evaluation/bundle --receipt /run-output/implement-ch60-multi-seed-evaluation/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/gpu-execution-receipt.json",
+            "phase_id": "implement-ch58-multi-seed-evaluation-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch58-multi-seed-evaluation-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch58-multi-seed-evaluation/bundle --receipt /run-output/implement-ch58-multi-seed-evaluation/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14823,7 +14741,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch60-multi-seed-evaluation:rw",
+            "output_mount": "/run-output/implement-ch58-multi-seed-evaluation:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14833,14 +14751,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch60-multi-seed-evaluation/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch60-multi-seed-evaluation/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch58-multi-seed-evaluation/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch58-multi-seed-evaluation/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch60-multi-seed-evaluation/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch60-multi-seed-evaluation/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch58-multi-seed-evaluation/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch58-multi-seed-evaluation/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14890,20 +14808,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch60-multi-seed-evaluation-v1"
+              "kernel_id": "implement-ch58-multi-seed-evaluation-v1"
             }
           },
           {
-            "step_id": "implement-ch61-quantized-gguf-artifacts",
-            "target_id": "implement-ch61-quantized-gguf-artifacts-v1",
+            "step_id": "implement-ch59-quantized-gguf-artifacts",
+            "target_id": "implement-ch59-quantized-gguf-artifacts-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch61-quantized-gguf-artifacts-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch61-quantized-gguf-artifacts-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch61-quantized-gguf-artifacts/bundle --receipt /run-output/implement-ch61-quantized-gguf-artifacts/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/gpu-execution-receipt.json",
+            "phase_id": "implement-ch59-quantized-gguf-artifacts-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch59-quantized-gguf-artifacts-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch59-quantized-gguf-artifacts/bundle --receipt /run-output/implement-ch59-quantized-gguf-artifacts/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -14914,7 +14832,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch61-quantized-gguf-artifacts:rw",
+            "output_mount": "/run-output/implement-ch59-quantized-gguf-artifacts:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -14924,14 +14842,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch61-quantized-gguf-artifacts/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch61-quantized-gguf-artifacts/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch59-quantized-gguf-artifacts/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch59-quantized-gguf-artifacts/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch61-quantized-gguf-artifacts/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch61-quantized-gguf-artifacts/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch59-quantized-gguf-artifacts/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch59-quantized-gguf-artifacts/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -14981,12 +14899,12 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch61-quantized-gguf-artifacts-v1"
+              "kernel_id": "implement-ch59-quantized-gguf-artifacts-v1"
             }
           },
           {
-            "step_id": "implement-ch62-laptop-hardware-admission",
-            "target_id": "implement-ch62-laptop-hardware-admission-v1",
+            "step_id": "implement-ch60-laptop-hardware-admission",
+            "target_id": "implement-ch60-laptop-hardware-admission-v1",
             "profile_id": "8gb-gpu-core",
             "seeds": [],
             "calibration": {
@@ -15007,9 +14925,9 @@
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch62-laptop-hardware-admission-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch62-laptop-hardware-admission-v1 --profile 8gb-gpu-core --output /run-output/implement-ch62-laptop-hardware-admission/bundle --receipt /run-output/implement-ch62-laptop-hardware-admission/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json",
+            "phase_id": "implement-ch60-laptop-hardware-admission-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch60-laptop-hardware-admission-v1 --profile 8gb-gpu-core --output /run-output/implement-ch60-laptop-hardware-admission/bundle --receipt /run-output/implement-ch60-laptop-hardware-admission/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15020,7 +14938,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch62-laptop-hardware-admission:rw",
+            "output_mount": "/run-output/implement-ch60-laptop-hardware-admission:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15030,14 +14948,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch62-laptop-hardware-admission/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch62-laptop-hardware-admission/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch60-laptop-hardware-admission/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch60-laptop-hardware-admission/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch62-laptop-hardware-admission/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch62-laptop-hardware-admission/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch60-laptop-hardware-admission/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch60-laptop-hardware-admission/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15073,7 +14991,7 @@
             "admission_receipt_selector": {
               "mode": "consume-provisional-emit-definitive",
               "input_receipt": "artifacts/functional-laptop/execution-boundaries/gpu/preflight-receipt.json",
-              "output_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "output_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15088,20 +15006,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch62-laptop-hardware-admission-v1"
+              "kernel_id": "implement-ch60-laptop-hardware-admission-v1"
             }
           },
           {
-            "step_id": "implement-ch63-gqa-context-policy",
-            "target_id": "implement-ch63-gqa-context-policy-v1",
+            "step_id": "implement-ch61-gqa-context-policy",
+            "target_id": "implement-ch61-gqa-context-policy-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch63-gqa-context-policy-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch63-gqa-context-policy-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch63-gqa-context-policy/bundle --receipt /run-output/implement-ch63-gqa-context-policy/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/63-gqa-context-policy/gpu-execution-receipt.json",
+            "phase_id": "implement-ch61-gqa-context-policy-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch61-gqa-context-policy-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch61-gqa-context-policy/bundle --receipt /run-output/implement-ch61-gqa-context-policy/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/61-gqa-context-policy/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15112,7 +15030,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch63-gqa-context-policy:rw",
+            "output_mount": "/run-output/implement-ch61-gqa-context-policy:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15122,14 +15040,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch63-gqa-context-policy/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch63-gqa-context-policy/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch61-gqa-context-policy/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch61-gqa-context-policy/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch63-gqa-context-policy/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch63-gqa-context-policy/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/63-gqa-context-policy/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch61-gqa-context-policy/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch61-gqa-context-policy/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/61-gqa-context-policy/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15164,7 +15082,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15179,20 +15097,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch63-gqa-context-policy-v1"
+              "kernel_id": "implement-ch61-gqa-context-policy-v1"
             }
           },
           {
-            "step_id": "implement-ch64-online-tiled-attention",
-            "target_id": "implement-ch64-online-tiled-attention-v1",
+            "step_id": "implement-ch62-online-tiled-attention",
+            "target_id": "implement-ch62-online-tiled-attention-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch64-online-tiled-attention-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch64-online-tiled-attention-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch64-online-tiled-attention/bundle --receipt /run-output/implement-ch64-online-tiled-attention/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/64-online-tiled-attention/gpu-execution-receipt.json",
+            "phase_id": "implement-ch62-online-tiled-attention-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch62-online-tiled-attention-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch62-online-tiled-attention/bundle --receipt /run-output/implement-ch62-online-tiled-attention/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/62-online-tiled-attention/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15203,7 +15121,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch64-online-tiled-attention:rw",
+            "output_mount": "/run-output/implement-ch62-online-tiled-attention:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15213,14 +15131,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch64-online-tiled-attention/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch64-online-tiled-attention/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch62-online-tiled-attention/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch62-online-tiled-attention/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch64-online-tiled-attention/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch64-online-tiled-attention/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/64-online-tiled-attention/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch62-online-tiled-attention/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch62-online-tiled-attention/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/62-online-tiled-attention/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15255,7 +15173,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15270,7 +15188,7 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch64-online-tiled-attention-v1"
+              "kernel_id": "implement-ch62-online-tiled-attention-v1"
             }
           },
           {
@@ -15374,7 +15292,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15564,7 +15482,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15648,16 +15566,16 @@
             }
           },
           {
-            "step_id": "implement-ch65-kv-block-pool",
-            "target_id": "implement-ch65-kv-block-pool-v1",
+            "step_id": "implement-ch63-kv-block-pool",
+            "target_id": "implement-ch63-kv-block-pool-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch65-kv-block-pool-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch65-kv-block-pool-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch65-kv-block-pool/bundle --receipt /run-output/implement-ch65-kv-block-pool/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/65-kv-block-pool/gpu-execution-receipt.json",
+            "phase_id": "implement-ch63-kv-block-pool-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch63-kv-block-pool-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch63-kv-block-pool/bundle --receipt /run-output/implement-ch63-kv-block-pool/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/63-kv-block-pool/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15668,7 +15586,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch65-kv-block-pool:rw",
+            "output_mount": "/run-output/implement-ch63-kv-block-pool:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15678,14 +15596,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch65-kv-block-pool/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch65-kv-block-pool/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch63-kv-block-pool/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch63-kv-block-pool/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch65-kv-block-pool/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch65-kv-block-pool/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/65-kv-block-pool/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch63-kv-block-pool/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch63-kv-block-pool/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/63-kv-block-pool/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15720,7 +15638,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15735,20 +15653,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch65-kv-block-pool-v1"
+              "kernel_id": "implement-ch63-kv-block-pool-v1"
             }
           },
           {
-            "step_id": "implement-ch66-nucleus-penalties-logprobs",
-            "target_id": "implement-ch66-nucleus-penalties-logprobs-v1",
+            "step_id": "implement-ch64-nucleus-penalties-logprobs",
+            "target_id": "implement-ch64-nucleus-penalties-logprobs-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch66-nucleus-penalties-logprobs-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch66-nucleus-penalties-logprobs-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch66-nucleus-penalties-logprobs/bundle --receipt /run-output/implement-ch66-nucleus-penalties-logprobs/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/66-nucleus-penalties-logprobs/gpu-execution-receipt.json",
+            "phase_id": "implement-ch64-nucleus-penalties-logprobs-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch64-nucleus-penalties-logprobs-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch64-nucleus-penalties-logprobs/bundle --receipt /run-output/implement-ch64-nucleus-penalties-logprobs/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/64-nucleus-penalties-logprobs/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15759,7 +15677,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch66-nucleus-penalties-logprobs:rw",
+            "output_mount": "/run-output/implement-ch64-nucleus-penalties-logprobs:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15769,14 +15687,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch66-nucleus-penalties-logprobs/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch66-nucleus-penalties-logprobs/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch64-nucleus-penalties-logprobs/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch64-nucleus-penalties-logprobs/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch66-nucleus-penalties-logprobs/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch66-nucleus-penalties-logprobs/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/66-nucleus-penalties-logprobs/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch64-nucleus-penalties-logprobs/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch64-nucleus-penalties-logprobs/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/64-nucleus-penalties-logprobs/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15811,7 +15729,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15826,20 +15744,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch66-nucleus-penalties-logprobs-v1"
+              "kernel_id": "implement-ch64-nucleus-penalties-logprobs-v1"
             }
           },
           {
-            "step_id": "implement-ch67-stop-strings-unicode-streaming",
-            "target_id": "implement-ch67-stop-strings-unicode-streaming-v1",
+            "step_id": "implement-ch65-stop-strings-unicode-streaming",
+            "target_id": "implement-ch65-stop-strings-unicode-streaming-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch67-stop-strings-unicode-streaming-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch67-stop-strings-unicode-streaming-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch67-stop-strings-unicode-streaming/bundle --receipt /run-output/implement-ch67-stop-strings-unicode-streaming/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/67-stop-strings-unicode-streaming/gpu-execution-receipt.json",
+            "phase_id": "implement-ch65-stop-strings-unicode-streaming-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch65-stop-strings-unicode-streaming-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch65-stop-strings-unicode-streaming/bundle --receipt /run-output/implement-ch65-stop-strings-unicode-streaming/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/65-stop-strings-unicode-streaming/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15850,7 +15768,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch67-stop-strings-unicode-streaming:rw",
+            "output_mount": "/run-output/implement-ch65-stop-strings-unicode-streaming:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15860,14 +15778,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch67-stop-strings-unicode-streaming/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch67-stop-strings-unicode-streaming/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch65-stop-strings-unicode-streaming/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch65-stop-strings-unicode-streaming/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch67-stop-strings-unicode-streaming/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch67-stop-strings-unicode-streaming/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/67-stop-strings-unicode-streaming/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch65-stop-strings-unicode-streaming/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch65-stop-strings-unicode-streaming/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/65-stop-strings-unicode-streaming/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15902,7 +15820,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -15917,20 +15835,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch67-stop-strings-unicode-streaming-v1"
+              "kernel_id": "implement-ch65-stop-strings-unicode-streaming-v1"
             }
           },
           {
-            "step_id": "implement-ch68-continuous-batch-scheduling",
-            "target_id": "implement-ch68-continuous-batch-scheduling-v1",
+            "step_id": "implement-ch66-continuous-batch-scheduling",
+            "target_id": "implement-ch66-continuous-batch-scheduling-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch68-continuous-batch-scheduling-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch68-continuous-batch-scheduling-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch68-continuous-batch-scheduling/bundle --receipt /run-output/implement-ch68-continuous-batch-scheduling/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/68-continuous-batch-scheduling/gpu-execution-receipt.json",
+            "phase_id": "implement-ch66-continuous-batch-scheduling-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch66-continuous-batch-scheduling-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch66-continuous-batch-scheduling/bundle --receipt /run-output/implement-ch66-continuous-batch-scheduling/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/66-continuous-batch-scheduling/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -15941,7 +15859,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch68-continuous-batch-scheduling:rw",
+            "output_mount": "/run-output/implement-ch66-continuous-batch-scheduling:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -15951,14 +15869,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch68-continuous-batch-scheduling/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch68-continuous-batch-scheduling/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch66-continuous-batch-scheduling/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch66-continuous-batch-scheduling/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch68-continuous-batch-scheduling/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch68-continuous-batch-scheduling/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/68-continuous-batch-scheduling/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch66-continuous-batch-scheduling/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch66-continuous-batch-scheduling/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/66-continuous-batch-scheduling/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -15993,7 +15911,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16008,20 +15926,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch68-continuous-batch-scheduling-v1"
+              "kernel_id": "implement-ch66-continuous-batch-scheduling-v1"
             }
           },
           {
-            "step_id": "implement-ch69-cancellation-backpressure-budgets",
-            "target_id": "implement-ch69-cancellation-backpressure-budgets-v1",
+            "step_id": "implement-ch67-cancellation-backpressure-budgets",
+            "target_id": "implement-ch67-cancellation-backpressure-budgets-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch69-cancellation-backpressure-budgets-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch69-cancellation-backpressure-budgets-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch69-cancellation-backpressure-budgets/bundle --receipt /run-output/implement-ch69-cancellation-backpressure-budgets/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/69-cancellation-backpressure-budgets/gpu-execution-receipt.json",
+            "phase_id": "implement-ch67-cancellation-backpressure-budgets-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch67-cancellation-backpressure-budgets-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch67-cancellation-backpressure-budgets/bundle --receipt /run-output/implement-ch67-cancellation-backpressure-budgets/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/67-cancellation-backpressure-budgets/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -16032,7 +15950,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch69-cancellation-backpressure-budgets:rw",
+            "output_mount": "/run-output/implement-ch67-cancellation-backpressure-budgets:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -16042,14 +15960,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch69-cancellation-backpressure-budgets/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch69-cancellation-backpressure-budgets/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch67-cancellation-backpressure-budgets/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch67-cancellation-backpressure-budgets/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch69-cancellation-backpressure-budgets/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch69-cancellation-backpressure-budgets/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/69-cancellation-backpressure-budgets/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch67-cancellation-backpressure-budgets/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch67-cancellation-backpressure-budgets/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/67-cancellation-backpressure-budgets/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -16084,7 +16002,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16099,20 +16017,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch69-cancellation-backpressure-budgets-v1"
+              "kernel_id": "implement-ch67-cancellation-backpressure-budgets-v1"
             }
           },
           {
-            "step_id": "implement-ch70-loopback-serving-metrics",
-            "target_id": "implement-ch70-loopback-serving-metrics-v1",
+            "step_id": "implement-ch68-loopback-serving-metrics",
+            "target_id": "implement-ch68-loopback-serving-metrics-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch70-loopback-serving-metrics-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch70-loopback-serving-metrics-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch70-loopback-serving-metrics/bundle --receipt /run-output/implement-ch70-loopback-serving-metrics/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/70-loopback-serving-metrics/gpu-execution-receipt.json",
+            "phase_id": "implement-ch68-loopback-serving-metrics-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch68-loopback-serving-metrics-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch68-loopback-serving-metrics/bundle --receipt /run-output/implement-ch68-loopback-serving-metrics/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/68-loopback-serving-metrics/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -16123,7 +16041,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch70-loopback-serving-metrics:rw",
+            "output_mount": "/run-output/implement-ch68-loopback-serving-metrics:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -16133,14 +16051,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch70-loopback-serving-metrics/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch70-loopback-serving-metrics/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch68-loopback-serving-metrics/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch68-loopback-serving-metrics/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch70-loopback-serving-metrics/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch70-loopback-serving-metrics/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/70-loopback-serving-metrics/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch68-loopback-serving-metrics/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch68-loopback-serving-metrics/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/68-loopback-serving-metrics/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -16175,7 +16093,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16190,20 +16108,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch70-loopback-serving-metrics-v1"
+              "kernel_id": "implement-ch68-loopback-serving-metrics-v1"
             }
           },
           {
-            "step_id": "implement-ch71-lora-sft-adapters",
-            "target_id": "implement-ch71-lora-sft-adapters-v1",
+            "step_id": "implement-ch69-lora-sft-adapters",
+            "target_id": "implement-ch69-lora-sft-adapters-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch71-lora-sft-adapters-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch71-lora-sft-adapters-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch71-lora-sft-adapters/bundle --receipt /run-output/implement-ch71-lora-sft-adapters/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/gpu-execution-receipt.json",
+            "phase_id": "implement-ch69-lora-sft-adapters-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch69-lora-sft-adapters-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch69-lora-sft-adapters/bundle --receipt /run-output/implement-ch69-lora-sft-adapters/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -16214,7 +16132,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch71-lora-sft-adapters:rw",
+            "output_mount": "/run-output/implement-ch69-lora-sft-adapters:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -16224,14 +16142,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch71-lora-sft-adapters/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch71-lora-sft-adapters/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch69-lora-sft-adapters/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch69-lora-sft-adapters/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch71-lora-sft-adapters/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch71-lora-sft-adapters/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch69-lora-sft-adapters/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch69-lora-sft-adapters/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -16266,7 +16184,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16281,20 +16199,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch71-lora-sft-adapters-v1"
+              "kernel_id": "implement-ch69-lora-sft-adapters-v1"
             }
           },
           {
-            "step_id": "implement-ch72-direct-preference-optimization",
-            "target_id": "implement-ch72-direct-preference-optimization-v1",
+            "step_id": "implement-ch70-direct-preference-optimization",
+            "target_id": "implement-ch70-direct-preference-optimization-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch72-direct-preference-optimization-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch72-direct-preference-optimization-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch72-direct-preference-optimization/bundle --receipt /run-output/implement-ch72-direct-preference-optimization/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/72-direct-preference-optimization/gpu-execution-receipt.json",
+            "phase_id": "implement-ch70-direct-preference-optimization-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch70-direct-preference-optimization-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch70-direct-preference-optimization/bundle --receipt /run-output/implement-ch70-direct-preference-optimization/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/70-direct-preference-optimization/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -16305,7 +16223,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch72-direct-preference-optimization:rw",
+            "output_mount": "/run-output/implement-ch70-direct-preference-optimization:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -16315,14 +16233,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch72-direct-preference-optimization/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch72-direct-preference-optimization/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch70-direct-preference-optimization/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch70-direct-preference-optimization/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch72-direct-preference-optimization/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch72-direct-preference-optimization/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/72-direct-preference-optimization/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch70-direct-preference-optimization/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch70-direct-preference-optimization/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/70-direct-preference-optimization/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -16357,7 +16275,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16372,7 +16290,7 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch72-direct-preference-optimization-v1"
+              "kernel_id": "implement-ch70-direct-preference-optimization-v1"
             }
           },
           {
@@ -16504,7 +16422,7 @@
             "adapter_workload_contract_sha256_rule": "sha256(canonical JSON of execution_boundary_records.gpu.adapter_workload_contract.sft)",
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16711,7 +16629,7 @@
             "adapter_workload_contract_sha256_rule": "sha256(canonical JSON of execution_boundary_records.gpu.adapter_workload_contract.dpo)",
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16795,16 +16713,16 @@
             }
           },
           {
-            "step_id": "implement-ch73-qlora-boundary",
-            "target_id": "implement-ch73-qlora-boundary-v1",
+            "step_id": "implement-ch71-qlora-boundary",
+            "target_id": "implement-ch71-qlora-boundary-v1",
             "profile_id": "8gb-gpu-advanced-smoke-v1",
             "seeds": [],
             "tier": "G2",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch73-qlora-boundary-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch73-qlora-boundary-v1 --profile 8gb-gpu-advanced-smoke-v1 --output /run-output/implement-ch73-qlora-boundary/bundle --receipt /run-output/implement-ch73-qlora-boundary/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/73-qlora-boundary/gpu-execution-receipt.json",
+            "phase_id": "implement-ch71-qlora-boundary-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch71-qlora-boundary-v1 --profile 8gb-gpu-advanced-smoke-v1 --output /run-output/implement-ch71-qlora-boundary/bundle --receipt /run-output/implement-ch71-qlora-boundary/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/71-qlora-boundary/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 7200,
@@ -16815,7 +16733,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch73-qlora-boundary:rw",
+            "output_mount": "/run-output/implement-ch71-qlora-boundary:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -16825,14 +16743,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch73-qlora-boundary/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch73-qlora-boundary/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch71-qlora-boundary/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch71-qlora-boundary/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch73-qlora-boundary/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch73-qlora-boundary/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/73-qlora-boundary/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch71-qlora-boundary/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch71-qlora-boundary/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/71-qlora-boundary/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -16867,7 +16785,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16882,20 +16800,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch73-qlora-boundary-v1"
+              "kernel_id": "implement-ch71-qlora-boundary-v1"
             }
           },
           {
-            "step_id": "implement-ch74-prefix-cache-reuse",
-            "target_id": "implement-ch74-prefix-cache-reuse-v1",
+            "step_id": "implement-ch72-prefix-cache-reuse",
+            "target_id": "implement-ch72-prefix-cache-reuse-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch74-prefix-cache-reuse-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch74-prefix-cache-reuse-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch74-prefix-cache-reuse/bundle --receipt /run-output/implement-ch74-prefix-cache-reuse/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/gpu-execution-receipt.json",
+            "phase_id": "implement-ch72-prefix-cache-reuse-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch72-prefix-cache-reuse-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch72-prefix-cache-reuse/bundle --receipt /run-output/implement-ch72-prefix-cache-reuse/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -16906,7 +16824,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch74-prefix-cache-reuse:rw",
+            "output_mount": "/run-output/implement-ch72-prefix-cache-reuse:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -16916,14 +16834,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch74-prefix-cache-reuse/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch74-prefix-cache-reuse/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch72-prefix-cache-reuse/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch72-prefix-cache-reuse/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch74-prefix-cache-reuse/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch74-prefix-cache-reuse/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch72-prefix-cache-reuse/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch72-prefix-cache-reuse/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -16958,7 +16876,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -16973,20 +16891,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch74-prefix-cache-reuse-v1"
+              "kernel_id": "implement-ch72-prefix-cache-reuse-v1"
             }
           },
           {
-            "step_id": "implement-ch75-rope-context-scaling",
-            "target_id": "implement-ch75-rope-context-scaling-v1",
+            "step_id": "implement-ch73-rope-context-scaling",
+            "target_id": "implement-ch73-rope-context-scaling-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch75-rope-context-scaling-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch75-rope-context-scaling-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch75-rope-context-scaling/bundle --receipt /run-output/implement-ch75-rope-context-scaling/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/75-rope-context-scaling/gpu-execution-receipt.json",
+            "phase_id": "implement-ch73-rope-context-scaling-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch73-rope-context-scaling-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch73-rope-context-scaling/bundle --receipt /run-output/implement-ch73-rope-context-scaling/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/73-rope-context-scaling/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -16997,7 +16915,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch75-rope-context-scaling:rw",
+            "output_mount": "/run-output/implement-ch73-rope-context-scaling:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -17007,14 +16925,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch75-rope-context-scaling/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch75-rope-context-scaling/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch73-rope-context-scaling/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch73-rope-context-scaling/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch75-rope-context-scaling/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch75-rope-context-scaling/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/75-rope-context-scaling/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch73-rope-context-scaling/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch73-rope-context-scaling/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/73-rope-context-scaling/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -17049,7 +16967,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17064,20 +16982,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch75-rope-context-scaling-v1"
+              "kernel_id": "implement-ch73-rope-context-scaling-v1"
             }
           },
           {
-            "step_id": "implement-ch77-constrained-json-decoding",
-            "target_id": "implement-ch77-constrained-json-decoding-v1",
+            "step_id": "implement-ch75-constrained-json-decoding",
+            "target_id": "implement-ch75-constrained-json-decoding-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch77-constrained-json-decoding-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch77-constrained-json-decoding-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch77-constrained-json-decoding/bundle --receipt /run-output/implement-ch77-constrained-json-decoding/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/77-constrained-json-decoding/gpu-execution-receipt.json",
+            "phase_id": "implement-ch75-constrained-json-decoding-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch75-constrained-json-decoding-v1 --profile 8gb-gpu-smoke --output /run-output/implement-ch75-constrained-json-decoding/bundle --receipt /run-output/implement-ch75-constrained-json-decoding/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/75-constrained-json-decoding/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -17088,7 +17006,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch77-constrained-json-decoding:rw",
+            "output_mount": "/run-output/implement-ch75-constrained-json-decoding:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -17098,14 +17016,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch77-constrained-json-decoding/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch77-constrained-json-decoding/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch75-constrained-json-decoding/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch75-constrained-json-decoding/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch77-constrained-json-decoding/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch77-constrained-json-decoding/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/77-constrained-json-decoding/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch75-constrained-json-decoding/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch75-constrained-json-decoding/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/75-constrained-json-decoding/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -17140,7 +17058,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17155,20 +17073,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch77-constrained-json-decoding-v1"
+              "kernel_id": "implement-ch75-constrained-json-decoding-v1"
             }
           },
           {
-            "step_id": "implement-ch79-safety-privacy-model-card",
-            "target_id": "implement-ch79-safety-privacy-model-card-v1",
+            "step_id": "implement-ch77-safety-privacy-model-card",
+            "target_id": "implement-ch77-safety-privacy-model-card-v1",
             "profile_id": "8gb-gpu-advanced-smoke-v1",
             "seeds": [],
             "tier": "G2",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch79-safety-privacy-model-card-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch79-safety-privacy-model-card-v1 --profile 8gb-gpu-advanced-smoke-v1 --output /run-output/implement-ch79-safety-privacy-model-card/bundle --receipt /run-output/implement-ch79-safety-privacy-model-card/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/79-safety-privacy-model-card/gpu-execution-receipt.json",
+            "phase_id": "implement-ch77-safety-privacy-model-card-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch77-safety-privacy-model-card-v1 --profile 8gb-gpu-advanced-smoke-v1 --output /run-output/implement-ch77-safety-privacy-model-card/bundle --receipt /run-output/implement-ch77-safety-privacy-model-card/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/77-safety-privacy-model-card/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 7200,
@@ -17179,7 +17097,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch79-safety-privacy-model-card:rw",
+            "output_mount": "/run-output/implement-ch77-safety-privacy-model-card:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -17189,14 +17107,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch79-safety-privacy-model-card/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch79-safety-privacy-model-card/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch77-safety-privacy-model-card/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch77-safety-privacy-model-card/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch79-safety-privacy-model-card/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch79-safety-privacy-model-card/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/79-safety-privacy-model-card/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch77-safety-privacy-model-card/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch77-safety-privacy-model-card/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/77-safety-privacy-model-card/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -17231,7 +17149,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17246,20 +17164,20 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch79-safety-privacy-model-card-v1"
+              "kernel_id": "implement-ch77-safety-privacy-model-card-v1"
             }
           },
           {
-            "step_id": "implement-ch80-from-scratch-laptop-capstone",
-            "target_id": "implement-ch80-from-scratch-laptop-capstone-v1",
+            "step_id": "implement-ch78-from-scratch-laptop-capstone",
+            "target_id": "implement-ch78-from-scratch-laptop-capstone-v1",
             "profile_id": "8gb-gpu-smoke",
             "seeds": [],
             "tier": "G1",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch80-from-scratch-laptop-capstone-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch80-from-scratch-laptop-capstone-v1 --profile 8gb-gpu-smoke --input-receipt /receipts/input-0.json --input /artifacts/input-0 --input-receipt /receipts/input-1.json --output /run-output/implement-ch80-from-scratch-laptop-capstone/bundle --receipt /run-output/implement-ch80-from-scratch-laptop-capstone/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/80-from-scratch-laptop-capstone/gpu-execution-receipt.json",
+            "phase_id": "implement-ch78-from-scratch-laptop-capstone-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch78-from-scratch-laptop-capstone-v1 --profile 8gb-gpu-smoke --input-receipt /receipts/input-0.json --input /artifacts/input-0 --input-receipt /receipts/input-1.json --output /run-output/implement-ch78-from-scratch-laptop-capstone/bundle --receipt /run-output/implement-ch78-from-scratch-laptop-capstone/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/78-from-scratch-laptop-capstone/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 900,
@@ -17274,7 +17192,7 @@
             "cache_mounts": {
               "/artifacts/input-0:ro": "entry-selected-by-artifacts/functional-laptop/experiments/from-scratch/pretraining-receipt.json"
             },
-            "output_mount": "/run-output/implement-ch80-from-scratch-laptop-capstone:rw",
+            "output_mount": "/run-output/implement-ch78-from-scratch-laptop-capstone:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -17284,17 +17202,17 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch80-from-scratch-laptop-capstone/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch80-from-scratch-laptop-capstone/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch78-from-scratch-laptop-capstone/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch78-from-scratch-laptop-capstone/bundle",
             "input_receipt_mounts": {
               "/receipts/input-0.json:ro": "artifacts/functional-laptop/experiments/from-scratch/pretraining-receipt.json",
               "/receipts/input-1.json:ro": "artifacts/functional-laptop/experiments/from-scratch/selected-artifact.json"
             },
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch80-from-scratch-laptop-capstone/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch80-from-scratch-laptop-capstone/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/80-from-scratch-laptop-capstone/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch78-from-scratch-laptop-capstone/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch78-from-scratch-laptop-capstone/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/78-from-scratch-laptop-capstone/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -17329,7 +17247,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17353,12 +17271,12 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch80-from-scratch-laptop-capstone-v1"
+              "kernel_id": "implement-ch78-from-scratch-laptop-capstone-v1"
             }
           },
           {
-            "step_id": "implement-ch81-import-adapt-serve-capstone",
-            "target_id": "implement-ch81-import-adapt-serve-capstone-v1",
+            "step_id": "implement-ch79-import-adapt-serve-capstone",
+            "target_id": "implement-ch79-import-adapt-serve-capstone-v1",
             "profile_id": "8gb-adapter",
             "seeds": [
               101,
@@ -17384,9 +17302,9 @@
             "tier": "G3",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch81-import-adapt-serve-capstone-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch81-import-adapt-serve-capstone-v1 --profile 8gb-adapter --seeds 101,103,107,109,127 --input-receipt /receipts/input-0.json --input /artifacts/input-0 --input-receipt /receipts/input-1.json --input-receipt /receipts/input-2.json --input-receipt /receipts/input-3.json --input-receipt /receipts/input-4.json --input /artifacts/input-4 --input-receipt /receipts/input-5.json --input /artifacts/input-5 --output /run-output/implement-ch81-import-adapt-serve-capstone/bundle --receipt /run-output/implement-ch81-import-adapt-serve-capstone/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/gpu-execution-receipt.json",
+            "phase_id": "implement-ch79-import-adapt-serve-capstone-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch79-import-adapt-serve-capstone-v1 --profile 8gb-adapter --seeds 101,103,107,109,127 --input-receipt /receipts/input-0.json --input /artifacts/input-0 --input-receipt /receipts/input-1.json --input-receipt /receipts/input-2.json --input-receipt /receipts/input-3.json --input-receipt /receipts/input-4.json --input /artifacts/input-4 --input-receipt /receipts/input-5.json --input /artifacts/input-5 --output /run-output/implement-ch79-import-adapt-serve-capstone/bundle --receipt /run-output/implement-ch79-import-adapt-serve-capstone/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 7200,
@@ -17405,7 +17323,7 @@
               "/artifacts/input-4:ro": "entry-selected-by-artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
               "/artifacts/input-5:ro": "entry-selected-by-artifacts/functional-laptop/experiments/adaptation/dpo-receipt.json"
             },
-            "output_mount": "/run-output/implement-ch81-import-adapt-serve-capstone:rw",
+            "output_mount": "/run-output/implement-ch79-import-adapt-serve-capstone:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -17415,8 +17333,8 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch81-import-adapt-serve-capstone/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch81-import-adapt-serve-capstone/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch79-import-adapt-serve-capstone/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch79-import-adapt-serve-capstone/bundle",
             "input_receipt_mounts": {
               "/receipts/input-0.json:ro": "artifacts/functional-laptop/acquisition/open-model/receipt.json",
               "/receipts/input-1.json:ro": "artifacts/functional-laptop/acquisition/open-model/selected-tokenizer-integration-receipt.json",
@@ -17427,9 +17345,9 @@
             },
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch81-import-adapt-serve-capstone/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch81-import-adapt-serve-capstone/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch79-import-adapt-serve-capstone/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch79-import-adapt-serve-capstone/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -17468,7 +17386,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17540,7 +17458,7 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch81-import-adapt-serve-capstone-v1"
+              "kernel_id": "implement-ch79-import-adapt-serve-capstone-v1"
             },
             "workload_receipt_field": "valid_token_prompt_example_update_checkpoint_counts",
             "workload_receipt_projection": {
@@ -17572,16 +17490,16 @@
             }
           },
           {
-            "step_id": "implement-ch82-advanced-decoding-serving",
-            "target_id": "implement-ch82-advanced-decoding-serving-v1",
+            "step_id": "implement-ch80-advanced-decoding-serving",
+            "target_id": "implement-ch80-advanced-decoding-serving-v1",
             "profile_id": "8gb-gpu-advanced-smoke-v1",
             "seeds": [],
             "tier": "G2",
             "phase_spec": "configs/functional-gpu-execution-targets.json",
             "phase_spec_owner": "establish-functional-gpu-execution-boundary",
-            "phase_id": "implement-ch82-advanced-decoding-serving-v1",
-            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch82-advanced-decoding-serving-v1 --profile 8gb-gpu-advanced-smoke-v1 --output /run-output/implement-ch82-advanced-decoding-serving/bundle --receipt /run-output/implement-ch82-advanced-decoding-serving/gpu-execution-receipt.json",
-            "receipt_path": "artifacts/functional-laptop/chapters/82-advanced-decoding-serving/gpu-execution-receipt.json",
+            "phase_id": "implement-ch80-advanced-decoding-serving-v1",
+            "closed_command": "cargo run --release --locked -p llm-from-scratch --bin llm-functional-profile -- --phase-spec /workspace/configs/functional-gpu-execution-targets.json --target implement-ch80-advanced-decoding-serving-v1 --profile 8gb-gpu-advanced-smoke-v1 --output /run-output/implement-ch80-advanced-decoding-serving/bundle --receipt /run-output/implement-ch80-advanced-decoding-serving/gpu-execution-receipt.json",
+            "receipt_path": "artifacts/functional-laptop/chapters/80-advanced-decoding-serving/gpu-execution-receipt.json",
             "receipt_schema": "functional-gpu-execution-receipt-v2",
             "ceilings": {
               "wall_seconds_max": 7200,
@@ -17592,7 +17510,7 @@
             "input_cache_receipts": [],
             "repo_mount": "/workspace:ro",
             "cache_mounts": {},
-            "output_mount": "/run-output/implement-ch82-advanced-decoding-serving:rw",
+            "output_mount": "/run-output/implement-ch80-advanced-decoding-serving:rw",
             "runtime": {
               "network": "none",
               "pull": "never",
@@ -17602,14 +17520,14 @@
               "device_from_receipt": true,
               "no_cpu_or_f32_fallback": true
             },
-            "candidate_receipt_path": "/run-output/implement-ch82-advanced-decoding-serving/gpu-execution-receipt.json",
-            "candidate_bundle_path": "/run-output/implement-ch82-advanced-decoding-serving/bundle",
+            "candidate_receipt_path": "/run-output/implement-ch80-advanced-decoding-serving/gpu-execution-receipt.json",
+            "candidate_bundle_path": "/run-output/implement-ch80-advanced-decoding-serving/bundle",
             "input_receipt_mounts": {},
             "runner_publication": {
               "validator": "scripts/check-functional-gpu-execution-receipt.mjs",
-              "source_candidate_receipt": "/run-output/implement-ch82-advanced-decoding-serving/gpu-execution-receipt.json",
-              "source_bundle": "/run-output/implement-ch82-advanced-decoding-serving/bundle",
-              "canonical_receipt": "artifacts/functional-laptop/chapters/82-advanced-decoding-serving/gpu-execution-receipt.json",
+              "source_candidate_receipt": "/run-output/implement-ch80-advanced-decoding-serving/gpu-execution-receipt.json",
+              "source_bundle": "/run-output/implement-ch80-advanced-decoding-serving/bundle",
+              "canonical_receipt": "artifacts/functional-laptop/chapters/80-advanced-decoding-serving/gpu-execution-receipt.json",
               "required_fields": [
                 "phase_spec_sha256",
                 "source_tree_sha256",
@@ -17644,7 +17562,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17659,7 +17577,7 @@
             "backend_and_kernel_contract": {
               "source_path": "rust/crates/llm-from-scratch/src/bin/llm-functional-profile.rs",
               "backend_id": "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-              "kernel_id": "implement-ch82-advanced-decoding-serving-v1"
+              "kernel_id": "implement-ch80-advanced-decoding-serving-v1"
             }
           },
           {
@@ -17735,7 +17653,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17826,7 +17744,7 @@
             },
             "admission_receipt_selector": {
               "mode": "consume-definitive",
-              "input_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json"
+              "input_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json"
             },
             "runtime_image_selector": {
               "parent_receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/dependency-refresh-receipt.json",
@@ -17907,7 +17825,7 @@
         },
         "admission_lifecycle": {
           "provisional_receipt": "artifacts/functional-laptop/execution-boundaries/gpu/preflight-receipt.json",
-          "definitive_receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/gpu-execution-receipt.json",
+          "definitive_receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/gpu-execution-receipt.json",
           "pre_ch62": "consume the provisional receipt only",
           "chapter62": "consume provisional and atomically emit definitive device/profile admission",
           "post_ch62": "consume and hash-bind the definitive receipt; a provisional, stale or substituted receipt is rejected",
@@ -18057,7 +17975,7 @@
             "phase": "admission-metadata",
             "network": "N2-bounded-official-metadata",
             "input_receipts": [
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-decision-receipt.json"
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-decision-receipt.json"
             ],
             "output_receipt": "artifacts/functional-laptop/postgresql/admission/receipt.json"
           },
@@ -18067,7 +17985,7 @@
             "phase": "verify-boundary",
             "network": "none",
             "input_receipts": [
-              "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-decision-receipt.json"
+              "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-decision-receipt.json"
             ],
             "output_receipt": "artifacts/functional-laptop/postgresql/admission/receipt.json"
           },
@@ -18227,7 +18145,7 @@
         "location": "run-only supplemental evidence; non-authoritative and not required on a fresh clone"
       },
       "independent_dense_fixtures": {
-        "owner_step": "implement-ch56-tensor-artifact-interchange",
+        "owner_step": "implement-ch54-tensor-artifact-interchange",
         "supplemental_research": {
           "sha256": "f36c243ba961ee20723e7820e01b62b0cc250985b4da5b44339a6c59b7d42674",
           "authoritative": false,
@@ -18536,13 +18454,13 @@
               "copyright_and_provenance_statement_required": true,
               "upstream_notices_required": true
             },
-            "source_manifest_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-manifest-receipt.json",
-            "source_fixture_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-fixture-receipt.json",
-            "source_cache_publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
+            "source_manifest_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-manifest-receipt.json",
+            "source_fixture_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-fixture-receipt.json",
+            "source_cache_publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
             "source_cache_mount": "/artifacts/source-a:ro",
-            "course_import_export_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-course-interchange-receipt.json",
-            "dth_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-fixture-receipt.json",
-            "final_cache_publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json"
+            "course_import_export_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-course-interchange-receipt.json",
+            "dth_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-fixture-receipt.json",
+            "final_cache_publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json"
           },
           {
             "id": "llama2c-350e04fe-fixture-b",
@@ -18585,14 +18503,14 @@
               "qk_permutation": "exact llama2.c-to-HF/course rotary q/k layout permutation",
               "frequency_tables": "derived nonparameter values excluded from 8,304-parameter census"
             },
-            "source_to_course_name_map_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-name-map-conversion-receipt.json",
-            "source_manifest_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-manifest-receipt.json",
-            "source_fixture_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-fixture-receipt.json",
-            "source_cache_publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
+            "source_to_course_name_map_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-name-map-conversion-receipt.json",
+            "source_manifest_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-manifest-receipt.json",
+            "source_fixture_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-fixture-receipt.json",
+            "source_cache_publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json",
             "source_cache_mount": "/artifacts/source-b:ro",
-            "course_import_export_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-course-interchange-receipt.json",
-            "dth_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-fixture-receipt.json",
-            "final_cache_publication_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+            "course_import_export_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-course-interchange-receipt.json",
+            "dth_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-fixture-receipt.json",
+            "final_cache_publication_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
           }
         ],
         "numeric_comparison": {
@@ -18660,19 +18578,19 @@
           "publication_finished_at"
         ],
         "course_interchange": {
-          "target_id": "ch56-course-interchange-v1",
-          "run_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/course-interchange-run-receipt.json",
+          "target_id": "ch54-course-interchange-v1",
+          "run_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/course-interchange-run-receipt.json",
           "input_source_publication_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-cache-publication-receipt.json",
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-cache-publication-receipt.json"
           ],
           "output_dth_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-fixture-receipt.json",
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-fixture-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-fixture-receipt.json",
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-fixture-receipt.json"
           ],
           "output_course_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-course-interchange-receipt.json",
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-course-interchange-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-course-interchange-receipt.json",
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-course-interchange-receipt.json"
           ],
           "required_fields": [
             "import_started_at",
@@ -18695,14 +18613,14 @@
           "ordering": "each source producer finished and source cache publication finished before import_started_at"
         },
         "final_fixture_publication": {
-          "target_id": "ch56-course-fixtures-v1",
+          "target_id": "ch54-course-fixtures-v1",
           "input_dth_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-fixture-receipt.json",
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-fixture-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-fixture-receipt.json",
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-fixture-receipt.json"
           ],
           "output_publication_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
           ],
           "required_fields": [
             "dth_receipt_sha256",
@@ -18713,15 +18631,15 @@
           ]
         },
         "tiny_ci": {
-          "target_id": "ch56-two-dense-fixtures-tiny-ci-v1",
-          "receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/two-fixture-tiny-ci-receipt.json",
+          "target_id": "ch54-two-dense-fixtures-tiny-ci-v1",
+          "receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/two-fixture-tiny-ci-receipt.json",
           "input_publication_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
           ],
           "input_receipt_mounts": {
-            "/receipts/fixture-a.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
-            "/receipts/fixture-b.json:ro": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
+            "/receipts/fixture-a.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-final-cache-publication-receipt.json",
+            "/receipts/fixture-b.json:ro": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-final-cache-publication-receipt.json"
           },
           "input_cache_mounts": {
             "/artifacts/fixture-a:ro": "receipt-selected-transformers-final-entry",
@@ -18746,7 +18664,7 @@
           "wall_seconds_max_each": 600,
           "network": "none"
         },
-        "combined_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+        "combined_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
         "combined_receipt_fields": [
           "isa_admission_schema_version",
           "spec_sha256",
@@ -18795,7 +18713,7 @@
         "boundary": "validation oracles generate evidence only; course Rust owns SafeTensors semantic admission, tensor mapping and autoregressive decoder math"
       },
       "selected_external_identity_matrix": {
-        "owner_step": "implement-ch81-import-adapt-serve-capstone",
+        "owner_step": "implement-ch79-import-adapt-serve-capstone",
         "capability_id": "CAP-ISA-ENDPOINT-001",
         "direct_prerequisite_ids": [
           "CAP-DTH-ARCH-02",
@@ -18839,9 +18757,9 @@
           "artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
           "artifacts/functional-laptop/experiments/adaptation/dpo-receipt.json"
         ],
-        "selected_evaluation_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
-        "matrix_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
-        "terminal_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/endpoint-receipt.json",
+        "selected_evaluation_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
+        "matrix_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
+        "terminal_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/endpoint-receipt.json",
         "evaluation_states": [
           "adapter-disabled",
           "sft-adapter",
@@ -18892,7 +18810,7 @@
         "output_mount": "one producer-specific run directory read-write",
         "target_registry": [
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
             "target_id": "transformers-4.57.1-fixture-a",
             "driver": "scripts/validation-oracles/generate-transformers-bridge-fixture.py",
             "spec": "configs/functional-dense-interchange-fixtures-v1.json",
@@ -18903,8 +18821,8 @@
               "artifacts/functional-laptop/execution-boundaries/offline-workspace/validation-oracle-toolchains-receipt.json",
               "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/course-reference-tokenizer-lineage-receipt.json"
             ],
-            "source_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-fixture-receipt.json",
-            "source_manifest_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/transformers-source-manifest-receipt.json",
+            "source_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-fixture-receipt.json",
+            "source_manifest_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/transformers-source-manifest-receipt.json",
             "required_receipt_fields": [
               "producer_run_id",
               "producer_started_at",
@@ -18971,7 +18889,7 @@
             "course_expected_output_access": "forbidden"
           },
           {
-            "step_id": "implement-ch56-tensor-artifact-interchange",
+            "step_id": "implement-ch54-tensor-artifact-interchange",
             "target_id": "llama2c-350e04fe-fixture-b",
             "driver": "scripts/validation-oracles/generate-llama2c-bridge-fixture.py",
             "spec": "configs/functional-dense-interchange-fixtures-v1.json",
@@ -18982,8 +18900,8 @@
               "artifacts/functional-laptop/execution-boundaries/offline-workspace/validation-oracle-toolchains-receipt.json",
               "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/course-reference-tokenizer-lineage-receipt.json"
             ],
-            "source_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-fixture-receipt.json",
-            "source_manifest_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/llama2c-source-manifest-receipt.json",
+            "source_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-fixture-receipt.json",
+            "source_manifest_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/llama2c-source-manifest-receipt.json",
             "required_receipt_fields": [
               "producer_run_id",
               "producer_started_at",
@@ -19164,7 +19082,7 @@
         "authority_boundary": "model contexts may read only their exact routed content/evidence bundles; they confer no web, model-payload, runtime, publication or destructive authority"
       },
       "ch82_speculative_trace": {
-        "owner_step": "implement-ch82-advanced-decoding-serving",
+        "owner_step": "implement-ch80-advanced-decoding-serving",
         "capability": "CAP-ISA-DEC-007",
         "proposal_fixture": "configs/functional-speculative-proposal-trace-v1.json",
         "fixture_schema": {
@@ -19598,22 +19516,6 @@
         "role": "closed GPU profile dispatcher only"
       },
       {
-        "step_id": "execute-functional-corpus-filtering",
-        "path": "rust/crates/llm-from-scratch/src/bin/llm-functional-corpus-filter.rs",
-        "cargo_target": "llm-functional-corpus-filter",
-        "discovery": "allowlisted-cargo-autobin",
-        "reachable_count": 1,
-        "role": "closed full-data plumbing harness calling preceding chapter algorithm"
-      },
-      {
-        "step_id": "execute-functional-corpus-dedup-split",
-        "path": "rust/crates/llm-from-scratch/src/bin/llm-functional-corpus-dedup-split.rs",
-        "cargo_target": "llm-functional-corpus-dedup-split",
-        "discovery": "allowlisted-cargo-autobin",
-        "reachable_count": 1,
-        "role": "closed full-data plumbing harness calling preceding chapter algorithm"
-      },
-      {
         "step_id": "execute-functional-tokenizer-and-tokenized-splits",
         "path": "rust/crates/llm-from-scratch/src/bin/llm-functional-tokenizer-splits.rs",
         "cargo_target": "llm-functional-tokenizer-splits",
@@ -19627,10 +19529,10 @@
         "cargo_target": "llm-functional-open-model-integration",
         "discovery": "allowlisted-cargo-autobin",
         "reachable_count": 1,
-        "role": "closed selected-tokenizer/dense/quantized integration harness calling Chapters 44, 56, and 61 implementations"
+        "role": "closed selected-tokenizer/dense/quantized integration harness calling Chapters 42, 56, and 61 implementations"
       },
       {
-        "step_id": "implement-ch85-persistence-scale-decision",
+        "step_id": "implement-ch83-persistence-scale-decision",
         "path": "rust/crates/llm-from-scratch/src/bin/llm-functional-persistence-scale-oracle.rs",
         "cargo_target": "llm-functional-persistence-scale-oracle",
         "discovery": "allowlisted-cargo-autobin",
@@ -19638,7 +19540,7 @@
         "role": "fixed memory/file persistence scale oracle"
       },
       {
-        "step_id": "implement-ch56-tensor-artifact-interchange",
+        "step_id": "implement-ch54-tensor-artifact-interchange",
         "path": "rust/crates/llm-from-scratch/src/bin/llm-functional-dense-interchange-ci.rs",
         "cargo_target": "llm-functional-dense-interchange-ci",
         "discovery": "allowlisted-cargo-autobin",
@@ -19705,15 +19607,15 @@
     },
     "capability_closure_projection": {
       "CAP-DTH-TOK-02": {
-        "primary_chapter": "44-scalable-bpe-tokenizer",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/implementation-receipt.json",
+        "primary_chapter": "42-scalable-bpe-tokenizer",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "standalone-provenance-cleared-gpt2-tokenizer-100-string-oracle",
             "producer_step": "execute-functional-tokenizer-and-tokenized-splits",
             "receipt": "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt.json",
-            "required_before": "implement-ch45-padded-variable-batches",
+            "required_before": "implement-ch43-padded-variable-batches",
             "capability_envelope": "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt-capability-integration-envelope.json"
           },
           {
@@ -19721,72 +19623,72 @@
             "role": "selected-external-tokenizer-integration",
             "producer_step": "acquire-functional-open-model",
             "receipt": "artifacts/functional-laptop/acquisition/open-model/selected-tokenizer-integration-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "capability_envelope": "artifacts/functional-laptop/acquisition/open-model/selected-tokenizer-integration-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-DTH-ART-01": {
-        "primary_chapter": "56-tensor-artifact-interchange",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json",
+        "primary_chapter": "54-tensor-artifact-interchange",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "two-independent-licensed-dense-fixtures-source-runtime-parity",
-            "producer_step": "implement-ch56-tensor-artifact-interchange",
-            "receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-            "required_before": "implement-ch57-immutable-artifact-persistence",
-            "capability_envelope": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch54-tensor-artifact-interchange",
+            "receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+            "required_before": "implement-ch55-immutable-artifact-persistence",
+            "capability_envelope": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json"
           },
           {
             "order": 2,
             "role": "selected-external-dense-interchange",
             "producer_step": "acquire-functional-open-model",
             "receipt": "artifacts/functional-laptop/acquisition/open-model/selected-dense-serving-integration-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "capability_envelope": "artifacts/functional-laptop/acquisition/open-model/selected-dense-serving-integration-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-ART-002": {
-        "primary_chapter": "56-tensor-artifact-interchange",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json",
+        "primary_chapter": "54-tensor-artifact-interchange",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "two-independent-dense-serving-admission-fixtures",
-            "producer_step": "implement-ch56-tensor-artifact-interchange",
-            "receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-            "required_before": "implement-ch57-immutable-artifact-persistence",
-            "capability_envelope": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch54-tensor-artifact-interchange",
+            "receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+            "required_before": "implement-ch55-immutable-artifact-persistence",
+            "capability_envelope": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json"
           },
           {
             "order": 2,
             "role": "selected-external-dense-serving-admission",
             "producer_step": "acquire-functional-open-model",
             "receipt": "artifacts/functional-laptop/acquisition/open-model/selected-dense-serving-integration-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "capability_envelope": "artifacts/functional-laptop/acquisition/open-model/selected-dense-serving-integration-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-ART-003": {
-        "primary_chapter": "61-quantized-gguf-artifacts",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
+        "primary_chapter": "59-quantized-gguf-artifacts",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "selected-dense-to-quantized-gguf-lineage-and-parity",
             "producer_step": "acquire-functional-open-model",
             "receipt": "artifacts/functional-laptop/acquisition/open-model/dense-quantized-integration-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "capability_envelope": "artifacts/functional-laptop/acquisition/open-model/dense-quantized-integration-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-PT-001": {
-        "primary_chapter": "71-lora-sft-adapters",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json",
+        "primary_chapter": "69-lora-sft-adapters",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
@@ -19801,21 +19703,21 @@
             "role": "selected-base-sft-adapter-execution",
             "producer_step": "execute-functional-sft-adaptation",
             "receipt": "artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "capability_envelope": "artifacts/functional-laptop/experiments/adaptation/sft-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-PT-002": {
-        "primary_chapter": "71-lora-sft-adapters",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json",
+        "primary_chapter": "69-lora-sft-adapters",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "selected-base-sft-adapter-execution-and-identity-gates",
             "producer_step": "execute-functional-sft-adaptation",
             "receipt": "artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "required_gates": [
               "schema-base-config-tokenizer-targets-rank-alpha-dtype-hashes",
               "wrong-identity-refused-before-mutation",
@@ -19829,96 +19731,96 @@
         ]
       },
       "CAP-ISA-PT-003": {
-        "primary_chapter": "72-direct-preference-optimization",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/72-direct-preference-optimization/implementation-receipt.json",
+        "primary_chapter": "70-direct-preference-optimization",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/70-direct-preference-optimization/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "selected-base-direct-preference-execution",
             "producer_step": "execute-functional-direct-preference-update",
             "receipt": "artifacts/functional-laptop/experiments/adaptation/dpo-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone",
+            "required_before": "implement-ch79-import-adapt-serve-capstone",
             "capability_envelope": "artifacts/functional-laptop/experiments/adaptation/dpo-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-SRV-009": {
-        "primary_chapter": "74-prefix-cache-reuse",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/implementation-receipt.json",
+        "primary_chapter": "72-prefix-cache-reuse",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "selected-external-identity-prefix-cache-matrix",
-            "producer_step": "implement-ch81-import-adapt-serve-capstone",
-            "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone:completion",
-            "capability_envelope": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch79-import-adapt-serve-capstone",
+            "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
+            "required_before": "implement-ch79-import-adapt-serve-capstone:completion",
+            "capability_envelope": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-ATT-005": {
-        "primary_chapter": "75-rope-context-scaling",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/75-rope-context-scaling/implementation-receipt.json",
+        "primary_chapter": "73-rope-context-scaling",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/73-rope-context-scaling/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "selected-external-identity-context-policy-matrix",
-            "producer_step": "implement-ch81-import-adapt-serve-capstone",
-            "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone:completion",
-            "capability_envelope": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch79-import-adapt-serve-capstone",
+            "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
+            "required_before": "implement-ch79-import-adapt-serve-capstone:completion",
+            "capability_envelope": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-DTH-EVAL-02": {
-        "primary_chapter": "60-multi-seed-evaluation",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/implementation-receipt.json",
+        "primary_chapter": "58-multi-seed-evaluation",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "course-produced-seed-sensitivity-and-generalization-execution",
             "producer_step": "execute-functional-seed-sensitivity-profile",
             "receipt": "artifacts/functional-laptop/experiments/from-scratch/seed-sensitivity-receipt.json",
-            "required_before": "implement-ch80-from-scratch-laptop-capstone",
+            "required_before": "implement-ch78-from-scratch-laptop-capstone",
             "capability_envelope": "artifacts/functional-laptop/experiments/from-scratch/seed-sensitivity-receipt-capability-integration-envelope.json"
           },
           {
             "order": 2,
             "role": "selected-identical-derivative-adapter-disabled-sft-dpo-evaluation-matrix",
-            "producer_step": "implement-ch81-import-adapt-serve-capstone",
-            "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone:terminal-receipt",
-            "capability_envelope": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch79-import-adapt-serve-capstone",
+            "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
+            "required_before": "implement-ch79-import-adapt-serve-capstone:terminal-receipt",
+            "capability_envelope": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json"
           }
         ]
       },
       "CAP-ISA-ENDPOINT-001": {
-        "primary_chapter": "81-import-adapt-serve-capstone",
-        "implementation_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/implementation-receipt.json",
+        "primary_chapter": "79-import-adapt-serve-capstone",
+        "implementation_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/implementation-receipt.json",
         "integration_receipts": [
           {
             "order": 1,
             "role": "same-derivative-disabled-sft-dpo-evaluation",
-            "producer_step": "implement-ch81-import-adapt-serve-capstone",
-            "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone:identity-matrix",
-            "capability_envelope": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch79-import-adapt-serve-capstone",
+            "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
+            "required_before": "implement-ch79-import-adapt-serve-capstone:identity-matrix",
+            "capability_envelope": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json"
           },
           {
             "order": 2,
             "role": "exact-31-direct-prerequisite-external-identity-matrix",
-            "producer_step": "implement-ch81-import-adapt-serve-capstone",
-            "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
-            "required_before": "implement-ch81-import-adapt-serve-capstone:terminal-receipt",
-            "capability_envelope": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
+            "producer_step": "implement-ch79-import-adapt-serve-capstone",
+            "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
+            "required_before": "implement-ch79-import-adapt-serve-capstone:terminal-receipt",
+            "capability_envelope": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
           },
           {
             "order": 3,
             "role": "terminal-functional-endpoint",
-            "producer_step": "implement-ch81-import-adapt-serve-capstone",
-            "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/endpoint-receipt.json",
+            "producer_step": "implement-ch79-import-adapt-serve-capstone",
+            "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/endpoint-receipt.json",
             "required_before": "audit-functional-successor-preclosure",
-            "capability_envelope": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/endpoint-receipt-capability-integration-envelope.json"
+            "capability_envelope": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/endpoint-receipt-capability-integration-envelope.json"
           }
         ]
       }
@@ -19950,66 +19852,66 @@
       ],
       "implementation_contracts": [
         {
-          "path": "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/implementation-receipt.json",
-          "producer_step": "implement-ch44-scalable-bpe-tokenizer",
+          "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/implementation-receipt.json",
+          "producer_step": "implement-ch42-scalable-bpe-tokenizer",
           "capability_ids": [
             "CAP-DTH-TOK-02"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json",
-          "producer_step": "implement-ch56-tensor-artifact-interchange",
+          "path": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json",
+          "producer_step": "implement-ch54-tensor-artifact-interchange",
           "capability_ids": [
             "CAP-DTH-ART-01",
             "CAP-ISA-ART-002"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json",
-          "producer_step": "implement-ch61-quantized-gguf-artifacts",
+          "path": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json",
+          "producer_step": "implement-ch59-quantized-gguf-artifacts",
           "capability_ids": [
             "CAP-ISA-ART-003"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json",
-          "producer_step": "implement-ch71-lora-sft-adapters",
+          "path": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json",
+          "producer_step": "implement-ch69-lora-sft-adapters",
           "capability_ids": [
             "CAP-ISA-PT-001",
             "CAP-ISA-PT-002"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/72-direct-preference-optimization/implementation-receipt.json",
-          "producer_step": "implement-ch72-direct-preference-optimization",
+          "path": "artifacts/functional-laptop/chapters/70-direct-preference-optimization/implementation-receipt.json",
+          "producer_step": "implement-ch70-direct-preference-optimization",
           "capability_ids": [
             "CAP-ISA-PT-003"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/implementation-receipt.json",
-          "producer_step": "implement-ch74-prefix-cache-reuse",
+          "path": "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/implementation-receipt.json",
+          "producer_step": "implement-ch72-prefix-cache-reuse",
           "capability_ids": [
             "CAP-ISA-SRV-009"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/75-rope-context-scaling/implementation-receipt.json",
-          "producer_step": "implement-ch75-rope-context-scaling",
+          "path": "artifacts/functional-laptop/chapters/73-rope-context-scaling/implementation-receipt.json",
+          "producer_step": "implement-ch73-rope-context-scaling",
           "capability_ids": [
             "CAP-ISA-ATT-005"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/implementation-receipt.json",
-          "producer_step": "implement-ch60-multi-seed-evaluation",
+          "path": "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/implementation-receipt.json",
+          "producer_step": "implement-ch58-multi-seed-evaluation",
           "capability_ids": [
             "CAP-DTH-EVAL-02"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/implementation-receipt.json",
-          "producer_step": "implement-ch81-import-adapt-serve-capstone",
+          "path": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/implementation-receipt.json",
+          "producer_step": "implement-ch79-import-adapt-serve-capstone",
           "capability_ids": [
             "CAP-ISA-ENDPOINT-001"
           ]
@@ -20027,16 +19929,16 @@
             "standalone-provenance-cleared-gpt2-tokenizer-100-string-oracle"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch45-padded-variable-batches"
+            "implement-ch43-padded-variable-batches"
           ]
         },
         {
@@ -20050,7 +19952,7 @@
             "selected-external-tokenizer-integration"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
             "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt-capability-integration-envelope.json"
@@ -20059,13 +19961,13 @@
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone"
+            "implement-ch79-import-adapt-serve-capstone"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json",
-          "typed_receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
-          "producer_step": "implement-ch56-tensor-artifact-interchange",
+          "path": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json",
+          "typed_receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+          "producer_step": "implement-ch54-tensor-artifact-interchange",
           "capability_ids": [
             "CAP-DTH-ART-01",
             "CAP-ISA-ART-002"
@@ -20075,16 +19977,16 @@
             "two-independent-dense-serving-admission-fixtures"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch57-immutable-artifact-persistence"
+            "implement-ch55-immutable-artifact-persistence"
           ]
         },
         {
@@ -20102,18 +20004,18 @@
             "selected-base-admission"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/implementation-receipt.json",
-            "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/implementation-receipt.json",
+            "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json",
-            "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt-capability-integration-envelope.json",
+            "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone",
+            "implement-ch79-import-adapt-serve-capstone",
             "freeze-functional-adaptation-experiment"
           ]
         },
@@ -20128,16 +20030,16 @@
             "selected-dense-to-quantized-gguf-lineage-and-parity"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone"
+            "implement-ch79-import-adapt-serve-capstone"
           ]
         },
         {
@@ -20153,11 +20055,11 @@
             "selected-base-sft-adapter-execution-and-identity-gates"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
             "artifacts/functional-laptop/acquisition/open-model/selected-dense-serving-integration-receipt-capability-integration-envelope.json",
-            "artifacts/functional-laptop/chapters/71-lora-sft-adapters/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/69-lora-sft-adapters/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized",
@@ -20169,7 +20071,7 @@
             "mixed-request-adapter-isolation"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone"
+            "implement-ch79-import-adapt-serve-capstone"
           ]
         },
         {
@@ -20183,22 +20085,22 @@
             "selected-base-direct-preference-execution"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/72-direct-preference-optimization/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/70-direct-preference-optimization/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/72-direct-preference-optimization/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/70-direct-preference-optimization/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone"
+            "implement-ch79-import-adapt-serve-capstone"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json",
-          "typed_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
-          "producer_step": "implement-ch81-import-adapt-serve-capstone",
+          "path": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json",
+          "typed_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt.json",
+          "producer_step": "implement-ch79-import-adapt-serve-capstone",
           "capability_ids": [
             "CAP-ISA-SRV-009",
             "CAP-ISA-ATT-005",
@@ -20210,21 +20112,21 @@
             "exact-31-direct-prerequisite-external-identity-matrix"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/implementation-receipt.json",
-            "artifacts/functional-laptop/chapters/75-rope-context-scaling/implementation-receipt.json",
-            "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/implementation-receipt.json",
+            "artifacts/functional-laptop/chapters/73-rope-context-scaling/implementation-receipt.json",
+            "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/implementation-receipt.json",
-            "artifacts/functional-laptop/chapters/75-rope-context-scaling/implementation-receipt.json",
-            "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json"
+            "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/implementation-receipt.json",
+            "artifacts/functional-laptop/chapters/73-rope-context-scaling/implementation-receipt.json",
+            "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone:completion",
-            "implement-ch81-import-adapt-serve-capstone:terminal-receipt"
+            "implement-ch79-import-adapt-serve-capstone:completion",
+            "implement-ch79-import-adapt-serve-capstone:terminal-receipt"
           ]
         },
         {
@@ -20238,22 +20140,22 @@
             "course-produced-seed-sensitivity-and-generalization-execution"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch80-from-scratch-laptop-capstone"
+            "implement-ch78-from-scratch-laptop-capstone"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json",
-          "typed_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
-          "producer_step": "implement-ch81-import-adapt-serve-capstone",
+          "path": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt-capability-integration-envelope.json",
+          "typed_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-evaluation-matrix-receipt.json",
+          "producer_step": "implement-ch79-import-adapt-serve-capstone",
           "capability_ids": [
             "CAP-DTH-EVAL-02",
             "CAP-ISA-ENDPOINT-001"
@@ -20263,25 +20165,25 @@
             "same-derivative-disabled-sft-dpo-evaluation"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/implementation-receipt.json",
-            "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/implementation-receipt.json",
+            "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
             "artifacts/functional-laptop/experiments/from-scratch/seed-sensitivity-receipt-capability-integration-envelope.json",
-            "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/implementation-receipt.json"
           ],
           "required_gates": [
             "receipt-role-realized"
           ],
           "required_before": [
-            "implement-ch81-import-adapt-serve-capstone:terminal-receipt",
-            "implement-ch81-import-adapt-serve-capstone:identity-matrix"
+            "implement-ch79-import-adapt-serve-capstone:terminal-receipt",
+            "implement-ch79-import-adapt-serve-capstone:identity-matrix"
           ]
         },
         {
-          "path": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/endpoint-receipt-capability-integration-envelope.json",
-          "typed_receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/endpoint-receipt.json",
-          "producer_step": "implement-ch81-import-adapt-serve-capstone",
+          "path": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/endpoint-receipt-capability-integration-envelope.json",
+          "typed_receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/endpoint-receipt.json",
+          "producer_step": "implement-ch79-import-adapt-serve-capstone",
           "capability_ids": [
             "CAP-ISA-ENDPOINT-001"
           ],
@@ -20289,10 +20191,10 @@
             "terminal-functional-endpoint"
           ],
           "implementation_receipts": [
-            "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/implementation-receipt.json"
+            "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/implementation-receipt.json"
           ],
           "prerequisite_receipts": [
-            "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
+            "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/selected-external-integration-matrix-receipt-capability-integration-envelope.json"
           ],
           "required_gates": [
             "receipt-role-realized"
@@ -20430,272 +20332,260 @@
       "meaning": "The identity binds the exact scalar-reference configuration and its bounded evidence; it is not a quality or production-scale identity."
     },
     {
-      "chapter_id": "41-governed-corpus-acquisition",
-      "formula_id": "teaching-formula-ch41-governed-corpus-acquisition",
-      "notation": "artifact_id = SHA256(canonical_manifest_bytes)",
-      "meaning": "The canonical manifest, not a filename, ETag, or floating revision, is the acquired artifact identity."
+      "chapter_id": "41-corpus-preparation",
+      "formula_id": "teaching-formula-ch41-corpus-preparation",
+      "notation": "r_{\\mathrm{keep}}=\\frac{N_{\\mathrm{prepared}}}{N_{\\mathrm{input}}}",
+      "meaning": "The dimensionless fraction of input documents remaining after the declared preparation stages. Both counts refer to documents, not tokens or bytes. The fraction is undefined for zero input documents and does not measure corpus quality. Stage-local rates use the population entering that stage, not automatically the original input population."
     },
     {
-      "chapter_id": "42-deterministic-corpus-filtering",
-      "formula_id": "teaching-formula-ch42-deterministic-corpus-filtering",
-      "notation": "r_k = n_disposition,k / n_seen,k",
-      "meaning": "Each rule's reported rate names its exact seen-record denominator and disposition count."
-    },
-    {
-      "chapter_id": "43-deduplication-decontamination",
-      "formula_id": "teaching-formula-ch43-deduplication-decontamination",
-      "notation": "J(A,B) = |A intersect B| / |A union B|",
-      "meaning": "The inspectable near-duplicate rule compares finite shingle sets and groups connected records before partitioning."
-    },
-    {
-      "chapter_id": "44-scalable-bpe-tokenizer",
-      "formula_id": "teaching-formula-ch44-scalable-bpe-tokenizer",
+      "chapter_id": "42-scalable-bpe-tokenizer",
+      "formula_id": "teaching-formula-ch42-scalable-bpe-tokenizer",
       "notation": "pair_t = stable_argmax_(a,b) count_t(a,b); eta = token_count / UTF8_byte_count",
       "meaning": "At each rank, pair counts over the current training representation select one stable course-owned merge; efficiency names bytes as its denominator."
     },
     {
-      "chapter_id": "45-padded-variable-batches",
-      "formula_id": "teaching-formula-ch45-padded-variable-batches",
+      "chapter_id": "43-padded-variable-batches",
+      "formula_id": "teaching-formula-ch43-padded-variable-batches",
       "notation": "L = -sum_(b,t) m_(b,t) log p(y_(b,t)|x_(b,<=t)) / sum_(b,t) m_(b,t)",
       "meaning": "Loss sums only valid target positions and divides by their count, not by rectangular storage size."
     },
     {
-      "chapter_id": "46-packed-sequence-masks",
-      "formula_id": "teaching-formula-ch46-packed-sequence-masks",
+      "chapter_id": "44-packed-sequence-masks",
+      "formula_id": "teaching-formula-ch44-packed-sequence-masks",
       "notation": "A_(i,j) = 1[s_i = s_j and p_j <= p_i]",
       "meaning": "A packed query can attend only to earlier-or-equal positions in its own segment, and a target is valid only within that segment."
     },
     {
-      "chapter_id": "47-depth-stable-decoder",
-      "formula_id": "teaching-formula-ch47-depth-stable-decoder",
+      "chapter_id": "45-depth-stable-decoder",
+      "formula_id": "teaching-formula-ch45-depth-stable-decoder",
       "notation": "x_(l+1) = x_l + alpha_L f_l(Norm(x_l))",
       "meaning": "A declared depth-dependent residual multiplier controls each learned branch without changing the selected pre-norm decoder family."
     },
     {
-      "chapter_id": "48-configurable-decoder-core",
-      "formula_id": "teaching-formula-ch48-configurable-decoder-core",
+      "chapter_id": "46-configurable-decoder-core",
+      "formula_id": "teaching-formula-ch46-configurable-decoder-core",
       "notation": "P = V*D + L*(2*D*D + 2*D*D*Hkv/Hq + 3*D*F + 2*D) + D",
       "meaning": "The expression counts the tied, bias-free RMSNorm, GQA, SwiGLU decoder parameters once for any valid runtime settings."
     },
     {
-      "chapter_id": "49-dropout-semantics",
-      "formula_id": "teaching-formula-ch49-dropout-semantics",
+      "chapter_id": "47-dropout-semantics",
+      "formula_id": "teaching-formula-ch47-dropout-semantics",
       "notation": "y_train = m*x/(1-p); y_eval = x",
       "meaning": "Training retains an element through a Bernoulli mask and rescales it; evaluation applies the identity."
     },
     {
-      "chapter_id": "50-dependency-error-contract",
-      "formula_id": "teaching-formula-ch50-dependency-error-contract",
+      "chapter_id": "48-dependency-error-contract",
+      "formula_id": "teaching-formula-ch48-dependency-error-contract",
       "notation": "allowed_graph = packages union edges union features union call_site_roles",
       "meaning": "Every dependency edge and call site must have one permitted plumbing role, while every failure reaches a declared terminal category."
     },
     {
-      "chapter_id": "51-serving-config-admission",
-      "formula_id": "teaching-formula-ch51-serving-config-admission",
+      "chapter_id": "49-serving-config-admission",
+      "formula_id": "teaching-formula-ch49-serving-config-admission",
       "notation": "planned_request_bytes = KV + workspace + batch_metadata + slack",
       "meaning": "Admission sums every request-owned planned allocation and compares it with the selected profile before allocating any request state."
     },
     {
-      "chapter_id": "52-accelerator-tensor-parity",
-      "formula_id": "teaching-formula-ch52-accelerator-tensor-parity",
+      "chapter_id": "50-accelerator-tensor-parity",
+      "formula_id": "teaching-formula-ch50-accelerator-tensor-parity",
       "notation": "abs(actual-reference) <= atol + rtol*max(abs(actual),abs(reference))",
       "meaning": "Numeric parity combines a fixed absolute tolerance with a relative term; reduction bounds also account for the declared accumulation order."
     },
     {
-      "chapter_id": "53-mixed-precision-training",
-      "formula_id": "teaching-formula-ch53-mixed-precision-training",
+      "chapter_id": "51-mixed-precision-training",
+      "formula_id": "teaching-formula-ch51-mixed-precision-training",
       "notation": "g = g_scaled / S",
       "meaning": "The backward path divides scaled gradients by the exact current scale before finite checking, clipping, and any update commit."
     },
     {
-      "chapter_id": "54-memory-bounded-training",
-      "formula_id": "teaching-formula-ch54-memory-bounded-training",
+      "chapter_id": "52-memory-bounded-training",
+      "formula_id": "teaching-formula-ch52-memory-bounded-training",
       "notation": "g = sum_m gradient_sum_m / sum_m valid_targets_m",
       "meaning": "Microbatch gradient numerators are summed and normalized by the total number of valid targets, so unequal padding does not reweight examples."
     },
     {
-      "chapter_id": "55-optimizer-schedules-clipping",
-      "formula_id": "teaching-formula-ch55-optimizer-schedules-clipping",
+      "chapter_id": "53-optimizer-schedules-clipping",
+      "formula_id": "teaching-formula-ch53-optimizer-schedules-clipping",
       "notation": "g_clip = g*min(1, tau/||g||_2); learning_rate = schedule(update_index)",
       "meaning": "The schedule selects the update rate and global-norm clipping scales the already unscaled, averaged gradient before AdamW."
     },
     {
-      "chapter_id": "56-tensor-artifact-interchange",
-      "formula_id": "teaching-formula-ch56-tensor-artifact-interchange",
+      "chapter_id": "54-tensor-artifact-interchange",
+      "formula_id": "teaching-formula-ch54-tensor-artifact-interchange",
       "notation": "range_i = [offset_i, offset_i + elements_i*bytes_per_element_i)",
       "meaning": "Each tensor owns one bounded nonoverlapping byte interval, while an alias points to its single owner rather than duplicating storage."
     },
     {
-      "chapter_id": "57-immutable-artifact-persistence",
-      "formula_id": "teaching-formula-ch57-immutable-artifact-persistence",
+      "chapter_id": "55-immutable-artifact-persistence",
+      "formula_id": "teaching-formula-ch55-immutable-artifact-persistence",
       "notation": "published(final) = fsync(temp) ∧ atomic_rename(temp, final)",
       "meaning": "A successor artifact becomes visible only after its staged bytes are durably synchronized and atomically renamed to the final path; partial successor state is never published."
     },
     {
-      "chapter_id": "58-exact-job-resume",
-      "formula_id": "teaching-formula-ch58-exact-job-resume",
+      "chapter_id": "56-exact-job-resume",
+      "formula_id": "teaching-formula-ch56-exact-job-resume",
       "notation": "S_t = (parameters, gradients, moments, scaler, schedule, accumulation, data_cursor, RNGs, evaluation, counters, identities)",
       "meaning": "Complete job state includes every value whose omission could change the next batch, update, selection decision, or artifact identity."
     },
     {
-      "chapter_id": "59-resource-observability",
-      "formula_id": "teaching-formula-ch59-resource-observability",
+      "chapter_id": "57-resource-observability",
+      "formula_id": "teaching-formula-ch57-resource-observability",
       "notation": "peak_bytes = max_event(sum live_bytes + workspace_bytes); comm_bytes = sum_event(messages*elements*dtype_bytes)",
       "meaning": "Peak memory is the largest sum of live allocations plus event workspace, and communication is the sum of declared event payloads."
     },
     {
-      "chapter_id": "60-multi-seed-evaluation",
-      "formula_id": "teaching-formula-ch60-multi-seed-evaluation",
+      "chapter_id": "58-multi-seed-evaluation",
+      "formula_id": "teaching-formula-ch58-multi-seed-evaluation",
       "notation": "L = -sum_i log p(y_i|x_(<i))/N; PPL = exp(L)",
       "meaning": "Mean negative log-likelihood is token weighted and perplexity is its exponential; the uncertainty unit is a complete frozen-seed run."
     },
     {
-      "chapter_id": "61-quantized-gguf-artifacts",
-      "formula_id": "teaching-formula-ch61-quantized-gguf-artifacts",
+      "chapter_id": "59-quantized-gguf-artifacts",
+      "formula_id": "teaching-formula-ch59-quantized-gguf-artifacts",
       "notation": "q = clip(round(w/s)+z); w_hat = s*(q-z)",
       "meaning": "A declared scale and zero point map weights to bounded integer codes and reconstruct the represented approximation."
     },
     {
-      "chapter_id": "62-laptop-hardware-admission",
-      "formula_id": "teaching-formula-ch62-laptop-hardware-admission",
+      "chapter_id": "60-laptop-hardware-admission",
+      "formula_id": "teaching-formula-ch60-laptop-hardware-admission",
       "notation": "core_bytes = state + activations + workspace + KV + batch_metadata + slack = 6710886400",
       "meaning": "The core profile reserves fixed nonborrowable state, activation, workspace, KV, metadata, and slack components totaling exactly 6.25 GiB."
     },
     {
-      "chapter_id": "63-gqa-context-policy",
-      "formula_id": "teaching-formula-ch63-gqa-context-policy",
+      "chapter_id": "61-gqa-context-policy",
+      "formula_id": "teaching-formula-ch61-gqa-context-policy",
       "notation": "kv_head(h) = floor(h*Hkv/Hq); KV_bytes = 2*B*L*C*Hkv*(D/Hq)*bkv",
       "meaning": "Each query head maps deterministically to one shared KV head, reducing KV storage while retaining its own causal attention row."
     },
     {
-      "chapter_id": "64-online-tiled-attention",
-      "formula_id": "teaching-formula-ch64-online-tiled-attention",
+      "chapter_id": "62-online-tiled-attention",
+      "formula_id": "teaching-formula-ch62-online-tiled-attention",
       "notation": "m_new=max(m, max scores_tile); l_new=exp(m-m_new)*l + sum exp(scores_tile-m_new)",
       "meaning": "Each tile updates a running maximum, normalization denominator, and weighted output accumulator without retaining earlier score tiles."
     },
     {
-      "chapter_id": "65-kv-block-pool",
-      "formula_id": "teaching-formula-ch65-kv-block-pool",
+      "chapter_id": "63-kv-block-pool",
+      "formula_id": "teaching-formula-ch63-kv-block-pool",
       "notation": "KV_bytes = 2*blocks*block_tokens*L*Hkv*(D/Hq)*bkv",
       "meaning": "The pool byte census counts key and value blocks across layers, KV heads, per-head width, block tokens, and storage width."
     },
     {
-      "chapter_id": "66-nucleus-penalties-logprobs",
-      "formula_id": "teaching-formula-ch66-nucleus-penalties-logprobs",
+      "chapter_id": "64-nucleus-penalties-logprobs",
+      "formula_id": "teaching-formula-ch64-nucleus-penalties-logprobs",
       "notation": "logit_i' = logit_i - alpha*1[count_i>0] - beta*count_i; K_p = smallest stable prefix with cumulative_probability >= p",
       "meaning": "Penalties transform a fresh logit view, then top-p retains the smallest stable-ranked cumulative probability prefix reaching p."
     },
     {
-      "chapter_id": "67-stop-strings-unicode-streaming",
-      "formula_id": "teaching-formula-ch67-stop-strings-unicode-streaming",
+      "chapter_id": "65-stop-strings-unicode-streaming",
+      "formula_id": "teaching-formula-ch65-stop-strings-unicode-streaming",
       "notation": "emit_len = min(stop_safe_prefix_len, utf8_complete_prefix_len)",
       "meaning": "The stream emits only the longest prefix that cannot become part of a future stop match and ends on a complete UTF-8 scalar boundary."
     },
     {
-      "chapter_id": "68-continuous-batch-scheduling",
-      "formula_id": "teaching-formula-ch68-continuous-batch-scheduling",
+      "chapter_id": "66-continuous-batch-scheduling",
+      "formula_id": "teaching-formula-ch66-continuous-batch-scheduling",
       "notation": "row_map[r] = (request_id, phase, position, cache_blocks, rng_stream)",
       "meaning": "A scheduler iteration's row map is the explicit ownership proof between packed device work and independent request state."
     },
     {
-      "chapter_id": "69-cancellation-backpressure-budgets",
-      "formula_id": "teaching-formula-ch69-cancellation-backpressure-budgets",
+      "chapter_id": "67-cancellation-backpressure-budgets",
+      "formula_id": "teaching-formula-ch67-cancellation-backpressure-budgets",
       "notation": "request_bytes <= profile_request_ceiling; now <= phase_deadline",
       "meaning": "Every lifecycle phase has a declared absolute deadline and each request owns a bounded sum of queue, token, cache, workspace, and output resources."
     },
     {
-      "chapter_id": "70-loopback-serving-metrics",
-      "formula_id": "teaching-formula-ch70-loopback-serving-metrics",
+      "chapter_id": "68-loopback-serving-metrics",
+      "formula_id": "teaching-formula-ch68-loopback-serving-metrics",
       "notation": "throughput = completed_generation_tokens / measured_decode_seconds",
       "meaning": "Every metric defines its event, timestamp boundary, unit, denominator, and allowed low-cardinality labels without prompt or token content."
     },
     {
-      "chapter_id": "71-lora-sft-adapters",
-      "formula_id": "teaching-formula-ch71-lora-sft-adapters",
+      "chapter_id": "69-lora-sft-adapters",
+      "formula_id": "teaching-formula-ch69-lora-sft-adapters",
       "notation": "W_adapter = W_base + (alpha/r)*B*A",
       "meaning": "A frozen base projection gains a trainable rank-r update, while supervised loss includes response tokens only."
     },
     {
-      "chapter_id": "72-direct-preference-optimization",
-      "formula_id": "teaching-formula-ch72-direct-preference-optimization",
+      "chapter_id": "70-direct-preference-optimization",
+      "formula_id": "teaching-formula-ch70-direct-preference-optimization",
       "notation": "L_DPO = -log sigmoid(beta*((logpi_w-logpi_l)-(logref_w-logref_l)))",
       "meaning": "DPO increases the policy's chosen-versus-rejected logprob margin relative to the frozen reference margin."
     },
     {
-      "chapter_id": "73-qlora-boundary",
-      "formula_id": "teaching-formula-ch73-qlora-boundary",
+      "chapter_id": "71-qlora-boundary",
+      "formula_id": "teaching-formula-ch71-qlora-boundary",
       "notation": "y = dequantize(Q(W_base))*x + (alpha/r)*B*A*x",
       "meaning": "The base is dequantized through the course representation for computation while only the low-rank factors receive updates."
     },
     {
-      "chapter_id": "74-prefix-cache-reuse",
-      "formula_id": "teaching-formula-ch74-prefix-cache-reuse",
+      "chapter_id": "72-prefix-cache-reuse",
+      "formula_id": "teaching-formula-ch72-prefix-cache-reuse",
       "notation": "prefix_id = SHA256(tokens || config_id || artifact_id || adapter_id || context_policy || authorization_scope)",
       "meaning": "A cacheable prefix identity hashes every semantic input that could change its KV rows, not token IDs alone."
     },
     {
-      "chapter_id": "75-rope-context-scaling",
-      "formula_id": "teaching-formula-ch75-rope-context-scaling",
+      "chapter_id": "73-rope-context-scaling",
+      "formula_id": "teaching-formula-ch73-rope-context-scaling",
       "notation": "q_rot[0:r] = RoPE(q[0:r], scaled_position); q_rot[r:d] = q[r:d]",
       "meaning": "Only the declared even head-dimension prefix is rotated at the transformed position; the remaining features pass through unchanged."
     },
     {
-      "chapter_id": "76-retrieval-provenance",
-      "formula_id": "teaching-formula-ch76-retrieval-provenance",
+      "chapter_id": "74-retrieval-provenance",
+      "formula_id": "teaching-formula-ch74-retrieval-provenance",
       "notation": "rank_key(doc) = (-score_f64_bits_order, document_id_utf8_bytes)",
       "meaning": "Exact scores accumulate dimensions in increasing order and ranking uses score descending then canonical document-ID bytes ascending."
     },
     {
-      "chapter_id": "77-constrained-json-decoding",
-      "formula_id": "teaching-formula-ch77-constrained-json-decoding",
+      "chapter_id": "75-constrained-json-decoding",
+      "formula_id": "teaching-formula-ch75-constrained-json-decoding",
       "notation": "A(q) = {token_i | delta_star(q, token_bytes_i) is live}",
       "meaning": "At state q, a token is allowed only when consuming all its bytes leaves at least one valid completion in the declared finite schema subset."
     },
     {
-      "chapter_id": "78-authorized-tools",
-      "formula_id": "teaching-formula-ch78-authorized-tools",
+      "chapter_id": "76-authorized-tools",
+      "formula_id": "teaching-formula-ch76-authorized-tools",
       "notation": "invoke = schema_valid and authorized and confirmed_if_required and within_limits",
       "meaning": "The host invokes a tool only when every independent schema, authority, confirmation, and resource condition holds."
     },
     {
-      "chapter_id": "79-safety-privacy-model-card",
-      "formula_id": "teaching-formula-ch79-safety-privacy-model-card",
+      "chapter_id": "77-safety-privacy-model-card",
+      "formula_id": "teaching-formula-ch77-safety-privacy-model-card",
       "notation": "rate = successes / trials; interval = frozen_interval_method(successes, trials)",
       "meaning": "A scenario rate reports observed successes over declared trials with a predeclared interval; absent scenarios do not become zero risk."
     },
     {
-      "chapter_id": "80-from-scratch-laptop-capstone",
-      "formula_id": "teaching-formula-ch80-from-scratch-laptop-capstone",
+      "chapter_id": "78-from-scratch-laptop-capstone",
+      "formula_id": "teaching-formula-ch78-from-scratch-laptop-capstone",
       "notation": "P_theta(z_1:T) = product_t P_theta(z_t|z_(<t)); run_id = SHA256(config || data || tokenizer || dependency || device || artifact_DAG || thresholds)",
       "meaning": "The capstone composes the same autoregressive factorization with one hash-bound execution identity spanning every prerequisite receipt."
     },
     {
-      "chapter_id": "81-import-adapt-serve-capstone",
-      "formula_id": "teaching-formula-ch81-import-adapt-serve-capstone",
+      "chapter_id": "79-import-adapt-serve-capstone",
+      "formula_id": "teaching-formula-ch79-import-adapt-serve-capstone",
       "notation": "base_id -> sft_adapter_id -> dpo_successor_id -> quantized_served_id",
       "meaning": "Every derivative names the exact immutable parent, so independent passing artifacts cannot substitute for the base-to-SFT-to-DPO-to-quantized-served chain."
     },
     {
-      "chapter_id": "82-advanced-decoding-serving",
-      "formula_id": "teaching-formula-ch82-advanced-decoding-serving",
+      "chapter_id": "80-advanced-decoding-serving",
+      "formula_id": "teaching-formula-ch80-advanced-decoding-serving",
       "notation": "accepted_speculative_prefix = longest prefix verified by target_policy",
       "meaning": "A deterministic trace proposes token IDs and proposal probabilities; the one target decoder supplies target probabilities, and course-owned acceptance/correction math keeps only the longest verified prefix. The trace never performs a neural forward pass."
     },
     {
-      "chapter_id": "83-distributed-schedule-simulation",
-      "formula_id": "teaching-formula-ch83-distributed-schedule-simulation",
+      "chapter_id": "81-distributed-schedule-simulation",
+      "formula_id": "teaching-formula-ch81-distributed-schedule-simulation",
       "notation": "comm_bytes = sum_event(message_count*payload_elements*dtype_bytes)",
       "meaning": "The simulator sums exact payload bytes over declared topology events and messages; a plan is not throughput or hardware execution."
     },
     {
-      "chapter_id": "84-moe-routing-simulation",
-      "formula_id": "teaching-formula-ch84-moe-routing-simulation",
+      "chapter_id": "82-moe-routing-simulation",
+      "formula_id": "teaching-formula-ch82-moe-routing-simulation",
       "notation": "capacity = ceil(capacity_factor*tokens*k/experts)",
       "meaning": "A frozen capacity factor bounds expert assignments after stable top-k routing, and the auxiliary loss measures load distribution under the explicit policy."
     },
     {
-      "chapter_id": "85-persistence-scale-decision",
-      "formula_id": "teaching-formula-ch85-persistence-scale-decision",
+      "chapter_id": "83-persistence-scale-decision",
+      "formula_id": "teaching-formula-ch83-persistence-scale-decision",
       "notation": "select_pg = (declared_numeric ∧ crossings(declared_threshold) ≥ 2/3) ∨ (declared_atomic_writer_need ∧ writers ≥ 4 ∧ ¬files_satisfy_atomic_requirement)",
       "meaning": "The optional PostgreSQL branch is selected only when the one premeasurement declared numeric need crosses its own accepted threshold in at least two of three controlled repetitions, or when the one predeclared atomic vector-plus-authorization writer need observes at least four writers and the bounded file snapshot demonstrably cannot satisfy that atomic relational requirement."
     }
@@ -21602,7 +21492,7 @@
       },
       "practice": "Classify a claim as scalar-reference evidence, future laptop acceptance, or an explicitly excluded scale claim.",
       "integration_evidence": "All 21 accepted overbroad surfaces are closed or deliberately preserved. Every Chapters 0–39 bounded claim remains unchanged in meaning. English review/adjudication and direct Russian localization receipts pass on the same revision.",
-      "handoff": "Chapter 41 replaces the tiny bundled-data assumption with governed, hash-bound corpus acquisition.",
+      "handoff": "Chapter41 prepares supplied text externally and loads tool-neutral prepared JSONL",
       "capability_ids": [
         "CAP-AUDIT-POSITION-01"
       ],
@@ -21655,22 +21545,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
         "site/src/content/chapters/en/40-reference-core-handoff.mdx",
         "site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json",
         "site/src/content/cheat-sheets/en/40-reference-core-handoff.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/40-reference-core-handoff.mdx",
-        "site/src/i18n/functional-catalogs/ru/40-reference-core-handoff.json",
-        "site/src/content/cheat-sheets/ru/40-reference-core-handoff.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -21692,27 +21576,21 @@
       ]
     },
     {
+      "chapter_id": "41-corpus-preparation",
+      "concept_id": "corpus-preparation",
       "order": 41,
-      "chapter_id": "41-governed-corpus-acquisition",
-      "implementation_step": "implement-ch41-governed-corpus-acquisition",
+      "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
       "depends_on": [
         "implement-ch40-reference-core-handoff"
       ],
-      "outcome": "Acquire only the frozen TinyStories raw text pair into a content-addressed offline cache with complete provenance, license, attribution, size, and checksum evidence.",
-      "scope_boundary": "The selected source is synthetic English short-story data. Acquisition is not legal advice, privacy clearance, quality evidence, permission to publish derived weights, or a broad-language corpus claim.",
-      "prerequisites": [
-        "curriculum/functional-laptop-llm-extension-plan.md",
-        "audits/2026-08-10-functional-llm-capability/coverage.md",
-        "audits/2026-08-10-functional-llm-capability/requirements.md",
-        "audits/2026-08-10-functional-llm-capability/resource-and-dependency-contract.md",
-        ".agents/skills/author-llm-course-english/SKILL.md",
-        ".agents/skills/localize-llm-course/SKILL.md",
-        "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch40-reference-core-handoff",
-        "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-      ],
-      "teaching_formula_id": "teaching-formula-ch41-governed-corpus-acquisition",
-      "historical_contrast": "Earlier dataset datasheets made motivation, composition, collection, preprocessing, uses, distribution, and maintenance reviewable; later ROOTS work treated governance and source-selection decisions as first-class corpus construction. Neither record proves that this course has permission to acquire, process, train on, or redistribute a particular dataset.",
+      "outcome": "Explain why a training corpus needs documented selection, quality inspection, duplicate control and protected evaluation boundaries; configure NVIDIA NeMo Curator to prepare text; export tool-neutral JSONL and load that prepared corpus through a bounded, caller-supplied Rust reader.",
+      "scope_boundary": "NeMo Curator is an external, replaceable preparation tool with a separately provisioned NVIDIA/CUDA image. Its Python and shell examples are the user-authorized exception for this chapter, not a CUDA backend or a concept-implementing library inside the Rust LLM. A checksum, heuristic pass, duplicate-removal result or disjoint split is not proof of permission, privacy, representativeness, universal decontamination or model quality. The worked GPU pipeline uses course-authored fixtures, not an invented full-corpus result.",
+      "teaching_formula_id": "teaching-formula-ch41-corpus-preparation",
+      "formula": {
+        "notation": "r_{\\mathrm{keep}}=\\frac{N_{\\mathrm{prepared}}}{N_{\\mathrm{input}}}",
+        "meaning": "The dimensionless fraction of input documents remaining after the declared preparation stages. Both counts refer to documents, not tokens or bytes. The fraction is undefined for zero input documents and does not measure corpus quality. Stage-local rates use the population entering that stage, not automatically the original input population."
+      },
+      "historical_contrast": "Datasheets for Datasets made dataset context and intended use reviewable; C4 analysis showed that filtering can change whose text survives; later deduplication experiments connected repeated training text with memorization and evaluation validity. Documentation, removal counts and overlap checks provide different evidence. The Rust contrast loads supplied repeated and prepared records without reenacting or replacing those external preparation algorithms.",
       "historical_sources": [
         {
           "role": "earlier",
@@ -21721,224 +21599,69 @@
         },
         {
           "role": "later",
-          "source_id": "SRC-DTH-DATA-05",
-          "year": 2023
+          "source_id": "SRC-DTH-DATA-03",
+          "year": 2022
+        }
+      ],
+      "additional_evidence_sources": [
+        "SRC-DTH-DATA-02",
+        "SRC-DTH-DATA-05",
+        "SRC-DTH-DATA-06",
+        "SRC-DTH-EVAL-04"
+      ],
+      "technical_sources": [
+        {
+          "url": "https://github.com/NVIDIA-NeMo/Curator/tree/v1.3.0",
+          "revision": "6b956ce8965820de1b638fedf6de0cbcf0cc46ba",
+          "claim": "Pinned external pipeline and stage APIs; exact and fuzzy duplicate identification are followed by a separate duplicate-removal workflow."
+        },
+        {
+          "url": "https://docs.nvidia.com/nemo/curator/v26.07/curate-text",
+          "claim": "External text curation workflow and its limitations; moving main documentation is not the executable API pin."
+        },
+        {
+          "url": "https://catalog.ngc.nvidia.com/orgs/nvidia/-/containers/nemo-curator/26.07",
+          "claim": "Official separate NeMo Curator container distribution; actual image identity and package version must be verified before execution."
         }
       ],
       "rust_owner_ids": [
         "owner-ch41"
       ],
-      "rust_contribution": "Implement bounded manifest and payload validation; Node fetch supplies transport plumbing only.",
-      "visualization": {
-        "decision": "not-useful",
-        "evidence": "An ordered manifest/payload/hash/license table and injected failure matrix communicate exact identity more precisely than spatial geometry.",
-        "visualization_id": null
+      "rust_owner_paths": [
+        "rust/crates/llm-from-scratch/src/data/prepared_corpus.rs"
+      ],
+      "rust_contribution": "Load one JSON object per physical line using standard BufRead and Serde JSON. Require string id/text, preserve other metadata and enforce caller-selected read limits. Do not implement filtering, privacy detection, exact/near deduplication, component construction, split assignment, source retrieval or asset persistence in the Rust LLM library.",
+      "prepared_corpus_contract": {
+        "format": "UTF-8 JSON Lines, one object per physical line; LF/CRLF and a final record without a newline accepted; blank lines are malformed records",
+        "required_fields": {
+          "id": "nonblank string, opaque caller-selected identity",
+          "text": "nonblank decoded string; content is preserved without normalization"
+        },
+        "extra_fields": "preserved as tool-neutral metadata using Serde JSON values",
+        "reader": "functional::data::prepared_corpus::PreparedCorpusReader<R: std::io::BufRead>",
+        "limits": "positive maximum source-record bytes including line ending, document count and cumulative decoded UTF-8 text bytes; checked counts",
+        "error_state": "terminal iterator after first error; no failed document is counted or returned; earlier returned documents are not rolled back; caller stages all-or-nothing publication when needed",
+        "input_output_authority": "reader supplied by caller; no HTTP, filename, dataset identity, checksum, directory layout or destination adapter hardcoded in the loader",
+        "split_handoff": "Preparation supplies frozen whole-document train/validation/test selections plus provenance and measured overlap evidence. New Chapter 42 learns BPE from the explicitly selected training readers only. The loader does not certify those selections."
       },
-      "practice": "Audit manifest cases involving redirect drift, truncated ranges, ambiguous licenses, derived-weight rights, media mismatch, and unindexed payload bytes.",
-      "integration_evidence": "Exact requested and resolved URLs, immutable revision, byte count, SHA-256, media type, license text, attribution, and cache path match the frozen manifest. Interrupted downloads resume only under matching provenance and publish atomically after complete verification. Raw corpus bytes remain gitignored and offline replay consumes only the verified cache.",
-      "handoff": "Chapter 42 reads the verified raw records through a frozen deterministic filtering and privacy policy.",
+      "visualization": {
+        "decision": "useful",
+        "evidence": "An ordered source-to-prepared-to-training handoff distinguishes document removal, held-out roles and Rust loading without presenting retained text as safe. Exact fixture stage counts come from recorded NeMo execution; loading counts come from the Rust report.",
+        "visualization_id": "corpus-preparation"
+      },
+      "practice": "Run the separate offline NVIDIA NeMo fixture pipeline, inspect its actual stage counts and output texts, then feed prepared JSONL to the Rust stdin reader. Explain duplicate weighting, why an exclusion rate is not quality, and why train-only tokenizer learning must preserve held-out boundaries. Include copyable commands and their prerequisites; no prediction prompt.",
+      "integration_evidence": "Record the pinned NeMo image/package/config and the actual bounded GPU fixture output. Freeze the supplied source-group assignments before results, join them using Pandas and refuse missing/ambiguous groups or an existing split field. Fixture families a/e/f are training, b validation and c test; surviving role counts are one each, not evidence of statistical model quality or completeness of related-source discovery. Record source provenance, exclusions, duplicate policies, split identities and overlap scope separately. Regenerate the Rust summary from all-role prepared JSONL and training-only JSONL and verify schema/limit/I/O failures. Full approved-corpus curation is a separately scheduled lifecycle job, not a chapter-fixture claim; no new dataset or model acquisition is authorized by this migration.",
+      "handoff": "New Chapter 42 (formerly 44) consumes prepared JSONL training shards and their frozen selection/provenance receipt, not old handwritten RetainedSelection/SourceBinding/filter/dedup APIs. Its BPE algorithm, ties, token IDs and training-only learning remain unchanged.",
       "capability_ids": [
-        "CAP-DTH-DATA-01"
+        "CAP-DTH-DATA-01",
+        "CAP-DTH-DATA-02",
+        "CAP-DTH-DATA-03",
+        "CAP-DTH-DATA-04"
       ],
       "finding_ids": [
         "F02",
         "P04"
       ],
-      "claim_ids": [],
-      "overbroad_surface_ids": [],
-      "resource_profiles": [
-        {
-          "profile_id": "8gb-gpu-core",
-          "mode": "consumes"
-        }
-      ],
-      "active_locales": [
-        "en",
-        "ru"
-      ],
-      "english_outputs": [
-        "site/src/content/chapters/en/41-governed-corpus-acquisition.mdx",
-        "site/src/i18n/functional-catalogs/en/41-governed-corpus-acquisition.json",
-        "site/src/content/cheat-sheets/en/41-governed-corpus-acquisition.json"
-      ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/41-governed-corpus-acquisition.mdx",
-        "site/src/i18n/functional-catalogs/ru/41-governed-corpus-acquisition.json",
-        "site/src/content/cheat-sheets/ru/41-governed-corpus-acquisition.json"
-      ],
-      "special_gates": [
-        "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
-        "static-firefox-only"
-      ],
-      "lifecycle_cost": {
-        "cpu": "C3",
-        "gpu": "G0",
-        "network": "N3",
-        "paid": "none"
-      },
-      "implementation_cost": {
-        "class": "large",
-        "cpu": "C3",
-        "gpu": "G0",
-        "network": "N1",
-        "paid": "none",
-        "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
-      },
-      "cost_authority_steps": [
-        "implement-ch41-governed-corpus-acquisition",
-        "acquire-functional-tinystories-raw-pair"
-      ]
-    },
-    {
-      "order": 42,
-      "chapter_id": "42-deterministic-corpus-filtering",
-      "implementation_step": "implement-ch42-deterministic-corpus-filtering",
-      "depends_on": [
-        "acquire-functional-tinystories-raw-pair"
-      ],
-      "outcome": "Stream corpus records through a frozen ordered filtering, quality, privacy, secret, manual-review, and deletion-lineage policy with complete accounting.",
-      "scope_boundary": "Acceptance covers a small inspectable rule set over the selected synthetic domain. It does not provide a universal PII detector, privacy guarantee, legal conclusion, or web-scale learned quality filter.",
-      "prerequisites": [
-        "curriculum/functional-laptop-llm-extension-plan.md",
-        "audits/2026-08-10-functional-llm-capability/coverage.md",
-        "audits/2026-08-10-functional-llm-capability/requirements.md",
-        "audits/2026-08-10-functional-llm-capability/resource-and-dependency-contract.md",
-        ".agents/skills/author-llm-course-english/SKILL.md",
-        ".agents/skills/localize-llm-course/SKILL.md",
-        "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=acquire-functional-tinystories-raw-pair",
-        "exact TinyStories raw-pair cache receipt mounted read-only",
-        "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-      ],
-      "teaching_formula_id": "teaching-formula-ch42-deterministic-corpus-filtering",
-      "historical_contrast": "Earlier direct inspection of C4 exposed contamination, machine-generated text, demographic skews, and filter-exclusion effects; later RefinedWeb work made filtering and retained-volume accounting explicit at a different scale. Their policies, rates, and model effects do not transfer to the course corpus, whose ordered rules and counts require local evidence.",
-      "historical_sources": [
-        {
-          "role": "earlier",
-          "source_id": "SRC-DTH-DATA-02",
-          "year": 2021
-        },
-        {
-          "role": "later",
-          "source_id": "SRC-DTH-DATA-06",
-          "year": 2023
-        }
-      ],
-      "rust_owner_ids": [
-        "owner-ch42"
-      ],
-      "rust_contribution": "Own filtering order, policy decisions, counts, and lineage; no learned quality classifier hides the taught decisions.",
-      "visualization": {
-        "decision": "useful",
-        "evidence": "An ordered decision path makes source identity, rule order, disposition, reason, and deletion descendants observable without labeling retained data safe.",
-        "visualization_id": "deterministic-corpus-filtering"
-      },
-      "practice": "Predict record disposition and every counter for malformed UTF-8, a secret canary, ambiguous personal data, and two matching rules.",
-      "integration_evidence": "Strict streaming UTF-8 and record framing reject malformed or oversized input without silent loss. Every input record receives one stable retained, rejected, or manual-review disposition and all rule counts reconcile. Synthetic PII/secret canaries, deletion lineage, and non-memorization probes retain explicit limitations.",
-      "handoff": "Chapter 43 groups exact and near duplicates before any train, validation, or test assignment.",
-      "capability_ids": [
-        "CAP-DTH-DATA-02",
-        "CAP-DTH-DATA-03"
-      ],
-      "finding_ids": [],
-      "claim_ids": [],
-      "overbroad_surface_ids": [],
-      "resource_profiles": [
-        {
-          "profile_id": "8gb-gpu-core",
-          "mode": "consumes"
-        }
-      ],
-      "active_locales": [
-        "en",
-        "ru"
-      ],
-      "english_outputs": [
-        "site/src/content/chapters/en/42-deterministic-corpus-filtering.mdx",
-        "site/src/i18n/functional-catalogs/en/42-deterministic-corpus-filtering.json",
-        "site/src/content/cheat-sheets/en/42-deterministic-corpus-filtering.json"
-      ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/42-deterministic-corpus-filtering.mdx",
-        "site/src/i18n/functional-catalogs/ru/42-deterministic-corpus-filtering.json",
-        "site/src/content/cheat-sheets/ru/42-deterministic-corpus-filtering.json"
-      ],
-      "special_gates": [
-        "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
-        "static-firefox-only"
-      ],
-      "lifecycle_cost": {
-        "cpu": "C3",
-        "gpu": "G0",
-        "network": "N1",
-        "paid": "none"
-      },
-      "implementation_cost": {
-        "class": "large",
-        "cpu": "C3",
-        "gpu": "G0",
-        "network": "N1",
-        "paid": "none",
-        "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
-      },
-      "cost_authority_steps": [
-        "implement-ch42-deterministic-corpus-filtering",
-        "execute-functional-corpus-filtering"
-      ]
-    },
-    {
-      "order": 43,
-      "chapter_id": "43-deduplication-decontamination",
-      "implementation_step": "implement-ch43-deduplication-decontamination",
-      "depends_on": [
-        "execute-functional-corpus-filtering"
-      ],
-      "outcome": "Build deterministic exact and inspectable near-duplicate components, preserve whole components across splits, and measure evaluation contamination before tokenizer learning.",
-      "scope_boundary": "The bounded hash/shingle algorithm is not semantic deduplication, internet-wide benchmark search, or a universal similarity threshold.",
-      "prerequisites": [
-        "curriculum/functional-laptop-llm-extension-plan.md",
-        "audits/2026-08-10-functional-llm-capability/coverage.md",
-        "audits/2026-08-10-functional-llm-capability/requirements.md",
-        "audits/2026-08-10-functional-llm-capability/resource-and-dependency-contract.md",
-        ".agents/skills/author-llm-course-english/SKILL.md",
-        ".agents/skills/localize-llm-course/SKILL.md",
-        "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=execute-functional-corpus-filtering",
-        "filtered-corpus-v1 cache receipt mounted read-only",
-        "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-      ],
-      "teaching_formula_id": "teaching-formula-ch43-deduplication-decontamination",
-      "historical_contrast": "Earlier GPT-3 evaluation work treated train–benchmark overlap as a validity threat; later deduplication experiments connected exact and approximate overlap with memorization and distorted evaluation. The reported overlap rates and improvements belong to those corpora and models, so this chapter freezes its own grouping, split, and decontamination tests.",
-      "historical_sources": [
-        {
-          "role": "earlier",
-          "source_id": "SRC-DTH-EVAL-04",
-          "year": 2020
-        },
-        {
-          "role": "later",
-          "source_id": "SRC-DTH-DATA-03",
-          "year": 2022
-        }
-      ],
-      "rust_owner_ids": [
-        "owner-ch43"
-      ],
-      "rust_contribution": "Own the similarity, stable ties, component construction, split grouping, and decontamination policy.",
-      "visualization": {
-        "decision": "useful",
-        "evidence": "A component graph followed by whole-component partitioning makes transitive grouping and cross-split leakage prevention materially clearer.",
-        "visualization_id": "deduplication-decontamination"
-      },
-      "practice": "Compute shingles and Jaccard similarity for tiny records, then predict components, split eligibility, and held-out refusal.",
-      "integration_evidence": "Exact and transitive near-duplicate fixtures form deterministic order-independent component identities. No component crosses train, validation, or test roles. Prompt, held-out, and benchmark overlap is measured against a threshold frozen before results.",
-      "handoff": "Chapter 44 learns tokenizer statistics from the resulting training components only.",
-      "capability_ids": [
-        "CAP-DTH-DATA-04"
-      ],
-      "finding_ids": [],
       "claim_ids": [
         "CLAIM-02"
       ],
@@ -21950,49 +21673,44 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/43-deduplication-decontamination.mdx",
-        "site/src/i18n/functional-catalogs/en/43-deduplication-decontamination.json",
-        "site/src/content/cheat-sheets/en/43-deduplication-decontamination.json"
+        "site/src/content/chapters/en/41-corpus-preparation.mdx",
+        "site/src/i18n/functional-catalogs/en/41-corpus-preparation.json",
+        "site/src/content/cheat-sheets/en/41-corpus-preparation.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/43-deduplication-decontamination.mdx",
-        "site/src/i18n/functional-catalogs/ru/43-deduplication-decontamination.json",
-        "site/src/content/cheat-sheets/ru/43-deduplication-decontamination.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
         "cpu": "C3",
-        "gpu": "G0",
-        "network": "N1",
+        "gpu": "G1",
+        "network": "N0",
         "paid": "none"
       },
       "implementation_cost": {
         "class": "large",
         "cpu": "C3",
-        "gpu": "G0",
+        "gpu": "G1",
         "network": "N1",
         "paid": "none",
-        "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
+        "authority": "Bounded primary-source lookup and official separate image provisioning may use network; every container run has --network none. Actual fixture work only, no automatic bulk preparation, seed training, model download, paid service or remote GPU. Agent development has no elapsed-time stop; product/profile/test limits remain."
       },
       "cost_authority_steps": [
-        "implement-ch43-deduplication-decontamination",
-        "execute-functional-corpus-dedup-split"
-      ]
+        "merge-ch41-nemo-corpus-preparation-20261007",
+        "execute-functional-nemo-corpus-preparation"
+      ],
+      "execution_hold": "Existing-chapter repairs and Russian41+ remain held. New merged41 implementation is authorized. Later full prepared-corpus lifecycle execution requires its declared preflight and validation, not reuse of old filtered output as proof of NeMo execution."
     },
     {
-      "order": 44,
-      "chapter_id": "44-scalable-bpe-tokenizer",
-      "implementation_step": "implement-ch44-scalable-bpe-tokenizer",
+      "order": 42,
+      "chapter_id": "42-scalable-bpe-tokenizer",
+      "implementation_step": "implement-ch42-scalable-bpe-tokenizer",
       "depends_on": [
-        "execute-functional-corpus-dedup-split"
+        "execute-functional-nemo-corpus-preparation"
       ],
       "outcome": "Scale the deterministic byte-covering BPE oracle to streaming training and application with frozen normalization, pretokenization, special-token, artifact, and efficiency controls.",
       "scope_boundary": "A dependency may parse a container or regex only after policy is frozen; it may not choose merges, segmentation, normalization, special IDs, or forgery behavior.",
@@ -22004,12 +21722,12 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=execute-functional-corpus-dedup-split",
+        "exact predecessor checkpoint=execute-functional-nemo-corpus-preparation",
         "deduplicated-split-corpus-v1 receipt and frozen train-only split identity",
         "exact standalone GPT-2 tokenizer admission/oracle contract; payload authority belongs only to the immediately following execution crosscut",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch44-scalable-bpe-tokenizer",
+      "teaching_formula_id": "teaching-formula-ch42-scalable-bpe-tokenizer",
       "historical_contrast": "Earlier subword BPE learned a fixed vocabulary from corpus pair frequencies; the later pinned GPT-2 implementation combined byte-to-Unicode mapping and concrete pretokenization rules with byte-level BPE. Neither source defines this course's normalization, special-token, artifact, compatibility, or complexity contract.",
       "historical_sources": [
         {
@@ -22024,7 +21742,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch44"
+        "owner-ch42"
       ],
       "rust_contribution": "Keep merge counting, selection, application, special-token rules, and differential validation course-owned.",
       "visualization": {
@@ -22034,7 +21752,7 @@
       },
       "practice": "Predict a stable merge, tokens-per-byte denominator, special-control forgery rejection, and imported-tokenizer incompatibility.",
       "integration_evidence": "Streaming and scalar merge selection/application agree on bounded fixtures. Only training records affect learned merges and arbitrary bytes round-trip. Tokenizer artifacts bind normalization, pretokenization, special IDs, merge ranks, corpus identity, throughput, and tokens-per-byte.",
-      "handoff": "Chapter 45 gives unequal token sequences explicit padding and valid-target semantics.",
+      "handoff": "Chapter 43 gives unequal token sequences explicit padding and valid-target semantics.",
       "capability_ids": [
         "CAP-DTH-TOK-01",
         "CAP-DTH-TOK-02"
@@ -22055,22 +21773,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/44-scalable-bpe-tokenizer.mdx",
-        "site/src/i18n/functional-catalogs/en/44-scalable-bpe-tokenizer.json",
-        "site/src/content/cheat-sheets/en/44-scalable-bpe-tokenizer.json"
+        "site/src/content/chapters/en/42-scalable-bpe-tokenizer.mdx",
+        "site/src/i18n/functional-catalogs/en/42-scalable-bpe-tokenizer.json",
+        "site/src/content/cheat-sheets/en/42-scalable-bpe-tokenizer.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/44-scalable-bpe-tokenizer.mdx",
-        "site/src/i18n/functional-catalogs/ru/44-scalable-bpe-tokenizer.json",
-        "site/src/content/cheat-sheets/ru/44-scalable-bpe-tokenizer.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22088,17 +21800,24 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch44-scalable-bpe-tokenizer",
+        "implement-ch42-scalable-bpe-tokenizer",
         "execute-functional-tokenizer-and-tokenized-splits",
         "select-functional-open-model",
         "acquire-functional-open-model",
         "establish-functional-offline-workspace-execution-boundary"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "44-scalable-bpe-tokenizer",
+        "origin_implementation_step": "implement-ch44-scalable-bpe-tokenizer",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 45,
-      "chapter_id": "45-padded-variable-batches",
-      "implementation_step": "implement-ch45-padded-variable-batches",
+      "order": 43,
+      "chapter_id": "43-padded-variable-batches",
+      "implementation_step": "implement-ch43-padded-variable-batches",
       "depends_on": [
         "execute-functional-tokenizer-and-tokenized-splits"
       ],
@@ -22116,7 +21835,7 @@
         "tokenizer-and-tokenized-splits-v1 exact cache receipt mounted read-only",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch45-padded-variable-batches",
+      "teaching_formula_id": "teaching-formula-ch43-padded-variable-batches",
       "historical_contrast": "Earlier packing research quantified avoidable padding in a studied training workload and required examples not to contaminate one another; later iteration-level serving research let completed requests leave while new requests entered. These are different variable-length problems: neither supplies this chapter's padded decoder tensor shapes, valid-target denominator, or laptop performance result.",
       "historical_sources": [
         {
@@ -22131,7 +21850,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch45"
+        "owner-ch43"
       ],
       "rust_contribution": "Own rectangularization and every semantic mask; no fused varlen library supplies the decisions.",
       "visualization": {
@@ -22141,7 +21860,7 @@
       },
       "practice": "Derive tensor shapes, positions, attention cells, and the valid-target denominator for sequence lengths three and five.",
       "integration_evidence": "Unpadded and padded executions agree on every valid logit, token-sum loss, and gradient. PAD positions are neither valid targets nor attended keys. Empty, all-padding, inconsistent-shape, and inconsistent-mask inputs fail explicitly.",
-      "handoff": "Chapter 46 removes much of the padding through packed segments while preserving the same valid-token result.",
+      "handoff": "Chapter 44 removes much of the padding through packed segments while preserving the same valid-token result.",
       "capability_ids": [
         "CAP-DTH-BATCH-01"
       ],
@@ -22168,22 +21887,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/45-padded-variable-batches.mdx",
-        "site/src/i18n/functional-catalogs/en/45-padded-variable-batches.json",
-        "site/src/content/cheat-sheets/en/45-padded-variable-batches.json"
+        "site/src/content/chapters/en/43-padded-variable-batches.mdx",
+        "site/src/i18n/functional-catalogs/en/43-padded-variable-batches.json",
+        "site/src/content/cheat-sheets/en/43-padded-variable-batches.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/45-padded-variable-batches.mdx",
-        "site/src/i18n/functional-catalogs/ru/45-padded-variable-batches.json",
-        "site/src/content/cheat-sheets/ru/45-padded-variable-batches.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22201,15 +21914,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch45-padded-variable-batches"
-      ]
+        "implement-ch43-padded-variable-batches"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "45-padded-variable-batches",
+        "origin_implementation_step": "implement-ch45-padded-variable-batches",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 46,
-      "chapter_id": "46-packed-sequence-masks",
-      "implementation_step": "implement-ch46-packed-sequence-masks",
+      "order": 44,
+      "chapter_id": "44-packed-sequence-masks",
+      "implementation_step": "implement-ch44-packed-sequence-masks",
       "depends_on": [
-        "implement-ch45-padded-variable-batches"
+        "implement-ch43-padded-variable-batches"
       ],
       "outcome": "Pack documents deterministically with explicit segments, reset positions, no cross-document attention or targets, and valid-token equivalence.",
       "scope_boundary": "Acceptance covers one deterministic single-device packing policy, not heuristic worker scheduling or a third-party fused variable-length implementation.",
@@ -22221,11 +21941,11 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch45-padded-variable-batches",
+        "exact predecessor checkpoint=implement-ch43-padded-variable-batches",
         "tokenizer-and-tokenized-splits-v1 exact cache receipt mounted read-only",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch46-packed-sequence-masks",
+      "teaching_formula_id": "teaching-formula-ch44-packed-sequence-masks",
       "historical_contrast": "Earlier packing work required cross-example attention and loss interactions to be prevented; later FlashAttention showed that exact attention can be reorganized around IO-aware tiles. Tiling does not create segment isolation, and the packing paper's BERT figures do not replace decoder-local logits, loss, gradient, position, and mask equivalence tests.",
       "historical_sources": [
         {
@@ -22240,7 +21960,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch46"
+        "owner-ch44"
       ],
       "rust_contribution": "Implement packing order and all isolation metadata in course Rust.",
       "visualization": {
@@ -22250,7 +21970,7 @@
       },
       "practice": "Pack lengths three, two, and four into capacity six, then predict every segment, position, attention, and loss-mask value.",
       "integration_evidence": "Unpadded, padded, and packed paths agree on valid logits, token-sum loss, and gradients. Segment IDs, per-segment reset positions, attention blocks, and loss masks contain no cross-document key or target. Packing order, overflow, empty-document, and document-too-long behavior are deterministic and checked.",
-      "handoff": "Chapter 47 stabilizes the deeper configurable block stack before changing its scale.",
+      "handoff": "Chapter 45 stabilizes the deeper configurable block stack before changing its scale.",
       "capability_ids": [
         "CAP-DTH-BATCH-02"
       ],
@@ -22272,22 +21992,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/46-packed-sequence-masks.mdx",
-        "site/src/i18n/functional-catalogs/en/46-packed-sequence-masks.json",
-        "site/src/content/cheat-sheets/en/46-packed-sequence-masks.json"
+        "site/src/content/chapters/en/44-packed-sequence-masks.mdx",
+        "site/src/i18n/functional-catalogs/en/44-packed-sequence-masks.json",
+        "site/src/content/cheat-sheets/en/44-packed-sequence-masks.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/46-packed-sequence-masks.mdx",
-        "site/src/i18n/functional-catalogs/ru/46-packed-sequence-masks.json",
-        "site/src/content/cheat-sheets/ru/46-packed-sequence-masks.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22305,15 +22019,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch46-packed-sequence-masks"
-      ]
+        "implement-ch44-packed-sequence-masks"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "46-packed-sequence-masks",
+        "origin_implementation_step": "implement-ch46-packed-sequence-masks",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 47,
-      "chapter_id": "47-depth-stable-decoder",
-      "implementation_step": "implement-ch47-depth-stable-decoder",
+      "order": 45,
+      "chapter_id": "45-depth-stable-decoder",
+      "implementation_step": "implement-ch45-depth-stable-decoder",
       "depends_on": [
-        "implement-ch46-packed-sequence-masks"
+        "implement-ch44-packed-sequence-masks"
       ],
       "outcome": "Apply one predeclared depth-aware initialization or residual-scaling policy and measure layerwise activation and gradient health.",
       "scope_boundary": "The bounds apply to the selected pre-norm RMSNorm, SwiGLU, GQA decoder fixtures; they are not a stability theorem for arbitrary depth, architecture, dtype, or optimizer.",
@@ -22325,10 +22046,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch46-packed-sequence-masks",
+        "exact predecessor checkpoint=implement-ch44-packed-sequence-masks",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch47-depth-stable-decoder",
+      "teaching_formula_id": "teaching-formula-ch45-depth-stable-decoder",
       "historical_contrast": "Earlier normalized initialization related fan-in and fan-out to activation and gradient variance in feed-forward networks; later DeepNet made residual scaling and initialization explicitly depth dependent for very deep Transformers. Neither result proves stability for the course's pre-norm RMSNorm/SwiGLU decoder, and DeepNorm constants are not copied without derivation.",
       "historical_sources": [
         {
@@ -22343,7 +22064,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch47"
+        "owner-ch45"
       ],
       "rust_contribution": "Own the selected scale policy and its measurement hooks while retaining existing RMSNorm, residual, and block oracles.",
       "visualization": {
@@ -22353,7 +22074,7 @@
       },
       "practice": "Derive the declared factor for depths one, two, and eight and diagnose a predeclared exploding or vanishing trace.",
       "integration_evidence": "Depth-one configuration preserves the frozen scalar decoder result. Reference, bridge, and laptop-plan initialization is deterministic and parameter census is exact. Layerwise activations and gradients remain inside bounds frozen before the traces are observed.",
-      "handoff": "Chapter 48 constructs every scale with this same stable decoder policy and one checked internal input seam.",
+      "handoff": "Chapter 46 constructs every scale with this same stable decoder policy and one checked internal input seam.",
       "capability_ids": [
         "CAP-DTH-ARCH-01"
       ],
@@ -22380,22 +22101,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/47-depth-stable-decoder.mdx",
-        "site/src/i18n/functional-catalogs/en/47-depth-stable-decoder.json",
-        "site/src/content/cheat-sheets/en/47-depth-stable-decoder.json"
+        "site/src/content/chapters/en/45-depth-stable-decoder.mdx",
+        "site/src/i18n/functional-catalogs/en/45-depth-stable-decoder.json",
+        "site/src/content/cheat-sheets/en/45-depth-stable-decoder.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/47-depth-stable-decoder.mdx",
-        "site/src/i18n/functional-catalogs/ru/47-depth-stable-decoder.json",
-        "site/src/content/cheat-sheets/ru/47-depth-stable-decoder.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22413,15 +22128,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch47-depth-stable-decoder"
-      ]
+        "implement-ch45-depth-stable-decoder"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "47-depth-stable-decoder",
+        "origin_implementation_step": "implement-ch47-depth-stable-decoder",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 48,
-      "chapter_id": "48-configurable-decoder-core",
-      "implementation_step": "implement-ch48-configurable-decoder-core",
+      "order": 46,
+      "chapter_id": "46-configurable-decoder-core",
+      "implementation_step": "implement-ch46-configurable-decoder-core",
       "depends_on": [
-        "implement-ch47-depth-stable-decoder"
+        "implement-ch45-depth-stable-decoder"
       ],
       "outcome": "Construct the reference, bridge, laptop, and production-plan configurations through one versioned causal decoder and one checked private prepared-input core.",
       "scope_boundary": "Runtime configuration changes scale, not model family. Compiler features select backend/device/kernel plumbing only. PreparedDecoderInput adds no public modality interface or non-text producer.",
@@ -22433,10 +22155,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch47-depth-stable-decoder",
+        "exact predecessor checkpoint=implement-ch45-depth-stable-decoder",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch48-configurable-decoder-core",
+      "teaching_formula_id": "teaching-formula-ch46-configurable-decoder-core",
       "historical_contrast": "Earlier Megatron-LM exposed how Transformer dimensions induce tensor partitions and communication at multi-GPU scale; later compute-optimal training work emphasized that parameter count and training-token count must be considered together. Neither source makes the course settings compute-optimal or validates the production-shaped profile as executed.",
       "historical_sources": [
         {
@@ -22451,7 +22173,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch48"
+        "owner-ch46"
       ],
       "rust_contribution": "Own canonical config semantics, checked planning, decoder construction, and the crate-private sealed full/cached text seam.",
       "visualization": {
@@ -22461,7 +22183,7 @@
       },
       "practice": "Change only runtime dimensions and topology, then predict divisibility, parameter, KV, MAC, communication, and admission results.",
       "integration_evidence": "The same parser, planner, constructor, and decoder core produce exact parameter counts 1,188, 8,304, 32,514,560, and 69,500,936,192. Production settings emit exact parameter, KV, MAC, state, and communication costs and then refuse before allocation. Full and cached text-token paths preserve parameter identity, embeddings, logits, loss, gradients, KV rows, RNG, errors, and work counters through PreparedDecoderInput.",
-      "handoff": "Chapter 49 isolates optional dropout behavior from the core model and its reproducibility streams.",
+      "handoff": "Chapter 47 isolates optional dropout behavior from the core model and its reproducibility streams.",
       "capability_ids": [
         "CAP-DTH-ARCH-02"
       ],
@@ -22504,22 +22226,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/48-configurable-decoder-core.mdx",
-        "site/src/i18n/functional-catalogs/en/48-configurable-decoder-core.json",
-        "site/src/content/cheat-sheets/en/48-configurable-decoder-core.json"
+        "site/src/content/chapters/en/46-configurable-decoder-core.mdx",
+        "site/src/i18n/functional-catalogs/en/46-configurable-decoder-core.json",
+        "site/src/content/cheat-sheets/en/46-configurable-decoder-core.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/48-configurable-decoder-core.mdx",
-        "site/src/i18n/functional-catalogs/ru/48-configurable-decoder-core.json",
-        "site/src/content/cheat-sheets/ru/48-configurable-decoder-core.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22537,15 +22253,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch48-configurable-decoder-core"
-      ]
+        "implement-ch46-configurable-decoder-core"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "48-configurable-decoder-core",
+        "origin_implementation_step": "implement-ch48-configurable-decoder-core",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 49,
-      "chapter_id": "49-dropout-semantics",
-      "implementation_step": "implement-ch49-dropout-semantics",
+      "order": 47,
+      "chapter_id": "47-dropout-semantics",
+      "implementation_step": "implement-ch47-dropout-semantics",
       "depends_on": [
-        "implement-ch48-configurable-decoder-core"
+        "implement-ch46-configurable-decoder-core"
       ],
       "outcome": "Implement optional, reproducible dropout with explicit train/evaluation modes and an isolated RNG stream.",
       "scope_boundary": "Dropout is a laptop-feasible exercise, not mandatory endpoint behavior. It supports only correctness claims unless a separately frozen multi-seed experiment demonstrates an effect.",
@@ -22557,10 +22280,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch48-configurable-decoder-core",
+        "exact predecessor checkpoint=implement-ch46-configurable-decoder-core",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch49-dropout-semantics",
+      "teaching_formula_id": "teaching-formula-ch47-dropout-semantics",
       "historical_contrast": "Earlier dropout work made stochastic masking and distinct training/evaluation treatment part of the algorithm; later reproducibility guidance emphasized that releases, platforms, devices, and deterministic modes can still change results. Neither source selects a dropout probability or placement, proves benefit for this decoder, or supplies the course's RNG replay contract.",
       "historical_sources": [
         {
@@ -22575,7 +22298,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch49"
+        "owner-ch47"
       ],
       "rust_contribution": "Implement mask, scaling, mode, and RNG policy; no dependency supplies dropout semantics.",
       "visualization": {
@@ -22585,7 +22308,7 @@
       },
       "practice": "Calculate inverted scaling and predict mode, mask, RNG, and resume transitions for a tiny tensor.",
       "integration_evidence": "Probability zero is byte-identical to the no-dropout path. Training and evaluation modes implement the frozen inverted-scaling policy. The dropout RNG stream is independent and resumes exactly without perturbing initialization, packing, or sampling streams.",
-      "handoff": "Chapter 50 freezes the supporting dependency and fail-loud error boundary before accelerator and server plumbing is added.",
+      "handoff": "Chapter 48 freezes the supporting dependency and fail-loud error boundary before accelerator and server plumbing is added.",
       "capability_ids": [
         "CAP-DTH-ARCH-03"
       ],
@@ -22607,22 +22330,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/49-dropout-semantics.mdx",
-        "site/src/i18n/functional-catalogs/en/49-dropout-semantics.json",
-        "site/src/content/cheat-sheets/en/49-dropout-semantics.json"
+        "site/src/content/chapters/en/47-dropout-semantics.mdx",
+        "site/src/i18n/functional-catalogs/en/47-dropout-semantics.json",
+        "site/src/content/cheat-sheets/en/47-dropout-semantics.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/49-dropout-semantics.mdx",
-        "site/src/i18n/functional-catalogs/ru/49-dropout-semantics.json",
-        "site/src/content/cheat-sheets/ru/49-dropout-semantics.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22640,15 +22357,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch49-dropout-semantics"
-      ]
+        "implement-ch47-dropout-semantics"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "49-dropout-semantics",
+        "origin_implementation_step": "implement-ch49-dropout-semantics",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 50,
-      "chapter_id": "50-dependency-error-contract",
-      "implementation_step": "implement-ch50-dependency-error-contract",
+      "order": 48,
+      "chapter_id": "48-dependency-error-contract",
+      "implementation_step": "implement-ch48-dependency-error-contract",
       "depends_on": [
-        "implement-ch49-dropout-semantics"
+        "implement-ch47-dropout-semantics"
       ],
       "outcome": "Freeze the complete supporting dependency graph and fail-loud typed boundary before new accelerator, artifact, and serving plumbing enters the workspace.",
       "scope_boundary": "The dependency receipt covers only selected profiles and does not grant network, paid-service, GPU, database, destructive, or artifact authority.",
@@ -22660,10 +22384,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch49-dropout-semantics",
+        "exact predecessor checkpoint=implement-ch47-dropout-semantics",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch50-dependency-error-contract",
+      "teaching_formula_id": "teaching-formula-ch48-dependency-error-contract",
       "historical_contrast": "The earlier source role distinguishes dependency requirements from the exact resolved lock graph; the later source role distinguishes locked and offline execution from ordinary resolution. These Cargo mechanisms improve reproducibility but do not assess source trust, licenses, advisories, call-site roles, or whether a crate hides a taught LLM concept.",
       "historical_sources": [
         {
@@ -22678,7 +22402,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch50"
+        "owner-ch48"
       ],
       "rust_contribution": "Record roles and map errors without letting libraries implement tokenizer, masking, attention, model, trainer, sampler, quantizer, or cache-scheduling decisions.",
       "visualization": {
@@ -22688,7 +22412,7 @@
       },
       "practice": "Classify candidate calls as permitted plumbing or forbidden learner-owned behavior, then map injected failures to exact terminal categories.",
       "integration_evidence": "Every selected direct and transitive package has exact version, source, checksum, license, features, role, parent, build/native behavior, advisory disposition, and call-site allowlist. The complete selected graphs build locked and offline from the preinventoried cache. At least 50 injected artifact, config, dtype, device, kernel, adapter, optional-capability, timeout, and cancellation faults map to exhaustive typed terminal errors with no silent fallback.",
-      "handoff": "Chapter 51 projects the already-owned decoder configuration into request admission without taking over model semantics.",
+      "handoff": "Chapter 49 projects the already-owned decoder configuration into request admission without taking over model semantics.",
       "capability_ids": [
         "CAP-ISA-ARCH-002",
         "CAP-ISA-ARCH-003"
@@ -22711,22 +22435,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/50-dependency-error-contract.mdx",
-        "site/src/i18n/functional-catalogs/en/50-dependency-error-contract.json",
-        "site/src/content/cheat-sheets/en/50-dependency-error-contract.json"
+        "site/src/content/chapters/en/48-dependency-error-contract.mdx",
+        "site/src/i18n/functional-catalogs/en/48-dependency-error-contract.json",
+        "site/src/content/cheat-sheets/en/48-dependency-error-contract.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/50-dependency-error-contract.mdx",
-        "site/src/i18n/functional-catalogs/ru/50-dependency-error-contract.json",
-        "site/src/content/cheat-sheets/ru/50-dependency-error-contract.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22744,14 +22462,21 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch50-dependency-error-contract",
+        "implement-ch48-dependency-error-contract",
         "admit-functional-supporting-dependency-graph"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "50-dependency-error-contract",
+        "origin_implementation_step": "implement-ch50-dependency-error-contract",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 51,
-      "chapter_id": "51-serving-config-admission",
-      "implementation_step": "implement-ch51-serving-config-admission",
+      "order": 49,
+      "chapter_id": "49-serving-config-admission",
+      "implementation_step": "implement-ch49-serving-config-admission",
       "depends_on": [
         "admit-functional-supporting-dependency-graph"
       ],
@@ -22768,7 +22493,7 @@
         "exact predecessor checkpoint=admit-functional-supporting-dependency-graph",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch51-serving-config-admission",
+      "teaching_formula_id": "teaching-formula-ch49-serving-config-admission",
       "historical_contrast": "Earlier HTTP semantics standardized request, response, overload, and timeout vocabulary; later PagedAttention work made dynamically growing per-request KV state and fragmentation visible. Neither source defines the course's configuration projection, capacity arithmetic, refusal point, or allocation-atomicity rules.",
       "historical_sources": [
         {
@@ -22783,9 +22508,9 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch51"
+        "owner-ch49"
       ],
-      "rust_contribution": "Own serving projection and admission only; Chapter 48 retains all model and profile semantics.",
+      "rust_contribution": "Own serving projection and admission only; Chapter 46 retains all model and profile semantics.",
       "visualization": {
         "decision": "useful",
         "evidence": "A plan-before-allocation flow makes identity checks, resource components, the profile ceiling, and refusal order visible.",
@@ -22793,7 +22518,7 @@
       },
       "practice": "Audit configuration, artifact, context, integer-overflow, and one-byte-over request plans and identify the preallocation failure.",
       "integration_evidence": "Reference, bridge, and laptop request plans bind exact config and artifact hashes. Production, over-context, over-KV, overflow, stale-artifact, and unsupported optional-capability inputs refuse before allocation. Serving projection changes no semantic configuration field or model constructor result.",
-      "handoff": "Chapter 52 gives the same logical tensors explicit scalar and accelerator storage and execution paths.",
+      "handoff": "Chapter 50 gives the same logical tensors explicit scalar and accelerator storage and execution paths.",
       "capability_ids": [
         "CAP-ISA-ARCH-004"
       ],
@@ -22827,22 +22552,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/51-serving-config-admission.mdx",
-        "site/src/i18n/functional-catalogs/en/51-serving-config-admission.json",
-        "site/src/content/cheat-sheets/en/51-serving-config-admission.json"
+        "site/src/content/chapters/en/49-serving-config-admission.mdx",
+        "site/src/i18n/functional-catalogs/en/49-serving-config-admission.json",
+        "site/src/content/cheat-sheets/en/49-serving-config-admission.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/51-serving-config-admission.mdx",
-        "site/src/i18n/functional-catalogs/ru/51-serving-config-admission.json",
-        "site/src/content/cheat-sheets/ru/51-serving-config-admission.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22860,13 +22579,20 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch51-serving-config-admission"
-      ]
+        "implement-ch49-serving-config-admission"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "51-serving-config-admission",
+        "origin_implementation_step": "implement-ch51-serving-config-admission",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 52,
-      "chapter_id": "52-accelerator-tensor-parity",
-      "implementation_step": "implement-ch52-accelerator-tensor-parity",
+      "order": 50,
+      "chapter_id": "50-accelerator-tensor-parity",
+      "implementation_step": "implement-ch50-accelerator-tensor-parity",
       "depends_on": [
         "establish-functional-gpu-execution-boundary"
       ],
@@ -22883,7 +22609,7 @@
         "exact predecessor checkpoint=establish-functional-gpu-execution-boundary",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch52-accelerator-tensor-parity",
+      "teaching_formula_id": "teaching-formula-ch50-accelerator-tensor-parity",
       "historical_contrast": "Earlier BLAS standardization separated mathematical kernel interfaces from optimized implementations; later CUDA guidance documented device memory, synchronization, alternate precision, and execution constraints. Neither source selects the Rust/WGPU backend, authorizes delegation of taught kernels, or proves parity, determinism, or speed.",
       "historical_sources": [
         {
@@ -22898,7 +22624,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch52"
+        "owner-ch50"
       ],
       "rust_contribution": "Own tensor semantics and course kernels; WGPU supplies safe allocation, transfer, device management, and dispatch plumbing.",
       "visualization": {
@@ -22908,7 +22634,7 @@
       },
       "practice": "Choose exact versus tolerant fields, calculate a reduction error bound, and detect hidden fallback from a device receipt.",
       "integration_evidence": "Logical tensor shape, stride, dtype, device, allocation, transfer, and dispatch are explicit. Course-owned WGPU Vulkan WGSL primitives match rounded-input scalar forward and backward oracles under operation-specific bounds. Forced-GPU and forced-scalar traps prove no hidden CPU or f32 fallback; injected OOM preserves last-good state.",
-      "handoff": "Chapter 53 protects low-precision training with FP32 state and explicit loss scaling.",
+      "handoff": "Chapter 51 protects low-precision training with FP32 state and explicit loss scaling.",
       "capability_ids": [
         "CAP-DTH-BACKEND-01"
       ],
@@ -22941,22 +22667,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/52-accelerator-tensor-parity.mdx",
-        "site/src/i18n/functional-catalogs/en/52-accelerator-tensor-parity.json",
-        "site/src/content/cheat-sheets/en/52-accelerator-tensor-parity.json"
+        "site/src/content/chapters/en/50-accelerator-tensor-parity.mdx",
+        "site/src/i18n/functional-catalogs/en/50-accelerator-tensor-parity.json",
+        "site/src/content/cheat-sheets/en/50-accelerator-tensor-parity.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/52-accelerator-tensor-parity.mdx",
-        "site/src/i18n/functional-catalogs/ru/52-accelerator-tensor-parity.json",
-        "site/src/content/cheat-sheets/ru/52-accelerator-tensor-parity.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -22974,15 +22694,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch52-accelerator-tensor-parity"
-      ]
+        "implement-ch50-accelerator-tensor-parity"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "52-accelerator-tensor-parity",
+        "origin_implementation_step": "implement-ch52-accelerator-tensor-parity",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 53,
-      "chapter_id": "53-mixed-precision-training",
-      "implementation_step": "implement-ch53-mixed-precision-training",
+      "order": 51,
+      "chapter_id": "51-mixed-precision-training",
+      "implementation_step": "implement-ch51-mixed-precision-training",
       "depends_on": [
-        "implement-ch52-accelerator-tensor-parity"
+        "implement-ch50-accelerator-tensor-parity"
       ],
       "outcome": "Train with FP16 working computation, protected FP32 state, and reproducible dynamic loss scaling under explicit numeric-health rules.",
       "scope_boundary": "Acceptance covers only enumerated operations on the frozen WGPU FP16/FP32-protected backend; BF16, FP8, stochastic rounding, and fused third-party optimizers are excluded.",
@@ -22994,10 +22721,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch52-accelerator-tensor-parity",
+        "exact predecessor checkpoint=implement-ch50-accelerator-tensor-parity",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch53-mixed-precision-training",
+      "teaching_formula_id": "teaching-formula-ch51-mixed-precision-training",
       "historical_contrast": "Earlier mixed-precision training combined FP16 arithmetic with FP32 master weights and loss scaling; later BF16 work exposed a different exponent-versus-significand tradeoff. Their convergence and throughput results do not transfer to this model or device, and format properties do not prove kernel support.",
       "historical_sources": [
         {
@@ -23012,7 +22739,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch53"
+        "owner-ch51"
       ],
       "rust_contribution": "Own dtype event order, protected state, scaling, finite policy, and atomic skip behavior.",
       "visualization": {
@@ -23022,7 +22749,7 @@
       },
       "practice": "Predict scaler growth or backoff, complete update skip, working/master synchronization, and state bytes for a tiny parameter set.",
       "integration_evidence": "FP16 working values and computation coexist with enumerated FP32 reductions, gradients, master weights, moments, and scaler state. DynamicV1 growth, backoff, overflow, skip, clipping, and working/master synchronization are deterministic and resumable. BF16 on the WGPU backend returns UnsupportedDType rather than being recoded silently.",
-      "handoff": "Chapter 54 bounds peak training memory with valid-token accumulation and activation recomputation.",
+      "handoff": "Chapter 52 bounds peak training memory with valid-token accumulation and activation recomputation.",
       "capability_ids": [
         "CAP-DTH-MP-01"
       ],
@@ -23044,22 +22771,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/53-mixed-precision-training.mdx",
-        "site/src/i18n/functional-catalogs/en/53-mixed-precision-training.json",
-        "site/src/content/cheat-sheets/en/53-mixed-precision-training.json"
+        "site/src/content/chapters/en/51-mixed-precision-training.mdx",
+        "site/src/i18n/functional-catalogs/en/51-mixed-precision-training.json",
+        "site/src/content/cheat-sheets/en/51-mixed-precision-training.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/53-mixed-precision-training.mdx",
-        "site/src/i18n/functional-catalogs/ru/53-mixed-precision-training.json",
-        "site/src/content/cheat-sheets/ru/53-mixed-precision-training.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23077,15 +22798,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch53-mixed-precision-training"
-      ]
+        "implement-ch51-mixed-precision-training"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "53-mixed-precision-training",
+        "origin_implementation_step": "implement-ch53-mixed-precision-training",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 54,
-      "chapter_id": "54-memory-bounded-training",
-      "implementation_step": "implement-ch54-memory-bounded-training",
+      "order": 52,
+      "chapter_id": "52-memory-bounded-training",
+      "implementation_step": "implement-ch52-memory-bounded-training",
       "depends_on": [
-        "implement-ch53-mixed-precision-training"
+        "implement-ch51-mixed-precision-training"
       ],
       "outcome": "Accumulate valid-token gradients and recompute selected activations inside a measured single-device memory envelope.",
       "scope_boundary": "The mandatory path uses one device. ZeRO-style state partitioning, multi-device offload, and framework checkpointing are not implied.",
@@ -23097,10 +22825,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch53-mixed-precision-training",
+        "exact predecessor checkpoint=implement-ch51-mixed-precision-training",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch54-memory-bounded-training",
+      "teaching_formula_id": "teaching-formula-ch52-memory-bounded-training",
       "historical_contrast": "Earlier activation checkpointing traded recomputation for saved activations inside a network; later ZeRO partitioned persistent training state across data-parallel processes. ZeRO is not a one-GPU feature, and neither paper's memory or runtime figures define the course's 6.25 GiB plan or recomputation cost.",
       "historical_sources": [
         {
@@ -23115,7 +22843,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch54"
+        "owner-ch52"
       ],
       "rust_contribution": "Own valid-token accumulation, recomputation boundaries, RNG replay, liveness accounting, and atomic commit.",
       "visualization": {
@@ -23125,7 +22853,7 @@
       },
       "practice": "Combine unequal valid-token microbatches, predict one update numerator and denominator, and identify retained versus recomputed liveness events.",
       "integration_evidence": "A full batch and valid-token-weighted accumulated microbatches agree on loss, gradients, and update. Retained-activation and checkpointed-recomputed paths agree under the frozen numeric policy and replay RNG events exactly. The generated liveness ledger reconciles planned and measured peaks and injected OOM never partially commits state.",
-      "handoff": "Chapter 55 defines the complete optimizer event that consumes the accumulated gradient.",
+      "handoff": "Chapter 53 defines the complete optimizer event that consumes the accumulated gradient.",
       "capability_ids": [
         "CAP-DTH-MEM-01"
       ],
@@ -23151,22 +22879,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/54-memory-bounded-training.mdx",
-        "site/src/i18n/functional-catalogs/en/54-memory-bounded-training.json",
-        "site/src/content/cheat-sheets/en/54-memory-bounded-training.json"
+        "site/src/content/chapters/en/52-memory-bounded-training.mdx",
+        "site/src/i18n/functional-catalogs/en/52-memory-bounded-training.json",
+        "site/src/content/cheat-sheets/en/52-memory-bounded-training.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/54-memory-bounded-training.mdx",
-        "site/src/i18n/functional-catalogs/ru/54-memory-bounded-training.json",
-        "site/src/content/cheat-sheets/ru/54-memory-bounded-training.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23184,15 +22906,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch54-memory-bounded-training"
-      ]
+        "implement-ch52-memory-bounded-training"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "54-memory-bounded-training",
+        "origin_implementation_step": "implement-ch54-memory-bounded-training",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 55,
-      "chapter_id": "55-optimizer-schedules-clipping",
-      "implementation_step": "implement-ch55-optimizer-schedules-clipping",
+      "order": 53,
+      "chapter_id": "53-optimizer-schedules-clipping",
+      "implementation_step": "implement-ch53-optimizer-schedules-clipping",
       "depends_on": [
-        "implement-ch54-memory-bounded-training"
+        "implement-ch52-memory-bounded-training"
       ],
       "outcome": "Execute schedules, unscaling, finite checks, valid-token averaging, clipping, AdamW, and state transitions as one exact update event.",
       "scope_boundary": "The chapter supports a small frozen schedule family and no hyperparameter sweep, automatic tuning, compute-optimality, or broad convergence claim.",
@@ -23204,10 +22933,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch54-memory-bounded-training",
+        "exact predecessor checkpoint=implement-ch52-memory-bounded-training",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch55-optimizer-schedules-clipping",
+      "teaching_formula_id": "teaching-formula-ch53-optimizer-schedules-clipping",
       "historical_contrast": "Earlier exploding-gradient analysis motivated norm clipping as an explicit bounded operation; later AdamW separated weight decay from the adaptive gradient update. Neither source chooses this decoder's clipping threshold, parameter groups, learning-rate schedule, beta values, or convergence target.",
       "historical_sources": [
         {
@@ -23222,7 +22951,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch55"
+        "owner-ch53"
       ],
       "rust_contribution": "Own the optimizer mathematics, grouping, event order, and atomicity; no fused optimizer hides them.",
       "visualization": {
@@ -23232,7 +22961,7 @@
       },
       "practice": "Compute warmup and decay rates, the clip multiplier, excluded decay groups, and every state change for a skipped update.",
       "integration_evidence": "Warmup and decay boundary steps produce exact expected rates. Unscale, finite check, valid-token averaging, clipping, AdamW moments and decay, commit, and scaler/schedule transitions occur in the frozen order. Overflow or any invalid parameter group leaves the complete event uncommitted.",
-      "handoff": "Chapter 56 packages the stable parameter census and tokenizer/config identities in a portable tensor artifact.",
+      "handoff": "Chapter 54 packages the stable parameter census and tokenizer/config identities in a portable tensor artifact.",
       "capability_ids": [
         "CAP-DTH-OPT-01"
       ],
@@ -23258,22 +22987,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/55-optimizer-schedules-clipping.mdx",
-        "site/src/i18n/functional-catalogs/en/55-optimizer-schedules-clipping.json",
-        "site/src/content/cheat-sheets/en/55-optimizer-schedules-clipping.json"
+        "site/src/content/chapters/en/53-optimizer-schedules-clipping.mdx",
+        "site/src/i18n/functional-catalogs/en/53-optimizer-schedules-clipping.json",
+        "site/src/content/cheat-sheets/en/53-optimizer-schedules-clipping.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/55-optimizer-schedules-clipping.mdx",
-        "site/src/i18n/functional-catalogs/ru/55-optimizer-schedules-clipping.json",
-        "site/src/content/cheat-sheets/ru/55-optimizer-schedules-clipping.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23291,15 +23014,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch55-optimizer-schedules-clipping"
-      ]
+        "implement-ch53-optimizer-schedules-clipping"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "55-optimizer-schedules-clipping",
+        "origin_implementation_step": "implement-ch55-optimizer-schedules-clipping",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 56,
-      "chapter_id": "56-tensor-artifact-interchange",
-      "implementation_step": "implement-ch56-tensor-artifact-interchange",
+      "order": 54,
+      "chapter_id": "54-tensor-artifact-interchange",
+      "implementation_step": "implement-ch54-tensor-artifact-interchange",
       "depends_on": [
-        "implement-ch55-optimizer-schedules-clipping"
+        "implement-ch53-optimizer-schedules-clipping"
       ],
       "outcome": "Export and import a bounded SafeTensors dense bundle with exact course configuration, tokenizer, tensor census, and conversion lineage.",
       "scope_boundary": "The mandatory bundle supports the selected decoder only. It is not arbitrary architecture import, a complete job checkpoint, authentication, or a replacement for Chapter 35's format lesson.",
@@ -23311,14 +23041,14 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch55-optimizer-schedules-clipping",
+        "exact predecessor checkpoint=implement-ch53-optimizer-schedules-clipping",
         "two independently produced redistribution-safe dense SafeTensors/config/tokenizer fixtures and their source-runtime oracle identities",
         "exact admitted validation-oracle toolchain receipt from admit-functional-supporting-dependency-graph; the toolchains are test-only and forbidden at course/product call sites",
         "two independently produced redistribution-safe dense SafeTensors/config/course-reference-tokenizer fixtures and their source-runtime oracle identities",
         "exact course-reference tokenizer lineage receipt artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/course-reference-tokenizer-lineage-receipt.json produced before either dense producer executes",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch56-tensor-artifact-interchange",
+      "teaching_formula_id": "teaching-formula-ch54-tensor-artifact-interchange",
       "historical_contrast": "Earlier ONNX IR represented versioned computation graphs, operators, types, initializers, and external tensor data; later SafeTensors documentation specified a deliberately bounded tensor container. A graph IR does not guarantee decoder/cache execution parity, and a tensor container does not supply architecture, tokenizer, provenance, or resume semantics.",
       "historical_sources": [
         {
@@ -23333,7 +23063,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch56"
+        "owner-ch54"
       ],
       "rust_contribution": "Use SafeTensors for syntax only; course code owns semantic names, bounds, identity, compatibility, and lineage.",
       "visualization": {
@@ -23343,7 +23073,7 @@
       },
       "practice": "Calculate tensor byte ranges and alias ownership, then classify holes, overlaps, duplicate names, missing shards, and config drift.",
       "integration_evidence": "SafeTensors dense weights round-trip exactly inside the complete course manifest. Header, offsets, shapes, dtypes, aliases, finite policy, tensor census, config, tokenizer, shards, and payload hashes are bounded and complete before allocation. Chapter 35's custom course checkpoint remains byte-protected and is not relabeled an interchange format.",
-      "handoff": "Chapter 57 publishes these and later large immutable artifacts through a crash-consistent local file boundary.",
+      "handoff": "Chapter 55 publishes these and later large immutable artifacts through a crash-consistent local file boundary.",
       "capability_ids": [
         "CAP-DTH-ART-01",
         "CAP-ISA-ART-001",
@@ -23373,22 +23103,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/56-tensor-artifact-interchange.mdx",
-        "site/src/i18n/functional-catalogs/en/56-tensor-artifact-interchange.json",
-        "site/src/content/cheat-sheets/en/56-tensor-artifact-interchange.json"
+        "site/src/content/chapters/en/54-tensor-artifact-interchange.mdx",
+        "site/src/i18n/functional-catalogs/en/54-tensor-artifact-interchange.json",
+        "site/src/content/cheat-sheets/en/54-tensor-artifact-interchange.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/56-tensor-artifact-interchange.mdx",
-        "site/src/i18n/functional-catalogs/ru/56-tensor-artifact-interchange.json",
-        "site/src/content/cheat-sheets/ru/56-tensor-artifact-interchange.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23406,18 +23130,25 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;producer_count_exact=2;producer_host_bytes_max_each=2147483648;producer_disk_bytes_max_each=2147483648;producer_wall_seconds_max_each=600;tiny_ci_host_bytes_max=268435456;tiny_ci_wall_seconds_max=120;tiny_ci_per_fixture_bytes_max=104857600;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch56-tensor-artifact-interchange",
+        "implement-ch54-tensor-artifact-interchange",
         "select-functional-open-model",
         "acquire-functional-open-model",
         "admit-functional-supporting-dependency-graph"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "56-tensor-artifact-interchange",
+        "origin_implementation_step": "implement-ch56-tensor-artifact-interchange",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 57,
-      "chapter_id": "57-immutable-artifact-persistence",
-      "implementation_step": "implement-ch57-immutable-artifact-persistence",
+      "order": 55,
+      "chapter_id": "55-immutable-artifact-persistence",
+      "implementation_step": "implement-ch55-immutable-artifact-persistence",
       "depends_on": [
-        "implement-ch56-tensor-artifact-interchange"
+        "implement-ch54-tensor-artifact-interchange"
       ],
       "outcome": "Store large immutable artifacts as content-addressed local files and publish complete successors atomically.",
       "scope_boundary": "Immutable files are mandatory and sufficient here. Network object stores, secure erase, universal crash semantics, relational metadata, and PostgreSQL are excluded.",
@@ -23429,10 +23160,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch56-tensor-artifact-interchange",
+        "exact predecessor checkpoint=implement-ch54-tensor-artifact-interchange",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch57-immutable-artifact-persistence",
+      "teaching_formula_id": "teaching-formula-ch55-immutable-artifact-persistence",
       "historical_contrast": "Earlier portable graph-and-tensor interchange separated a serialized representation from one runtime; later recovery work treated model state and input progress as a coordinated durable checkpoint. Neither source defines the course's content-addressed lineage DAG, atomic file publication, backend-neutral memory/file store, or a need for a database.",
       "historical_sources": [
         {
@@ -23447,7 +23178,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch57"
+        "owner-ch55"
       ],
       "rust_contribution": "Own canonical identity, bounded streams, publication order, reachability, corruption, retention, and deletion semantics.",
       "visualization": {
@@ -23457,7 +23188,7 @@
       },
       "practice": "Predict visible old, staged, or new state when the process stops at each write, sync, rename, and directory-sync boundary.",
       "integration_evidence": "Canonical manifests and complete payload inventories address every immutable byte by SHA-256. Same-filesystem temporary writes, file and directory synchronization, and atomic rename leave either the old or new complete state at every kill point. Restart, retry, corruption, retention, deletion, and idempotency tests preserve portable reconstruction without a database.",
-      "handoff": "Chapter 58 builds complete training-job continuation on these immutable and atomic file semantics.",
+      "handoff": "Chapter 56 builds complete training-job continuation on these immutable and atomic file semantics.",
       "capability_ids": [
         "CAP-DTH-PERSIST-01",
         "CAP-ISA-PER-001",
@@ -23485,22 +23216,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/57-immutable-artifact-persistence.mdx",
-        "site/src/i18n/functional-catalogs/en/57-immutable-artifact-persistence.json",
-        "site/src/content/cheat-sheets/en/57-immutable-artifact-persistence.json"
+        "site/src/content/chapters/en/55-immutable-artifact-persistence.mdx",
+        "site/src/i18n/functional-catalogs/en/55-immutable-artifact-persistence.json",
+        "site/src/content/cheat-sheets/en/55-immutable-artifact-persistence.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/57-immutable-artifact-persistence.mdx",
-        "site/src/i18n/functional-catalogs/ru/57-immutable-artifact-persistence.json",
-        "site/src/content/cheat-sheets/ru/57-immutable-artifact-persistence.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23518,15 +23243,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch57-immutable-artifact-persistence"
-      ]
+        "implement-ch55-immutable-artifact-persistence"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "57-immutable-artifact-persistence",
+        "origin_implementation_step": "implement-ch57-immutable-artifact-persistence",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 58,
-      "chapter_id": "58-exact-job-resume",
-      "implementation_step": "implement-ch58-exact-job-resume",
+      "order": 56,
+      "chapter_id": "56-exact-job-resume",
+      "implementation_step": "implement-ch56-exact-job-resume",
       "depends_on": [
-        "implement-ch57-immutable-artifact-persistence"
+        "implement-ch55-immutable-artifact-persistence"
       ],
       "outcome": "Interrupt and continue the complete training job without losing data, RNG, optimizer, scaler, schedule, accumulation, evaluation, or identity state.",
       "scope_boundary": "Exact continuation is guaranteed only inside the frozen code, backend, driver, kernel, dtype, world, corpus, tokenizer, schedule, and artifact envelope; migration requires a separately versioned implementation.",
@@ -23538,10 +23270,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch57-immutable-artifact-persistence",
+        "exact predecessor checkpoint=implement-ch55-immutable-artifact-persistence",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch58-exact-job-resume",
+      "teaching_formula_id": "teaching-formula-ch56-exact-job-resume",
       "historical_contrast": "Earlier activation-checkpointing work used recomputation to reduce within-step activation memory; later CheckFreq work coordinated model, optimizer, and input-pipeline state for interruption recovery and exactly-once sample semantics. The two uses of checkpoint are distinct, and neither paper proves the course's complete RNG, cursor, accumulation, scheduler, scaler, evaluation, and kernel continuation contract.",
       "historical_sources": [
         {
@@ -23556,7 +23288,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch58"
+        "owner-ch56"
       ],
       "rust_contribution": "Own the complete state graph, compatibility envelope, interruption boundaries, and exact continuation comparisons.",
       "visualization": {
@@ -23566,7 +23298,7 @@
       },
       "practice": "Identify which omitted field changes the next batch or update and distinguish CPU bitwise from GPU exact-discrete and bounded-numeric evidence.",
       "integration_evidence": "CPU interruption and continuation are bitwise identical for every complete state element and next batch/update. GPU continuation restores discrete cursor, RNG, event, artifact, accumulation, and policy state exactly and numeric values under predeclared operation-specific bounds. Every injected interruption preserves the last-good checkpoint and changed compatibility inputs fail before mutation.",
-      "handoff": "Chapter 59 reconciles the resource and numerical measurements needed to interpret resumed and uninterrupted runs.",
+      "handoff": "Chapter 57 reconciles the resource and numerical measurements needed to interpret resumed and uninterrupted runs.",
       "capability_ids": [
         "CAP-DTH-RESUME-01"
       ],
@@ -23591,22 +23323,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/58-exact-job-resume.mdx",
-        "site/src/i18n/functional-catalogs/en/58-exact-job-resume.json",
-        "site/src/content/cheat-sheets/en/58-exact-job-resume.json"
+        "site/src/content/chapters/en/56-exact-job-resume.mdx",
+        "site/src/i18n/functional-catalogs/en/56-exact-job-resume.json",
+        "site/src/content/cheat-sheets/en/56-exact-job-resume.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/58-exact-job-resume.mdx",
-        "site/src/i18n/functional-catalogs/ru/58-exact-job-resume.json",
-        "site/src/content/cheat-sheets/ru/58-exact-job-resume.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23624,15 +23350,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch58-exact-job-resume"
-      ]
+        "implement-ch56-exact-job-resume"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "58-exact-job-resume",
+        "origin_implementation_step": "implement-ch58-exact-job-resume",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 59,
-      "chapter_id": "59-resource-observability",
-      "implementation_step": "implement-ch59-resource-observability",
+      "order": 57,
+      "chapter_id": "57-resource-observability",
+      "implementation_step": "implement-ch57-resource-observability",
       "depends_on": [
-        "implement-ch58-exact-job-resume"
+        "implement-ch56-exact-job-resume"
       ],
       "outcome": "Plan and measure memory, communication, throughput, time, disk, device identity, and numerical health under enforceable ceilings.",
       "scope_boundary": "Power, temperature, and OEM hardware counters are informative when available; their absence cannot silently substitute for required memory, time, throughput, or identity evidence.",
@@ -23644,10 +23377,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch58-exact-job-resume",
+        "exact predecessor checkpoint=implement-ch56-exact-job-resume",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch59-resource-observability",
+      "teaching_formula_id": "teaching-formula-ch57-resource-observability",
       "historical_contrast": "Earlier Prometheus exposition conventions standardized common metric types and labels; later OpenTelemetry generative-AI attributes added request, finish, usage, and first-chunk vocabulary while identifying sensitive content fields. Neither source chooses course units, buckets, cardinality, privacy policy, GPU accounting, or causal attribution.",
       "historical_sources": [
         {
@@ -23662,7 +23395,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch59"
+        "owner-ch57"
       ],
       "rust_contribution": "Own units, counters, denominators, ceilings, reconciliation, and content-minimal receipts.",
       "visualization": {
@@ -23672,7 +23405,7 @@
       },
       "practice": "Reconcile a planned and measured allocation ledger and locate a one-byte-over component without borrowing another component's ceiling.",
       "integration_evidence": "Named parameter/state/activation/workspace/KV/batch/slack and communication subtotals exactly sum to each reported plan. Measured allocator, host RAM, disk, synchronized time, throughput, numeric-health, and device-wide headroom reconcile with the frozen plan. World-size one reports an empty communication ledger and zero bytes; labels contain no prompt or token content.",
-      "handoff": "Chapter 60 uses these denominators and identities to report conventional evaluation and multi-seed uncertainty honestly.",
+      "handoff": "Chapter 58 uses these denominators and identities to report conventional evaluation and multi-seed uncertainty honestly.",
       "capability_ids": [
         "CAP-DTH-OBS-01"
       ],
@@ -23694,22 +23427,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/59-resource-observability.mdx",
-        "site/src/i18n/functional-catalogs/en/59-resource-observability.json",
-        "site/src/content/cheat-sheets/en/59-resource-observability.json"
+        "site/src/content/chapters/en/57-resource-observability.mdx",
+        "site/src/i18n/functional-catalogs/en/57-resource-observability.json",
+        "site/src/content/cheat-sheets/en/57-resource-observability.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/59-resource-observability.mdx",
-        "site/src/i18n/functional-catalogs/ru/59-resource-observability.json",
-        "site/src/content/cheat-sheets/ru/59-resource-observability.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23727,15 +23454,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch59-resource-observability"
-      ]
+        "implement-ch57-resource-observability"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "59-resource-observability",
+        "origin_implementation_step": "implement-ch59-resource-observability",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 60,
-      "chapter_id": "60-multi-seed-evaluation",
-      "implementation_step": "implement-ch60-multi-seed-evaluation",
+      "order": 58,
+      "chapter_id": "58-multi-seed-evaluation",
+      "implementation_step": "implement-ch58-multi-seed-evaluation",
       "depends_on": [
-        "implement-ch59-resource-observability"
+        "implement-ch57-resource-observability"
       ],
       "outcome": "Evaluate conventional held-out autoregressive loss and bounded tasks, contamination, privacy, baselines, and three-seed sensitivity with explicit uncertainty.",
       "scope_boundary": "Evidence applies to the selected narrow synthetic English story domain and separate sensitivity profile. It is not broad language competence, a full-core seed distribution, architecture superiority, state of the art, or universal safety.",
@@ -23747,10 +23481,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch59-resource-observability",
+        "exact predecessor checkpoint=implement-ch57-resource-observability",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch60-multi-seed-evaluation",
+      "teaching_formula_id": "teaching-formula-ch58-multi-seed-evaluation",
       "historical_contrast": "Earlier NLP significance work required an uncertainty analysis matched to the experimental unit and sampling process; later fine-tuning stability work demonstrated material seed sensitivity in a studied setting. Neither source defines this autoregressive model's seed count, estimator, pass threshold, or variance.",
       "historical_sources": [
         {
@@ -23765,7 +23499,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch60"
+        "owner-ch58"
       ],
       "rust_contribution": "Own evaluation policy, denominators, seed completeness, uncertainty, baselines, task fixtures, and claim boundaries.",
       "visualization": {
@@ -23775,7 +23509,7 @@
       },
       "practice": "Distinguish overlapping fixture slots from transition-once corpus evaluation and choose the correct denominator and experimental unit.",
       "integration_evidence": "Every held-out within-document transition is scored once with the longest available capped causal prefix and an exact token denominator. Test opens only after selection; parameters remain unchanged and contamination, baselines, tasks, privacy probes, seeds, thresholds, and stopping rules were frozen before results. Three complete otherwise-identical sensitivity seeds are all reported with the predeclared uncertainty method; no missing or failed seed disappears.",
-      "handoff": "Chapter 61 measures how transparent quantization changes memory, latency, and the same held-out metrics.",
+      "handoff": "Chapter 59 measures how transparent quantization changes memory, latency, and the same held-out metrics.",
       "capability_ids": [
         "CAP-DTH-EVAL-01",
         "CAP-DTH-EVAL-02"
@@ -23810,22 +23544,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/60-multi-seed-evaluation.mdx",
-        "site/src/i18n/functional-catalogs/en/60-multi-seed-evaluation.json",
-        "site/src/content/cheat-sheets/en/60-multi-seed-evaluation.json"
+        "site/src/content/chapters/en/58-multi-seed-evaluation.mdx",
+        "site/src/i18n/functional-catalogs/en/58-multi-seed-evaluation.json",
+        "site/src/content/cheat-sheets/en/58-multi-seed-evaluation.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/60-multi-seed-evaluation.mdx",
-        "site/src/i18n/functional-catalogs/ru/60-multi-seed-evaluation.json",
-        "site/src/content/cheat-sheets/ru/60-multi-seed-evaluation.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23843,22 +23571,29 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;execution=bounded-evaluator-fixtures-and-calibrated-smoke-only;wall_seconds_max=900;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch60-multi-seed-evaluation",
+        "implement-ch58-multi-seed-evaluation",
         "execute-functional-seed-sensitivity-profile",
         "select-functional-open-model",
         "acquire-functional-open-model",
         "freeze-functional-adaptation-experiment",
         "execute-functional-sft-adaptation",
         "execute-functional-direct-preference-update",
-        "implement-ch81-import-adapt-serve-capstone"
-      ]
+        "implement-ch79-import-adapt-serve-capstone"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "60-multi-seed-evaluation",
+        "origin_implementation_step": "implement-ch60-multi-seed-evaluation",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 61,
-      "chapter_id": "61-quantized-gguf-artifacts",
-      "implementation_step": "implement-ch61-quantized-gguf-artifacts",
+      "order": 59,
+      "chapter_id": "59-quantized-gguf-artifacts",
+      "implementation_step": "implement-ch59-quantized-gguf-artifacts",
       "depends_on": [
-        "implement-ch60-multi-seed-evaluation"
+        "implement-ch58-multi-seed-evaluation"
       ],
       "outcome": "Implement transparent calibrated quantization plus a bounded GGUF-v3 parser, writer, admission, and lineage path for the selected compatible base and its course-produced quantized derivative.",
       "scope_boundary": "Only the preselected compatible text-decoder schema, declared GGUF-v3 metadata and tensor types, its course-produced derivative, and two small conformance fixtures are admitted. Arbitrary GGUF families or types, architecture translation, mmproj or modality sidecars, GPTQ/AWQ reproduction, unlicensed conversion, and production compression remain excluded.",
@@ -23870,10 +23605,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch60-multi-seed-evaluation",
+        "exact predecessor checkpoint=implement-ch58-multi-seed-evaluation",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch61-quantized-gguf-artifacts",
+      "teaching_formula_id": "teaching-formula-ch59-quantized-gguf-artifacts",
       "historical_contrast": "Earlier GPTQ work demonstrated model- and calibration-dependent low-bit post-training weight quantization; later GGUF documentation specified a typed, aligned, mmap-oriented inference container. GPTQ results do not transfer to this model or GPU, and GGUF metadata does not prove quantizer correctness, architecture compatibility, tokenizer parity, or runtime speed.",
       "historical_sources": [
         {
@@ -23888,7 +23623,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch61"
+        "owner-ch59"
       ],
       "rust_contribution": "Own calibration, quantization, dequantization, packing, bounded GGUF-v3 parsing and writing, exact semantic mapping, selected-base admission, parent lineage, parity, and quality.",
       "visualization": {
@@ -23898,7 +23633,7 @@
       },
       "practice": "Calculate integer codes, saturation, reconstructed values, packed bytes, and a held-out quality delta for a tiny row; then reject one fixture whose GGUF metadata cannot map exactly to the selected decoder schema.",
       "integration_evidence": "Course scalar quantize/dequantize and accelerated inference agree under frozen bounds. The preselected, checksum-bound compatible base and its course-produced quantized derivative pass the course-owned bounded GGUF-v3 parser, writer, semantic admission, tensor census, and parent-lineage checks. A hand-authored fixture and an independently produced small compatible fixture map bijectively into the same course schema; unknown versions, arbitrary model families or tensor types, approximations, malformed offsets, duplicate metadata, mmproj, and other sidecars refuse.",
-      "handoff": "Chapter 62 freezes the experiment and admits the exact physical laptop; Chapters 63 and 64 then establish GQA and tiled-attention execution before any mandatory seed or core GPU run, while Chapter 81 later consumes this admitted base to bind the actual SFT-to-DPO successor and its served quantized derivative.",
+      "handoff": "Chapter 60 freezes the experiment and admits the exact physical laptop; Chapters 61 and 64 then establish GQA and tiled-attention execution before any mandatory seed or core GPU run, while Chapter 79 later consumes this admitted base to bind the actual SFT-to-DPO successor and its served quantized derivative.",
       "capability_ids": [
         "CAP-DTH-QUANT-01",
         "CAP-ISA-ART-003"
@@ -23917,22 +23652,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/61-quantized-gguf-artifacts.mdx",
-        "site/src/i18n/functional-catalogs/en/61-quantized-gguf-artifacts.json",
-        "site/src/content/cheat-sheets/en/61-quantized-gguf-artifacts.json"
+        "site/src/content/chapters/en/59-quantized-gguf-artifacts.mdx",
+        "site/src/i18n/functional-catalogs/en/59-quantized-gguf-artifacts.json",
+        "site/src/content/cheat-sheets/en/59-quantized-gguf-artifacts.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/61-quantized-gguf-artifacts.mdx",
-        "site/src/i18n/functional-catalogs/ru/61-quantized-gguf-artifacts.json",
-        "site/src/content/cheat-sheets/ru/61-quantized-gguf-artifacts.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -23950,17 +23679,24 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;execution=cpu-course-fixture-import-and-quantization-plus-provisional-device-smoke;gpu_wall_seconds_max=900;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;fixture_quantization_wall_seconds_max=3600;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch61-quantized-gguf-artifacts",
+        "implement-ch59-quantized-gguf-artifacts",
         "select-functional-open-model",
         "acquire-functional-open-model"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "61-quantized-gguf-artifacts",
+        "origin_implementation_step": "implement-ch61-quantized-gguf-artifacts",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 62,
-      "chapter_id": "62-laptop-hardware-admission",
-      "implementation_step": "implement-ch62-laptop-hardware-admission",
+      "order": 60,
+      "chapter_id": "60-laptop-hardware-admission",
+      "implementation_step": "implement-ch60-laptop-hardware-admission",
       "depends_on": [
-        "implement-ch61-quantized-gguf-artifacts"
+        "implement-ch59-quantized-gguf-artifacts"
       ],
       "outcome": "Admit or refuse the exact laptop device, dtype, free-memory, component-budget, throughput, and stability profile before expensive execution.",
       "scope_boundary": "Acceptance applies to one frozen RTX 4070 Laptop 8 GB stack. Other devices may run opportunistically but cannot replace the measured receipt or broaden its quality and reliability claims.",
@@ -23972,10 +23708,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch61-quantized-gguf-artifacts",
+        "exact predecessor checkpoint=implement-ch59-quantized-gguf-artifacts",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch62-laptop-hardware-admission",
+      "teaching_formula_id": "teaching-formula-ch60-laptop-hardware-admission",
       "historical_contrast": "The earlier product specification supplies the RTX 4070 Laptop GPU identity and declared 8 GB capacity; the later CUDA 13 programming guide exposes runtime device, precision, memory and execution constraints that admission must query rather than infer from a label. Neither source proves available headroom, sustained throughput, course-process attribution or that a planned workload fits.",
       "historical_sources": [
         {
@@ -23990,7 +23726,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch62"
+        "owner-ch60"
       ],
       "rust_contribution": "Own runtime device correlation, calibration method, component ceilings, projection, receipt, and preallocation refusal.",
       "visualization": {
@@ -24000,7 +23736,7 @@
       },
       "practice": "Evaluate wrong identity, insufficient free memory, hidden f32 fallback, a throttled window, one-byte-over allocation, and production-plan inputs.",
       "integration_evidence": "NVML and WGPU identify the exact RTX 4070 Laptop GPU, required total and startup free bytes, Vulkan backend, SHADER_F16, and actual FP16 execution. A synchronized 300–900 second, at-least-100-microstep, ten-window calibration meets the lower aggregate-or-p10 throughput threshold and 85-percent anti-throttling floor. Each hard component remains inside its frozen ceiling, peak headroom stays at least 512 MiB, and one-byte-over or production settings refuse before allocation.",
-      "handoff": "Chapter 63 applies GQA and explicit context policy on the admitted backend and resource profile.",
+      "handoff": "Chapter 61 applies GQA and explicit context policy on the admitted backend and resource profile.",
       "capability_ids": [
         "CAP-DTH-HW-01"
       ],
@@ -24038,22 +23774,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/62-laptop-hardware-admission.mdx",
-        "site/src/i18n/functional-catalogs/en/62-laptop-hardware-admission.json",
-        "site/src/content/cheat-sheets/en/62-laptop-hardware-admission.json"
+        "site/src/content/chapters/en/60-laptop-hardware-admission.mdx",
+        "site/src/i18n/functional-catalogs/en/60-laptop-hardware-admission.json",
+        "site/src/content/cheat-sheets/en/60-laptop-hardware-admission.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/62-laptop-hardware-admission.mdx",
-        "site/src/i18n/functional-catalogs/ru/62-laptop-hardware-admission.json",
-        "site/src/content/cheat-sheets/ru/62-laptop-hardware-admission.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24071,13 +23801,20 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-core;execution=300-to-900-second-synchronized-core-envelope-calibration-plus-no-allocation-plans-for-other-profiles;wall_seconds_max=900;installed_host_bytes_min=17179869184;installed_host_bytes_recommended=34359738368;host_bytes_max=12884901888;device_bytes_max=6710886400;disk_bytes_max=30000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=4000000000;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch62-laptop-hardware-admission"
-      ]
+        "implement-ch60-laptop-hardware-admission"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "62-laptop-hardware-admission",
+        "origin_implementation_step": "implement-ch62-laptop-hardware-admission",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 63,
-      "chapter_id": "63-gqa-context-policy",
-      "implementation_step": "implement-ch63-gqa-context-policy",
+      "order": 61,
+      "chapter_id": "61-gqa-context-policy",
+      "implementation_step": "implement-ch61-gqa-context-policy",
       "depends_on": [
         "freeze-functional-from-scratch-experiment"
       ],
@@ -24094,7 +23831,7 @@
         "exact predecessor checkpoint=freeze-functional-from-scratch-experiment",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch63-gqa-context-policy",
+      "teaching_formula_id": "teaching-formula-ch61-gqa-context-policy",
       "historical_contrast": "Earlier multi-query attention shared one K/V representation across query heads to reduce incremental-decoding bandwidth; later grouped-query attention introduced an intermediate number of KV heads between MHA and MQA. Their reported tradeoffs do not select this decoder's head ratio, context policy, or laptop performance.",
       "historical_sources": [
         {
@@ -24109,7 +23846,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch63"
+        "owner-ch61"
       ],
       "rust_contribution": "Own head sharing, context, causal/segment masks, shapes, gradients, and parameter/cache accounting.",
       "visualization": {
@@ -24119,7 +23856,7 @@
       },
       "practice": "Map eight query heads to two KV heads, calculate cache bytes, and enumerate allowed keys near a segment and sliding-window boundary.",
       "integration_evidence": "When Hq equals Hkv, GQA is differentially identical to the existing MHA oracle. Stable query-to-KV head mapping, parameter census, and KV byte plan match runtime settings. Full and sliding causal windows preserve segment isolation, valid gradients, prefix behavior, and exact config/artifact identity.",
-      "handoff": "Chapter 64 computes the same masked attention online in tiles rather than materializing the complete score matrix.",
+      "handoff": "Chapter 62 computes the same masked attention online in tiles rather than materializing the complete score matrix.",
       "capability_ids": [
         "CAP-ISA-ATT-002"
       ],
@@ -24154,22 +23891,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/63-gqa-context-policy.mdx",
-        "site/src/i18n/functional-catalogs/en/63-gqa-context-policy.json",
-        "site/src/content/cheat-sheets/en/63-gqa-context-policy.json"
+        "site/src/content/chapters/en/61-gqa-context-policy.mdx",
+        "site/src/i18n/functional-catalogs/en/61-gqa-context-policy.json",
+        "site/src/content/cheat-sheets/en/61-gqa-context-policy.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/63-gqa-context-policy.mdx",
-        "site/src/i18n/functional-catalogs/ru/63-gqa-context-policy.json",
-        "site/src/content/cheat-sheets/ru/63-gqa-context-policy.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24187,15 +23918,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch63-gqa-context-policy"
-      ]
+        "implement-ch61-gqa-context-policy"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "63-gqa-context-policy",
+        "origin_implementation_step": "implement-ch63-gqa-context-policy",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 64,
-      "chapter_id": "64-online-tiled-attention",
-      "implementation_step": "implement-ch64-online-tiled-attention",
+      "order": 62,
+      "chapter_id": "62-online-tiled-attention",
+      "implementation_step": "implement-ch62-online-tiled-attention",
       "depends_on": [
-        "implement-ch63-gqa-context-policy"
+        "implement-ch61-gqa-context-policy"
       ],
       "outcome": "Compute exact masked attention with an online tiled recurrence and lower score storage while preserving the materialized oracle.",
       "scope_boundary": "The algorithm is exact and course-owned. No third-party attention primitive, approximate attention, unsupported-shape fallback, or guaranteed speedup is admitted.",
@@ -24207,10 +23945,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch63-gqa-context-policy",
+        "exact predecessor checkpoint=implement-ch61-gqa-context-policy",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch64-online-tiled-attention",
+      "teaching_formula_id": "teaching-formula-ch62-online-tiled-attention",
       "historical_contrast": "Earlier multi-query attention reduced incremental-decoding K/V traffic by sharing heads; later FlashAttention reduced score/probability traffic through exact IO-aware tiling. They address different memory movements, and neither supplies a bitwise-parity promise, a WGPU kernel, or a laptop speedup.",
       "historical_sources": [
         {
@@ -24225,7 +23963,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch64"
+        "owner-ch62"
       ],
       "rust_contribution": "Implement online softmax, tile traversal, mask application, output accumulation, backward behavior, and workspace accounting.",
       "visualization": {
@@ -24235,7 +23973,7 @@
       },
       "practice": "Execute two score tiles by hand, including a changed maximum and a fully masked tile, then update the denominator and output accumulator.",
       "integration_evidence": "Materialized and online-tiled forward and backward results agree under the frozen scalar/GPU numeric policy. Causal, segment, padding, and sliding masks preserve exact forbidden probabilities and valid-token gradients, including fully masked tile edges. Measured score/workspace storage matches the tiled ledger and no materialized or CPU fallback satisfies the forced path.",
-      "handoff": "Chapter 65 moves incremental KV state into a bounded request-owned block pool.",
+      "handoff": "Chapter 63 moves incremental KV state into a bounded request-owned block pool.",
       "capability_ids": [
         "CAP-ISA-ATT-003"
       ],
@@ -24268,22 +24006,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/64-online-tiled-attention.mdx",
-        "site/src/i18n/functional-catalogs/en/64-online-tiled-attention.json",
-        "site/src/content/cheat-sheets/en/64-online-tiled-attention.json"
+        "site/src/content/chapters/en/62-online-tiled-attention.mdx",
+        "site/src/i18n/functional-catalogs/en/62-online-tiled-attention.json",
+        "site/src/content/cheat-sheets/en/62-online-tiled-attention.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/64-online-tiled-attention.mdx",
-        "site/src/i18n/functional-catalogs/ru/64-online-tiled-attention.json",
-        "site/src/content/cheat-sheets/ru/64-online-tiled-attention.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24301,15 +24033,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch64-online-tiled-attention",
+        "implement-ch62-online-tiled-attention",
         "execute-functional-seed-sensitivity-profile",
         "execute-functional-from-scratch-pretraining"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "64-online-tiled-attention",
+        "origin_implementation_step": "implement-ch64-online-tiled-attention",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 65,
-      "chapter_id": "65-kv-block-pool",
-      "implementation_step": "implement-ch65-kv-block-pool",
+      "order": 63,
+      "chapter_id": "63-kv-block-pool",
+      "implementation_step": "implement-ch63-kv-block-pool",
       "depends_on": [
         "execute-functional-from-scratch-pretraining"
       ],
@@ -24326,7 +24065,7 @@
         "exact predecessor checkpoint=execute-functional-from-scratch-pretraining",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch65-kv-block-pool",
+      "teaching_formula_id": "teaching-formula-ch63-kv-block-pool",
       "historical_contrast": "Earlier multi-query attention reduced bytes stored and loaded per token by sharing K/V across query heads; later PagedAttention targeted dynamic per-request growth, fragmentation, duplication, and sharing with blocks. Neither source defines this course's ownership, request isolation, stable allocation order, cancellation reclamation, or measured speed.",
       "historical_sources": [
         {
@@ -24341,7 +24080,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch65"
+        "owner-ch63"
       ],
       "rust_contribution": "Own block identity, allocation, request ownership, reference counts, append/free/reset, faults, and accounting.",
       "visualization": {
@@ -24351,7 +24090,7 @@
       },
       "practice": "Assign blocks across prompt prefill, one-token decode, overflow, reset, and cancellation, then reconcile ownership and bytes.",
       "integration_evidence": "Request-owned block-pool cached logits agree with complete-prefix and prior scalar cache oracles. Every block has one valid owner and reference count; append, free, reset, overflow, stale artifact, OOM, and cancellation transitions are atomic. Reclamation completes within the declared scheduler-iteration bound with no page or cursor leak.",
-      "handoff": "Chapter 66 extends the protected scalar sampler with exact nucleus, penalty, and logprob behavior.",
+      "handoff": "Chapter 64 extends the protected scalar sampler with exact nucleus, penalty, and logprob behavior.",
       "capability_ids": [
         "CAP-ISA-ATT-001",
         "CAP-ISA-ATT-004"
@@ -24377,22 +24116,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/65-kv-block-pool.mdx",
-        "site/src/i18n/functional-catalogs/en/65-kv-block-pool.json",
-        "site/src/content/cheat-sheets/en/65-kv-block-pool.json"
+        "site/src/content/chapters/en/63-kv-block-pool.mdx",
+        "site/src/i18n/functional-catalogs/en/63-kv-block-pool.json",
+        "site/src/content/cheat-sheets/en/63-kv-block-pool.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/65-kv-block-pool.mdx",
-        "site/src/i18n/functional-catalogs/ru/65-kv-block-pool.json",
-        "site/src/content/cheat-sheets/ru/65-kv-block-pool.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24410,15 +24143,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch65-kv-block-pool"
-      ]
+        "implement-ch63-kv-block-pool"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "65-kv-block-pool",
+        "origin_implementation_step": "implement-ch65-kv-block-pool",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 66,
-      "chapter_id": "66-nucleus-penalties-logprobs",
-      "implementation_step": "implement-ch66-nucleus-penalties-logprobs",
+      "order": 64,
+      "chapter_id": "64-nucleus-penalties-logprobs",
+      "implementation_step": "implement-ch64-nucleus-penalties-logprobs",
       "depends_on": [
-        "implement-ch65-kv-block-pool"
+        "implement-ch63-kv-block-pool"
       ],
       "outcome": "Add exact nucleus sampling, additive count penalties, immutable processor ordering, and noninterfering model and sampling logprobs.",
       "scope_boundary": "Policy is exact only when its processor order/version is serialized. It is not byte-identical to every external engine and does not imply beam, speculative, or semantic stopping behavior.",
@@ -24430,10 +24170,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch65-kv-block-pool",
+        "exact predecessor checkpoint=implement-ch63-kv-block-pool",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch66-nucleus-penalties-logprobs",
+      "teaching_formula_id": "teaching-formula-ch64-nucleus-penalties-logprobs",
       "historical_contrast": "Earlier nucleus-sampling work replaced a fixed candidate count with a dynamic high-probability prefix; later deployed-generation practice exposed top-p, distinct repetition controls, scores, stop criteria, and cache settings as separately configurable processors. The library vocabulary is corroborating evidence rather than a taught implementation, and neither source fixes this chapter's processor order, tie rule, numeric tolerance, or quality.",
       "historical_sources": [
         {
@@ -24448,7 +24188,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch66"
+        "owner-ch64"
       ],
       "rust_contribution": "Own ranking, support, penalties, normalization, categorical choice, RNG transition, and observation noninterference.",
       "visualization": {
@@ -24458,7 +24198,7 @@
       },
       "practice": "Compute a tied top-p support after presence and frequency penalties and distinguish model from transformed sampling logprob.",
       "integration_evidence": "Greedy, temperature, and top-k scalar behavior remains byte-protected. Top-p uses the exact smallest stable-ranked cumulative set under a serialized processor order; presence and frequency counts never mutate reusable base logits. Model and sampling logprobs observe the same decision without changing support, selected token, or RNG transition.",
-      "handoff": "Chapter 67 adds literal stop matching and Unicode-safe byte emission around the exact selected tokens.",
+      "handoff": "Chapter 65 adds literal stop matching and Unicode-safe byte emission around the exact selected tokens.",
       "capability_ids": [
         "CAP-ISA-DEC-001",
         "CAP-ISA-DEC-002",
@@ -24488,22 +24228,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/66-nucleus-penalties-logprobs.mdx",
-        "site/src/i18n/functional-catalogs/en/66-nucleus-penalties-logprobs.json",
-        "site/src/content/cheat-sheets/en/66-nucleus-penalties-logprobs.json"
+        "site/src/content/chapters/en/64-nucleus-penalties-logprobs.mdx",
+        "site/src/i18n/functional-catalogs/en/64-nucleus-penalties-logprobs.json",
+        "site/src/content/cheat-sheets/en/64-nucleus-penalties-logprobs.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/66-nucleus-penalties-logprobs.mdx",
-        "site/src/i18n/functional-catalogs/ru/66-nucleus-penalties-logprobs.json",
-        "site/src/content/cheat-sheets/ru/66-nucleus-penalties-logprobs.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24521,15 +24255,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch66-nucleus-penalties-logprobs"
-      ]
+        "implement-ch64-nucleus-penalties-logprobs"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "66-nucleus-penalties-logprobs",
+        "origin_implementation_step": "implement-ch66-nucleus-penalties-logprobs",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 67,
-      "chapter_id": "67-stop-strings-unicode-streaming",
-      "implementation_step": "implement-ch67-stop-strings-unicode-streaming",
+      "order": 65,
+      "chapter_id": "65-stop-strings-unicode-streaming",
+      "implementation_step": "implement-ch65-stop-strings-unicode-streaming",
       "depends_on": [
-        "implement-ch66-nucleus-penalties-logprobs"
+        "implement-ch64-nucleus-penalties-logprobs"
       ],
       "outcome": "Stop on literal generated-byte sequences spanning tokens while streaming only complete valid Unicode and SSE bytes.",
       "scope_boundary": "Only literal generated bytes are matched. Regex, semantic stopping, moderation, prompt-side stops, grapheme animation, and arbitrary raw-byte transport are excluded.",
@@ -24541,10 +24282,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch66-nucleus-penalties-logprobs",
+        "exact predecessor checkpoint=implement-ch64-nucleus-penalties-logprobs",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch67-stop-strings-unicode-streaming",
+      "teaching_formula_id": "teaching-formula-ch65-stop-strings-unicode-streaming",
       "historical_contrast": "Earlier server-sent events standardized UTF-8 line/event framing and incomplete-final-event handling; later the Encoding Standard's TextDecoder API made stateful streaming UTF-8 decoding and fatal versus replacement behavior explicit. Neither standard defines token-boundary stop matching, finish precedence, queue limits, or the course's buffering policy.",
       "historical_sources": [
         {
@@ -24559,7 +24300,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch67"
+        "owner-ch65"
       ],
       "rust_contribution": "Own byte matching, overlap, finish precedence, evidence retention, UTF-8 buffering, caps, and errors.",
       "visualization": {
@@ -24569,7 +24310,7 @@
       },
       "practice": "Trace a stop sequence split across three tokens alongside a multibyte Unicode scalar and predict each buffered or emitted byte.",
       "integration_evidence": "Literal generated-byte stop strings match across arbitrary token boundaries under frozen overlap and finish precedence. Stop bytes are not leaked under the selected emission policy and token/logprob/RNG evidence remains complete. UTF-8 prefixes buffer incomplete scalar bytes, reject impossible or oversized state, and produce valid byte-identical SSE data.",
-      "handoff": "Chapter 68 batches independent generation requests without changing their serial results.",
+      "handoff": "Chapter 66 batches independent generation requests without changing their serial results.",
       "capability_ids": [
         "CAP-ISA-DEC-004",
         "CAP-ISA-DEC-006"
@@ -24592,22 +24333,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/67-stop-strings-unicode-streaming.mdx",
-        "site/src/i18n/functional-catalogs/en/67-stop-strings-unicode-streaming.json",
-        "site/src/content/cheat-sheets/en/67-stop-strings-unicode-streaming.json"
+        "site/src/content/chapters/en/65-stop-strings-unicode-streaming.mdx",
+        "site/src/i18n/functional-catalogs/en/65-stop-strings-unicode-streaming.json",
+        "site/src/content/cheat-sheets/en/65-stop-strings-unicode-streaming.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/67-stop-strings-unicode-streaming.mdx",
-        "site/src/i18n/functional-catalogs/ru/67-stop-strings-unicode-streaming.json",
-        "site/src/content/cheat-sheets/ru/67-stop-strings-unicode-streaming.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24625,15 +24360,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch67-stop-strings-unicode-streaming"
-      ]
+        "implement-ch65-stop-strings-unicode-streaming"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "67-stop-strings-unicode-streaming",
+        "origin_implementation_step": "implement-ch67-stop-strings-unicode-streaming",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 68,
-      "chapter_id": "68-continuous-batch-scheduling",
-      "implementation_step": "implement-ch68-continuous-batch-scheduling",
+      "order": 66,
+      "chapter_id": "66-continuous-batch-scheduling",
+      "implementation_step": "implement-ch66-continuous-batch-scheduling",
       "depends_on": [
-        "implement-ch67-stop-strings-unicode-streaming"
+        "implement-ch65-stop-strings-unicode-streaming"
       ],
       "outcome": "Continuously admit, prefill, decode, and independently complete requests while preserving their serial semantics and state isolation.",
       "scope_boundary": "The scheduler is deterministic, local, single-device, and exact. Cancellation, backpressure, advanced prefill, distributed serving, and production throughput remain outside this chapter.",
@@ -24645,10 +24387,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch67-stop-strings-unicode-streaming",
+        "exact predecessor checkpoint=implement-ch65-stop-strings-unicode-streaming",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch68-continuous-batch-scheduling",
+      "teaching_formula_id": "teaching-formula-ch66-continuous-batch-scheduling",
       "historical_contrast": "Earlier Orca work used iteration-level scheduling so completed requests could leave and new requests could enter; later Sarathi-Serve separated prefill and decode behavior and studied chunked-prefill tradeoffs. Their distributed/A100 throughput and latency results do not transfer to the course scheduler or laptop.",
       "historical_sources": [
         {
@@ -24663,7 +24405,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch68"
+        "owner-ch66"
       ],
       "rust_contribution": "Own admission timing, phase transitions, row packing, request mapping, state isolation, and independent completion.",
       "visualization": {
@@ -24673,7 +24415,7 @@
       },
       "practice": "Schedule one long prompt, one late short prompt, and two decode rows, then predict row ownership, RNG draws, and completion order.",
       "integration_evidence": "Serial and continuously batched requests agree on logits, selected tokens, both logprob kinds, stops, RNG state, cache rows, and observations. New requests enter while older requests decode and each request completes independently. Every batch row maps exactly to one request, phase, position, cache allocation, RNG stream, and output state.",
-      "handoff": "Chapter 69 adds cancellation, reclamation, queue, timeout, output, and slow-client limits to the scheduler lifecycle.",
+      "handoff": "Chapter 67 adds cancellation, reclamation, queue, timeout, output, and slow-client limits to the scheduler lifecycle.",
       "capability_ids": [
         "CAP-ISA-SRV-001",
         "CAP-ISA-SRV-002",
@@ -24700,22 +24442,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/68-continuous-batch-scheduling.mdx",
-        "site/src/i18n/functional-catalogs/en/68-continuous-batch-scheduling.json",
-        "site/src/content/cheat-sheets/en/68-continuous-batch-scheduling.json"
+        "site/src/content/chapters/en/66-continuous-batch-scheduling.mdx",
+        "site/src/i18n/functional-catalogs/en/66-continuous-batch-scheduling.json",
+        "site/src/content/cheat-sheets/en/66-continuous-batch-scheduling.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/68-continuous-batch-scheduling.mdx",
-        "site/src/i18n/functional-catalogs/ru/68-continuous-batch-scheduling.json",
-        "site/src/content/cheat-sheets/ru/68-continuous-batch-scheduling.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24733,15 +24469,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch68-continuous-batch-scheduling"
-      ]
+        "implement-ch66-continuous-batch-scheduling"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "68-continuous-batch-scheduling",
+        "origin_implementation_step": "implement-ch68-continuous-batch-scheduling",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 69,
-      "chapter_id": "69-cancellation-backpressure-budgets",
-      "implementation_step": "implement-ch69-cancellation-backpressure-budgets",
+      "order": 67,
+      "chapter_id": "67-cancellation-backpressure-budgets",
+      "implementation_step": "implement-ch67-cancellation-backpressure-budgets",
       "depends_on": [
-        "implement-ch68-continuous-batch-scheduling"
+        "implement-ch66-continuous-batch-scheduling"
       ],
       "outcome": "Cancel and reclaim requests predictably while bounding queues, timeouts, cache, output buffers, and slow-client backpressure.",
       "scope_boundary": "These are bounded local guarantees, not production availability, distributed fairness, public-service overload protection, or exhaustive operating-system recovery.",
@@ -24753,10 +24496,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch68-continuous-batch-scheduling",
+        "exact predecessor checkpoint=implement-ch66-continuous-batch-scheduling",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch69-cancellation-backpressure-budgets",
+      "teaching_formula_id": "teaching-formula-ch67-cancellation-backpressure-budgets",
       "historical_contrast": "Earlier HTTP semantics standardized overload and timeout vocabulary; later LLM-serving fairness work accounted for token cost and unpredictable output length rather than request count alone. Neither source defines a one-user capacity model, cancellation-reclamation deadline, queue cap, phase budget, or slow-client policy.",
       "historical_sources": [
         {
@@ -24771,7 +24514,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch69"
+        "owner-ch67"
       ],
       "rust_contribution": "Own lifecycle limits, terminal reasons, reclamation, slow-client isolation, admission, and failure atomicity.",
       "visualization": {
@@ -24781,7 +24524,7 @@
       },
       "practice": "Classify overload, phase timeout, cancellation, backpressure, and reclamation outcomes across a three-request schedule.",
       "integration_evidence": "Cancellation at queued, prefill, decode, stopped, backpressured, and response phases reclaims cache and request state within the frozen bound. Queue length, token, KV, wall-clock, phase timeout, output-buffer, and slow-client ceilings are enforced without cross-request blockage. Over-budget requests refuse before allocation and no cancellation, timeout, or OOM leaks RNG, page, response, or partial artifact state.",
-      "handoff": "Chapter 70 exposes this bounded scheduler through a loopback HTTP/SSE process with content-minimal metrics.",
+      "handoff": "Chapter 68 exposes this bounded scheduler through a loopback HTTP/SSE process with content-minimal metrics.",
       "capability_ids": [
         "CAP-ISA-SRV-004",
         "CAP-ISA-SRV-005",
@@ -24805,22 +24548,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/69-cancellation-backpressure-budgets.mdx",
-        "site/src/i18n/functional-catalogs/en/69-cancellation-backpressure-budgets.json",
-        "site/src/content/cheat-sheets/en/69-cancellation-backpressure-budgets.json"
+        "site/src/content/chapters/en/67-cancellation-backpressure-budgets.mdx",
+        "site/src/i18n/functional-catalogs/en/67-cancellation-backpressure-budgets.json",
+        "site/src/content/cheat-sheets/en/67-cancellation-backpressure-budgets.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/69-cancellation-backpressure-budgets.mdx",
-        "site/src/i18n/functional-catalogs/ru/69-cancellation-backpressure-budgets.json",
-        "site/src/content/cheat-sheets/ru/69-cancellation-backpressure-budgets.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24838,15 +24575,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch69-cancellation-backpressure-budgets"
-      ]
+        "implement-ch67-cancellation-backpressure-budgets"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "69-cancellation-backpressure-budgets",
+        "origin_implementation_step": "implement-ch69-cancellation-backpressure-budgets",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 70,
-      "chapter_id": "70-loopback-serving-metrics",
-      "implementation_step": "implement-ch70-loopback-serving-metrics",
+      "order": 68,
+      "chapter_id": "68-loopback-serving-metrics",
+      "implementation_step": "implement-ch68-loopback-serving-metrics",
       "depends_on": [
-        "implement-ch69-cancellation-backpressure-budgets"
+        "implement-ch67-cancellation-backpressure-budgets"
       ],
       "outcome": "Expose the bounded scheduler through a separately invoked loopback-only HTTP/SSE executable with content-minimal operational metrics.",
       "scope_boundary": "This is a local teaching executable, not a static-site runtime dependency, public/TLS service, hosted endpoint, production telemetry backend, or authorization system.",
@@ -24858,10 +24602,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch69-cancellation-backpressure-budgets",
+        "exact predecessor checkpoint=implement-ch67-cancellation-backpressure-budgets",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch70-loopback-serving-metrics",
+      "teaching_formula_id": "teaching-formula-ch68-loopback-serving-metrics",
       "historical_contrast": "The earlier source role defines UTF-8 SSE framing; the later source role provides generative-AI request, finish, usage, and first-chunk telemetry vocabulary while warning that content fields can be sensitive. Neither defines the course server's loopback trust boundary, scheduler semantics, metric units, privacy defaults, or production reliability.",
       "historical_sources": [
         {
@@ -24876,7 +24620,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch70"
+        "owner-ch68"
       ],
       "rust_contribution": "Use Axum and Tokio for loopback transport/runtime plumbing; keep scheduling, admission, streaming semantics, and metrics policy course-owned.",
       "visualization": {
@@ -24886,7 +24630,7 @@
       },
       "practice": "Audit API versions, bind addresses, SSE events, terminal reasons, metric units, denominators, labels, and forbidden content fields.",
       "integration_evidence": "The versioned HTTP/JSON/SSE process binds loopback only and maps exact typed request and terminal errors. Unicode SSE, queue, cancellation, timeout, backpressure, config, artifact, and request identity match the scheduler receipts. Latency, throughput, queue, KV, failure, and resource metrics use frozen denominators and content-free labels; the static site builds and serves without the model process.",
-      "handoff": "Chapter 71 trains and binds a response-masked LoRA/SFT adapter for the same exact model identity.",
+      "handoff": "Chapter 69 trains and binds a response-masked LoRA/SFT adapter for the same exact model identity.",
       "capability_ids": [
         "CAP-ISA-SRV-006",
         "CAP-ISA-OBS-001",
@@ -24910,22 +24654,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/70-loopback-serving-metrics.mdx",
-        "site/src/i18n/functional-catalogs/en/70-loopback-serving-metrics.json",
-        "site/src/content/cheat-sheets/en/70-loopback-serving-metrics.json"
+        "site/src/content/chapters/en/68-loopback-serving-metrics.mdx",
+        "site/src/i18n/functional-catalogs/en/68-loopback-serving-metrics.json",
+        "site/src/content/cheat-sheets/en/68-loopback-serving-metrics.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/70-loopback-serving-metrics.mdx",
-        "site/src/i18n/functional-catalogs/ru/70-loopback-serving-metrics.json",
-        "site/src/content/cheat-sheets/ru/70-loopback-serving-metrics.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -24943,15 +24681,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch70-loopback-serving-metrics"
-      ]
+        "implement-ch68-loopback-serving-metrics"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "70-loopback-serving-metrics",
+        "origin_implementation_step": "implement-ch70-loopback-serving-metrics",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 71,
-      "chapter_id": "71-lora-sft-adapters",
-      "implementation_step": "implement-ch71-lora-sft-adapters",
+      "order": 69,
+      "chapter_id": "69-lora-sft-adapters",
+      "implementation_step": "implement-ch69-lora-sft-adapters",
       "depends_on": [
-        "implement-ch70-loopback-serving-metrics"
+        "implement-ch68-loopback-serving-metrics"
       ],
       "outcome": "Train a nonzero response-masked LoRA/SFT adapter, keep the base frozen, and bind the adapter as an immutable, mergeable artifact.",
       "scope_boundary": "Acceptance covers one narrow selected text task and compatible base. It is not broad chat quality, arbitrary PEFT compatibility, adapter composition, or production hot swapping.",
@@ -24963,10 +24708,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch70-loopback-serving-metrics",
+        "exact predecessor checkpoint=implement-ch68-loopback-serving-metrics",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch71-lora-sft-adapters",
+      "teaching_formula_id": "teaching-formula-ch69-lora-sft-adapters",
       "historical_contrast": "Earlier LoRA work froze base weights and trained low-rank updates in selected transformations; later InstructGPT work placed supervised demonstrations before preference and PPO stages in a larger alignment pipeline. Their ranks, target modules, workforce, scale, quality, and safety results do not define this bounded response-masked SFT exercise.",
       "historical_sources": [
         {
@@ -24981,7 +24726,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch71"
+        "owner-ch69"
       ],
       "rust_contribution": "Own template assembly, masking, LoRA math, gradients, frozen-base checks, training, merge/unmerge, lineage, and request binding.",
       "visualization": {
@@ -24991,7 +24736,7 @@
       },
       "practice": "Derive A and B shapes, trainable parameter count, response mask, merge result, and frozen-base invariant for a tiny template.",
       "integration_evidence": "Response-only loss masks agree with token-level reference loss and gradients. LoRA factors on the explicit target allowlist receive nonzero updates while every base parameter remains byte-identical and gradient free. Immutable adapter manifests bind base/config/tokenizer/template/targets/rank/scale; merge, unmerge, disabled, active, and request-isolated paths are exact and resumable.",
-      "handoff": "Chapter 72 creates an immutable preference-trained successor whose lineage begins at this SFT adapter.",
+      "handoff": "Chapter 70 creates an immutable preference-trained successor whose lineage begins at this SFT adapter.",
       "capability_ids": [
         "CAP-ISA-PT-001",
         "CAP-ISA-PT-002"
@@ -25012,22 +24757,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/71-lora-sft-adapters.mdx",
-        "site/src/i18n/functional-catalogs/en/71-lora-sft-adapters.json",
-        "site/src/content/cheat-sheets/en/71-lora-sft-adapters.json"
+        "site/src/content/chapters/en/69-lora-sft-adapters.mdx",
+        "site/src/i18n/functional-catalogs/en/69-lora-sft-adapters.json",
+        "site/src/content/cheat-sheets/en/69-lora-sft-adapters.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/71-lora-sft-adapters.mdx",
-        "site/src/i18n/functional-catalogs/ru/71-lora-sft-adapters.json",
-        "site/src/content/cheat-sheets/ru/71-lora-sft-adapters.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25045,19 +24784,26 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;execution=bounded-lora-sft-algorithm-fixtures-only;wall_seconds_max=900;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch71-lora-sft-adapters",
+        "implement-ch69-lora-sft-adapters",
         "freeze-functional-adaptation-experiment",
         "execute-functional-sft-adaptation",
         "select-functional-open-model",
         "acquire-functional-open-model"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "71-lora-sft-adapters",
+        "origin_implementation_step": "implement-ch71-lora-sft-adapters",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 72,
-      "chapter_id": "72-direct-preference-optimization",
-      "implementation_step": "implement-ch72-direct-preference-optimization",
+      "order": 70,
+      "chapter_id": "70-direct-preference-optimization",
+      "implementation_step": "implement-ch70-direct-preference-optimization",
       "depends_on": [
-        "implement-ch71-lora-sft-adapters"
+        "implement-ch69-lora-sft-adapters"
       ],
       "outcome": "Train one immutable DPO successor adapter from governed chosen and rejected response pairs and compare it with the disabled and SFT states.",
       "scope_boundary": "This is one bounded offline direct-preference objective. Reward-model training, PPO, online human-feedback operations, constitutional methods, and general value alignment remain bounded-scale exclusions.",
@@ -25069,10 +24815,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch71-lora-sft-adapters",
+        "exact predecessor checkpoint=implement-ch69-lora-sft-adapters",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch72-direct-preference-optimization",
+      "teaching_formula_id": "teaching-formula-ch70-direct-preference-optimization",
       "historical_contrast": "Earlier InstructGPT work used ranked preferences to train a reward model followed by PPO; later DPO recast a common KL-constrained preference objective as a classification-style loss without that separate reward-model/PPO loop. A tiny pair set and bounded update do not establish broad alignment, safety, or superiority.",
       "historical_sources": [
         {
@@ -25087,7 +24833,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch72"
+        "owner-ch70"
       ],
       "rust_contribution": "Own response masking, policy/reference logprobs, stable logsigmoid, beta, gradients, update, resume, evaluation, and successor lineage.",
       "visualization": {
@@ -25097,7 +24843,7 @@
       },
       "practice": "Compute a tiny pairwise loss, identify prompt-mask leakage, and distinguish a DPO result from reward-model or PPO evidence.",
       "integration_evidence": "Chosen and rejected responses use exact response-only policy and reference logprobs under one frozen template and base identity. Stable extreme-value DPO loss and analytic gradients pass finite checks and gradchecks. The base/reference remain frozen, the DPO successor changes nontrivially, resumes completely, and is evaluated beside disabled and SFT states under all frozen preference seeds.",
-      "handoff": "Chapter 73 compares the same low-rank update path when the frozen base is stored in the course quantized representation.",
+      "handoff": "Chapter 71 compares the same low-rank update path when the frozen base is stored in the course quantized representation.",
       "capability_ids": [
         "CAP-ISA-PT-003",
         "CAP-ISA-PT-005"
@@ -25116,22 +24862,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/72-direct-preference-optimization.mdx",
-        "site/src/i18n/functional-catalogs/en/72-direct-preference-optimization.json",
-        "site/src/content/cheat-sheets/en/72-direct-preference-optimization.json"
+        "site/src/content/chapters/en/70-direct-preference-optimization.mdx",
+        "site/src/i18n/functional-catalogs/en/70-direct-preference-optimization.json",
+        "site/src/content/cheat-sheets/en/70-direct-preference-optimization.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/72-direct-preference-optimization.mdx",
-        "site/src/i18n/functional-catalogs/ru/72-direct-preference-optimization.json",
-        "site/src/content/cheat-sheets/ru/72-direct-preference-optimization.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25149,20 +24889,27 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;execution=bounded-dpo-algorithm-fixtures-only;wall_seconds_max=900;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch72-direct-preference-optimization",
+        "implement-ch70-direct-preference-optimization",
         "freeze-functional-adaptation-experiment",
         "execute-functional-direct-preference-update",
         "select-functional-open-model",
         "acquire-functional-open-model",
         "execute-functional-sft-adaptation"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "72-direct-preference-optimization",
+        "origin_implementation_step": "implement-ch72-direct-preference-optimization",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 73,
-      "chapter_id": "73-qlora-boundary",
-      "implementation_step": "implement-ch73-qlora-boundary",
+      "order": 71,
+      "chapter_id": "71-qlora-boundary",
+      "implementation_step": "implement-ch71-qlora-boundary",
       "depends_on": [
-        "implement-ch72-direct-preference-optimization"
+        "implement-ch70-direct-preference-optimization"
       ],
       "outcome": "Compare LoRA training through the course-produced quantized frozen base while keeping quantization and gradients visible.",
       "scope_boundary": "This optional selected-model comparison makes no 65B training, custom production-kernel, broad quality-equivalence, or arbitrary quantizer claim.",
@@ -25174,10 +24921,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch72-direct-preference-optimization",
+        "exact predecessor checkpoint=implement-ch70-direct-preference-optimization",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch73-qlora-boundary",
+      "teaching_formula_id": "teaching-formula-ch71-qlora-boundary",
       "historical_contrast": "Earlier LoRA trained low-rank updates against frozen ordinary-precision base weights; later QLoRA backpropagated through a frozen 4-bit base and combined NF4, double quantization, and paged-optimizer techniques. Its 65B-on-48-GiB result does not prove this selected model, kernel set, duration, or 8 GiB fit.",
       "historical_sources": [
         {
@@ -25192,7 +24939,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch73"
+        "owner-ch71"
       ],
       "rust_contribution": "Compose the existing course quantizer and LoRA path without importing a complete QLoRA trainer or hiding dequantization decisions.",
       "visualization": {
@@ -25202,7 +24949,7 @@
       },
       "practice": "Trace stored codes, dequantized computation values, frozen-base state, and low-rank gradients through a tiny projection.",
       "integration_evidence": "The quantized base remains frozen while the exposed dequantize, matmul, and LoRA gradient path matches the declared scalar reference. Trainable adapter gradients and updates agree within frozen bounds with the dense-base comparison where expected. Measured memory, latency, and held-out deltas retain exact base, quantization, calibration, adapter, and task identities.",
-      "handoff": "Chapter 74 reuses exact immutable request prefixes without changing adapter, config, or cache ownership.",
+      "handoff": "Chapter 72 reuses exact immutable request prefixes without changing adapter, config, or cache ownership.",
       "capability_ids": [
         "CAP-ISA-PT-004"
       ],
@@ -25220,22 +24967,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/73-qlora-boundary.mdx",
-        "site/src/i18n/functional-catalogs/en/73-qlora-boundary.json",
-        "site/src/content/cheat-sheets/en/73-qlora-boundary.json"
+        "site/src/content/chapters/en/71-qlora-boundary.mdx",
+        "site/src/i18n/functional-catalogs/en/71-qlora-boundary.json",
+        "site/src/content/cheat-sheets/en/71-qlora-boundary.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/73-qlora-boundary.mdx",
-        "site/src/i18n/functional-catalogs/ru/73-qlora-boundary.json",
-        "site/src/content/cheat-sheets/ru/73-qlora-boundary.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25253,15 +24994,22 @@
         "notes": "cpu=C3;gpu=G2;network=N1;paid=none;profile=8gb-gpu-advanced-smoke-v1;execution=bounded-advanced-mode-under-8gb-gpu-smoke-ceilings;wall_seconds_max=7200;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch73-qlora-boundary"
-      ]
+        "implement-ch71-qlora-boundary"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "73-qlora-boundary",
+        "origin_implementation_step": "implement-ch73-qlora-boundary",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 74,
-      "chapter_id": "74-prefix-cache-reuse",
-      "implementation_step": "implement-ch74-prefix-cache-reuse",
+      "order": 72,
+      "chapter_id": "72-prefix-cache-reuse",
+      "implementation_step": "implement-ch72-prefix-cache-reuse",
       "depends_on": [
-        "implement-ch73-qlora-boundary"
+        "implement-ch71-qlora-boundary"
       ],
       "outcome": "Reuse and evict exact authorized immutable prefixes within the bounded local KV pool without changing request semantics.",
       "scope_boundary": "Reuse is exact, bounded, local, and single-user. Approximate matching, cross-tenant sharing, remote/distributed caches, restart persistence, and promised speedup are excluded.",
@@ -25273,10 +25021,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch73-qlora-boundary",
+        "exact predecessor checkpoint=implement-ch71-qlora-boundary",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch74-prefix-cache-reuse",
+      "teaching_formula_id": "teaching-formula-ch72-prefix-cache-reuse",
       "historical_contrast": "Earlier multi-query attention reduced repeated K/V traffic within incremental decoding; later PagedAttention targeted duplication and flexible block sharing across dynamic request state. Neither source defines exact prefix identity, authorization scope, adapter/config binding, eviction order, refcounts, or local speedup.",
       "historical_sources": [
         {
@@ -25291,7 +25039,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch74"
+        "owner-ch72"
       ],
       "rust_contribution": "Own prefix identity, authorization, sharing, reference counts, stable eviction, reuse, corruption, and reclaim semantics.",
       "visualization": {
@@ -25301,7 +25049,7 @@
       },
       "practice": "Classify exact hits and misses after changing tokens, model, adapter, context policy, authorization scope, or one eviction tie.",
       "integration_evidence": "A prefix hit requires exact token, model config, artifact, adapter, context policy, and authorization identity. Fresh and reused prefix paths produce equivalent logits, tokens, RNG, and continuation cache state. Reference counts, deterministic eviction, cancellation, corruption, and reclamation preserve request isolation.",
-      "handoff": "Chapter 75 version-controls partial RoPE and context scaling so prefix and artifact compatibility remains explicit.",
+      "handoff": "Chapter 73 version-controls partial RoPE and context scaling so prefix and artifact compatibility remains explicit.",
       "capability_ids": [
         "CAP-ISA-SRV-009"
       ],
@@ -25319,22 +25067,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/74-prefix-cache-reuse.mdx",
-        "site/src/i18n/functional-catalogs/en/74-prefix-cache-reuse.json",
-        "site/src/content/cheat-sheets/en/74-prefix-cache-reuse.json"
+        "site/src/content/chapters/en/72-prefix-cache-reuse.mdx",
+        "site/src/i18n/functional-catalogs/en/72-prefix-cache-reuse.json",
+        "site/src/content/cheat-sheets/en/72-prefix-cache-reuse.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/74-prefix-cache-reuse.mdx",
-        "site/src/i18n/functional-catalogs/ru/74-prefix-cache-reuse.json",
-        "site/src/content/cheat-sheets/ru/74-prefix-cache-reuse.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25352,21 +25094,28 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch74-prefix-cache-reuse",
+        "implement-ch72-prefix-cache-reuse",
         "select-functional-open-model",
         "acquire-functional-open-model",
         "freeze-functional-adaptation-experiment",
         "execute-functional-sft-adaptation",
         "execute-functional-direct-preference-update",
-        "implement-ch81-import-adapt-serve-capstone"
-      ]
+        "implement-ch79-import-adapt-serve-capstone"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "74-prefix-cache-reuse",
+        "origin_implementation_step": "implement-ch74-prefix-cache-reuse",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 75,
-      "chapter_id": "75-rope-context-scaling",
-      "implementation_step": "implement-ch75-rope-context-scaling",
+      "order": 73,
+      "chapter_id": "73-rope-context-scaling",
+      "implementation_step": "implement-ch73-rope-context-scaling",
       "depends_on": [
-        "implement-ch74-prefix-cache-reuse"
+        "implement-ch72-prefix-cache-reuse"
       ],
       "outcome": "Make partial RoPE, frequency base, and context-scaling behavior explicit versioned settings with exact cache and artifact compatibility.",
       "scope_boundary": "These settings remain inside the same causal decoder. They do not establish long-context quality, architecture compatibility, retrieval, cross-attention, or multimodal capability.",
@@ -25378,10 +25127,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch74-prefix-cache-reuse",
+        "exact predecessor checkpoint=implement-ch72-prefix-cache-reuse",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch75-rope-context-scaling",
+      "teaching_formula_id": "teaching-formula-ch73-rope-context-scaling",
       "historical_contrast": "Earlier RoFormer defined pairwise position-dependent rotations and their relative-position structure; later YaRN used frequency-aware scaling and additional training/evaluation to extend context. Merely allocating more positions or changing a base is not YaRN and does not prove long-context quality or laptop feasibility.",
       "historical_sources": [
         {
@@ -25396,7 +25145,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch75"
+        "owner-ch73"
       ],
       "rust_contribution": "Own rotary dimensions, frequency policy, position transform, cache positions, identity, and failure behavior.",
       "visualization": {
@@ -25406,7 +25155,7 @@
       },
       "practice": "Calculate rotated and unrotated feature pairs at scaled positions and reject incompatible cache or artifact policy.",
       "integration_evidence": "Full-RoPE settings remain differentially identical to the prior oracle. Partial rotary dimensions, frequency base, position mapping, and context scaling bind exact config and artifact identities. Full and cached paths use identical absolute positions and incompatible policy or odd rotary dimensions refuse.",
-      "handoff": "Chapter 76 retrieves authorized provenance-bound text and enters it through the ordinary tokenizer, without adding an encoder.",
+      "handoff": "Chapter 74 retrieves authorized provenance-bound text and enters it through the ordinary tokenizer, without adding an encoder.",
       "capability_ids": [
         "CAP-ISA-ATT-005"
       ],
@@ -25426,22 +25175,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/75-rope-context-scaling.mdx",
-        "site/src/i18n/functional-catalogs/en/75-rope-context-scaling.json",
-        "site/src/content/cheat-sheets/en/75-rope-context-scaling.json"
+        "site/src/content/chapters/en/73-rope-context-scaling.mdx",
+        "site/src/i18n/functional-catalogs/en/73-rope-context-scaling.json",
+        "site/src/content/cheat-sheets/en/73-rope-context-scaling.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/75-rope-context-scaling.mdx",
-        "site/src/i18n/functional-catalogs/ru/75-rope-context-scaling.json",
-        "site/src/content/cheat-sheets/ru/75-rope-context-scaling.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25459,21 +25202,28 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch75-rope-context-scaling",
+        "implement-ch73-rope-context-scaling",
         "select-functional-open-model",
         "acquire-functional-open-model",
         "freeze-functional-adaptation-experiment",
         "execute-functional-sft-adaptation",
         "execute-functional-direct-preference-update",
-        "implement-ch81-import-adapt-serve-capstone"
-      ]
+        "implement-ch79-import-adapt-serve-capstone"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "75-rope-context-scaling",
+        "origin_implementation_step": "implement-ch75-rope-context-scaling",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 76,
-      "chapter_id": "76-retrieval-provenance",
-      "implementation_step": "implement-ch76-retrieval-provenance",
+      "order": 74,
+      "chapter_id": "74-retrieval-provenance",
+      "implementation_step": "implement-ch74-retrieval-provenance",
       "depends_on": [
-        "implement-ch75-rope-context-scaling"
+        "implement-ch73-rope-context-scaling"
       ],
       "outcome": "Retrieve stable exact top-k authorized records from bounded memory or files and assemble provenance-visible cited text for ordinary tokenization.",
       "scope_boundary": "Vectors are provided and provenance-bound. The course implements no embedding encoder or training, hosted/web search, approximate index, broad RAG-quality claim, or PostgreSQL dependency.",
@@ -25485,10 +25235,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch75-rope-context-scaling",
+        "exact predecessor checkpoint=implement-ch73-rope-context-scaling",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch76-retrieval-provenance",
+      "teaching_formula_id": "teaching-formula-ch74-retrieval-provenance",
       "historical_contrast": "Earlier retrieval-augmented generation conditioned generation on identifiable non-parametric records; later pgvector documentation exposed exact ordering and optional approximate indexes inside PostgreSQL. Neither retrieval nor a vector extension guarantees truth, authorization, stable course ties, citation entailment, or a need for a database.",
       "historical_sources": [
         {
@@ -25503,7 +25253,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch76"
+        "owner-ch74"
       ],
       "rust_contribution": "Own identity, authorization-before-rank, exact similarity, stable ties, citations, memory/file conformance, and prompt assembly.",
       "visualization": {
@@ -25513,7 +25263,7 @@
       },
       "practice": "Compute dot and cosine scores, apply authorization before ranking, resolve a score tie, and diagnose hash, dimension, nonfinite, and zero-norm faults.",
       "integration_evidence": "Authorization removes ineligible records before scoring. Memory and file adapters produce byte-identical stable IDs, score bits, ordering, hashes, and citations across 100 generated traces and ten fixed dot, cosine, tie, and fault fixtures. The mandatory 1,000-record 384D workload stays within 512 MiB and warm p95 under 100 ms; cited context contains only eligible returned IDs.",
-      "handoff": "Chapter 77 constrains generated text to an explicit finite JSON subset before any tool execution.",
+      "handoff": "Chapter 75 constrains generated text to an explicit finite JSON subset before any tool execution.",
       "capability_ids": [
         "CAP-ISA-RT-001"
       ],
@@ -25531,22 +25281,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/76-retrieval-provenance.mdx",
-        "site/src/i18n/functional-catalogs/en/76-retrieval-provenance.json",
-        "site/src/content/cheat-sheets/en/76-retrieval-provenance.json"
+        "site/src/content/chapters/en/74-retrieval-provenance.mdx",
+        "site/src/i18n/functional-catalogs/en/74-retrieval-provenance.json",
+        "site/src/content/cheat-sheets/en/74-retrieval-provenance.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/76-retrieval-provenance.mdx",
-        "site/src/i18n/functional-catalogs/ru/76-retrieval-provenance.json",
-        "site/src/content/cheat-sheets/ru/76-retrieval-provenance.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25564,15 +25308,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch76-retrieval-provenance"
-      ]
+        "implement-ch74-retrieval-provenance"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "76-retrieval-provenance",
+        "origin_implementation_step": "implement-ch76-retrieval-provenance",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 77,
-      "chapter_id": "77-constrained-json-decoding",
-      "implementation_step": "implement-ch77-constrained-json-decoding",
+      "order": 75,
+      "chapter_id": "75-constrained-json-decoding",
+      "implementation_step": "implement-ch75-constrained-json-decoding",
       "depends_on": [
-        "implement-ch76-retrieval-provenance"
+        "implement-ch74-retrieval-provenance"
       ],
       "outcome": "Generate bounded JSON by masking tokens through an incremental automaton for an explicit finite JSON Schema subset and post-validating the result.",
       "scope_boundary": "Acceptance excludes complete JSON Schema, arbitrary regex/references, semantic database constraints, arbitrary programming-language generation, and a library that hides token admissibility.",
@@ -25584,10 +25335,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch76-retrieval-provenance",
+        "exact predecessor checkpoint=implement-ch74-retrieval-provenance",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch77-constrained-json-decoding",
+      "teaching_formula_id": "teaching-formula-ch75-constrained-json-decoding",
       "historical_contrast": "Earlier PICARD rejected inadmissible tokens incrementally during autoregressive SQL decoding; later GBNF practice constrained inference with grammars and documented a bounded JSON-Schema-to-grammar conversion. Neither supplies full JSON Schema, and schema-valid output can still be false, unauthorized, unsafe, or outside the course subset.",
       "historical_sources": [
         {
@@ -25602,7 +25353,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch77"
+        "owner-ch75"
       ],
       "rust_contribution": "Own the supported schema subset, automaton, byte-prefix transitions, vocabulary mask, limits, dead-end policy, and post-validation.",
       "visualization": {
@@ -25612,7 +25363,7 @@
       },
       "practice": "Step a tiny object schema across tokens that split punctuation and UTF-8 bytes, then predict allowed tokens, dead ends, and final validation.",
       "integration_evidence": "An exhaustive tiny-schema fixture proves the incremental automaton accepts exactly the declared language. Incremental byte-prefix and final JSON-subset validation agree across tokenizer splits, Unicode bytes, caps, and complete objects. Inadmissible token logits are masked before the frozen sampling processors and unsupported schema keywords or dead ends fail explicitly.",
-      "handoff": "Chapter 78 treats valid structured output as an untrusted request that still needs host authorization and limits.",
+      "handoff": "Chapter 76 treats valid structured output as an untrusted request that still needs host authorization and limits.",
       "capability_ids": [
         "CAP-ISA-RT-003"
       ],
@@ -25630,22 +25381,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/77-constrained-json-decoding.mdx",
-        "site/src/i18n/functional-catalogs/en/77-constrained-json-decoding.json",
-        "site/src/content/cheat-sheets/en/77-constrained-json-decoding.json"
+        "site/src/content/chapters/en/75-constrained-json-decoding.mdx",
+        "site/src/i18n/functional-catalogs/en/75-constrained-json-decoding.json",
+        "site/src/content/cheat-sheets/en/75-constrained-json-decoding.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/77-constrained-json-decoding.mdx",
-        "site/src/i18n/functional-catalogs/ru/77-constrained-json-decoding.json",
-        "site/src/content/cheat-sheets/ru/77-constrained-json-decoding.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25663,15 +25408,22 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch77-constrained-json-decoding"
-      ]
+        "implement-ch75-constrained-json-decoding"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "77-constrained-json-decoding",
+        "origin_implementation_step": "implement-ch77-constrained-json-decoding",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 78,
-      "chapter_id": "78-authorized-tools",
-      "implementation_step": "implement-ch78-authorized-tools",
+      "order": 76,
+      "chapter_id": "76-authorized-tools",
+      "implementation_step": "implement-ch76-authorized-tools",
       "depends_on": [
-        "implement-ch77-constrained-json-decoding"
+        "implement-ch75-constrained-json-decoding"
       ],
       "outcome": "Execute only schema-valid, allowlisted, authorized, confirmed, bounded, deterministic local tools while treating all external text as untrusted.",
       "scope_boundary": "Tools are local, deterministic, allowlisted, and side-effect free. Shell, arbitrary filesystem/network/email/purchase actions, arbitrary plugins, learned selection, and proof against all injection are excluded.",
@@ -25683,10 +25435,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch77-constrained-json-decoding",
+        "exact predecessor checkpoint=implement-ch75-constrained-json-decoding",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch78-authorized-tools",
+      "teaching_formula_id": "teaching-formula-ch76-authorized-tools",
       "historical_contrast": "Earlier ReAct work interleaved model traces with environment actions and observations; later MCP tools exposed schemas while requiring clients to validate and control sensitive operations. Neither model reasoning nor a tool annotation grants host authority, validates arguments, supplies confirmation, or makes execution safe.",
       "historical_sources": [
         {
@@ -25701,7 +25453,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch78"
+        "owner-ch76"
       ],
       "rust_contribution": "Own capability, authorization, confirmation, schema subset, limits, idempotency, timeout, result provenance, and trust labels.",
       "visualization": {
@@ -25711,7 +25463,7 @@
       },
       "practice": "Classify at least 20 malformed, unauthorized, unconfirmed, oversized, injected, replayed, and conflicting-idempotency requests.",
       "integration_evidence": "Invalid name, schema, type, extra field, size, authorization, and confirmation fixtures keep executor invocation count zero. Valid calls execute at most once under an idempotency key, time out and reclaim predictably, cap output, and return typed provenance. Retrieved and tool text retains untrusted labels and cannot grant host capability, escape argument limits, or change authorization.",
-      "handoff": "Chapter 79 measures endpoint-specific capability and safety scenarios, content minimization, retention, deletion, and disclosed uncertainty.",
+      "handoff": "Chapter 77 measures endpoint-specific capability and safety scenarios, content minimization, retention, deletion, and disclosed uncertainty.",
       "capability_ids": [
         "CAP-ISA-RT-002",
         "CAP-ISA-SAFE-003"
@@ -25730,22 +25482,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/78-authorized-tools.mdx",
-        "site/src/i18n/functional-catalogs/en/78-authorized-tools.json",
-        "site/src/content/cheat-sheets/en/78-authorized-tools.json"
+        "site/src/content/chapters/en/76-authorized-tools.mdx",
+        "site/src/i18n/functional-catalogs/en/76-authorized-tools.json",
+        "site/src/content/cheat-sheets/en/76-authorized-tools.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/78-authorized-tools.mdx",
-        "site/src/i18n/functional-catalogs/ru/78-authorized-tools.json",
-        "site/src/content/cheat-sheets/ru/78-authorized-tools.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25763,15 +25509,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch78-authorized-tools"
-      ]
+        "implement-ch76-authorized-tools"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "78-authorized-tools",
+        "origin_implementation_step": "implement-ch78-authorized-tools",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 79,
-      "chapter_id": "79-safety-privacy-model-card",
-      "implementation_step": "implement-ch79-safety-privacy-model-card",
+      "order": 77,
+      "chapter_id": "77-safety-privacy-model-card",
+      "implementation_step": "implement-ch77-safety-privacy-model-card",
       "depends_on": [
-        "implement-ch78-authorized-tools"
+        "implement-ch76-authorized-tools"
       ],
       "outcome": "Publish an endpoint-specific threat model, frozen scenario matrix, uncertainty, failure taxonomy, content-minimal telemetry policy, and model card.",
       "scope_boundary": "This is bounded endpoint evidence, not legal or regulatory advice, universal safety, red-team completeness, formal confidentiality, differential privacy, secure erase, or social-impact certification.",
@@ -25783,10 +25536,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch78-authorized-tools",
+        "exact predecessor checkpoint=implement-ch76-authorized-tools",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch79-safety-privacy-model-card",
+      "teaching_formula_id": "teaching-formula-ch77-safety-privacy-model-card",
       "historical_contrast": "Earlier Model Cards called for intended uses, evaluation conditions, limitations, and risk context; later the NIST generative-AI profile broadened voluntary lifecycle attention to confabulation, privacy, security, and component integration. Documentation and guidance are not certification, legal compliance, mitigation, or universal safety evidence.",
       "historical_sources": [
         {
@@ -25801,7 +25554,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch79"
+        "owner-ch77"
       ],
       "rust_contribution": "Own scenario definitions, prompt/seed freezes, metrics, intervals, field allowlist, content-off default, retention/deletion, and disclosure.",
       "visualization": {
@@ -25811,7 +25564,7 @@
       },
       "practice": "Distinguish measured evidence from guarantees, calculate one bounded rate and interval, and audit telemetry and model-card fields for content leakage or missing coverage.",
       "integration_evidence": "Threats, assets, trust boundaries, scenarios, prompts, seeds, metrics, thresholds, failure taxonomy, and missing coverage freeze before results. Every reported rate has an exact numerator, denominator, uncertainty method, and identity; unmeasured cells remain explicit. Telemetry is content-off by default and canary extraction, retention, deletion, retrieval injection, and tool-capability scenarios preserve their bounded evidence.",
-      "handoff": "Chapter 80 composes governed from-scratch training, resume, evaluation, quantization, serving, and disclosure under one laptop identity.",
+      "handoff": "Chapter 78 composes governed from-scratch training, resume, evaluation, quantization, serving, and disclosure under one laptop identity.",
       "capability_ids": [
         "CAP-ISA-SAFE-001",
         "CAP-ISA-SAFE-002"
@@ -25830,22 +25583,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/79-safety-privacy-model-card.mdx",
-        "site/src/i18n/functional-catalogs/en/79-safety-privacy-model-card.json",
-        "site/src/content/cheat-sheets/en/79-safety-privacy-model-card.json"
+        "site/src/content/chapters/en/77-safety-privacy-model-card.mdx",
+        "site/src/i18n/functional-catalogs/en/77-safety-privacy-model-card.json",
+        "site/src/content/cheat-sheets/en/77-safety-privacy-model-card.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/79-safety-privacy-model-card.mdx",
-        "site/src/i18n/functional-catalogs/ru/79-safety-privacy-model-card.json",
-        "site/src/content/cheat-sheets/ru/79-safety-privacy-model-card.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25863,15 +25610,22 @@
         "notes": "cpu=C3;gpu=G2;network=N1;paid=none;profile=8gb-gpu-advanced-smoke-v1;execution=bounded-advanced-mode-under-8gb-gpu-smoke-ceilings;wall_seconds_max=7200;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch79-safety-privacy-model-card"
-      ]
+        "implement-ch77-safety-privacy-model-card"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "79-safety-privacy-model-card",
+        "origin_implementation_step": "implement-ch79-safety-privacy-model-card",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 80,
-      "chapter_id": "80-from-scratch-laptop-capstone",
-      "implementation_step": "implement-ch80-from-scratch-laptop-capstone",
+      "order": 78,
+      "chapter_id": "78-from-scratch-laptop-capstone",
+      "implementation_step": "implement-ch78-from-scratch-laptop-capstone",
       "depends_on": [
-        "implement-ch79-safety-privacy-model-card"
+        "implement-ch77-safety-privacy-model-card"
       ],
       "outcome": "Train, interrupt, resume, evaluate, quantize, and locally serve one governed narrow-domain decoder from scratch inside the admitted laptop profile.",
       "scope_boundary": "Evidence applies only to the selected synthetic English story domain, exact laptop stack, config, seed, corpus, and metrics. It is not a general-purpose chat model, production training, broad-language result, benchmark leader, or safety proof.",
@@ -25883,16 +25637,16 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch79-safety-privacy-model-card",
+        "exact predecessor checkpoint=implement-ch77-safety-privacy-model-card",
         "artifacts/functional-laptop/data/tokenizer-and-tokenized-splits-v1/standalone-imported-tokenizer-oracle-receipt.json",
-        "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
+        "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/independent-dense-fixture-integration-receipt.json",
         "artifacts/functional-laptop/experiments/from-scratch/seed-sensitivity-receipt.json",
         "artifacts/functional-laptop/experiments/from-scratch/pretraining-receipt.json",
         "artifacts/functional-laptop/experiments/from-scratch/selected-artifact.json",
         "artifacts/functional-laptop/experiments/from-scratch/capstone-evidence.json",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch80-from-scratch-laptop-capstone",
+      "teaching_formula_id": "teaching-formula-ch78-from-scratch-laptop-capstone",
       "historical_contrast": "Earlier experimental-reporting work required variability, search, and procedural detail to remain visible; later compute-optimal training work emphasized the joint importance of parameter and token counts at much larger studied scales. Neither supplies this capstone's seed count, token budget, runtime, threshold, or narrow-domain quality result.",
       "historical_sources": [
         {
@@ -25907,7 +25661,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch80"
+        "owner-ch78"
       ],
       "rust_contribution": "Compose existing governed APIs without adding a new algorithm and seal the five endpoint receipt families.",
       "visualization": {
@@ -25917,7 +25671,7 @@
       },
       "practice": "Audit a deliberately incomplete endpoint receipt and identify the first leakage, identity discontinuity, resource breach, or unsupported conclusion.",
       "integration_evidence": "One exact 32,514,560-parameter seed-39 run consumes no more than 20,000,000 valid tokens, 30 hours, the 6.25 GiB course allocation, and the frozen disk/download/host/headroom ceilings. Interruption/resume, held-out evaluation, baselines, sensitivity seeds, contamination, privacy, quantization, and local serving receipts share one config, corpus, tokenizer, dependency, device, kernel, seed, and artifact DAG identity. Thresholds and seeds never change after model output and no broad-use or production claim appears.",
-      "handoff": "Chapter 81 proves the separate imported-base, SFT, DPO, quantized-successor, evaluation, and serving endpoint under one exact artifact lineage.",
+      "handoff": "Chapter 79 proves the separate imported-base, SFT, DPO, quantized-successor, evaluation, and serving endpoint under one exact artifact lineage.",
       "capability_ids": [
         "CAP-AUDIT-FROM-SCRATCH-ENDPOINT-01"
       ],
@@ -25939,22 +25693,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/80-from-scratch-laptop-capstone.mdx",
-        "site/src/i18n/functional-catalogs/en/80-from-scratch-laptop-capstone.json",
-        "site/src/content/cheat-sheets/en/80-from-scratch-laptop-capstone.json"
+        "site/src/content/chapters/en/78-from-scratch-laptop-capstone.mdx",
+        "site/src/i18n/functional-catalogs/en/78-from-scratch-laptop-capstone.json",
+        "site/src/content/cheat-sheets/en/78-from-scratch-laptop-capstone.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/80-from-scratch-laptop-capstone.mdx",
-        "site/src/i18n/functional-catalogs/ru/80-from-scratch-laptop-capstone.json",
-        "site/src/content/cheat-sheets/ru/80-from-scratch-laptop-capstone.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -25972,16 +25720,23 @@
         "notes": "cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;execution=compose-immutable-pretraining-receipts-plus-bounded-integration-evaluation-serving-smoke;wall_seconds_max=900;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch80-from-scratch-laptop-capstone",
+        "implement-ch78-from-scratch-laptop-capstone",
         "freeze-functional-from-scratch-experiment",
         "execute-functional-seed-sensitivity-profile",
         "execute-functional-from-scratch-pretraining"
-      ]
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "80-from-scratch-laptop-capstone",
+        "origin_implementation_step": "implement-ch80-from-scratch-laptop-capstone",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 81,
-      "chapter_id": "81-import-adapt-serve-capstone",
-      "implementation_step": "implement-ch81-import-adapt-serve-capstone",
+      "order": 79,
+      "chapter_id": "79-import-adapt-serve-capstone",
+      "implementation_step": "implement-ch79-import-adapt-serve-capstone",
       "depends_on": [
         "execute-functional-direct-preference-update"
       ],
@@ -25999,7 +25754,7 @@
         "all ordered selected-base integration receipts for tokenizer, dense serving admission, GGUF lineage, SFT, DPO, prefix-cache and context policy",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch81-import-adapt-serve-capstone",
+      "teaching_formula_id": "teaching-formula-ch79-import-adapt-serve-capstone",
       "historical_contrast": "Earlier LoRA separated frozen base weights from trainable low-rank adapter parameters; later DPO provided a bounded direct preference objective without a separate reward model and PPO loop. Their reported quality and scale do not substitute for exact imported-base, tokenizer, SFT-parent, successor-adapter, evaluation, quantization, and served-identity lineage.",
       "historical_sources": [
         {
@@ -26014,17 +25769,17 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch81"
+        "owner-ch79"
       ],
-      "rust_contribution": "Consume Chapter 61's admitted artifact without widening its parser, then own exact base-to-SFT-to-DPO-to-quantized-served composition, evaluation, resource admission, safety receipts, and served identity.",
+      "rust_contribution": "Consume Chapter 59's admitted artifact without widening its parser, then own exact base-to-SFT-to-DPO-to-quantized-served composition, evaluation, resource admission, safety receipts, and served identity.",
       "visualization": {
         "decision": "useful",
         "evidence": "An immutable identity DAG can prove that import, SFT, DPO, quantization, evaluation, admission, serving, and safety all refer to the same successor chain.",
         "visualization_id": "import-adapt-serve-capstone"
       },
       "practice": "Audit a candidate endpoint that changes tokenizer, serves the SFT parent instead of the DPO successor, or attaches an independently passing quantized base.",
-      "integration_evidence": "One immutable 20M–50M decoder revision has already passed exact architecture, config, tokenizer, template, tensor census, model-card, license, training-lineage, byte, checksum, and Chapter 61 bounded GGUF admission before this capstone consumes it. The capstone refuses any alternate base, fallback model, unsupported family or type, mmproj or other sidecar, approximation, or identity gap instead of broadening Chapter 61 admission. The exact admitted base produces a nonzero SFT adapter, a nonzero DPO successor, disabled/SFT/successor evaluation, and a quantized served successor under one parent-hash chain and complete serving/safety receipts.",
-      "handoff": "Chapter 82 compares optional decoding and serving strategies without replacing any mandatory endpoint semantics.",
+      "integration_evidence": "One immutable 20M–50M decoder revision has already passed exact architecture, config, tokenizer, template, tensor census, model-card, license, training-lineage, byte, checksum, and Chapter 59 bounded GGUF admission before this capstone consumes it. The capstone refuses any alternate base, fallback model, unsupported family or type, mmproj or other sidecar, approximation, or identity gap instead of broadening Chapter 59 admission. The exact admitted base produces a nonzero SFT adapter, a nonzero DPO successor, disabled/SFT/successor evaluation, and a quantized served successor under one parent-hash chain and complete serving/safety receipts.",
+      "handoff": "Chapter 80 compares optional decoding and serving strategies without replacing any mandatory endpoint semantics.",
       "capability_ids": [
         "CAP-ISA-ENDPOINT-001"
       ],
@@ -26038,22 +25793,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/81-import-adapt-serve-capstone.mdx",
-        "site/src/i18n/functional-catalogs/en/81-import-adapt-serve-capstone.json",
-        "site/src/content/cheat-sheets/en/81-import-adapt-serve-capstone.json"
+        "site/src/content/chapters/en/79-import-adapt-serve-capstone.mdx",
+        "site/src/i18n/functional-catalogs/en/79-import-adapt-serve-capstone.json",
+        "site/src/content/cheat-sheets/en/79-import-adapt-serve-capstone.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/81-import-adapt-serve-capstone.mdx",
-        "site/src/i18n/functional-catalogs/ru/81-import-adapt-serve-capstone.json",
-        "site/src/content/cheat-sheets/ru/81-import-adapt-serve-capstone.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -26073,19 +25822,26 @@
       "cost_authority_steps": [
         "select-functional-open-model",
         "acquire-functional-open-model",
-        "implement-ch61-quantized-gguf-artifacts",
+        "implement-ch59-quantized-gguf-artifacts",
         "freeze-functional-adaptation-experiment",
         "execute-functional-sft-adaptation",
         "execute-functional-direct-preference-update",
-        "implement-ch81-import-adapt-serve-capstone"
-      ]
+        "implement-ch79-import-adapt-serve-capstone"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "81-import-adapt-serve-capstone",
+        "origin_implementation_step": "implement-ch81-import-adapt-serve-capstone",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 82,
-      "chapter_id": "82-advanced-decoding-serving",
-      "implementation_step": "implement-ch82-advanced-decoding-serving",
+      "order": 80,
+      "chapter_id": "80-advanced-decoding-serving",
+      "implementation_step": "implement-ch80-advanced-decoding-serving",
       "depends_on": [
-        "implement-ch81-import-adapt-serve-capstone"
+        "implement-ch79-import-adapt-serve-capstone"
       ],
       "outcome": "Compare bounded search, deterministic proposal-trace verification, chunked or fair scheduling, and parallel prefill while the same single causal autoregressive decoder remains the only model that executes.",
       "scope_boundary": "Speculative teaching uses only a deterministic proposal token/probability trace and the existing target decoder. It adds no draft-model weights, draft forward pass, second decoder, second output head, alternate model core, encoder, encoder-decoder, seq2seq, autoencoder, remote model, or public alternate-model abstraction; no quality improvement or speedup is promised.",
@@ -26097,10 +25853,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch81-import-adapt-serve-capstone",
+        "exact predecessor checkpoint=implement-ch79-import-adapt-serve-capstone",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch82-advanced-decoding-serving",
+      "teaching_formula_id": "teaching-formula-ch80-advanced-decoding-serving",
       "historical_contrast": "Earlier speculative-decoding work preserved a target distribution through an exact draft acceptance/correction procedure; later Sarathi-Serve studied chunked prefill as a throughput/tail-latency tradeoff. Neither paper's speedup, hardware, model pair, chunk size, or fairness result transfers to the selected laptop endpoint.",
       "historical_sources": [
         {
@@ -26115,7 +25871,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch82"
+        "owner-ch80"
       ],
       "rust_contribution": "Own optional beam and serving comparisons plus proposal-trace acceptance/correction math, while proving that no draft weights, draft forward pass, second decoder/core/head/model, model encoder, or remote model path exists.",
       "visualization": {
@@ -26125,7 +25881,7 @@
       },
       "practice": "Trace proposal acceptance and correction from the frozen values, identify the single target-decoder call, then audit a stable beam tie and token-cost-aware schedule without inventing a draft model.",
       "integration_evidence": "The speculative exercise reads frozen proposal token IDs, proposal probabilities, uniform draws, and expected correction values from a deterministic typed trace; the trace is data, not a draft neural model. The sole target causal autoregressive decoder computes the target probabilities used by course-owned acceptance and correction math, and a callgraph check records exactly one model constructor, one output head, and one decoder forward path. Beam, chunked-prefill, token-cost-aware, and parallel-prefill comparisons preserve stable score ties, RNG and cache ownership, serial request results, cancellation, budgets, and the frozen starvation bound.",
-      "handoff": "Chapter 83 simulates distributed partition and collective arithmetic without claiming real multi-device execution.",
+      "handoff": "Chapter 81 simulates distributed partition and collective arithmetic without claiming real multi-device execution.",
       "capability_ids": [
         "CAP-ISA-DEC-007",
         "CAP-ISA-SRV-008",
@@ -26149,22 +25905,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/82-advanced-decoding-serving.mdx",
-        "site/src/i18n/functional-catalogs/en/82-advanced-decoding-serving.json",
-        "site/src/content/cheat-sheets/en/82-advanced-decoding-serving.json"
+        "site/src/content/chapters/en/80-advanced-decoding-serving.mdx",
+        "site/src/i18n/functional-catalogs/en/80-advanced-decoding-serving.json",
+        "site/src/content/cheat-sheets/en/80-advanced-decoding-serving.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/82-advanced-decoding-serving.mdx",
-        "site/src/i18n/functional-catalogs/ru/82-advanced-decoding-serving.json",
-        "site/src/content/cheat-sheets/ru/82-advanced-decoding-serving.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -26182,15 +25932,22 @@
         "notes": "cpu=C3;gpu=G2;network=N1;paid=none;profile=8gb-gpu-advanced-smoke-v1;execution=bounded-advanced-mode-under-8gb-gpu-smoke-ceilings;wall_seconds_max=7200;installed_host_bytes_min=8589934592;installed_host_bytes_recommended=17179869184;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;inherited_profile_download_ceiling_bytes=536870912;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch82-advanced-decoding-serving"
-      ]
+        "implement-ch80-advanced-decoding-serving"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "82-advanced-decoding-serving",
+        "origin_implementation_step": "implement-ch82-advanced-decoding-serving",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 83,
-      "chapter_id": "83-distributed-schedule-simulation",
-      "implementation_step": "implement-ch83-distributed-schedule-simulation",
+      "order": 81,
+      "chapter_id": "81-distributed-schedule-simulation",
+      "implementation_step": "implement-ch81-distributed-schedule-simulation",
       "depends_on": [
-        "implement-ch82-advanced-decoding-serving"
+        "implement-ch80-advanced-decoding-serving"
       ],
       "outcome": "Simulate distributed training partitions, collectives, pipeline schedules, and serving placement with exact local tensor and byte oracles.",
       "scope_boundary": "Actual multi-device training or serving requires at least two compatible devices, pinned runtime and collectives, network/storage, and new authority. It remains a bounded-scale extension and is not completed by simulation.",
@@ -26202,10 +25959,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch82-advanced-decoding-serving",
+        "exact predecessor checkpoint=implement-ch80-advanced-decoding-serving",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch83-distributed-schedule-simulation",
+      "teaching_formula_id": "teaching-formula-ch81-distributed-schedule-simulation",
       "historical_contrast": "Earlier GPipe partitioned layers into a pipeline and exposed microbatch scheduling and bubbles; later Megatron-LM partitioned Transformer matrix operations and exposed collective communication. A single-process oracle can check schedule and byte arithmetic but cannot validate inter-device transfer, topology, overlap, failure behavior, or speedup.",
       "historical_sources": [
         {
@@ -26220,7 +25977,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch83"
+        "owner-ch81"
       ],
       "rust_contribution": "Own deterministic local partition, collective, schedule, byte, state-ownership, and placement oracles.",
       "visualization": {
@@ -26230,7 +25987,7 @@
       },
       "practice": "Compute tensor shards, ring messages, pipeline occupancy, and per-rank bytes, then distinguish plan evidence from real execution.",
       "integration_evidence": "Single-process data, tensor, and pipeline partitions reconstruct the dense scalar forward and gradient results. Collective event counts, per-rank and all-rank bytes, accumulation/resume ownership, and serving placement are deterministic and exact. World-size one has zero communication and the production TP=8 fixture is labeled execution=none; no real distributed dependency or result enters acceptance.",
-      "handoff": "Chapter 84 applies the same local-oracle discipline to sparse expert routing and expert-serving queues.",
+      "handoff": "Chapter 82 applies the same local-oracle discipline to sparse expert routing and expert-serving queues.",
       "capability_ids": [
         "CAP-DTH-DIST-01",
         "CAP-DTH-DIST-02",
@@ -26247,22 +26004,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/83-distributed-schedule-simulation.mdx",
-        "site/src/i18n/functional-catalogs/en/83-distributed-schedule-simulation.json",
-        "site/src/content/cheat-sheets/en/83-distributed-schedule-simulation.json"
+        "site/src/content/chapters/en/81-distributed-schedule-simulation.mdx",
+        "site/src/i18n/functional-catalogs/en/81-distributed-schedule-simulation.json",
+        "site/src/content/cheat-sheets/en/81-distributed-schedule-simulation.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/83-distributed-schedule-simulation.mdx",
-        "site/src/i18n/functional-catalogs/ru/83-distributed-schedule-simulation.json",
-        "site/src/content/cheat-sheets/ru/83-distributed-schedule-simulation.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -26280,15 +26031,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch83-distributed-schedule-simulation"
-      ]
+        "implement-ch81-distributed-schedule-simulation"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "83-distributed-schedule-simulation",
+        "origin_implementation_step": "implement-ch83-distributed-schedule-simulation",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 84,
-      "chapter_id": "84-moe-routing-simulation",
-      "implementation_step": "implement-ch84-moe-routing-simulation",
+      "order": 82,
+      "chapter_id": "82-moe-routing-simulation",
+      "implementation_step": "implement-ch82-moe-routing-simulation",
       "depends_on": [
-        "implement-ch83-distributed-schedule-simulation"
+        "implement-ch81-distributed-schedule-simulation"
       ],
       "outcome": "Implement exact tiny sparse-expert routing and capacity arithmetic, then simulate deterministic expert-serving queues over the frozen router trace.",
       "scope_boundary": "No useful sparse model, expert-parallel training/serving, all-to-all runtime, distributed cache, sparse-kernel speedup, or production MoE claim is made.",
@@ -26300,10 +26058,10 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch83-distributed-schedule-simulation",
+        "exact predecessor checkpoint=implement-ch81-distributed-schedule-simulation",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
       ],
-      "teaching_formula_id": "teaching-formula-ch84-moe-routing-simulation",
+      "teaching_formula_id": "teaching-formula-ch82-moe-routing-simulation",
       "historical_contrast": "Earlier GShard made sharding, communication, capacity, and load balancing explicit for conditional computation; later Mixtral supplied a modern decoder example whose active expert subset is smaller than its total parameter set. A tiny route oracle proves neither useful sparse quality nor expert-parallel memory, communication, kernels, latency, or scale.",
       "historical_sources": [
         {
@@ -26318,7 +26076,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch84"
+        "owner-ch82"
       ],
       "rust_contribution": "Own the local router, ties, capacity, drops, combines, load loss, gradients, immutable trace, and serving simulation.",
       "visualization": {
@@ -26328,7 +26086,7 @@
       },
       "practice": "Route a tied tiny token batch, calculate expert capacity and auxiliary load, and predict deterministic drops, combines, and queues.",
       "integration_evidence": "Stable top-k router ties, capacity, drop, combine, auxiliary load, and gradients match exhaustive tiny fixtures. Permutation, conservation, imbalance, overflow, and deterministic expert-serving queue/lifecycle properties pass. Every real expert-parallel/all-to-all/sparse-kernel path remains absent and the production fixture is labeled execution=none.",
-      "handoff": "Chapter 85 measures whether exact local retrieval has any concrete persistence-scale need before a database can be selected.",
+      "handoff": "Chapter 83 measures whether exact local retrieval has any concrete persistence-scale need before a database can be selected.",
       "capability_ids": [
         "CAP-DTH-MOE-01",
         "CAP-DTH-MOE-02",
@@ -26345,22 +26103,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/84-moe-routing-simulation.mdx",
-        "site/src/i18n/functional-catalogs/en/84-moe-routing-simulation.json",
-        "site/src/content/cheat-sheets/en/84-moe-routing-simulation.json"
+        "site/src/content/chapters/en/82-moe-routing-simulation.mdx",
+        "site/src/i18n/functional-catalogs/en/82-moe-routing-simulation.json",
+        "site/src/content/cheat-sheets/en/82-moe-routing-simulation.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/84-moe-routing-simulation.mdx",
-        "site/src/i18n/functional-catalogs/ru/84-moe-routing-simulation.json",
-        "site/src/content/cheat-sheets/ru/84-moe-routing-simulation.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -26378,15 +26130,22 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch84-moe-routing-simulation"
-      ]
+        "implement-ch82-moe-routing-simulation"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "84-moe-routing-simulation",
+        "origin_implementation_step": "implement-ch84-moe-routing-simulation",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     },
     {
-      "order": 85,
-      "chapter_id": "85-persistence-scale-decision",
-      "implementation_step": "implement-ch85-persistence-scale-decision",
+      "order": 83,
+      "chapter_id": "83-persistence-scale-decision",
+      "implementation_step": "implement-ch83-persistence-scale-decision",
       "depends_on": [
-        "implement-ch84-moe-routing-simulation"
+        "implement-ch82-moe-routing-simulation"
       ],
       "outcome": "Measure the frozen larger vector workload and decide whether a PostgreSQL/pgvector advanced adapter is justified beyond exact local files.",
       "scope_boundary": "PostgreSQL/pgvector is unselected unless the frozen trigger passes. Generic metadata, the 1,000-record mandatory fixture, installed software, or a desire to teach SQL is not a need. A selected branch remains removable and never enters the static-site runtime.",
@@ -26398,11 +26157,11 @@
         ".agents/skills/author-llm-course-english/SKILL.md",
         ".agents/skills/localize-llm-course/SKILL.md",
         "site/src/i18n/functional-chapter-locales.json",
-        "exact predecessor checkpoint=implement-ch84-moe-routing-simulation",
+        "exact predecessor checkpoint=implement-ch82-moe-routing-simulation",
         "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json",
         "scripts/check-functional-laptop-llm-plan.mjs"
       ],
-      "teaching_formula_id": "teaching-formula-ch85-persistence-scale-decision",
+      "teaching_formula_id": "teaching-formula-ch83-persistence-scale-decision",
       "historical_contrast": "Earlier retrieval-augmented generation made non-parametric retrieved records and their provenance part of generation; later PostgreSQL 18 documentation specifies concurrency and visibility machinery for durable shared state. Neither source proves that this course needs a database, supplies the course's vector-distance, authorization-before-ranking, stable-tie or citation semantics, proves recovery, or crosses the frozen latency, memory or concurrent-writer thresholds.",
       "historical_sources": [
         {
@@ -26417,7 +26176,7 @@
         }
       ],
       "rust_owner_ids": [
-        "owner-ch85"
+        "owner-ch83"
       ],
       "rust_contribution": "Own the controlled local benchmark, exact oracle results, thresholds, environment receipt, and conditional selection decision; no database code exists by default.",
       "visualization": {
@@ -26442,22 +26201,16 @@
         }
       ],
       "active_locales": [
-        "en",
-        "ru"
+        "en"
       ],
       "english_outputs": [
-        "site/src/content/chapters/en/85-persistence-scale-decision.mdx",
-        "site/src/i18n/functional-catalogs/en/85-persistence-scale-decision.json",
-        "site/src/content/cheat-sheets/en/85-persistence-scale-decision.json"
+        "site/src/content/chapters/en/83-persistence-scale-decision.mdx",
+        "site/src/i18n/functional-catalogs/en/83-persistence-scale-decision.json",
+        "site/src/content/cheat-sheets/en/83-persistence-scale-decision.json"
       ],
-      "russian_outputs": [
-        "site/src/content/chapters/ru/85-persistence-scale-decision.mdx",
-        "site/src/i18n/functional-catalogs/ru/85-persistence-scale-decision.json",
-        "site/src/content/cheat-sheets/ru/85-persistence-scale-decision.json"
-      ],
+      "russian_outputs": [],
       "special_gates": [
         "english-two-review-two-adjudication",
-        "direct-russian-bilingual-target-only",
         "static-firefox-only"
       ],
       "lifecycle_cost": {
@@ -26475,8 +26228,15 @@
         "notes": "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;profile=local-retrieval-decision-v1;records=100000;dimension=384;queries=1000;k=10;selectivities_percent=[100,10,1];concurrency=[1,4,8,16];repetitions=3;affinity_policy=frozen;power_policy=frozen;warmup_policy=frozen;cache_policy=frozen;process_inventory=frozen;wall_seconds_max=7200;host_bytes_max=1073741824;device_bytes_max=0;disk_bytes_max=2000000000;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
       },
       "cost_authority_steps": [
-        "implement-ch85-persistence-scale-decision"
-      ]
+        "implement-ch83-persistence-scale-decision"
+      ],
+      "current_amendment": {
+        "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+        "origin_chapter_id": "85-persistence-scale-decision",
+        "origin_implementation_step": "implement-ch85-persistence-scale-decision",
+        "localization": "Russian40+ deferred by user; English gates unchanged",
+        "agent_elapsed_stop": "none; workload/profile/test limits unchanged"
+      }
     }
   ],
   "scale_ids": [
@@ -26495,13 +26255,50 @@
     "production-plan-only"
   ],
   "formula_ids": [
-    "parameter-elements",
-    "kv-bytes",
-    "mac-causal",
-    "mac-dense",
-    "persistent-state-bytes",
-    "activation-peak-bytes",
-    "communication-bytes"
+    "teaching-formula-ch40-reference-core-handoff",
+    "teaching-formula-ch41-corpus-preparation",
+    "teaching-formula-ch42-scalable-bpe-tokenizer",
+    "teaching-formula-ch43-padded-variable-batches",
+    "teaching-formula-ch44-packed-sequence-masks",
+    "teaching-formula-ch45-depth-stable-decoder",
+    "teaching-formula-ch46-configurable-decoder-core",
+    "teaching-formula-ch47-dropout-semantics",
+    "teaching-formula-ch48-dependency-error-contract",
+    "teaching-formula-ch49-serving-config-admission",
+    "teaching-formula-ch50-accelerator-tensor-parity",
+    "teaching-formula-ch51-mixed-precision-training",
+    "teaching-formula-ch52-memory-bounded-training",
+    "teaching-formula-ch53-optimizer-schedules-clipping",
+    "teaching-formula-ch54-tensor-artifact-interchange",
+    "teaching-formula-ch55-immutable-artifact-persistence",
+    "teaching-formula-ch56-exact-job-resume",
+    "teaching-formula-ch57-resource-observability",
+    "teaching-formula-ch58-multi-seed-evaluation",
+    "teaching-formula-ch59-quantized-gguf-artifacts",
+    "teaching-formula-ch60-laptop-hardware-admission",
+    "teaching-formula-ch61-gqa-context-policy",
+    "teaching-formula-ch62-online-tiled-attention",
+    "teaching-formula-ch63-kv-block-pool",
+    "teaching-formula-ch64-nucleus-penalties-logprobs",
+    "teaching-formula-ch65-stop-strings-unicode-streaming",
+    "teaching-formula-ch66-continuous-batch-scheduling",
+    "teaching-formula-ch67-cancellation-backpressure-budgets",
+    "teaching-formula-ch68-loopback-serving-metrics",
+    "teaching-formula-ch69-lora-sft-adapters",
+    "teaching-formula-ch70-direct-preference-optimization",
+    "teaching-formula-ch71-qlora-boundary",
+    "teaching-formula-ch72-prefix-cache-reuse",
+    "teaching-formula-ch73-rope-context-scaling",
+    "teaching-formula-ch74-retrieval-provenance",
+    "teaching-formula-ch75-constrained-json-decoding",
+    "teaching-formula-ch76-authorized-tools",
+    "teaching-formula-ch77-safety-privacy-model-card",
+    "teaching-formula-ch78-from-scratch-laptop-capstone",
+    "teaching-formula-ch79-import-adapt-serve-capstone",
+    "teaching-formula-ch80-advanced-decoding-serving",
+    "teaching-formula-ch81-distributed-schedule-simulation",
+    "teaching-formula-ch82-moe-routing-simulation",
+    "teaching-formula-ch83-persistence-scale-decision"
   ],
   "rust_owners": [
     {
@@ -26517,56 +26314,24 @@
     },
     {
       "owner_id": "owner-ch41",
-      "chapter_id": "41-governed-corpus-acquisition",
+      "chapter_id": "41-corpus-preparation",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch41-governed-corpus-acquisition.module",
-        "rust/crates/llm-from-scratch/tests/ch41_governed_corpus_acquisition.rs",
-        "rust/crates/llm-from-scratch/examples/ch41_governed_corpus_acquisition.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch41_governed_corpus_acquisition.txt",
-        "rust/crates/llm-from-scratch/src/artifact/acquisition.rs",
-        "rust/crates/llm-from-scratch/src/artifact/canonical_manifest.rs",
-        "rust/crates/llm-from-scratch/src/artifact/inventory.rs",
-        "rust/crates/llm-from-scratch/src/artifact/lineage.rs",
-        "scripts/acquire-functional-llm-artifacts.mjs"
+        "rust/crates/llm-from-scratch/src/data/prepared_corpus.rs",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch41-corpus-preparation.module",
+        "rust/demos/ch41-corpus-preparation/Cargo.toml",
+        "rust/demos/ch41-corpus-preparation/src/lib.rs",
+        "rust/demos/ch41-corpus-preparation/src/main.rs",
+        "rust/demos/ch41-corpus-preparation/expected.txt"
       ]
     },
     {
       "owner_id": "owner-ch42",
-      "chapter_id": "42-deterministic-corpus-filtering",
+      "chapter_id": "42-scalable-bpe-tokenizer",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch42-deterministic-corpus-filtering.module",
-        "rust/crates/llm-from-scratch/tests/ch42_deterministic_corpus_filtering.rs",
-        "rust/crates/llm-from-scratch/examples/ch42_deterministic_corpus_filtering.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch42_deterministic_corpus_filtering.txt",
-        "rust/crates/llm-from-scratch/src/data/stream.rs",
-        "rust/crates/llm-from-scratch/src/data/filter.rs",
-        "rust/crates/llm-from-scratch/src/data/privacy.rs",
-        "rust/crates/llm-from-scratch/src/data/deletion.rs",
-        "rust/crates/llm-from-scratch/src/data/governance.rs"
-      ]
-    },
-    {
-      "owner_id": "owner-ch43",
-      "chapter_id": "43-deduplication-decontamination",
-      "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch43-deduplication-decontamination.module",
-        "rust/crates/llm-from-scratch/tests/ch43_deduplication_decontamination.rs",
-        "rust/crates/llm-from-scratch/examples/ch43_deduplication_decontamination.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch43_deduplication_decontamination.txt",
-        "rust/crates/llm-from-scratch/src/data/exact_dedup.rs",
-        "rust/crates/llm-from-scratch/src/data/near_dedup.rs",
-        "rust/crates/llm-from-scratch/src/data/decontamination.rs",
-        "rust/crates/llm-from-scratch/src/data/grouped_split.rs"
-      ]
-    },
-    {
-      "owner_id": "owner-ch44",
-      "chapter_id": "44-scalable-bpe-tokenizer",
-      "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch44-scalable-bpe-tokenizer.module",
-        "rust/crates/llm-from-scratch/tests/ch44_scalable_bpe_tokenizer.rs",
-        "rust/crates/llm-from-scratch/examples/ch44_scalable_bpe_tokenizer.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch44_scalable_bpe_tokenizer.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch42-scalable-bpe-tokenizer.module",
+        "rust/crates/llm-from-scratch/tests/ch42_scalable_bpe_tokenizer.rs",
+        "rust/crates/llm-from-scratch/examples/ch42_scalable_bpe_tokenizer.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch42_scalable_bpe_tokenizer.txt",
         "rust/crates/llm-from-scratch/src/tokenizer/streaming_trainer.rs",
         "rust/crates/llm-from-scratch/src/tokenizer/streaming_bpe.rs",
         "rust/crates/llm-from-scratch/src/tokenizer/policy.rs",
@@ -26575,51 +26340,51 @@
       ]
     },
     {
-      "owner_id": "owner-ch45",
-      "chapter_id": "45-padded-variable-batches",
+      "owner_id": "owner-ch43",
+      "chapter_id": "43-padded-variable-batches",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch45-padded-variable-batches.module",
-        "rust/crates/llm-from-scratch/tests/ch45_padded_variable_batches.rs",
-        "rust/crates/llm-from-scratch/examples/ch45_padded_variable_batches.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch45_padded_variable_batches.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch43-padded-variable-batches.module",
+        "rust/crates/llm-from-scratch/tests/ch43_padded_variable_batches.rs",
+        "rust/crates/llm-from-scratch/examples/ch43_padded_variable_batches.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch43_padded_variable_batches.txt",
         "rust/crates/llm-from-scratch/src/training/sequence_example.rs",
         "rust/crates/llm-from-scratch/src/training/variable_batch.rs",
         "rust/crates/llm-from-scratch/src/training/masks.rs"
       ]
     },
     {
-      "owner_id": "owner-ch46",
-      "chapter_id": "46-packed-sequence-masks",
+      "owner_id": "owner-ch44",
+      "chapter_id": "44-packed-sequence-masks",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch46-packed-sequence-masks.module",
-        "rust/crates/llm-from-scratch/tests/ch46_packed_sequence_masks.rs",
-        "rust/crates/llm-from-scratch/examples/ch46_packed_sequence_masks.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch46_packed_sequence_masks.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch44-packed-sequence-masks.module",
+        "rust/crates/llm-from-scratch/tests/ch44_packed_sequence_masks.rs",
+        "rust/crates/llm-from-scratch/examples/ch44_packed_sequence_masks.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch44_packed_sequence_masks.txt",
         "rust/crates/llm-from-scratch/src/training/packer.rs",
         "rust/crates/llm-from-scratch/src/training/packed_batch.rs",
         "rust/crates/llm-from-scratch/src/training/segment_mask.rs"
       ]
     },
     {
-      "owner_id": "owner-ch47",
-      "chapter_id": "47-depth-stable-decoder",
+      "owner_id": "owner-ch45",
+      "chapter_id": "45-depth-stable-decoder",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch47-depth-stable-decoder.module",
-        "rust/crates/llm-from-scratch/tests/ch47_depth_stable_decoder.rs",
-        "rust/crates/llm-from-scratch/examples/ch47_depth_stable_decoder.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch47_depth_stable_decoder.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch45-depth-stable-decoder.module",
+        "rust/crates/llm-from-scratch/tests/ch45_depth_stable_decoder.rs",
+        "rust/crates/llm-from-scratch/examples/ch45_depth_stable_decoder.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch45_depth_stable_decoder.txt",
         "rust/crates/llm-from-scratch/src/nn/depth_init.rs",
         "rust/crates/llm-from-scratch/src/nn/residual_scale.rs"
       ]
     },
     {
-      "owner_id": "owner-ch48",
-      "chapter_id": "48-configurable-decoder-core",
+      "owner_id": "owner-ch46",
+      "chapter_id": "46-configurable-decoder-core",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch48-configurable-decoder-core.module",
-        "rust/crates/llm-from-scratch/tests/ch48_configurable_decoder_core.rs",
-        "rust/crates/llm-from-scratch/examples/ch48_configurable_decoder_core.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch48_configurable_decoder_core.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch46-configurable-decoder-core.module",
+        "rust/crates/llm-from-scratch/tests/ch46_configurable_decoder_core.rs",
+        "rust/crates/llm-from-scratch/examples/ch46_configurable_decoder_core.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch46_configurable_decoder_core.txt",
         "rust/crates/llm-from-scratch/src/config/model.rs",
         "rust/crates/llm-from-scratch/src/config/run.rs",
         "rust/crates/llm-from-scratch/src/config/profile.rs",
@@ -26631,50 +26396,50 @@
       ]
     },
     {
-      "owner_id": "owner-ch49",
-      "chapter_id": "49-dropout-semantics",
+      "owner_id": "owner-ch47",
+      "chapter_id": "47-dropout-semantics",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch49-dropout-semantics.module",
-        "rust/crates/llm-from-scratch/tests/ch49_dropout_semantics.rs",
-        "rust/crates/llm-from-scratch/examples/ch49_dropout_semantics.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch49_dropout_semantics.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch47-dropout-semantics.module",
+        "rust/crates/llm-from-scratch/tests/ch47_dropout_semantics.rs",
+        "rust/crates/llm-from-scratch/examples/ch47_dropout_semantics.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch47_dropout_semantics.txt",
         "rust/crates/llm-from-scratch/src/nn/dropout.rs"
       ]
     },
     {
-      "owner_id": "owner-ch50",
-      "chapter_id": "50-dependency-error-contract",
+      "owner_id": "owner-ch48",
+      "chapter_id": "48-dependency-error-contract",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch50-dependency-error-contract.module",
-        "rust/crates/llm-from-scratch/tests/ch50_dependency_error_contract.rs",
-        "rust/crates/llm-from-scratch/examples/ch50_dependency_error_contract.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch50_dependency_error_contract.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch48-dependency-error-contract.module",
+        "rust/crates/llm-from-scratch/tests/ch48_dependency_error_contract.rs",
+        "rust/crates/llm-from-scratch/examples/ch48_dependency_error_contract.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch48_dependency_error_contract.txt",
         "rust/crates/llm-from-scratch/src/support/functional_error.rs",
         "rust/crates/llm-from-scratch/src/support/dependency_role.rs",
         "scripts/check-functional-laptop-dependencies.mjs"
       ]
     },
     {
-      "owner_id": "owner-ch51",
-      "chapter_id": "51-serving-config-admission",
+      "owner_id": "owner-ch49",
+      "chapter_id": "49-serving-config-admission",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch51-serving-config-admission.module",
-        "rust/crates/llm-from-scratch/tests/ch51_serving_config_admission.rs",
-        "rust/crates/llm-from-scratch/examples/ch51_serving_config_admission.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch51_serving_config_admission.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch49-serving-config-admission.module",
+        "rust/crates/llm-from-scratch/tests/ch49_serving_config_admission.rs",
+        "rust/crates/llm-from-scratch/examples/ch49_serving_config_admission.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch49_serving_config_admission.txt",
         "rust/crates/llm-from-scratch/src/serving/config_projection.rs",
         "rust/crates/llm-from-scratch/src/serving/admission.rs",
         "rust/crates/llm-from-scratch/src/serving/error.rs"
       ]
     },
     {
-      "owner_id": "owner-ch52",
-      "chapter_id": "52-accelerator-tensor-parity",
+      "owner_id": "owner-ch50",
+      "chapter_id": "50-accelerator-tensor-parity",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch52-accelerator-tensor-parity.module",
-        "rust/crates/llm-from-scratch/tests/ch52_accelerator_tensor_parity.rs",
-        "rust/crates/llm-from-scratch/examples/ch52_accelerator_tensor_parity.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch52_accelerator_tensor_parity.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch50-accelerator-tensor-parity.module",
+        "rust/crates/llm-from-scratch/tests/ch50_accelerator_tensor_parity.rs",
+        "rust/crates/llm-from-scratch/examples/ch50_accelerator_tensor_parity.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch50_accelerator_tensor_parity.txt",
         "rust/crates/llm-from-scratch/src/tensor/backend/spec.rs",
         "rust/crates/llm-from-scratch/src/tensor/backend/scalar.rs",
         "rust/crates/llm-from-scratch/src/tensor/backend/wgpu.rs",
@@ -26686,39 +26451,39 @@
       ]
     },
     {
-      "owner_id": "owner-ch53",
-      "chapter_id": "53-mixed-precision-training",
+      "owner_id": "owner-ch51",
+      "chapter_id": "51-mixed-precision-training",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch53-mixed-precision-training.module",
-        "rust/crates/llm-from-scratch/tests/ch53_mixed_precision_training.rs",
-        "rust/crates/llm-from-scratch/examples/ch53_mixed_precision_training.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch53_mixed_precision_training.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch51-mixed-precision-training.module",
+        "rust/crates/llm-from-scratch/tests/ch51_mixed_precision_training.rs",
+        "rust/crates/llm-from-scratch/examples/ch51_mixed_precision_training.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch51_mixed_precision_training.txt",
         "rust/crates/llm-from-scratch/src/training/mixed_precision.rs",
         "rust/crates/llm-from-scratch/src/training/loss_scaler.rs",
         "rust/crates/llm-from-scratch/src/training/numeric_health.rs"
       ]
     },
     {
-      "owner_id": "owner-ch54",
-      "chapter_id": "54-memory-bounded-training",
+      "owner_id": "owner-ch52",
+      "chapter_id": "52-memory-bounded-training",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch54-memory-bounded-training.module",
-        "rust/crates/llm-from-scratch/tests/ch54_memory_bounded_training.rs",
-        "rust/crates/llm-from-scratch/examples/ch54_memory_bounded_training.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch54_memory_bounded_training.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch52-memory-bounded-training.module",
+        "rust/crates/llm-from-scratch/tests/ch52_memory_bounded_training.rs",
+        "rust/crates/llm-from-scratch/examples/ch52_memory_bounded_training.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch52_memory_bounded_training.txt",
         "rust/crates/llm-from-scratch/src/training/accumulation.rs",
         "rust/crates/llm-from-scratch/src/training/activation_checkpoint.rs",
         "rust/crates/llm-from-scratch/src/training/liveness.rs"
       ]
     },
     {
-      "owner_id": "owner-ch55",
-      "chapter_id": "55-optimizer-schedules-clipping",
+      "owner_id": "owner-ch53",
+      "chapter_id": "53-optimizer-schedules-clipping",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch55-optimizer-schedules-clipping.module",
-        "rust/crates/llm-from-scratch/tests/ch55_optimizer_schedules_clipping.rs",
-        "rust/crates/llm-from-scratch/examples/ch55_optimizer_schedules_clipping.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch55_optimizer_schedules_clipping.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch53-optimizer-schedules-clipping.module",
+        "rust/crates/llm-from-scratch/tests/ch53_optimizer_schedules_clipping.rs",
+        "rust/crates/llm-from-scratch/examples/ch53_optimizer_schedules_clipping.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch53_optimizer_schedules_clipping.txt",
         "rust/crates/llm-from-scratch/src/training/schedule.rs",
         "rust/crates/llm-from-scratch/src/training/update_event.rs",
         "rust/crates/llm-from-scratch/src/training/parameter_groups.rs",
@@ -26727,13 +26492,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch56",
-      "chapter_id": "56-tensor-artifact-interchange",
+      "owner_id": "owner-ch54",
+      "chapter_id": "54-tensor-artifact-interchange",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch56-tensor-artifact-interchange.module",
-        "rust/crates/llm-from-scratch/tests/ch56_tensor_artifact_interchange.rs",
-        "rust/crates/llm-from-scratch/examples/ch56_tensor_artifact_interchange.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch56_tensor_artifact_interchange.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch54-tensor-artifact-interchange.module",
+        "rust/crates/llm-from-scratch/tests/ch54_tensor_artifact_interchange.rs",
+        "rust/crates/llm-from-scratch/examples/ch54_tensor_artifact_interchange.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch54_tensor_artifact_interchange.txt",
         "rust/crates/llm-from-scratch/src/artifact/safetensors.rs",
         "rust/crates/llm-from-scratch/src/artifact/manifest.rs",
         "rust/crates/llm-from-scratch/src/artifact/conversion.rs",
@@ -26741,13 +26506,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch57",
-      "chapter_id": "57-immutable-artifact-persistence",
+      "owner_id": "owner-ch55",
+      "chapter_id": "55-immutable-artifact-persistence",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch57-immutable-artifact-persistence.module",
-        "rust/crates/llm-from-scratch/tests/ch57_immutable_artifact_persistence.rs",
-        "rust/crates/llm-from-scratch/examples/ch57_immutable_artifact_persistence.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch57_immutable_artifact_persistence.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch55-immutable-artifact-persistence.module",
+        "rust/crates/llm-from-scratch/tests/ch55_immutable_artifact_persistence.rs",
+        "rust/crates/llm-from-scratch/examples/ch55_immutable_artifact_persistence.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch55_immutable_artifact_persistence.txt",
         "rust/crates/llm-from-scratch/src/artifact/files.rs",
         "rust/crates/llm-from-scratch/src/artifact/atomic_publish.rs",
         "rust/crates/llm-from-scratch/src/artifact/reachability.rs",
@@ -26757,26 +26522,26 @@
       ]
     },
     {
-      "owner_id": "owner-ch58",
-      "chapter_id": "58-exact-job-resume",
+      "owner_id": "owner-ch56",
+      "chapter_id": "56-exact-job-resume",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch58-exact-job-resume.module",
-        "rust/crates/llm-from-scratch/tests/ch58_exact_job_resume.rs",
-        "rust/crates/llm-from-scratch/examples/ch58_exact_job_resume.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch58_exact_job_resume.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch56-exact-job-resume.module",
+        "rust/crates/llm-from-scratch/tests/ch56_exact_job_resume.rs",
+        "rust/crates/llm-from-scratch/examples/ch56_exact_job_resume.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch56_exact_job_resume.txt",
         "rust/crates/llm-from-scratch/src/training/job_checkpoint.rs",
         "rust/crates/llm-from-scratch/src/training/resume.rs",
         "rust/crates/llm-from-scratch/src/training/state_machine.rs"
       ]
     },
     {
-      "owner_id": "owner-ch59",
-      "chapter_id": "59-resource-observability",
+      "owner_id": "owner-ch57",
+      "chapter_id": "57-resource-observability",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch59-resource-observability.module",
-        "rust/crates/llm-from-scratch/tests/ch59_resource_observability.rs",
-        "rust/crates/llm-from-scratch/examples/ch59_resource_observability.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch59_resource_observability.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch57-resource-observability.module",
+        "rust/crates/llm-from-scratch/tests/ch57_resource_observability.rs",
+        "rust/crates/llm-from-scratch/examples/ch57_resource_observability.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch57_resource_observability.txt",
         "rust/crates/llm-from-scratch/src/resource/planner.rs",
         "rust/crates/llm-from-scratch/src/resource/allocator.rs",
         "rust/crates/llm-from-scratch/src/resource/measurement.rs",
@@ -26784,13 +26549,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch60",
-      "chapter_id": "60-multi-seed-evaluation",
+      "owner_id": "owner-ch58",
+      "chapter_id": "58-multi-seed-evaluation",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch60-multi-seed-evaluation.module",
-        "rust/crates/llm-from-scratch/tests/ch60_multi_seed_evaluation.rs",
-        "rust/crates/llm-from-scratch/examples/ch60_multi_seed_evaluation.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch60_multi_seed_evaluation.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch58-multi-seed-evaluation.module",
+        "rust/crates/llm-from-scratch/tests/ch58_multi_seed_evaluation.rs",
+        "rust/crates/llm-from-scratch/examples/ch58_multi_seed_evaluation.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch58_multi_seed_evaluation.txt",
         "rust/crates/llm-from-scratch/src/evaluation/corpus.rs",
         "rust/crates/llm-from-scratch/src/evaluation/baselines.rs",
         "rust/crates/llm-from-scratch/src/evaluation/uncertainty.rs",
@@ -26800,13 +26565,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch61",
-      "chapter_id": "61-quantized-gguf-artifacts",
+      "owner_id": "owner-ch59",
+      "chapter_id": "59-quantized-gguf-artifacts",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch61-quantized-gguf-artifacts.module",
-        "rust/crates/llm-from-scratch/tests/ch61_quantized_gguf_artifacts.rs",
-        "rust/crates/llm-from-scratch/examples/ch61_quantized_gguf_artifacts.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch61_quantized_gguf_artifacts.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch59-quantized-gguf-artifacts.module",
+        "rust/crates/llm-from-scratch/tests/ch59_quantized_gguf_artifacts.rs",
+        "rust/crates/llm-from-scratch/examples/ch59_quantized_gguf_artifacts.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch59_quantized_gguf_artifacts.txt",
         "rust/crates/llm-from-scratch/src/quantization/calibrate.rs",
         "rust/crates/llm-from-scratch/src/quantization/linear.rs",
         "rust/crates/llm-from-scratch/src/quantization/packing.rs",
@@ -26817,63 +26582,63 @@
       ]
     },
     {
-      "owner_id": "owner-ch62",
-      "chapter_id": "62-laptop-hardware-admission",
+      "owner_id": "owner-ch60",
+      "chapter_id": "60-laptop-hardware-admission",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch62-laptop-hardware-admission.module",
-        "rust/crates/llm-from-scratch/tests/ch62_laptop_hardware_admission.rs",
-        "rust/crates/llm-from-scratch/examples/ch62_laptop_hardware_admission.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch62_laptop_hardware_admission.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch60-laptop-hardware-admission.module",
+        "rust/crates/llm-from-scratch/tests/ch60_laptop_hardware_admission.rs",
+        "rust/crates/llm-from-scratch/examples/ch60_laptop_hardware_admission.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch60_laptop_hardware_admission.txt",
         "rust/crates/llm-from-scratch/src/resource/device.rs",
         "rust/crates/llm-from-scratch/src/resource/calibration.rs",
         "rust/crates/llm-from-scratch/src/resource/admission.rs"
       ]
     },
     {
-      "owner_id": "owner-ch63",
-      "chapter_id": "63-gqa-context-policy",
+      "owner_id": "owner-ch61",
+      "chapter_id": "61-gqa-context-policy",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch63-gqa-context-policy.module",
-        "rust/crates/llm-from-scratch/tests/ch63_gqa_context_policy.rs",
-        "rust/crates/llm-from-scratch/examples/ch63_gqa_context_policy.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch63_gqa_context_policy.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch61-gqa-context-policy.module",
+        "rust/crates/llm-from-scratch/tests/ch61_gqa_context_policy.rs",
+        "rust/crates/llm-from-scratch/examples/ch61_gqa_context_policy.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch61_gqa_context_policy.txt",
         "rust/crates/llm-from-scratch/src/attention/grouped_query.rs",
         "rust/crates/llm-from-scratch/src/attention/head_mapping.rs",
         "rust/crates/llm-from-scratch/src/attention/context_policy.rs"
       ]
     },
     {
-      "owner_id": "owner-ch64",
-      "chapter_id": "64-online-tiled-attention",
+      "owner_id": "owner-ch62",
+      "chapter_id": "62-online-tiled-attention",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch64-online-tiled-attention.module",
-        "rust/crates/llm-from-scratch/tests/ch64_online_tiled_attention.rs",
-        "rust/crates/llm-from-scratch/examples/ch64_online_tiled_attention.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch64_online_tiled_attention.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch62-online-tiled-attention.module",
+        "rust/crates/llm-from-scratch/tests/ch62_online_tiled_attention.rs",
+        "rust/crates/llm-from-scratch/examples/ch62_online_tiled_attention.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch62_online_tiled_attention.txt",
         "rust/crates/llm-from-scratch/src/attention/online_softmax.rs",
         "rust/crates/llm-from-scratch/src/attention/tiled.rs",
         "rust/crates/llm-from-scratch/src/tensor/wgsl/online_attention.wgsl"
       ]
     },
     {
-      "owner_id": "owner-ch65",
-      "chapter_id": "65-kv-block-pool",
+      "owner_id": "owner-ch63",
+      "chapter_id": "63-kv-block-pool",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch65-kv-block-pool.module",
-        "rust/crates/llm-from-scratch/tests/ch65_kv_block_pool.rs",
-        "rust/crates/llm-from-scratch/examples/ch65_kv_block_pool.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch65_kv_block_pool.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch63-kv-block-pool.module",
+        "rust/crates/llm-from-scratch/tests/ch63_kv_block_pool.rs",
+        "rust/crates/llm-from-scratch/examples/ch63_kv_block_pool.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch63_kv_block_pool.txt",
         "rust/crates/llm-from-scratch/src/serving/cache_pool.rs"
       ]
     },
     {
-      "owner_id": "owner-ch66",
-      "chapter_id": "66-nucleus-penalties-logprobs",
+      "owner_id": "owner-ch64",
+      "chapter_id": "64-nucleus-penalties-logprobs",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch66-nucleus-penalties-logprobs.module",
-        "rust/crates/llm-from-scratch/tests/ch66_nucleus_penalties_logprobs.rs",
-        "rust/crates/llm-from-scratch/examples/ch66_nucleus_penalties_logprobs.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch66_nucleus_penalties_logprobs.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch64-nucleus-penalties-logprobs.module",
+        "rust/crates/llm-from-scratch/tests/ch64_nucleus_penalties_logprobs.rs",
+        "rust/crates/llm-from-scratch/examples/ch64_nucleus_penalties_logprobs.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch64_nucleus_penalties_logprobs.txt",
         "rust/crates/llm-from-scratch/src/generation/processors.rs",
         "rust/crates/llm-from-scratch/src/generation/nucleus.rs",
         "rust/crates/llm-from-scratch/src/generation/penalties.rs",
@@ -26881,38 +26646,38 @@
       ]
     },
     {
-      "owner_id": "owner-ch67",
-      "chapter_id": "67-stop-strings-unicode-streaming",
+      "owner_id": "owner-ch65",
+      "chapter_id": "65-stop-strings-unicode-streaming",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch67-stop-strings-unicode-streaming.module",
-        "rust/crates/llm-from-scratch/tests/ch67_stop_strings_unicode_streaming.rs",
-        "rust/crates/llm-from-scratch/examples/ch67_stop_strings_unicode_streaming.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch67_stop_strings_unicode_streaming.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch65-stop-strings-unicode-streaming.module",
+        "rust/crates/llm-from-scratch/tests/ch65_stop_strings_unicode_streaming.rs",
+        "rust/crates/llm-from-scratch/examples/ch65_stop_strings_unicode_streaming.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch65_stop_strings_unicode_streaming.txt",
         "rust/crates/llm-from-scratch/src/generation/stop.rs",
         "rust/crates/llm-from-scratch/src/generation/unicode.rs"
       ]
     },
     {
-      "owner_id": "owner-ch68",
-      "chapter_id": "68-continuous-batch-scheduling",
+      "owner_id": "owner-ch66",
+      "chapter_id": "66-continuous-batch-scheduling",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch68-continuous-batch-scheduling.module",
-        "rust/crates/llm-from-scratch/tests/ch68_continuous_batch_scheduling.rs",
-        "rust/crates/llm-from-scratch/examples/ch68_continuous_batch_scheduling.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch68_continuous_batch_scheduling.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch66-continuous-batch-scheduling.module",
+        "rust/crates/llm-from-scratch/tests/ch66_continuous_batch_scheduling.rs",
+        "rust/crates/llm-from-scratch/examples/ch66_continuous_batch_scheduling.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch66_continuous_batch_scheduling.txt",
         "rust/crates/llm-from-scratch/src/serving/request.rs",
         "rust/crates/llm-from-scratch/src/serving/scheduler.rs",
         "rust/crates/llm-from-scratch/src/serving/batch.rs"
       ]
     },
     {
-      "owner_id": "owner-ch69",
-      "chapter_id": "69-cancellation-backpressure-budgets",
+      "owner_id": "owner-ch67",
+      "chapter_id": "67-cancellation-backpressure-budgets",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch69-cancellation-backpressure-budgets.module",
-        "rust/crates/llm-from-scratch/tests/ch69_cancellation_backpressure_budgets.rs",
-        "rust/crates/llm-from-scratch/examples/ch69_cancellation_backpressure_budgets.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch69_cancellation_backpressure_budgets.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch67-cancellation-backpressure-budgets.module",
+        "rust/crates/llm-from-scratch/tests/ch67_cancellation_backpressure_budgets.rs",
+        "rust/crates/llm-from-scratch/examples/ch67_cancellation_backpressure_budgets.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch67_cancellation_backpressure_budgets.txt",
         "rust/crates/llm-from-scratch/src/serving/cancellation.rs",
         "rust/crates/llm-from-scratch/src/serving/budgets.rs",
         "rust/crates/llm-from-scratch/src/serving/backpressure.rs",
@@ -26920,13 +26685,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch70",
-      "chapter_id": "70-loopback-serving-metrics",
+      "owner_id": "owner-ch68",
+      "chapter_id": "68-loopback-serving-metrics",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch70-loopback-serving-metrics.module",
-        "rust/crates/llm-from-scratch/tests/ch70_loopback_serving_metrics.rs",
-        "rust/crates/llm-from-scratch/examples/ch70_loopback_serving_metrics.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch70_loopback_serving_metrics.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch68-loopback-serving-metrics.module",
+        "rust/crates/llm-from-scratch/tests/ch68_loopback_serving_metrics.rs",
+        "rust/crates/llm-from-scratch/examples/ch68_loopback_serving_metrics.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch68_loopback_serving_metrics.txt",
         "rust/crates/llm-from-scratch/src/serving/metrics.rs",
         "rust/crates/llm-from-scratch/src/serving/http.rs",
         "rust/crates/llm-from-scratch/src/serving/sse.rs",
@@ -26935,13 +26700,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch71",
-      "chapter_id": "71-lora-sft-adapters",
+      "owner_id": "owner-ch69",
+      "chapter_id": "69-lora-sft-adapters",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch71-lora-sft-adapters.module",
-        "rust/crates/llm-from-scratch/tests/ch71_lora_sft_adapters.rs",
-        "rust/crates/llm-from-scratch/examples/ch71_lora_sft_adapters.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch71_lora_sft_adapters.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch69-lora-sft-adapters.module",
+        "rust/crates/llm-from-scratch/tests/ch69_lora_sft_adapters.rs",
+        "rust/crates/llm-from-scratch/examples/ch69_lora_sft_adapters.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch69_lora_sft_adapters.txt",
         "rust/crates/llm-from-scratch/src/training/lora.rs",
         "rust/crates/llm-from-scratch/src/training/sft.rs",
         "rust/crates/llm-from-scratch/src/training/template.rs",
@@ -26950,59 +26715,59 @@
       ]
     },
     {
-      "owner_id": "owner-ch72",
-      "chapter_id": "72-direct-preference-optimization",
+      "owner_id": "owner-ch70",
+      "chapter_id": "70-direct-preference-optimization",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch72-direct-preference-optimization.module",
-        "rust/crates/llm-from-scratch/tests/ch72_direct_preference_optimization.rs",
-        "rust/crates/llm-from-scratch/examples/ch72_direct_preference_optimization.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch72_direct_preference_optimization.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch70-direct-preference-optimization.module",
+        "rust/crates/llm-from-scratch/tests/ch70_direct_preference_optimization.rs",
+        "rust/crates/llm-from-scratch/examples/ch70_direct_preference_optimization.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch70_direct_preference_optimization.txt",
         "rust/crates/llm-from-scratch/src/training/preference.rs",
         "rust/crates/llm-from-scratch/src/training/dpo.rs"
       ]
     },
     {
-      "owner_id": "owner-ch73",
-      "chapter_id": "73-qlora-boundary",
+      "owner_id": "owner-ch71",
+      "chapter_id": "71-qlora-boundary",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch73-qlora-boundary.module",
-        "rust/crates/llm-from-scratch/tests/ch73_qlora_boundary.rs",
-        "rust/crates/llm-from-scratch/examples/ch73_qlora_boundary.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch73_qlora_boundary.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch71-qlora-boundary.module",
+        "rust/crates/llm-from-scratch/tests/ch71_qlora_boundary.rs",
+        "rust/crates/llm-from-scratch/examples/ch71_qlora_boundary.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch71_qlora_boundary.txt",
         "rust/crates/llm-from-scratch/src/training/qlora_compare.rs"
       ]
     },
     {
-      "owner_id": "owner-ch74",
-      "chapter_id": "74-prefix-cache-reuse",
+      "owner_id": "owner-ch72",
+      "chapter_id": "72-prefix-cache-reuse",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch74-prefix-cache-reuse.module",
-        "rust/crates/llm-from-scratch/tests/ch74_prefix_cache_reuse.rs",
-        "rust/crates/llm-from-scratch/examples/ch74_prefix_cache_reuse.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch74_prefix_cache_reuse.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch72-prefix-cache-reuse.module",
+        "rust/crates/llm-from-scratch/tests/ch72_prefix_cache_reuse.rs",
+        "rust/crates/llm-from-scratch/examples/ch72_prefix_cache_reuse.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch72_prefix_cache_reuse.txt",
         "rust/crates/llm-from-scratch/src/serving/prefix_cache.rs"
       ]
     },
     {
-      "owner_id": "owner-ch75",
-      "chapter_id": "75-rope-context-scaling",
+      "owner_id": "owner-ch73",
+      "chapter_id": "73-rope-context-scaling",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch75-rope-context-scaling.module",
-        "rust/crates/llm-from-scratch/tests/ch75_rope_context_scaling.rs",
-        "rust/crates/llm-from-scratch/examples/ch75_rope_context_scaling.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch75_rope_context_scaling.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch73-rope-context-scaling.module",
+        "rust/crates/llm-from-scratch/tests/ch73_rope_context_scaling.rs",
+        "rust/crates/llm-from-scratch/examples/ch73_rope_context_scaling.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch73_rope_context_scaling.txt",
         "rust/crates/llm-from-scratch/src/attention/partial_rope.rs",
         "rust/crates/llm-from-scratch/src/attention/rope_scaling.rs"
       ]
     },
     {
-      "owner_id": "owner-ch76",
-      "chapter_id": "76-retrieval-provenance",
+      "owner_id": "owner-ch74",
+      "chapter_id": "74-retrieval-provenance",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch76-retrieval-provenance.module",
-        "rust/crates/llm-from-scratch/tests/ch76_retrieval_provenance.rs",
-        "rust/crates/llm-from-scratch/examples/ch76_retrieval_provenance.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch76_retrieval_provenance.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch74-retrieval-provenance.module",
+        "rust/crates/llm-from-scratch/tests/ch74_retrieval_provenance.rs",
+        "rust/crates/llm-from-scratch/examples/ch74_retrieval_provenance.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch74_retrieval_provenance.txt",
         "rust/crates/llm-from-scratch/src/retrieval/record.rs",
         "rust/crates/llm-from-scratch/src/retrieval/exact.rs",
         "rust/crates/llm-from-scratch/src/retrieval/authorization.rs",
@@ -27010,13 +26775,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch77",
-      "chapter_id": "77-constrained-json-decoding",
+      "owner_id": "owner-ch75",
+      "chapter_id": "75-constrained-json-decoding",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch77-constrained-json-decoding.module",
-        "rust/crates/llm-from-scratch/tests/ch77_constrained_json_decoding.rs",
-        "rust/crates/llm-from-scratch/examples/ch77_constrained_json_decoding.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch77_constrained_json_decoding.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch75-constrained-json-decoding.module",
+        "rust/crates/llm-from-scratch/tests/ch75_constrained_json_decoding.rs",
+        "rust/crates/llm-from-scratch/examples/ch75_constrained_json_decoding.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch75_constrained_json_decoding.txt",
         "rust/crates/llm-from-scratch/src/generation/constrained/schema.rs",
         "rust/crates/llm-from-scratch/src/generation/constrained/automaton.rs",
         "rust/crates/llm-from-scratch/src/generation/constrained/token_mask.rs",
@@ -27024,13 +26789,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch78",
-      "chapter_id": "78-authorized-tools",
+      "owner_id": "owner-ch76",
+      "chapter_id": "76-authorized-tools",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch78-authorized-tools.module",
-        "rust/crates/llm-from-scratch/tests/ch78_authorized_tools.rs",
-        "rust/crates/llm-from-scratch/examples/ch78_authorized_tools.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch78_authorized_tools.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch76-authorized-tools.module",
+        "rust/crates/llm-from-scratch/tests/ch76_authorized_tools.rs",
+        "rust/crates/llm-from-scratch/examples/ch76_authorized_tools.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch76_authorized_tools.txt",
         "rust/crates/llm-from-scratch/src/tools/registry.rs",
         "rust/crates/llm-from-scratch/src/tools/policy.rs",
         "rust/crates/llm-from-scratch/src/tools/executor.rs",
@@ -27039,13 +26804,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch79",
-      "chapter_id": "79-safety-privacy-model-card",
+      "owner_id": "owner-ch77",
+      "chapter_id": "77-safety-privacy-model-card",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch79-safety-privacy-model-card.module",
-        "rust/crates/llm-from-scratch/tests/ch79_safety_privacy_model_card.rs",
-        "rust/crates/llm-from-scratch/examples/ch79_safety_privacy_model_card.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch79_safety_privacy_model_card.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch77-safety-privacy-model-card.module",
+        "rust/crates/llm-from-scratch/tests/ch77_safety_privacy_model_card.rs",
+        "rust/crates/llm-from-scratch/examples/ch77_safety_privacy_model_card.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch77_safety_privacy_model_card.txt",
         "rust/crates/llm-from-scratch/src/safety/threat_model.rs",
         "rust/crates/llm-from-scratch/src/safety/scenarios.rs",
         "rust/crates/llm-from-scratch/src/safety/telemetry.rs",
@@ -27054,24 +26819,24 @@
       ]
     },
     {
-      "owner_id": "owner-ch80",
-      "chapter_id": "80-from-scratch-laptop-capstone",
+      "owner_id": "owner-ch78",
+      "chapter_id": "78-from-scratch-laptop-capstone",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch80-from-scratch-laptop-capstone.module",
-        "rust/crates/llm-from-scratch/tests/ch80_from_scratch_laptop_capstone.rs",
-        "rust/crates/llm-from-scratch/examples/ch80_from_scratch_laptop_capstone.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch80_from_scratch_laptop_capstone.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch78-from-scratch-laptop-capstone.module",
+        "rust/crates/llm-from-scratch/tests/ch78_from_scratch_laptop_capstone.rs",
+        "rust/crates/llm-from-scratch/examples/ch78_from_scratch_laptop_capstone.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch78_from_scratch_laptop_capstone.txt",
         "rust/crates/llm-from-scratch/src/pipeline/from_scratch.rs"
       ]
     },
     {
-      "owner_id": "owner-ch81",
-      "chapter_id": "81-import-adapt-serve-capstone",
+      "owner_id": "owner-ch79",
+      "chapter_id": "79-import-adapt-serve-capstone",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch81-import-adapt-serve-capstone.module",
-        "rust/crates/llm-from-scratch/tests/ch81_import_adapt_serve_capstone.rs",
-        "rust/crates/llm-from-scratch/examples/ch81_import_adapt_serve_capstone.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch81_import_adapt_serve_capstone.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch79-import-adapt-serve-capstone.module",
+        "rust/crates/llm-from-scratch/tests/ch79_import_adapt_serve_capstone.rs",
+        "rust/crates/llm-from-scratch/examples/ch79_import_adapt_serve_capstone.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch79_import_adapt_serve_capstone.txt",
         "rust/crates/llm-from-scratch/src/artifact/import.rs",
         "rust/crates/llm-from-scratch/src/artifact/external_names.rs",
         "rust/crates/llm-from-scratch/src/artifact/gguf_import_endpoint.rs",
@@ -27080,13 +26845,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch82",
-      "chapter_id": "82-advanced-decoding-serving",
+      "owner_id": "owner-ch80",
+      "chapter_id": "80-advanced-decoding-serving",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch82-advanced-decoding-serving.module",
-        "rust/crates/llm-from-scratch/tests/ch82_advanced_decoding_serving.rs",
-        "rust/crates/llm-from-scratch/examples/ch82_advanced_decoding_serving.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch82_advanced_decoding_serving.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch80-advanced-decoding-serving.module",
+        "rust/crates/llm-from-scratch/tests/ch80_advanced_decoding_serving.rs",
+        "rust/crates/llm-from-scratch/examples/ch80_advanced_decoding_serving.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch80_advanced_decoding_serving.txt",
         "rust/crates/llm-from-scratch/src/generation/beam.rs",
         "rust/crates/llm-from-scratch/src/generation/speculative.rs",
         "rust/crates/llm-from-scratch/src/serving/chunked_prefill.rs",
@@ -27095,13 +26860,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch83",
-      "chapter_id": "83-distributed-schedule-simulation",
+      "owner_id": "owner-ch81",
+      "chapter_id": "81-distributed-schedule-simulation",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch83-distributed-schedule-simulation.module",
-        "rust/crates/llm-from-scratch/tests/ch83_distributed_schedule_simulation.rs",
-        "rust/crates/llm-from-scratch/examples/ch83_distributed_schedule_simulation.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch83_distributed_schedule_simulation.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch81-distributed-schedule-simulation.module",
+        "rust/crates/llm-from-scratch/tests/ch81_distributed_schedule_simulation.rs",
+        "rust/crates/llm-from-scratch/examples/ch81_distributed_schedule_simulation.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch81_distributed_schedule_simulation.txt",
         "rust/crates/llm-from-scratch/src/distributed/partition.rs",
         "rust/crates/llm-from-scratch/src/distributed/collective_oracle.rs",
         "rust/crates/llm-from-scratch/src/distributed/pipeline.rs",
@@ -27109,13 +26874,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch84",
-      "chapter_id": "84-moe-routing-simulation",
+      "owner_id": "owner-ch82",
+      "chapter_id": "82-moe-routing-simulation",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch84-moe-routing-simulation.module",
-        "rust/crates/llm-from-scratch/tests/ch84_moe_routing_simulation.rs",
-        "rust/crates/llm-from-scratch/examples/ch84_moe_routing_simulation.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch84_moe_routing_simulation.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch82-moe-routing-simulation.module",
+        "rust/crates/llm-from-scratch/tests/ch82_moe_routing_simulation.rs",
+        "rust/crates/llm-from-scratch/examples/ch82_moe_routing_simulation.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch82_moe_routing_simulation.txt",
         "rust/crates/llm-from-scratch/src/moe/router.rs",
         "rust/crates/llm-from-scratch/src/moe/capacity.rs",
         "rust/crates/llm-from-scratch/src/moe/combine.rs",
@@ -27124,13 +26889,13 @@
       ]
     },
     {
-      "owner_id": "owner-ch85",
-      "chapter_id": "85-persistence-scale-decision",
+      "owner_id": "owner-ch83",
+      "chapter_id": "83-persistence-scale-decision",
       "paths": [
-        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch85-persistence-scale-decision.module",
-        "rust/crates/llm-from-scratch/tests/ch85_persistence_scale_decision.rs",
-        "rust/crates/llm-from-scratch/examples/ch85_persistence_scale_decision.rs",
-        "rust/crates/llm-from-scratch/examples/expected/ch85_persistence_scale_decision.txt",
+        "rust/crates/llm-from-scratch/module-registry/functional-v1/ch83-persistence-scale-decision.module",
+        "rust/crates/llm-from-scratch/tests/ch83_persistence_scale_decision.rs",
+        "rust/crates/llm-from-scratch/examples/ch83_persistence_scale_decision.rs",
+        "rust/crates/llm-from-scratch/examples/expected/ch83_persistence_scale_decision.txt",
         "rust/crates/llm-from-scratch/src/retrieval/scale_benchmark.rs",
         "rust/crates/llm-from-scratch/src/retrieval/persistence_decision.rs"
       ]
@@ -27147,548 +26912,552 @@
     {
       "capability_id": "CAP-DTH-DATA-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "41-governed-corpus-acquisition",
-      "implementation_step": "implement-ch41-governed-corpus-acquisition",
-      "receipt": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/capabilities/CAP-DTH-DATA-01.json"
+      "chapter_id": "41-corpus-preparation",
+      "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
+      "receipt": "artifacts/functional-laptop/chapters/41-corpus-preparation/capabilities/CAP-DTH-DATA-01.json",
+      "evidence_scope": "Documented teaching, actual bounded NeMo fixture and prepared-reader behavior. Full source/rights/privacy/near-duplicate/protected-evaluation release evidence is owned by the separately pending bulk lifecycle job; the tiny fixture cannot close those full-corpus gates."
     },
     {
       "capability_id": "CAP-DTH-DATA-02",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "42-deterministic-corpus-filtering",
-      "implementation_step": "implement-ch42-deterministic-corpus-filtering",
-      "receipt": "artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/capabilities/CAP-DTH-DATA-02.json"
+      "chapter_id": "41-corpus-preparation",
+      "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
+      "receipt": "artifacts/functional-laptop/chapters/41-corpus-preparation/capabilities/CAP-DTH-DATA-02.json",
+      "evidence_scope": "Documented teaching, actual bounded NeMo fixture and prepared-reader behavior. Full source/rights/privacy/near-duplicate/protected-evaluation release evidence is owned by the separately pending bulk lifecycle job; the tiny fixture cannot close those full-corpus gates."
     },
     {
       "capability_id": "CAP-DTH-DATA-03",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "42-deterministic-corpus-filtering",
-      "implementation_step": "implement-ch42-deterministic-corpus-filtering",
-      "receipt": "artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/capabilities/CAP-DTH-DATA-03.json"
+      "chapter_id": "41-corpus-preparation",
+      "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
+      "receipt": "artifacts/functional-laptop/chapters/41-corpus-preparation/capabilities/CAP-DTH-DATA-03.json",
+      "evidence_scope": "Documented teaching, actual bounded NeMo fixture and prepared-reader behavior. Full source/rights/privacy/near-duplicate/protected-evaluation release evidence is owned by the separately pending bulk lifecycle job; the tiny fixture cannot close those full-corpus gates."
     },
     {
       "capability_id": "CAP-DTH-DATA-04",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "43-deduplication-decontamination",
-      "implementation_step": "implement-ch43-deduplication-decontamination",
-      "receipt": "artifacts/functional-laptop/chapters/43-deduplication-decontamination/capabilities/CAP-DTH-DATA-04.json"
+      "chapter_id": "41-corpus-preparation",
+      "implementation_step": "merge-ch41-nemo-corpus-preparation-20261007",
+      "receipt": "artifacts/functional-laptop/chapters/41-corpus-preparation/capabilities/CAP-DTH-DATA-04.json",
+      "evidence_scope": "Documented teaching, actual bounded NeMo fixture and prepared-reader behavior. Full source/rights/privacy/near-duplicate/protected-evaluation release evidence is owned by the separately pending bulk lifecycle job; the tiny fixture cannot close those full-corpus gates."
     },
     {
       "capability_id": "CAP-DTH-TOK-01",
       "classification": "reference-core-proven",
-      "chapter_id": "44-scalable-bpe-tokenizer",
-      "implementation_step": "implement-ch44-scalable-bpe-tokenizer",
-      "receipt": "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/capabilities/CAP-DTH-TOK-01.json"
+      "chapter_id": "42-scalable-bpe-tokenizer",
+      "implementation_step": "implement-ch42-scalable-bpe-tokenizer",
+      "receipt": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/capabilities/CAP-DTH-TOK-01.json"
     },
     {
       "capability_id": "CAP-DTH-TOK-02",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "44-scalable-bpe-tokenizer",
-      "implementation_step": "implement-ch44-scalable-bpe-tokenizer",
-      "receipt": "artifacts/functional-laptop/chapters/44-scalable-bpe-tokenizer/capabilities/CAP-DTH-TOK-02.json"
+      "chapter_id": "42-scalable-bpe-tokenizer",
+      "implementation_step": "implement-ch42-scalable-bpe-tokenizer",
+      "receipt": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/capabilities/CAP-DTH-TOK-02.json"
     },
     {
       "capability_id": "CAP-DTH-BATCH-01",
       "classification": "reference-core-proven",
-      "chapter_id": "45-padded-variable-batches",
-      "implementation_step": "implement-ch45-padded-variable-batches",
-      "receipt": "artifacts/functional-laptop/chapters/45-padded-variable-batches/capabilities/CAP-DTH-BATCH-01.json"
+      "chapter_id": "43-padded-variable-batches",
+      "implementation_step": "implement-ch43-padded-variable-batches",
+      "receipt": "artifacts/functional-laptop/chapters/43-padded-variable-batches/capabilities/CAP-DTH-BATCH-01.json"
     },
     {
       "capability_id": "CAP-DTH-BATCH-02",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "46-packed-sequence-masks",
-      "implementation_step": "implement-ch46-packed-sequence-masks",
-      "receipt": "artifacts/functional-laptop/chapters/46-packed-sequence-masks/capabilities/CAP-DTH-BATCH-02.json"
+      "chapter_id": "44-packed-sequence-masks",
+      "implementation_step": "implement-ch44-packed-sequence-masks",
+      "receipt": "artifacts/functional-laptop/chapters/44-packed-sequence-masks/capabilities/CAP-DTH-BATCH-02.json"
     },
     {
       "capability_id": "CAP-DTH-ARCH-01",
       "classification": "reference-core-proven",
-      "chapter_id": "47-depth-stable-decoder",
-      "implementation_step": "implement-ch47-depth-stable-decoder",
-      "receipt": "artifacts/functional-laptop/chapters/47-depth-stable-decoder/capabilities/CAP-DTH-ARCH-01.json"
+      "chapter_id": "45-depth-stable-decoder",
+      "implementation_step": "implement-ch45-depth-stable-decoder",
+      "receipt": "artifacts/functional-laptop/chapters/45-depth-stable-decoder/capabilities/CAP-DTH-ARCH-01.json"
     },
     {
       "capability_id": "CAP-DTH-ARCH-02",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "48-configurable-decoder-core",
-      "implementation_step": "implement-ch48-configurable-decoder-core",
-      "receipt": "artifacts/functional-laptop/chapters/48-configurable-decoder-core/capabilities/CAP-DTH-ARCH-02.json"
+      "chapter_id": "46-configurable-decoder-core",
+      "implementation_step": "implement-ch46-configurable-decoder-core",
+      "receipt": "artifacts/functional-laptop/chapters/46-configurable-decoder-core/capabilities/CAP-DTH-ARCH-02.json"
     },
     {
       "capability_id": "CAP-DTH-ARCH-03",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "49-dropout-semantics",
-      "implementation_step": "implement-ch49-dropout-semantics",
-      "receipt": "artifacts/functional-laptop/chapters/49-dropout-semantics/capabilities/CAP-DTH-ARCH-03.json"
+      "chapter_id": "47-dropout-semantics",
+      "implementation_step": "implement-ch47-dropout-semantics",
+      "receipt": "artifacts/functional-laptop/chapters/47-dropout-semantics/capabilities/CAP-DTH-ARCH-03.json"
     },
     {
       "capability_id": "CAP-ISA-ARCH-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "50-dependency-error-contract",
-      "implementation_step": "implement-ch50-dependency-error-contract",
-      "receipt": "artifacts/functional-laptop/chapters/50-dependency-error-contract/capabilities/CAP-ISA-ARCH-002.json"
+      "chapter_id": "48-dependency-error-contract",
+      "implementation_step": "implement-ch48-dependency-error-contract",
+      "receipt": "artifacts/functional-laptop/chapters/48-dependency-error-contract/capabilities/CAP-ISA-ARCH-002.json"
     },
     {
       "capability_id": "CAP-ISA-ARCH-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "50-dependency-error-contract",
-      "implementation_step": "implement-ch50-dependency-error-contract",
-      "receipt": "artifacts/functional-laptop/chapters/50-dependency-error-contract/capabilities/CAP-ISA-ARCH-003.json"
+      "chapter_id": "48-dependency-error-contract",
+      "implementation_step": "implement-ch48-dependency-error-contract",
+      "receipt": "artifacts/functional-laptop/chapters/48-dependency-error-contract/capabilities/CAP-ISA-ARCH-003.json"
     },
     {
       "capability_id": "CAP-ISA-ARCH-004",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "51-serving-config-admission",
-      "implementation_step": "implement-ch51-serving-config-admission",
-      "receipt": "artifacts/functional-laptop/chapters/51-serving-config-admission/capabilities/CAP-ISA-ARCH-004.json"
+      "chapter_id": "49-serving-config-admission",
+      "implementation_step": "implement-ch49-serving-config-admission",
+      "receipt": "artifacts/functional-laptop/chapters/49-serving-config-admission/capabilities/CAP-ISA-ARCH-004.json"
     },
     {
       "capability_id": "CAP-DTH-BACKEND-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "52-accelerator-tensor-parity",
-      "implementation_step": "implement-ch52-accelerator-tensor-parity",
-      "receipt": "artifacts/functional-laptop/chapters/52-accelerator-tensor-parity/capabilities/CAP-DTH-BACKEND-01.json"
+      "chapter_id": "50-accelerator-tensor-parity",
+      "implementation_step": "implement-ch50-accelerator-tensor-parity",
+      "receipt": "artifacts/functional-laptop/chapters/50-accelerator-tensor-parity/capabilities/CAP-DTH-BACKEND-01.json"
     },
     {
       "capability_id": "CAP-DTH-MP-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "53-mixed-precision-training",
-      "implementation_step": "implement-ch53-mixed-precision-training",
-      "receipt": "artifacts/functional-laptop/chapters/53-mixed-precision-training/capabilities/CAP-DTH-MP-01.json"
+      "chapter_id": "51-mixed-precision-training",
+      "implementation_step": "implement-ch51-mixed-precision-training",
+      "receipt": "artifacts/functional-laptop/chapters/51-mixed-precision-training/capabilities/CAP-DTH-MP-01.json"
     },
     {
       "capability_id": "CAP-DTH-MEM-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "54-memory-bounded-training",
-      "implementation_step": "implement-ch54-memory-bounded-training",
-      "receipt": "artifacts/functional-laptop/chapters/54-memory-bounded-training/capabilities/CAP-DTH-MEM-01.json"
+      "chapter_id": "52-memory-bounded-training",
+      "implementation_step": "implement-ch52-memory-bounded-training",
+      "receipt": "artifacts/functional-laptop/chapters/52-memory-bounded-training/capabilities/CAP-DTH-MEM-01.json"
     },
     {
       "capability_id": "CAP-DTH-OPT-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "55-optimizer-schedules-clipping",
-      "implementation_step": "implement-ch55-optimizer-schedules-clipping",
-      "receipt": "artifacts/functional-laptop/chapters/55-optimizer-schedules-clipping/capabilities/CAP-DTH-OPT-01.json"
+      "chapter_id": "53-optimizer-schedules-clipping",
+      "implementation_step": "implement-ch53-optimizer-schedules-clipping",
+      "receipt": "artifacts/functional-laptop/chapters/53-optimizer-schedules-clipping/capabilities/CAP-DTH-OPT-01.json"
     },
     {
       "capability_id": "CAP-DTH-ART-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "56-tensor-artifact-interchange",
-      "implementation_step": "implement-ch56-tensor-artifact-interchange",
-      "receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/capabilities/CAP-DTH-ART-01.json"
+      "chapter_id": "54-tensor-artifact-interchange",
+      "implementation_step": "implement-ch54-tensor-artifact-interchange",
+      "receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/capabilities/CAP-DTH-ART-01.json"
     },
     {
       "capability_id": "CAP-ISA-ART-001",
       "classification": "reference-core-proven",
-      "chapter_id": "56-tensor-artifact-interchange",
-      "implementation_step": "implement-ch56-tensor-artifact-interchange",
-      "receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/capabilities/CAP-ISA-ART-001.json"
+      "chapter_id": "54-tensor-artifact-interchange",
+      "implementation_step": "implement-ch54-tensor-artifact-interchange",
+      "receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/capabilities/CAP-ISA-ART-001.json"
     },
     {
       "capability_id": "CAP-ISA-ART-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "56-tensor-artifact-interchange",
-      "implementation_step": "implement-ch56-tensor-artifact-interchange",
-      "receipt": "artifacts/functional-laptop/chapters/56-tensor-artifact-interchange/capabilities/CAP-ISA-ART-002.json"
+      "chapter_id": "54-tensor-artifact-interchange",
+      "implementation_step": "implement-ch54-tensor-artifact-interchange",
+      "receipt": "artifacts/functional-laptop/chapters/54-tensor-artifact-interchange/capabilities/CAP-ISA-ART-002.json"
     },
     {
       "capability_id": "CAP-DTH-PERSIST-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "57-immutable-artifact-persistence",
-      "implementation_step": "implement-ch57-immutable-artifact-persistence",
-      "receipt": "artifacts/functional-laptop/chapters/57-immutable-artifact-persistence/capabilities/CAP-DTH-PERSIST-01.json"
+      "chapter_id": "55-immutable-artifact-persistence",
+      "implementation_step": "implement-ch55-immutable-artifact-persistence",
+      "receipt": "artifacts/functional-laptop/chapters/55-immutable-artifact-persistence/capabilities/CAP-DTH-PERSIST-01.json"
     },
     {
       "capability_id": "CAP-ISA-PER-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "57-immutable-artifact-persistence",
-      "implementation_step": "implement-ch57-immutable-artifact-persistence",
-      "receipt": "artifacts/functional-laptop/chapters/57-immutable-artifact-persistence/capabilities/CAP-ISA-PER-001.json"
+      "chapter_id": "55-immutable-artifact-persistence",
+      "implementation_step": "implement-ch55-immutable-artifact-persistence",
+      "receipt": "artifacts/functional-laptop/chapters/55-immutable-artifact-persistence/capabilities/CAP-ISA-PER-001.json"
     },
     {
       "capability_id": "CAP-ISA-PER-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "57-immutable-artifact-persistence",
-      "implementation_step": "implement-ch57-immutable-artifact-persistence",
-      "receipt": "artifacts/functional-laptop/chapters/57-immutable-artifact-persistence/capabilities/CAP-ISA-PER-002.json"
+      "chapter_id": "55-immutable-artifact-persistence",
+      "implementation_step": "implement-ch55-immutable-artifact-persistence",
+      "receipt": "artifacts/functional-laptop/chapters/55-immutable-artifact-persistence/capabilities/CAP-ISA-PER-002.json"
     },
     {
       "capability_id": "CAP-DTH-RESUME-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "58-exact-job-resume",
-      "implementation_step": "implement-ch58-exact-job-resume",
-      "receipt": "artifacts/functional-laptop/chapters/58-exact-job-resume/capabilities/CAP-DTH-RESUME-01.json"
+      "chapter_id": "56-exact-job-resume",
+      "implementation_step": "implement-ch56-exact-job-resume",
+      "receipt": "artifacts/functional-laptop/chapters/56-exact-job-resume/capabilities/CAP-DTH-RESUME-01.json"
     },
     {
       "capability_id": "CAP-DTH-OBS-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "59-resource-observability",
-      "implementation_step": "implement-ch59-resource-observability",
-      "receipt": "artifacts/functional-laptop/chapters/59-resource-observability/capabilities/CAP-DTH-OBS-01.json"
+      "chapter_id": "57-resource-observability",
+      "implementation_step": "implement-ch57-resource-observability",
+      "receipt": "artifacts/functional-laptop/chapters/57-resource-observability/capabilities/CAP-DTH-OBS-01.json"
     },
     {
       "capability_id": "CAP-DTH-EVAL-01",
       "classification": "reference-core-proven",
-      "chapter_id": "60-multi-seed-evaluation",
-      "implementation_step": "implement-ch60-multi-seed-evaluation",
-      "receipt": "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/capabilities/CAP-DTH-EVAL-01.json"
+      "chapter_id": "58-multi-seed-evaluation",
+      "implementation_step": "implement-ch58-multi-seed-evaluation",
+      "receipt": "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/capabilities/CAP-DTH-EVAL-01.json"
     },
     {
       "capability_id": "CAP-DTH-EVAL-02",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "60-multi-seed-evaluation",
-      "implementation_step": "implement-ch60-multi-seed-evaluation",
-      "receipt": "artifacts/functional-laptop/chapters/60-multi-seed-evaluation/capabilities/CAP-DTH-EVAL-02.json"
+      "chapter_id": "58-multi-seed-evaluation",
+      "implementation_step": "implement-ch58-multi-seed-evaluation",
+      "receipt": "artifacts/functional-laptop/chapters/58-multi-seed-evaluation/capabilities/CAP-DTH-EVAL-02.json"
     },
     {
       "capability_id": "CAP-DTH-QUANT-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "61-quantized-gguf-artifacts",
-      "implementation_step": "implement-ch61-quantized-gguf-artifacts",
-      "receipt": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/capabilities/CAP-DTH-QUANT-01.json"
+      "chapter_id": "59-quantized-gguf-artifacts",
+      "implementation_step": "implement-ch59-quantized-gguf-artifacts",
+      "receipt": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/capabilities/CAP-DTH-QUANT-01.json"
     },
     {
       "capability_id": "CAP-ISA-ART-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "61-quantized-gguf-artifacts",
-      "implementation_step": "implement-ch61-quantized-gguf-artifacts",
-      "receipt": "artifacts/functional-laptop/chapters/61-quantized-gguf-artifacts/capabilities/CAP-ISA-ART-003.json"
+      "chapter_id": "59-quantized-gguf-artifacts",
+      "implementation_step": "implement-ch59-quantized-gguf-artifacts",
+      "receipt": "artifacts/functional-laptop/chapters/59-quantized-gguf-artifacts/capabilities/CAP-ISA-ART-003.json"
     },
     {
       "capability_id": "CAP-DTH-HW-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "62-laptop-hardware-admission",
-      "implementation_step": "implement-ch62-laptop-hardware-admission",
-      "receipt": "artifacts/functional-laptop/chapters/62-laptop-hardware-admission/capabilities/CAP-DTH-HW-01.json"
+      "chapter_id": "60-laptop-hardware-admission",
+      "implementation_step": "implement-ch60-laptop-hardware-admission",
+      "receipt": "artifacts/functional-laptop/chapters/60-laptop-hardware-admission/capabilities/CAP-DTH-HW-01.json"
     },
     {
       "capability_id": "CAP-ISA-ATT-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "63-gqa-context-policy",
-      "implementation_step": "implement-ch63-gqa-context-policy",
-      "receipt": "artifacts/functional-laptop/chapters/63-gqa-context-policy/capabilities/CAP-ISA-ATT-002.json"
+      "chapter_id": "61-gqa-context-policy",
+      "implementation_step": "implement-ch61-gqa-context-policy",
+      "receipt": "artifacts/functional-laptop/chapters/61-gqa-context-policy/capabilities/CAP-ISA-ATT-002.json"
     },
     {
       "capability_id": "CAP-ISA-ATT-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "64-online-tiled-attention",
-      "implementation_step": "implement-ch64-online-tiled-attention",
-      "receipt": "artifacts/functional-laptop/chapters/64-online-tiled-attention/capabilities/CAP-ISA-ATT-003.json"
+      "chapter_id": "62-online-tiled-attention",
+      "implementation_step": "implement-ch62-online-tiled-attention",
+      "receipt": "artifacts/functional-laptop/chapters/62-online-tiled-attention/capabilities/CAP-ISA-ATT-003.json"
     },
     {
       "capability_id": "CAP-ISA-ATT-001",
       "classification": "reference-core-proven",
-      "chapter_id": "65-kv-block-pool",
-      "implementation_step": "implement-ch65-kv-block-pool",
-      "receipt": "artifacts/functional-laptop/chapters/65-kv-block-pool/capabilities/CAP-ISA-ATT-001.json"
+      "chapter_id": "63-kv-block-pool",
+      "implementation_step": "implement-ch63-kv-block-pool",
+      "receipt": "artifacts/functional-laptop/chapters/63-kv-block-pool/capabilities/CAP-ISA-ATT-001.json"
     },
     {
       "capability_id": "CAP-ISA-ATT-004",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "65-kv-block-pool",
-      "implementation_step": "implement-ch65-kv-block-pool",
-      "receipt": "artifacts/functional-laptop/chapters/65-kv-block-pool/capabilities/CAP-ISA-ATT-004.json"
+      "chapter_id": "63-kv-block-pool",
+      "implementation_step": "implement-ch63-kv-block-pool",
+      "receipt": "artifacts/functional-laptop/chapters/63-kv-block-pool/capabilities/CAP-ISA-ATT-004.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-001",
       "classification": "reference-core-proven",
-      "chapter_id": "66-nucleus-penalties-logprobs",
-      "implementation_step": "implement-ch66-nucleus-penalties-logprobs",
-      "receipt": "artifacts/functional-laptop/chapters/66-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-001.json"
+      "chapter_id": "64-nucleus-penalties-logprobs",
+      "implementation_step": "implement-ch64-nucleus-penalties-logprobs",
+      "receipt": "artifacts/functional-laptop/chapters/64-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-001.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "66-nucleus-penalties-logprobs",
-      "implementation_step": "implement-ch66-nucleus-penalties-logprobs",
-      "receipt": "artifacts/functional-laptop/chapters/66-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-002.json"
+      "chapter_id": "64-nucleus-penalties-logprobs",
+      "implementation_step": "implement-ch64-nucleus-penalties-logprobs",
+      "receipt": "artifacts/functional-laptop/chapters/64-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-002.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "66-nucleus-penalties-logprobs",
-      "implementation_step": "implement-ch66-nucleus-penalties-logprobs",
-      "receipt": "artifacts/functional-laptop/chapters/66-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-003.json"
+      "chapter_id": "64-nucleus-penalties-logprobs",
+      "implementation_step": "implement-ch64-nucleus-penalties-logprobs",
+      "receipt": "artifacts/functional-laptop/chapters/64-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-003.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-005",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "66-nucleus-penalties-logprobs",
-      "implementation_step": "implement-ch66-nucleus-penalties-logprobs",
-      "receipt": "artifacts/functional-laptop/chapters/66-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-005.json"
+      "chapter_id": "64-nucleus-penalties-logprobs",
+      "implementation_step": "implement-ch64-nucleus-penalties-logprobs",
+      "receipt": "artifacts/functional-laptop/chapters/64-nucleus-penalties-logprobs/capabilities/CAP-ISA-DEC-005.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-004",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "67-stop-strings-unicode-streaming",
-      "implementation_step": "implement-ch67-stop-strings-unicode-streaming",
-      "receipt": "artifacts/functional-laptop/chapters/67-stop-strings-unicode-streaming/capabilities/CAP-ISA-DEC-004.json"
+      "chapter_id": "65-stop-strings-unicode-streaming",
+      "implementation_step": "implement-ch65-stop-strings-unicode-streaming",
+      "receipt": "artifacts/functional-laptop/chapters/65-stop-strings-unicode-streaming/capabilities/CAP-ISA-DEC-004.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-006",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "67-stop-strings-unicode-streaming",
-      "implementation_step": "implement-ch67-stop-strings-unicode-streaming",
-      "receipt": "artifacts/functional-laptop/chapters/67-stop-strings-unicode-streaming/capabilities/CAP-ISA-DEC-006.json"
+      "chapter_id": "65-stop-strings-unicode-streaming",
+      "implementation_step": "implement-ch65-stop-strings-unicode-streaming",
+      "receipt": "artifacts/functional-laptop/chapters/65-stop-strings-unicode-streaming/capabilities/CAP-ISA-DEC-006.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "68-continuous-batch-scheduling",
-      "implementation_step": "implement-ch68-continuous-batch-scheduling",
-      "receipt": "artifacts/functional-laptop/chapters/68-continuous-batch-scheduling/capabilities/CAP-ISA-SRV-001.json"
+      "chapter_id": "66-continuous-batch-scheduling",
+      "implementation_step": "implement-ch66-continuous-batch-scheduling",
+      "receipt": "artifacts/functional-laptop/chapters/66-continuous-batch-scheduling/capabilities/CAP-ISA-SRV-001.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "68-continuous-batch-scheduling",
-      "implementation_step": "implement-ch68-continuous-batch-scheduling",
-      "receipt": "artifacts/functional-laptop/chapters/68-continuous-batch-scheduling/capabilities/CAP-ISA-SRV-002.json"
+      "chapter_id": "66-continuous-batch-scheduling",
+      "implementation_step": "implement-ch66-continuous-batch-scheduling",
+      "receipt": "artifacts/functional-laptop/chapters/66-continuous-batch-scheduling/capabilities/CAP-ISA-SRV-002.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "68-continuous-batch-scheduling",
-      "implementation_step": "implement-ch68-continuous-batch-scheduling",
-      "receipt": "artifacts/functional-laptop/chapters/68-continuous-batch-scheduling/capabilities/CAP-ISA-SRV-003.json"
+      "chapter_id": "66-continuous-batch-scheduling",
+      "implementation_step": "implement-ch66-continuous-batch-scheduling",
+      "receipt": "artifacts/functional-laptop/chapters/66-continuous-batch-scheduling/capabilities/CAP-ISA-SRV-003.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-004",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "69-cancellation-backpressure-budgets",
-      "implementation_step": "implement-ch69-cancellation-backpressure-budgets",
-      "receipt": "artifacts/functional-laptop/chapters/69-cancellation-backpressure-budgets/capabilities/CAP-ISA-SRV-004.json"
+      "chapter_id": "67-cancellation-backpressure-budgets",
+      "implementation_step": "implement-ch67-cancellation-backpressure-budgets",
+      "receipt": "artifacts/functional-laptop/chapters/67-cancellation-backpressure-budgets/capabilities/CAP-ISA-SRV-004.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-005",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "69-cancellation-backpressure-budgets",
-      "implementation_step": "implement-ch69-cancellation-backpressure-budgets",
-      "receipt": "artifacts/functional-laptop/chapters/69-cancellation-backpressure-budgets/capabilities/CAP-ISA-SRV-005.json"
+      "chapter_id": "67-cancellation-backpressure-budgets",
+      "implementation_step": "implement-ch67-cancellation-backpressure-budgets",
+      "receipt": "artifacts/functional-laptop/chapters/67-cancellation-backpressure-budgets/capabilities/CAP-ISA-SRV-005.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-007",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "69-cancellation-backpressure-budgets",
-      "implementation_step": "implement-ch69-cancellation-backpressure-budgets",
-      "receipt": "artifacts/functional-laptop/chapters/69-cancellation-backpressure-budgets/capabilities/CAP-ISA-SRV-007.json"
+      "chapter_id": "67-cancellation-backpressure-budgets",
+      "implementation_step": "implement-ch67-cancellation-backpressure-budgets",
+      "receipt": "artifacts/functional-laptop/chapters/67-cancellation-backpressure-budgets/capabilities/CAP-ISA-SRV-007.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-006",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "70-loopback-serving-metrics",
-      "implementation_step": "implement-ch70-loopback-serving-metrics",
-      "receipt": "artifacts/functional-laptop/chapters/70-loopback-serving-metrics/capabilities/CAP-ISA-SRV-006.json"
+      "chapter_id": "68-loopback-serving-metrics",
+      "implementation_step": "implement-ch68-loopback-serving-metrics",
+      "receipt": "artifacts/functional-laptop/chapters/68-loopback-serving-metrics/capabilities/CAP-ISA-SRV-006.json"
     },
     {
       "capability_id": "CAP-ISA-OBS-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "70-loopback-serving-metrics",
-      "implementation_step": "implement-ch70-loopback-serving-metrics",
-      "receipt": "artifacts/functional-laptop/chapters/70-loopback-serving-metrics/capabilities/CAP-ISA-OBS-001.json"
+      "chapter_id": "68-loopback-serving-metrics",
+      "implementation_step": "implement-ch68-loopback-serving-metrics",
+      "receipt": "artifacts/functional-laptop/chapters/68-loopback-serving-metrics/capabilities/CAP-ISA-OBS-001.json"
     },
     {
       "capability_id": "CAP-ISA-ARCH-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "70-loopback-serving-metrics",
-      "implementation_step": "implement-ch70-loopback-serving-metrics",
-      "receipt": "artifacts/functional-laptop/chapters/70-loopback-serving-metrics/capabilities/CAP-ISA-ARCH-001.json"
+      "chapter_id": "68-loopback-serving-metrics",
+      "implementation_step": "implement-ch68-loopback-serving-metrics",
+      "receipt": "artifacts/functional-laptop/chapters/68-loopback-serving-metrics/capabilities/CAP-ISA-ARCH-001.json"
     },
     {
       "capability_id": "CAP-ISA-PT-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "71-lora-sft-adapters",
-      "implementation_step": "implement-ch71-lora-sft-adapters",
-      "receipt": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/capabilities/CAP-ISA-PT-001.json"
+      "chapter_id": "69-lora-sft-adapters",
+      "implementation_step": "implement-ch69-lora-sft-adapters",
+      "receipt": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/capabilities/CAP-ISA-PT-001.json"
     },
     {
       "capability_id": "CAP-ISA-PT-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "71-lora-sft-adapters",
-      "implementation_step": "implement-ch71-lora-sft-adapters",
-      "receipt": "artifacts/functional-laptop/chapters/71-lora-sft-adapters/capabilities/CAP-ISA-PT-002.json"
+      "chapter_id": "69-lora-sft-adapters",
+      "implementation_step": "implement-ch69-lora-sft-adapters",
+      "receipt": "artifacts/functional-laptop/chapters/69-lora-sft-adapters/capabilities/CAP-ISA-PT-002.json"
     },
     {
       "capability_id": "CAP-ISA-PT-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "72-direct-preference-optimization",
-      "implementation_step": "implement-ch72-direct-preference-optimization",
-      "receipt": "artifacts/functional-laptop/chapters/72-direct-preference-optimization/capabilities/CAP-ISA-PT-003.json"
+      "chapter_id": "70-direct-preference-optimization",
+      "implementation_step": "implement-ch70-direct-preference-optimization",
+      "receipt": "artifacts/functional-laptop/chapters/70-direct-preference-optimization/capabilities/CAP-ISA-PT-003.json"
     },
     {
       "capability_id": "CAP-ISA-PT-005",
       "classification": "bounded-scale-extension",
-      "chapter_id": "72-direct-preference-optimization",
-      "implementation_step": "implement-ch72-direct-preference-optimization",
-      "receipt": "artifacts/functional-laptop/chapters/72-direct-preference-optimization/capabilities/CAP-ISA-PT-005.json"
+      "chapter_id": "70-direct-preference-optimization",
+      "implementation_step": "implement-ch70-direct-preference-optimization",
+      "receipt": "artifacts/functional-laptop/chapters/70-direct-preference-optimization/capabilities/CAP-ISA-PT-005.json"
     },
     {
       "capability_id": "CAP-ISA-PT-004",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "73-qlora-boundary",
-      "implementation_step": "implement-ch73-qlora-boundary",
-      "receipt": "artifacts/functional-laptop/chapters/73-qlora-boundary/capabilities/CAP-ISA-PT-004.json"
+      "chapter_id": "71-qlora-boundary",
+      "implementation_step": "implement-ch71-qlora-boundary",
+      "receipt": "artifacts/functional-laptop/chapters/71-qlora-boundary/capabilities/CAP-ISA-PT-004.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-009",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "74-prefix-cache-reuse",
-      "implementation_step": "implement-ch74-prefix-cache-reuse",
-      "receipt": "artifacts/functional-laptop/chapters/74-prefix-cache-reuse/capabilities/CAP-ISA-SRV-009.json"
+      "chapter_id": "72-prefix-cache-reuse",
+      "implementation_step": "implement-ch72-prefix-cache-reuse",
+      "receipt": "artifacts/functional-laptop/chapters/72-prefix-cache-reuse/capabilities/CAP-ISA-SRV-009.json"
     },
     {
       "capability_id": "CAP-ISA-ATT-005",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "75-rope-context-scaling",
-      "implementation_step": "implement-ch75-rope-context-scaling",
-      "receipt": "artifacts/functional-laptop/chapters/75-rope-context-scaling/capabilities/CAP-ISA-ATT-005.json"
+      "chapter_id": "73-rope-context-scaling",
+      "implementation_step": "implement-ch73-rope-context-scaling",
+      "receipt": "artifacts/functional-laptop/chapters/73-rope-context-scaling/capabilities/CAP-ISA-ATT-005.json"
     },
     {
       "capability_id": "CAP-ISA-RT-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "76-retrieval-provenance",
-      "implementation_step": "implement-ch76-retrieval-provenance",
-      "receipt": "artifacts/functional-laptop/chapters/76-retrieval-provenance/capabilities/CAP-ISA-RT-001.json"
+      "chapter_id": "74-retrieval-provenance",
+      "implementation_step": "implement-ch74-retrieval-provenance",
+      "receipt": "artifacts/functional-laptop/chapters/74-retrieval-provenance/capabilities/CAP-ISA-RT-001.json"
     },
     {
       "capability_id": "CAP-ISA-RT-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "77-constrained-json-decoding",
-      "implementation_step": "implement-ch77-constrained-json-decoding",
-      "receipt": "artifacts/functional-laptop/chapters/77-constrained-json-decoding/capabilities/CAP-ISA-RT-003.json"
+      "chapter_id": "75-constrained-json-decoding",
+      "implementation_step": "implement-ch75-constrained-json-decoding",
+      "receipt": "artifacts/functional-laptop/chapters/75-constrained-json-decoding/capabilities/CAP-ISA-RT-003.json"
     },
     {
       "capability_id": "CAP-ISA-RT-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "78-authorized-tools",
-      "implementation_step": "implement-ch78-authorized-tools",
-      "receipt": "artifacts/functional-laptop/chapters/78-authorized-tools/capabilities/CAP-ISA-RT-002.json"
+      "chapter_id": "76-authorized-tools",
+      "implementation_step": "implement-ch76-authorized-tools",
+      "receipt": "artifacts/functional-laptop/chapters/76-authorized-tools/capabilities/CAP-ISA-RT-002.json"
     },
     {
       "capability_id": "CAP-ISA-SAFE-003",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "78-authorized-tools",
-      "implementation_step": "implement-ch78-authorized-tools",
-      "receipt": "artifacts/functional-laptop/chapters/78-authorized-tools/capabilities/CAP-ISA-SAFE-003.json"
+      "chapter_id": "76-authorized-tools",
+      "implementation_step": "implement-ch76-authorized-tools",
+      "receipt": "artifacts/functional-laptop/chapters/76-authorized-tools/capabilities/CAP-ISA-SAFE-003.json"
     },
     {
       "capability_id": "CAP-ISA-SAFE-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "79-safety-privacy-model-card",
-      "implementation_step": "implement-ch79-safety-privacy-model-card",
-      "receipt": "artifacts/functional-laptop/chapters/79-safety-privacy-model-card/capabilities/CAP-ISA-SAFE-001.json"
+      "chapter_id": "77-safety-privacy-model-card",
+      "implementation_step": "implement-ch77-safety-privacy-model-card",
+      "receipt": "artifacts/functional-laptop/chapters/77-safety-privacy-model-card/capabilities/CAP-ISA-SAFE-001.json"
     },
     {
       "capability_id": "CAP-ISA-SAFE-002",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "79-safety-privacy-model-card",
-      "implementation_step": "implement-ch79-safety-privacy-model-card",
-      "receipt": "artifacts/functional-laptop/chapters/79-safety-privacy-model-card/capabilities/CAP-ISA-SAFE-002.json"
+      "chapter_id": "77-safety-privacy-model-card",
+      "implementation_step": "implement-ch77-safety-privacy-model-card",
+      "receipt": "artifacts/functional-laptop/chapters/77-safety-privacy-model-card/capabilities/CAP-ISA-SAFE-002.json"
     },
     {
       "capability_id": "CAP-AUDIT-FROM-SCRATCH-ENDPOINT-01",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "80-from-scratch-laptop-capstone",
-      "implementation_step": "implement-ch80-from-scratch-laptop-capstone",
-      "receipt": "artifacts/functional-laptop/chapters/80-from-scratch-laptop-capstone/capabilities/CAP-AUDIT-FROM-SCRATCH-ENDPOINT-01.json"
+      "chapter_id": "78-from-scratch-laptop-capstone",
+      "implementation_step": "implement-ch78-from-scratch-laptop-capstone",
+      "receipt": "artifacts/functional-laptop/chapters/78-from-scratch-laptop-capstone/capabilities/CAP-AUDIT-FROM-SCRATCH-ENDPOINT-01.json"
     },
     {
       "capability_id": "CAP-ISA-ENDPOINT-001",
       "classification": "mandatory-laptop-implementation",
-      "chapter_id": "81-import-adapt-serve-capstone",
-      "implementation_step": "implement-ch81-import-adapt-serve-capstone",
-      "receipt": "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/capabilities/CAP-ISA-ENDPOINT-001.json"
+      "chapter_id": "79-import-adapt-serve-capstone",
+      "implementation_step": "implement-ch79-import-adapt-serve-capstone",
+      "receipt": "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/capabilities/CAP-ISA-ENDPOINT-001.json"
     },
     {
       "capability_id": "CAP-ISA-DEC-007",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "82-advanced-decoding-serving",
-      "implementation_step": "implement-ch82-advanced-decoding-serving",
-      "receipt": "artifacts/functional-laptop/chapters/82-advanced-decoding-serving/capabilities/CAP-ISA-DEC-007.json"
+      "chapter_id": "80-advanced-decoding-serving",
+      "implementation_step": "implement-ch80-advanced-decoding-serving",
+      "receipt": "artifacts/functional-laptop/chapters/80-advanced-decoding-serving/capabilities/CAP-ISA-DEC-007.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-008",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "82-advanced-decoding-serving",
-      "implementation_step": "implement-ch82-advanced-decoding-serving",
-      "receipt": "artifacts/functional-laptop/chapters/82-advanced-decoding-serving/capabilities/CAP-ISA-SRV-008.json"
+      "chapter_id": "80-advanced-decoding-serving",
+      "implementation_step": "implement-ch80-advanced-decoding-serving",
+      "receipt": "artifacts/functional-laptop/chapters/80-advanced-decoding-serving/capabilities/CAP-ISA-SRV-008.json"
     },
     {
       "capability_id": "CAP-ISA-SRV-010",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "82-advanced-decoding-serving",
-      "implementation_step": "implement-ch82-advanced-decoding-serving",
-      "receipt": "artifacts/functional-laptop/chapters/82-advanced-decoding-serving/capabilities/CAP-ISA-SRV-010.json"
+      "chapter_id": "80-advanced-decoding-serving",
+      "implementation_step": "implement-ch80-advanced-decoding-serving",
+      "receipt": "artifacts/functional-laptop/chapters/80-advanced-decoding-serving/capabilities/CAP-ISA-SRV-010.json"
     },
     {
       "capability_id": "CAP-DTH-DIST-01",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "83-distributed-schedule-simulation",
-      "implementation_step": "implement-ch83-distributed-schedule-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/83-distributed-schedule-simulation/capabilities/CAP-DTH-DIST-01.json"
+      "chapter_id": "81-distributed-schedule-simulation",
+      "implementation_step": "implement-ch81-distributed-schedule-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/81-distributed-schedule-simulation/capabilities/CAP-DTH-DIST-01.json"
     },
     {
       "capability_id": "CAP-DTH-DIST-02",
       "classification": "bounded-scale-extension",
-      "chapter_id": "83-distributed-schedule-simulation",
-      "implementation_step": "implement-ch83-distributed-schedule-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/83-distributed-schedule-simulation/capabilities/CAP-DTH-DIST-02.json"
+      "chapter_id": "81-distributed-schedule-simulation",
+      "implementation_step": "implement-ch81-distributed-schedule-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/81-distributed-schedule-simulation/capabilities/CAP-DTH-DIST-02.json"
     },
     {
       "capability_id": "CAP-ISA-DIST-001",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "83-distributed-schedule-simulation",
-      "implementation_step": "implement-ch83-distributed-schedule-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/83-distributed-schedule-simulation/capabilities/CAP-ISA-DIST-001.json"
+      "chapter_id": "81-distributed-schedule-simulation",
+      "implementation_step": "implement-ch81-distributed-schedule-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/81-distributed-schedule-simulation/capabilities/CAP-ISA-DIST-001.json"
     },
     {
       "capability_id": "CAP-ISA-DIST-002",
       "classification": "bounded-scale-extension",
-      "chapter_id": "83-distributed-schedule-simulation",
-      "implementation_step": "implement-ch83-distributed-schedule-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/83-distributed-schedule-simulation/capabilities/CAP-ISA-DIST-002.json"
+      "chapter_id": "81-distributed-schedule-simulation",
+      "implementation_step": "implement-ch81-distributed-schedule-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/81-distributed-schedule-simulation/capabilities/CAP-ISA-DIST-002.json"
     },
     {
       "capability_id": "CAP-DTH-MOE-01",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "84-moe-routing-simulation",
-      "implementation_step": "implement-ch84-moe-routing-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/84-moe-routing-simulation/capabilities/CAP-DTH-MOE-01.json"
+      "chapter_id": "82-moe-routing-simulation",
+      "implementation_step": "implement-ch82-moe-routing-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/82-moe-routing-simulation/capabilities/CAP-DTH-MOE-01.json"
     },
     {
       "capability_id": "CAP-DTH-MOE-02",
       "classification": "bounded-scale-extension",
-      "chapter_id": "84-moe-routing-simulation",
-      "implementation_step": "implement-ch84-moe-routing-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/84-moe-routing-simulation/capabilities/CAP-DTH-MOE-02.json"
+      "chapter_id": "82-moe-routing-simulation",
+      "implementation_step": "implement-ch82-moe-routing-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/82-moe-routing-simulation/capabilities/CAP-DTH-MOE-02.json"
     },
     {
       "capability_id": "CAP-ISA-MOE-001",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "84-moe-routing-simulation",
-      "implementation_step": "implement-ch84-moe-routing-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/84-moe-routing-simulation/capabilities/CAP-ISA-MOE-001.json"
+      "chapter_id": "82-moe-routing-simulation",
+      "implementation_step": "implement-ch82-moe-routing-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/82-moe-routing-simulation/capabilities/CAP-ISA-MOE-001.json"
     },
     {
       "capability_id": "CAP-ISA-MOE-002",
       "classification": "bounded-scale-extension",
-      "chapter_id": "84-moe-routing-simulation",
-      "implementation_step": "implement-ch84-moe-routing-simulation",
-      "receipt": "artifacts/functional-laptop/chapters/84-moe-routing-simulation/capabilities/CAP-ISA-MOE-002.json"
+      "chapter_id": "82-moe-routing-simulation",
+      "implementation_step": "implement-ch82-moe-routing-simulation",
+      "receipt": "artifacts/functional-laptop/chapters/82-moe-routing-simulation/capabilities/CAP-ISA-MOE-002.json"
     },
     {
       "capability_id": "CAP-ISA-PER-003",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "85-persistence-scale-decision",
-      "implementation_step": "implement-ch85-persistence-scale-decision",
-      "receipt": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/capabilities/CAP-ISA-PER-003.json"
+      "chapter_id": "83-persistence-scale-decision",
+      "implementation_step": "implement-ch83-persistence-scale-decision",
+      "receipt": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/capabilities/CAP-ISA-PER-003.json"
     },
     {
       "capability_id": "CAP-ISA-PER-004",
       "classification": "laptop-feasible-advanced-exercise",
-      "chapter_id": "85-persistence-scale-decision",
-      "implementation_step": "implement-ch85-persistence-scale-decision",
-      "receipt": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/capabilities/CAP-ISA-PER-004.json"
+      "chapter_id": "83-persistence-scale-decision",
+      "implementation_step": "implement-ch83-persistence-scale-decision",
+      "receipt": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/capabilities/CAP-ISA-PER-004.json"
     }
   ],
   "finding_map": [
@@ -27708,15 +27477,15 @@
       ],
       "chapter_ids": [
         "40-reference-core-handoff",
-        "48-configurable-decoder-core",
-        "51-serving-config-admission",
-        "60-multi-seed-evaluation",
-        "61-quantized-gguf-artifacts",
-        "62-laptop-hardware-admission",
-        "70-loopback-serving-metrics",
-        "71-lora-sft-adapters",
-        "80-from-scratch-laptop-capstone",
-        "81-import-adapt-serve-capstone"
+        "46-configurable-decoder-core",
+        "49-serving-config-admission",
+        "58-multi-seed-evaluation",
+        "59-quantized-gguf-artifacts",
+        "60-laptop-hardware-admission",
+        "68-loopback-serving-metrics",
+        "69-lora-sft-adapters",
+        "78-from-scratch-laptop-capstone",
+        "79-import-adapt-serve-capstone"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F01.json"
     },
@@ -27729,9 +27498,7 @@
         "CAP-DTH-DATA-04"
       ],
       "chapter_ids": [
-        "41-governed-corpus-acquisition",
-        "42-deterministic-corpus-filtering",
-        "43-deduplication-decontamination"
+        "41-corpus-preparation"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F02.json"
     },
@@ -27746,12 +27513,12 @@
         "CAP-DTH-OBS-01"
       ],
       "chapter_ids": [
-        "48-configurable-decoder-core",
-        "52-accelerator-tensor-parity",
-        "53-mixed-precision-training",
-        "54-memory-bounded-training",
-        "59-resource-observability",
-        "62-laptop-hardware-admission"
+        "46-configurable-decoder-core",
+        "50-accelerator-tensor-parity",
+        "51-mixed-precision-training",
+        "52-memory-bounded-training",
+        "57-resource-observability",
+        "60-laptop-hardware-admission"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F03.json"
     },
@@ -27768,13 +27535,13 @@
         "CAP-DTH-DIST-02"
       ],
       "chapter_ids": [
-        "42-deterministic-corpus-filtering",
-        "44-scalable-bpe-tokenizer",
-        "48-configurable-decoder-core",
-        "53-mixed-precision-training",
-        "54-memory-bounded-training",
-        "55-optimizer-schedules-clipping",
-        "83-distributed-schedule-simulation"
+        "41-corpus-preparation",
+        "42-scalable-bpe-tokenizer",
+        "46-configurable-decoder-core",
+        "51-mixed-precision-training",
+        "52-memory-bounded-training",
+        "53-optimizer-schedules-clipping",
+        "81-distributed-schedule-simulation"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F04.json"
     },
@@ -27789,12 +27556,12 @@
         "CAP-DTH-OBS-01"
       ],
       "chapter_ids": [
-        "48-configurable-decoder-core",
-        "49-dropout-semantics",
-        "54-memory-bounded-training",
-        "55-optimizer-schedules-clipping",
-        "59-resource-observability",
-        "60-multi-seed-evaluation"
+        "46-configurable-decoder-core",
+        "47-dropout-semantics",
+        "52-memory-bounded-training",
+        "53-optimizer-schedules-clipping",
+        "57-resource-observability",
+        "58-multi-seed-evaluation"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F05.json"
     },
@@ -27804,7 +27571,7 @@
         "CAP-DTH-RESUME-01"
       ],
       "chapter_ids": [
-        "58-exact-job-resume"
+        "56-exact-job-resume"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F06.json"
     },
@@ -27816,9 +27583,9 @@
         "CAP-ISA-PT-001"
       ],
       "chapter_ids": [
-        "44-scalable-bpe-tokenizer",
-        "46-packed-sequence-masks",
-        "71-lora-sft-adapters"
+        "42-scalable-bpe-tokenizer",
+        "44-packed-sequence-masks",
+        "69-lora-sft-adapters"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F07.json"
     },
@@ -27832,11 +27599,11 @@
         "CAP-ISA-ATT-005"
       ],
       "chapter_ids": [
-        "46-packed-sequence-masks",
-        "48-configurable-decoder-core",
-        "63-gqa-context-policy",
-        "64-online-tiled-attention",
-        "75-rope-context-scaling"
+        "44-packed-sequence-masks",
+        "46-configurable-decoder-core",
+        "61-gqa-context-policy",
+        "62-online-tiled-attention",
+        "73-rope-context-scaling"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F08.json"
     },
@@ -27852,10 +27619,10 @@
         "CAP-ISA-RT-003"
       ],
       "chapter_ids": [
-        "66-nucleus-penalties-logprobs",
-        "67-stop-strings-unicode-streaming",
-        "77-constrained-json-decoding",
-        "82-advanced-decoding-serving"
+        "64-nucleus-penalties-logprobs",
+        "65-stop-strings-unicode-streaming",
+        "75-constrained-json-decoding",
+        "80-advanced-decoding-serving"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F09.json"
     },
@@ -27877,13 +27644,13 @@
         "CAP-ISA-OBS-001"
       ],
       "chapter_ids": [
-        "51-serving-config-admission",
-        "65-kv-block-pool",
-        "68-continuous-batch-scheduling",
-        "69-cancellation-backpressure-budgets",
-        "70-loopback-serving-metrics",
-        "74-prefix-cache-reuse",
-        "82-advanced-decoding-serving"
+        "49-serving-config-admission",
+        "63-kv-block-pool",
+        "66-continuous-batch-scheduling",
+        "67-cancellation-backpressure-budgets",
+        "68-loopback-serving-metrics",
+        "72-prefix-cache-reuse",
+        "80-advanced-decoding-serving"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F10.json"
     },
@@ -27895,8 +27662,8 @@
         "CAP-ISA-SAFE-001"
       ],
       "chapter_ids": [
-        "60-multi-seed-evaluation",
-        "79-safety-privacy-model-card"
+        "58-multi-seed-evaluation",
+        "77-safety-privacy-model-card"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F11.json"
     },
@@ -27919,18 +27686,18 @@
         "CAP-ISA-ENDPOINT-001"
       ],
       "chapter_ids": [
-        "48-configurable-decoder-core",
-        "61-quantized-gguf-artifacts",
-        "70-loopback-serving-metrics",
-        "71-lora-sft-adapters",
-        "72-direct-preference-optimization",
-        "76-retrieval-provenance",
-        "77-constrained-json-decoding",
-        "78-authorized-tools",
-        "79-safety-privacy-model-card",
-        "81-import-adapt-serve-capstone",
-        "83-distributed-schedule-simulation",
-        "84-moe-routing-simulation"
+        "46-configurable-decoder-core",
+        "59-quantized-gguf-artifacts",
+        "68-loopback-serving-metrics",
+        "69-lora-sft-adapters",
+        "70-direct-preference-optimization",
+        "74-retrieval-provenance",
+        "75-constrained-json-decoding",
+        "76-authorized-tools",
+        "77-safety-privacy-model-card",
+        "79-import-adapt-serve-capstone",
+        "81-distributed-schedule-simulation",
+        "82-moe-routing-simulation"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/F12.json"
     },
@@ -27940,7 +27707,7 @@
         "CAP-DTH-BATCH-02"
       ],
       "chapter_ids": [
-        "46-packed-sequence-masks"
+        "44-packed-sequence-masks"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/P01.json"
     },
@@ -27950,7 +27717,7 @@
         "CAP-DTH-RESUME-01"
       ],
       "chapter_ids": [
-        "58-exact-job-resume"
+        "56-exact-job-resume"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/P02.json"
     },
@@ -27961,8 +27728,8 @@
         "CAP-ISA-SAFE-001"
       ],
       "chapter_ids": [
-        "60-multi-seed-evaluation",
-        "79-safety-privacy-model-card"
+        "58-multi-seed-evaluation",
+        "77-safety-privacy-model-card"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/P03.json"
     },
@@ -27975,9 +27742,7 @@
         "CAP-DTH-DATA-04"
       ],
       "chapter_ids": [
-        "41-governed-corpus-acquisition",
-        "42-deterministic-corpus-filtering",
-        "43-deduplication-decontamination"
+        "41-corpus-preparation"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/P04.json"
     },
@@ -27994,13 +27759,13 @@
         "CAP-ISA-SRV-007"
       ],
       "chapter_ids": [
-        "48-configurable-decoder-core",
-        "51-serving-config-admission",
-        "52-accelerator-tensor-parity",
-        "54-memory-bounded-training",
-        "62-laptop-hardware-admission",
-        "68-continuous-batch-scheduling",
-        "69-cancellation-backpressure-budgets"
+        "46-configurable-decoder-core",
+        "49-serving-config-admission",
+        "50-accelerator-tensor-parity",
+        "52-memory-bounded-training",
+        "60-laptop-hardware-admission",
+        "66-continuous-batch-scheduling",
+        "67-cancellation-backpressure-budgets"
       ],
       "receipt": "artifacts/functional-laptop/audit-map/findings/P05.json"
     }
@@ -28960,7 +28725,7 @@
   ],
   "capstones": [
     {
-      "chapter_id": "80-from-scratch-laptop-capstone",
+      "chapter_id": "78-from-scratch-laptop-capstone",
       "execution_step": "execute-functional-from-scratch-pretraining",
       "profile_id": "8gb-gpu-core",
       "config_identity": "frozen-from-scratch-experiment-config-sha256",
@@ -28981,7 +28746,7 @@
       "honest_limit": "Governed narrow TinyStories-domain laptop evidence only; no general-purpose, production-scale or state-of-the-art claim."
     },
     {
-      "chapter_id": "81-import-adapt-serve-capstone",
+      "chapter_id": "79-import-adapt-serve-capstone",
       "execution_step": "execute-functional-direct-preference-update",
       "profile_id": "8gb-adapter",
       "config_identity": "selected-compatible-base-plus-terminal-dpo-successor-sha256",
@@ -28997,7 +28762,7 @@
         "artifacts/functional-laptop/experiments/adaptation/sft-receipt.json",
         "artifacts/functional-laptop/experiments/adaptation/dpo-receipt.json",
         "artifacts/functional-laptop/experiments/adaptation/dpo-adapter.json",
-        "artifacts/functional-laptop/chapters/81-import-adapt-serve-capstone/endpoint-receipt.json"
+        "artifacts/functional-laptop/chapters/79-import-adapt-serve-capstone/endpoint-receipt.json"
       ],
       "honest_limit": "One exact selected causal decoder and bounded laptop adaptation/serving result; no general safety, broad quality or production reliability claim."
     }
@@ -29008,74 +28773,71 @@
     "reframe-functional-reference-core-surfaces",
     "establish-functional-successor-static-integration",
     "implement-ch40-reference-core-handoff",
-    "implement-ch41-governed-corpus-acquisition",
+    "merge-ch41-nemo-corpus-preparation-20261007",
     "establish-functional-artifact-cache-execution-boundary",
     "acquire-functional-tinystories-raw-pair",
-    "implement-ch42-deterministic-corpus-filtering",
-    "execute-functional-corpus-filtering",
-    "implement-ch43-deduplication-decontamination",
-    "execute-functional-corpus-dedup-split",
-    "implement-ch44-scalable-bpe-tokenizer",
+    "execute-functional-nemo-corpus-preparation",
+    "implement-ch42-scalable-bpe-tokenizer",
     "execute-functional-tokenizer-and-tokenized-splits",
-    "implement-ch45-padded-variable-batches",
-    "implement-ch46-packed-sequence-masks",
-    "implement-ch47-depth-stable-decoder",
-    "implement-ch48-configurable-decoder-core",
-    "implement-ch49-dropout-semantics",
-    "implement-ch50-dependency-error-contract",
+    "implement-ch43-padded-variable-batches",
+    "implement-ch44-packed-sequence-masks",
+    "implement-ch45-depth-stable-decoder",
+    "implement-ch46-configurable-decoder-core",
+    "implement-ch47-dropout-semantics",
+    "implement-ch48-dependency-error-contract",
     "admit-functional-supporting-dependency-graph",
-    "implement-ch51-serving-config-admission",
+    "implement-ch49-serving-config-admission",
     "establish-functional-gpu-execution-boundary",
-    "implement-ch52-accelerator-tensor-parity",
-    "implement-ch53-mixed-precision-training",
-    "implement-ch54-memory-bounded-training",
-    "implement-ch55-optimizer-schedules-clipping",
-    "implement-ch56-tensor-artifact-interchange",
-    "implement-ch57-immutable-artifact-persistence",
-    "implement-ch58-exact-job-resume",
-    "implement-ch59-resource-observability",
-    "implement-ch60-multi-seed-evaluation",
-    "implement-ch61-quantized-gguf-artifacts",
-    "implement-ch62-laptop-hardware-admission",
+    "implement-ch50-accelerator-tensor-parity",
+    "implement-ch51-mixed-precision-training",
+    "implement-ch52-memory-bounded-training",
+    "implement-ch53-optimizer-schedules-clipping",
+    "implement-ch54-tensor-artifact-interchange",
+    "implement-ch55-immutable-artifact-persistence",
+    "implement-ch56-exact-job-resume",
+    "implement-ch57-resource-observability",
+    "implement-ch58-multi-seed-evaluation",
+    "implement-ch59-quantized-gguf-artifacts",
+    "implement-ch60-laptop-hardware-admission",
     "freeze-functional-from-scratch-experiment",
-    "implement-ch63-gqa-context-policy",
-    "implement-ch64-online-tiled-attention",
+    "implement-ch61-gqa-context-policy",
+    "implement-ch62-online-tiled-attention",
     "execute-functional-seed-sensitivity-profile",
     "execute-functional-from-scratch-pretraining",
-    "implement-ch65-kv-block-pool",
-    "implement-ch66-nucleus-penalties-logprobs",
-    "implement-ch67-stop-strings-unicode-streaming",
-    "implement-ch68-continuous-batch-scheduling",
-    "implement-ch69-cancellation-backpressure-budgets",
-    "implement-ch70-loopback-serving-metrics",
-    "implement-ch71-lora-sft-adapters",
-    "implement-ch72-direct-preference-optimization",
-    "implement-ch73-qlora-boundary",
-    "implement-ch74-prefix-cache-reuse",
-    "implement-ch75-rope-context-scaling",
-    "implement-ch76-retrieval-provenance",
-    "implement-ch77-constrained-json-decoding",
-    "implement-ch78-authorized-tools",
-    "implement-ch79-safety-privacy-model-card",
-    "implement-ch80-from-scratch-laptop-capstone",
+    "implement-ch63-kv-block-pool",
+    "implement-ch64-nucleus-penalties-logprobs",
+    "implement-ch65-stop-strings-unicode-streaming",
+    "implement-ch66-continuous-batch-scheduling",
+    "implement-ch67-cancellation-backpressure-budgets",
+    "implement-ch68-loopback-serving-metrics",
+    "implement-ch69-lora-sft-adapters",
+    "implement-ch70-direct-preference-optimization",
+    "implement-ch71-qlora-boundary",
+    "implement-ch72-prefix-cache-reuse",
+    "implement-ch73-rope-context-scaling",
+    "implement-ch74-retrieval-provenance",
+    "implement-ch75-constrained-json-decoding",
+    "implement-ch76-authorized-tools",
+    "implement-ch77-safety-privacy-model-card",
+    "implement-ch78-from-scratch-laptop-capstone",
     "select-functional-open-model",
     "acquire-functional-open-model",
     "freeze-functional-adaptation-experiment",
     "execute-functional-sft-adaptation",
     "execute-functional-direct-preference-update",
-    "implement-ch81-import-adapt-serve-capstone",
-    "implement-ch82-advanced-decoding-serving",
-    "implement-ch83-distributed-schedule-simulation",
-    "implement-ch84-moe-routing-simulation",
-    "implement-ch85-persistence-scale-decision",
+    "implement-ch79-import-adapt-serve-capstone",
+    "implement-ch80-advanced-decoding-serving",
+    "implement-ch81-distributed-schedule-simulation",
+    "implement-ch82-moe-routing-simulation",
+    "implement-ch83-persistence-scale-decision",
     "audit-functional-successor-preclosure"
   ],
   "conditional_postgresql": {
     "protocol_status": "measurement-gated-immutable-protocol",
-    "measurement_chapter": "85-persistence-scale-decision",
+    "measurement_chapter": "83-persistence-scale-decision",
     "default_backend": "bounded-in-memory-filesystem-exact-top-k",
     "mandatory_dependency": false,
-    "measurement_receipt_path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-decision-receipt.json",
+    "measurement_receipt_path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-decision-receipt.json",
     "measurement_receipt_schema_version": 4,
     "selection_rule": "declared-numeric-metric-alone-crosses-its-own-threshold-in-at-least-two-of-three-or-predeclared-atomic-writer-need-with-four-writers-and-file-snapshot-inability",
     "initial_step_count": 66,
@@ -29112,10 +28874,10 @@
       }
     ],
     "measurement_receipt_contract": {
-      "path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-decision-receipt.json",
+      "path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-decision-receipt.json",
       "schema_version": 4,
-      "chapter_id": "85-persistence-scale-decision",
-      "producer_step": "implement-ch85-persistence-scale-decision",
+      "chapter_id": "83-persistence-scale-decision",
+      "producer_step": "implement-ch83-persistence-scale-decision",
       "runner_target": "persistence-scale-oracle-v1",
       "workload": {
         "records": 100000,
@@ -29177,7 +28939,7 @@
       ],
       "hash_binding": "actual receipt SHA-256 is recorded in the immutable succeeded Ch85 run artifact and decision record; plan/checker bytes remain fixed; a selected writer trigger also binds the exact file-snapshot limitation evidence receipt and its succeeded-run/canonical-output inventory identity",
       "spec_path": "configs/functional-persistence-scale-oracle-v1.json",
-      "preflight_receipt_path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-preflight-receipt.json",
+      "preflight_receipt_path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-preflight-receipt.json",
       "measurement_spec": {
         "schema_version": 2,
         "workload": {
@@ -29326,11 +29088,11 @@
         },
         "chronology": "declared_at and the immutable preflight receipt precede measurement_started_at; the declared record is byte-bound by the preflight SHA-256 and cannot be replaced after any result is observed"
       },
-      "file_snapshot_limit_evidence_path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/file-snapshot-limit-evidence-receipt.json",
-      "file_snapshot_output_inventory_path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/file-snapshot-output-inventory.json",
+      "file_snapshot_limit_evidence_path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/file-snapshot-limit-evidence-receipt.json",
+      "file_snapshot_output_inventory_path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/file-snapshot-output-inventory.json",
       "file_snapshot_output_inventory_contract": {
         "schema_version": 1,
-        "path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/file-snapshot-output-inventory.json",
+        "path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/file-snapshot-output-inventory.json",
         "required_fields": [
           "schema_version",
           "chapter_id",
@@ -29351,15 +29113,15 @@
           "sha256"
         ],
         "role_to_path": {
-          "writer-operation-trace": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/writer-operation-trace.json",
-          "snapshot-state-transcript": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/snapshot-state-transcript.json"
+          "writer-operation-trace": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/writer-operation-trace.json",
+          "snapshot-state-transcript": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/snapshot-state-transcript.json"
         },
         "max_file_bytes": 4194304,
         "inventory_line_rule": "UTF-8 path TAB bytes TAB lowercase-sha256 LF in exact role order"
       },
       "file_snapshot_limit_evidence_contract": {
         "schema_version": 1,
-        "path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/file-snapshot-limit-evidence-receipt.json",
+        "path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/file-snapshot-limit-evidence-receipt.json",
         "required_fields": [
           "schema_version",
           "chapter_id",
@@ -29408,7 +29170,7 @@
       },
       "file_snapshot_writer_trace_contract": {
         "schema_version": 1,
-        "path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/writer-operation-trace.json",
+        "path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/writer-operation-trace.json",
         "required_fields": [
           "schema_version",
           "chapter_id",
@@ -29457,7 +29219,7 @@
       },
       "file_snapshot_state_transcript_contract": {
         "schema_version": 1,
-        "path": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/snapshot-state-transcript.json",
+        "path": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/snapshot-state-transcript.json",
         "required_fields": [
           "schema_version",
           "chapter_id",
@@ -29492,9 +29254,9 @@
     "selected_step_records": [
       {
         "id": "admit-functional-postgresql-pgvector-stack",
-        "objective": "Admit one exact optional PostgreSQL/pgvector Rust and image graph after a hash-bound Chapter 85 selected receipt.",
+        "objective": "Admit one exact optional PostgreSQL/pgvector Rust and image graph after a hash-bound Chapter 83 selected receipt.",
         "inputs": [
-          "Chapter 85 selected measurement receipt",
+          "Chapter 83 selected measurement receipt",
           "prior dependency allowlist and Cargo.lock hash",
           "official PostgreSQL image and pgvector release metadata",
           "resource contract postgresql_adapter_requirements",
@@ -29533,19 +29295,19 @@
           "notes": "cpu=C3;gpu=G0;network=N2;paid=none;execution=conditional-selected-only"
         },
         "depends_on": [
-          "implement-ch85-persistence-scale-decision"
+          "implement-ch83-persistence-scale-decision"
         ],
         "status": "pending",
         "runs": []
       },
       {
         "id": "implement-functional-postgresql-pgvector-conformance",
-        "objective": "Implement the optional course-owned PostgreSQL adapter and prove exact conformance to the Chapter 57 memory/file VectorStore contract.",
+        "objective": "Implement the optional course-owned PostgreSQL adapter and prove exact conformance to the Chapter 55 memory/file VectorStore contract.",
         "inputs": [
           "selected dependency/image receipt",
-          "Chapter 57 VectorStore contract",
-          "Chapter 76 exact retrieval oracle",
-          "Chapter 85 workload and selected need"
+          "Chapter 55 VectorStore contract",
+          "Chapter 74 exact retrieval oracle",
+          "Chapter 83 workload and selected need"
         ],
         "outputs": [
           "rust/crates/llm-vector-postgres/src/lib.rs",
@@ -29625,37 +29387,37 @@
         "objective": "Publish one optional EN/RU advanced lab that consumes the proven adapter without making the static course depend on a database.",
         "inputs": [
           "exact conformance and recovery receipts",
-          "the exact immutable plan/checker plus the incoming base Chapter 85 content inventory for contract, EN/RU lessons, sheets, catalogs, diagram and tests",
+          "the exact immutable plan/checker plus the incoming base Chapter 83 content inventory for contract, EN/RU lessons, sheets, catalogs, diagram and tests",
           ".agents/skills/author-llm-course-english/SKILL.md",
           ".agents/skills/localize-llm-course/SKILL.md",
-          "artifacts/functional-laptop/chapters/85-persistence-scale-decision/base-content-inventory.json",
+          "artifacts/functional-laptop/chapters/83-persistence-scale-decision/base-content-inventory.json",
           "curriculum/functional-laptop-llm-extension-plan.md",
           "scripts/check-functional-laptop-llm-plan.mjs"
         ],
         "outputs": [
-          "curriculum/chapters/85-persistence-scale-decision.md",
-          "site/src/content/chapters/en/85-persistence-scale-decision.mdx",
-          "site/src/content/chapters/ru/85-persistence-scale-decision.mdx",
-          "site/src/i18n/functional-catalogs/en/85-persistence-scale-decision.json",
-          "site/src/i18n/functional-catalogs/ru/85-persistence-scale-decision.json",
-          "site/src/content/cheat-sheets/en/85-persistence-scale-decision.json",
-          "site/src/content/cheat-sheets/ru/85-persistence-scale-decision.json",
+          "curriculum/chapters/83-persistence-scale-decision.md",
+          "site/src/content/chapters/en/83-persistence-scale-decision.mdx",
+          "site/src/content/chapters/ru/83-persistence-scale-decision.mdx",
+          "site/src/i18n/functional-catalogs/en/83-persistence-scale-decision.json",
+          "site/src/i18n/functional-catalogs/ru/83-persistence-scale-decision.json",
+          "site/src/content/cheat-sheets/en/83-persistence-scale-decision.json",
+          "site/src/content/cheat-sheets/ru/83-persistence-scale-decision.json",
           "site/src/components/chapters/PersistenceScaleDecisionDiagram.astro",
-          "site/tests/85-persistence-scale-decision-diagram.test.ts",
-          "site/tests/85-persistence-scale-decision.test.ts",
-          "site/tests/e2e/ch85-persistence-scale-decision.spec.ts",
-          "audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1/",
+          "site/tests/83-persistence-scale-decision-diagram.test.ts",
+          "site/tests/83-persistence-scale-decision.test.ts",
+          "site/tests/e2e/ch83-persistence-scale-decision.spec.ts",
+          "audits/functional-laptop/reviews/83-persistence-scale-decision-measured-postgresql-v1/",
           "artifacts/functional-laptop/advanced/postgresql-pgvector/",
           "artifacts/functional-laptop/step-output-inventories/publish-functional-postgresql-pgvector-advanced-lab.json",
           "BUILD_STATE.yaml",
           "DECISIONS.md"
         ],
         "acceptance": [
-          "Publish the hash-bound measured-postgresql-v1 Chapter 85 content successor under the same immutable plan/checker; teach the measured optional adapter evidence without adding an unbuilt route or making the static site depend on the database. Canonical English passes two independent reviews and two same-role adjudications; direct Russian passes bilingual and target-only review; static and sole Firefox gates pass."
+          "Publish the hash-bound measured-postgresql-v1 Chapter 83 content successor under the same immutable plan/checker; teach the measured optional adapter evidence without adding an unbuilt route or making the static site depend on the database. Canonical English passes two independent reviews and two same-role adjudications; direct Russian passes bilingual and target-only review; static and sole Firefox gates pass."
         ],
         "validate": [
-          "scripts/run-functional-offline.sh --step publish-functional-postgresql-pgvector-advanced-lab --target publish-postgresql-ch85-measured-postgresql-v1-v1",
-          "scripts/run-functional-firefox.sh test --step publish-functional-postgresql-pgvector-advanced-lab --target chapter-85-persistence-scale-decision-measured-postgresql-v1-v1",
+          "scripts/run-functional-offline.sh --step publish-functional-postgresql-pgvector-advanced-lab --target publish-postgresql-ch83-measured-postgresql-v1-v1",
+          "scripts/run-functional-firefox.sh test --step publish-functional-postgresql-pgvector-advanced-lab --target chapter-83-persistence-scale-decision-measured-postgresql-v1-v1",
           "git diff --check",
           "./course audit-host"
         ],
@@ -29676,66 +29438,66 @@
       "reframe-functional-reference-core-surfaces",
       "establish-functional-successor-static-integration",
       "implement-ch40-reference-core-handoff",
-      "implement-ch41-governed-corpus-acquisition",
+      "merge-ch41-nemo-corpus-preparation-20261007",
       "establish-functional-artifact-cache-execution-boundary",
       "acquire-functional-tinystories-raw-pair",
-      "implement-ch42-deterministic-corpus-filtering",
-      "execute-functional-corpus-filtering",
-      "implement-ch43-deduplication-decontamination",
-      "execute-functional-corpus-dedup-split",
-      "implement-ch44-scalable-bpe-tokenizer",
+      "merge-ch41-nemo-corpus-preparation-20261007",
+      "execute-functional-nemo-corpus-preparation",
+      "merge-ch41-nemo-corpus-preparation-20261007",
+      "execute-functional-nemo-corpus-preparation",
+      "implement-ch42-scalable-bpe-tokenizer",
       "execute-functional-tokenizer-and-tokenized-splits",
-      "implement-ch45-padded-variable-batches",
-      "implement-ch46-packed-sequence-masks",
-      "implement-ch47-depth-stable-decoder",
-      "implement-ch48-configurable-decoder-core",
-      "implement-ch49-dropout-semantics",
-      "implement-ch50-dependency-error-contract",
+      "implement-ch43-padded-variable-batches",
+      "implement-ch44-packed-sequence-masks",
+      "implement-ch45-depth-stable-decoder",
+      "implement-ch46-configurable-decoder-core",
+      "implement-ch47-dropout-semantics",
+      "implement-ch48-dependency-error-contract",
       "admit-functional-supporting-dependency-graph",
-      "implement-ch51-serving-config-admission",
+      "implement-ch49-serving-config-admission",
       "establish-functional-gpu-execution-boundary",
-      "implement-ch52-accelerator-tensor-parity",
-      "implement-ch53-mixed-precision-training",
-      "implement-ch54-memory-bounded-training",
-      "implement-ch55-optimizer-schedules-clipping",
-      "implement-ch56-tensor-artifact-interchange",
-      "implement-ch57-immutable-artifact-persistence",
-      "implement-ch58-exact-job-resume",
-      "implement-ch59-resource-observability",
-      "implement-ch60-multi-seed-evaluation",
-      "implement-ch61-quantized-gguf-artifacts",
-      "implement-ch62-laptop-hardware-admission",
+      "implement-ch50-accelerator-tensor-parity",
+      "implement-ch51-mixed-precision-training",
+      "implement-ch52-memory-bounded-training",
+      "implement-ch53-optimizer-schedules-clipping",
+      "implement-ch54-tensor-artifact-interchange",
+      "implement-ch55-immutable-artifact-persistence",
+      "implement-ch56-exact-job-resume",
+      "implement-ch57-resource-observability",
+      "implement-ch58-multi-seed-evaluation",
+      "implement-ch59-quantized-gguf-artifacts",
+      "implement-ch60-laptop-hardware-admission",
       "freeze-functional-from-scratch-experiment",
-      "implement-ch63-gqa-context-policy",
-      "implement-ch64-online-tiled-attention",
+      "implement-ch61-gqa-context-policy",
+      "implement-ch62-online-tiled-attention",
       "execute-functional-seed-sensitivity-profile",
       "execute-functional-from-scratch-pretraining",
-      "implement-ch65-kv-block-pool",
-      "implement-ch66-nucleus-penalties-logprobs",
-      "implement-ch67-stop-strings-unicode-streaming",
-      "implement-ch68-continuous-batch-scheduling",
-      "implement-ch69-cancellation-backpressure-budgets",
-      "implement-ch70-loopback-serving-metrics",
-      "implement-ch71-lora-sft-adapters",
-      "implement-ch72-direct-preference-optimization",
-      "implement-ch73-qlora-boundary",
-      "implement-ch74-prefix-cache-reuse",
-      "implement-ch75-rope-context-scaling",
-      "implement-ch76-retrieval-provenance",
-      "implement-ch77-constrained-json-decoding",
-      "implement-ch78-authorized-tools",
-      "implement-ch79-safety-privacy-model-card",
-      "implement-ch80-from-scratch-laptop-capstone",
+      "implement-ch63-kv-block-pool",
+      "implement-ch64-nucleus-penalties-logprobs",
+      "implement-ch65-stop-strings-unicode-streaming",
+      "implement-ch66-continuous-batch-scheduling",
+      "implement-ch67-cancellation-backpressure-budgets",
+      "implement-ch68-loopback-serving-metrics",
+      "implement-ch69-lora-sft-adapters",
+      "implement-ch70-direct-preference-optimization",
+      "implement-ch71-qlora-boundary",
+      "implement-ch72-prefix-cache-reuse",
+      "implement-ch73-rope-context-scaling",
+      "implement-ch74-retrieval-provenance",
+      "implement-ch75-constrained-json-decoding",
+      "implement-ch76-authorized-tools",
+      "implement-ch77-safety-privacy-model-card",
+      "implement-ch78-from-scratch-laptop-capstone",
       "select-functional-open-model",
       "acquire-functional-open-model",
       "freeze-functional-adaptation-experiment",
       "execute-functional-sft-adaptation",
       "execute-functional-direct-preference-update",
-      "implement-ch81-import-adapt-serve-capstone",
-      "implement-ch82-advanced-decoding-serving",
-      "implement-ch83-distributed-schedule-simulation",
-      "implement-ch84-moe-routing-simulation",
-      "implement-ch85-persistence-scale-decision",
+      "implement-ch79-import-adapt-serve-capstone",
+      "implement-ch80-advanced-decoding-serving",
+      "implement-ch81-distributed-schedule-simulation",
+      "implement-ch82-moe-routing-simulation",
+      "implement-ch83-persistence-scale-decision",
       "admit-functional-postgresql-pgvector-stack",
       "implement-functional-postgresql-pgvector-conformance",
       "validate-functional-postgresql-pgvector-recovery",
@@ -29749,7 +29511,7 @@
         "All preceding committed checkpoints in the active exact decision mode",
         "exact 79 CAP, 17 F/P, 40 CLAIM and 21 OVER maps",
         "both experiment and capstone DAGs",
-        "Chapter 85 persistence disposition",
+        "Chapter 83 persistence disposition",
         "complete Rust/static/locale/browser outputs"
       ],
       "outputs": [
@@ -29764,7 +29526,7 @@
       "acceptance": [
         "Every frozen mapping, scale/profile formula, private seam, artifact identity, predecessor commit and measured resource receipt reconciles exactly.",
         "Locked Rust, dependency, static EN/RU, Firefox, acquisition, training, evaluation, serving and scope-negative gates pass without repeating valid long runs.",
-        "Chapter 85's unselected disposition proves PostgreSQL/pgvector absence, or the exact four-step measured branch has completed and this step depends on its final checkpoint.",
+        "Chapter 83's unselected disposition proves PostgreSQL/pgvector absence, or the exact four-step measured branch has completed and this step depends on its final checkpoint.",
         "The existing closure is the sole eligible next step and depends only on this audit."
       ],
       "validate": [
@@ -29789,53 +29551,64 @@
     "chapter85_content_templates": {
       "base": {
         "content_revision": "memory-file-default-v1",
-        "owner_step": "implement-ch85-persistence-scale-decision",
+        "owner_step": "implement-ch83-persistence-scale-decision",
         "paths": [
-          "curriculum/chapters/85-persistence-scale-decision.md",
-          "site/src/content/chapters/en/85-persistence-scale-decision.mdx",
-          "site/src/content/chapters/ru/85-persistence-scale-decision.mdx",
-          "site/src/i18n/functional-catalogs/en/85-persistence-scale-decision.json",
-          "site/src/i18n/functional-catalogs/ru/85-persistence-scale-decision.json",
-          "site/src/content/cheat-sheets/en/85-persistence-scale-decision.json",
-          "site/src/content/cheat-sheets/ru/85-persistence-scale-decision.json",
+          "curriculum/chapters/83-persistence-scale-decision.md",
+          "site/src/content/chapters/en/83-persistence-scale-decision.mdx",
+          "site/src/content/chapters/ru/83-persistence-scale-decision.mdx",
+          "site/src/i18n/functional-catalogs/en/83-persistence-scale-decision.json",
+          "site/src/i18n/functional-catalogs/ru/83-persistence-scale-decision.json",
+          "site/src/content/cheat-sheets/en/83-persistence-scale-decision.json",
+          "site/src/content/cheat-sheets/ru/83-persistence-scale-decision.json",
           "site/src/components/chapters/PersistenceScaleDecisionDiagram.astro",
-          "site/tests/85-persistence-scale-decision-diagram.test.ts",
-          "site/tests/85-persistence-scale-decision.test.ts",
-          "site/tests/e2e/ch85-persistence-scale-decision.spec.ts"
+          "site/tests/83-persistence-scale-decision-diagram.test.ts",
+          "site/tests/83-persistence-scale-decision.test.ts",
+          "site/tests/e2e/ch83-persistence-scale-decision.spec.ts"
         ],
-        "inventory_receipt": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/base-content-inventory.json",
+        "inventory_receipt": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/base-content-inventory.json",
         "semantics": "measured bounded memory/file exact-top-k default plus immutable conditional protocol; no PostgreSQL path, service or dependency"
       },
       "selected": {
         "content_revision": "measured-postgresql-v1",
         "owner_step": "publish-functional-postgresql-pgvector-advanced-lab",
         "paths": [
-          "curriculum/chapters/85-persistence-scale-decision.md",
-          "site/src/content/chapters/en/85-persistence-scale-decision.mdx",
-          "site/src/content/chapters/ru/85-persistence-scale-decision.mdx",
-          "site/src/i18n/functional-catalogs/en/85-persistence-scale-decision.json",
-          "site/src/i18n/functional-catalogs/ru/85-persistence-scale-decision.json",
-          "site/src/content/cheat-sheets/en/85-persistence-scale-decision.json",
-          "site/src/content/cheat-sheets/ru/85-persistence-scale-decision.json",
+          "curriculum/chapters/83-persistence-scale-decision.md",
+          "site/src/content/chapters/en/83-persistence-scale-decision.mdx",
+          "site/src/content/chapters/ru/83-persistence-scale-decision.mdx",
+          "site/src/i18n/functional-catalogs/en/83-persistence-scale-decision.json",
+          "site/src/i18n/functional-catalogs/ru/83-persistence-scale-decision.json",
+          "site/src/content/cheat-sheets/en/83-persistence-scale-decision.json",
+          "site/src/content/cheat-sheets/ru/83-persistence-scale-decision.json",
           "site/src/components/chapters/PersistenceScaleDecisionDiagram.astro",
-          "site/tests/85-persistence-scale-decision-diagram.test.ts",
-          "site/tests/85-persistence-scale-decision.test.ts",
-          "site/tests/e2e/ch85-persistence-scale-decision.spec.ts"
+          "site/tests/83-persistence-scale-decision-diagram.test.ts",
+          "site/tests/83-persistence-scale-decision.test.ts",
+          "site/tests/e2e/ch83-persistence-scale-decision.spec.ts"
         ],
-        "required_incoming_inventory": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/base-content-inventory.json",
-        "required_decision_receipt": "artifacts/functional-laptop/chapters/85-persistence-scale-decision/persistence-scale-decision-receipt.json",
+        "required_incoming_inventory": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/base-content-inventory.json",
+        "required_decision_receipt": "artifacts/functional-laptop/chapters/83-persistence-scale-decision/persistence-scale-decision-receipt.json",
         "semantics": "reviewed EN/RU measured optional adapter evidence without making static runtime depend on a database"
       }
     }
   },
   "closure_step_id": "close-functional-laptop-llm-curriculum-extension",
-  "closure_depends_on": "audit-functional-successor-preclosure"
+  "closure_depends_on": "audit-functional-successor-preclosure",
+  "current_amendment": {
+    "schema_version": 1,
+    "owner_step": "merge-ch41-nemo-corpus-preparation-20261007",
+    "origin_plan_revision": 1,
+    "origin_plan_sha256": "be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d",
+    "compatibility_path": "configs/functional-execution-compatibility-v6.json",
+    "history": "Original queue/run/review/cache records remain historical and are not current completed aliases.",
+    "external_preparation": "Replaceable pinned NeMo Python/shell in separate NVIDIA image; Rust loads prepared JSONL only.",
+    "bulk_status": "pending",
+    "delta_sha256": "83acab726c0d03f9818cd397d3ca5e6800470167dd564de1291b3cd1f6f8d0cd"
+  }
 }
 ---
 # Functional laptop LLM extension plan
 
 ## 1. Reference-core handoff
-Chapters 0–39 remain the exact scalar reference core. Chapters 40–85 form a separately measured production-shaped laptop track.
+Chapters 0–39 remain the exact scalar reference core. Chapters 40–83 form a separately measured production-shaped laptop track.
 
 ## 2. Fixed autoregressive model scope
 The model family is one causal decoder-only autoregressive text/token model. This plan adds no multimodal, non-text, encoder-only, encoder-decoder, diffusion, second encoder/decoder, alternate output head, or public modality abstraction.
@@ -29856,69 +29629,66 @@ One versioned runtime configuration drives the existing llm-from-scratch crate. 
 
 Only text-token-ids and cached-text-token may produce PreparedDecoderInput. One causal decoder consumes it and the tied head emits text-token logits; no public modality abstraction or non-text producer is reserved.
 
-## 5. Learner modules 40–85
+## 5. Learner modules 40–83
 - 40-reference-core-handoff: Identify Chapters 0–39 as the exact scalar reference core and locate the production-shaped laptop successor track without weakening the reference proofs.
-- 41-governed-corpus-acquisition: Acquire only the frozen TinyStories raw text pair into a content-addressed offline cache with complete provenance, license, attribution, size, and checksum evidence.
-- 42-deterministic-corpus-filtering: Stream corpus records through a frozen ordered filtering, quality, privacy, secret, manual-review, and deletion-lineage policy with complete accounting.
-- 43-deduplication-decontamination: Build deterministic exact and inspectable near-duplicate components, preserve whole components across splits, and measure evaluation contamination before tokenizer learning.
-- 44-scalable-bpe-tokenizer: Scale the deterministic byte-covering BPE oracle to streaming training and application with frozen normalization, pretokenization, special-token, artifact, and efficiency controls.
-- 45-padded-variable-batches: Batch unequal token sequences with explicit token, target, attention, position, segment, and loss-eligibility metadata.
-- 46-packed-sequence-masks: Pack documents deterministically with explicit segments, reset positions, no cross-document attention or targets, and valid-token equivalence.
-- 47-depth-stable-decoder: Apply one predeclared depth-aware initialization or residual-scaling policy and measure layerwise activation and gradient health.
-- 48-configurable-decoder-core: Construct the reference, bridge, laptop, and production-plan configurations through one versioned causal decoder and one checked private prepared-input core.
-- 49-dropout-semantics: Implement optional, reproducible dropout with explicit train/evaluation modes and an isolated RNG stream.
-- 50-dependency-error-contract: Freeze the complete supporting dependency graph and fail-loud typed boundary before new accelerator, artifact, and serving plumbing enters the workspace.
-- 51-serving-config-admission: Project decoder configuration, artifact identity, and resource profile into checked serving request planning and refusal.
-- 52-accelerator-tensor-parity: Execute explicit device/dtype tensor primitives on WGPU Vulkan while preserving the scalar tensor and autodiff oracles.
-- 53-mixed-precision-training: Train with FP16 working computation, protected FP32 state, and reproducible dynamic loss scaling under explicit numeric-health rules.
-- 54-memory-bounded-training: Accumulate valid-token gradients and recompute selected activations inside a measured single-device memory envelope.
-- 55-optimizer-schedules-clipping: Execute schedules, unscaling, finite checks, valid-token averaging, clipping, AdamW, and state transitions as one exact update event.
-- 56-tensor-artifact-interchange: Export and import a bounded SafeTensors dense bundle with exact course configuration, tokenizer, tensor census, and conversion lineage.
-- 57-immutable-artifact-persistence: Store large immutable artifacts as content-addressed local files and publish complete successors atomically.
-- 58-exact-job-resume: Interrupt and continue the complete training job without losing data, RNG, optimizer, scaler, schedule, accumulation, evaluation, or identity state.
-- 59-resource-observability: Plan and measure memory, communication, throughput, time, disk, device identity, and numerical health under enforceable ceilings.
-- 60-multi-seed-evaluation: Evaluate conventional held-out autoregressive loss and bounded tasks, contamination, privacy, baselines, and three-seed sensitivity with explicit uncertainty.
-- 61-quantized-gguf-artifacts: Implement transparent calibrated quantization plus a bounded GGUF-v3 parser, writer, admission, and lineage path for the selected compatible base and its course-produced quantized derivative.
-- 62-laptop-hardware-admission: Admit or refuse the exact laptop device, dtype, free-memory, component-budget, throughput, and stability profile before expensive execution.
-- 63-gqa-context-policy: Implement grouped-query attention and explicit full or sliding causal context policy through runtime settings in the same decoder.
-- 64-online-tiled-attention: Compute exact masked attention with an online tiled recurrence and lower score storage while preserving the materialized oracle.
-- 65-kv-block-pool: Allocate, append, and reclaim bounded KV blocks under exact per-request ownership while preserving full-prefix semantics.
-- 66-nucleus-penalties-logprobs: Add exact nucleus sampling, additive count penalties, immutable processor ordering, and noninterfering model and sampling logprobs.
-- 67-stop-strings-unicode-streaming: Stop on literal generated-byte sequences spanning tokens while streaming only complete valid Unicode and SSE bytes.
-- 68-continuous-batch-scheduling: Continuously admit, prefill, decode, and independently complete requests while preserving their serial semantics and state isolation.
-- 69-cancellation-backpressure-budgets: Cancel and reclaim requests predictably while bounding queues, timeouts, cache, output buffers, and slow-client backpressure.
-- 70-loopback-serving-metrics: Expose the bounded scheduler through a separately invoked loopback-only HTTP/SSE executable with content-minimal operational metrics.
-- 71-lora-sft-adapters: Train a nonzero response-masked LoRA/SFT adapter, keep the base frozen, and bind the adapter as an immutable, mergeable artifact.
-- 72-direct-preference-optimization: Train one immutable DPO successor adapter from governed chosen and rejected response pairs and compare it with the disabled and SFT states.
-- 73-qlora-boundary: Compare LoRA training through the course-produced quantized frozen base while keeping quantization and gradients visible.
-- 74-prefix-cache-reuse: Reuse and evict exact authorized immutable prefixes within the bounded local KV pool without changing request semantics.
-- 75-rope-context-scaling: Make partial RoPE, frequency base, and context-scaling behavior explicit versioned settings with exact cache and artifact compatibility.
-- 76-retrieval-provenance: Retrieve stable exact top-k authorized records from bounded memory or files and assemble provenance-visible cited text for ordinary tokenization.
-- 77-constrained-json-decoding: Generate bounded JSON by masking tokens through an incremental automaton for an explicit finite JSON Schema subset and post-validating the result.
-- 78-authorized-tools: Execute only schema-valid, allowlisted, authorized, confirmed, bounded, deterministic local tools while treating all external text as untrusted.
-- 79-safety-privacy-model-card: Publish an endpoint-specific threat model, frozen scenario matrix, uncertainty, failure taxonomy, content-minimal telemetry policy, and model card.
-- 80-from-scratch-laptop-capstone: Train, interrupt, resume, evaluate, quantize, and locally serve one governed narrow-domain decoder from scratch inside the admitted laptop profile.
-- 81-import-adapt-serve-capstone: Import one exact compatible open decoder, adapt it with SFT and DPO, evaluate all states, quantize the successor, and serve that same successor locally.
-- 82-advanced-decoding-serving: Compare bounded search, deterministic proposal-trace verification, chunked or fair scheduling, and parallel prefill while the same single causal autoregressive decoder remains the only model that executes.
-- 83-distributed-schedule-simulation: Simulate distributed training partitions, collectives, pipeline schedules, and serving placement with exact local tensor and byte oracles.
-- 84-moe-routing-simulation: Implement exact tiny sparse-expert routing and capacity arithmetic, then simulate deterministic expert-serving queues over the frozen router trace.
-- 85-persistence-scale-decision: Measure the frozen larger vector workload and decide whether a PostgreSQL/pgvector advanced adapter is justified beyond exact local files.
+- 41-corpus-preparation: Explain why a training corpus needs documented selection, quality inspection, duplicate control and protected evaluation boundaries; configure NVIDIA NeMo Curator to prepare text; export tool-neutral JSONL and load that prepared corpus through a bounded, caller-supplied Rust reader.
+- 42-scalable-bpe-tokenizer: Scale the deterministic byte-covering BPE oracle to streaming training and application with frozen normalization, pretokenization, special-token, artifact, and efficiency controls.
+- 43-padded-variable-batches: Batch unequal token sequences with explicit token, target, attention, position, segment, and loss-eligibility metadata.
+- 44-packed-sequence-masks: Pack documents deterministically with explicit segments, reset positions, no cross-document attention or targets, and valid-token equivalence.
+- 45-depth-stable-decoder: Apply one predeclared depth-aware initialization or residual-scaling policy and measure layerwise activation and gradient health.
+- 46-configurable-decoder-core: Construct the reference, bridge, laptop, and production-plan configurations through one versioned causal decoder and one checked private prepared-input core.
+- 47-dropout-semantics: Implement optional, reproducible dropout with explicit train/evaluation modes and an isolated RNG stream.
+- 48-dependency-error-contract: Freeze the complete supporting dependency graph and fail-loud typed boundary before new accelerator, artifact, and serving plumbing enters the workspace.
+- 49-serving-config-admission: Project decoder configuration, artifact identity, and resource profile into checked serving request planning and refusal.
+- 50-accelerator-tensor-parity: Execute explicit device/dtype tensor primitives on WGPU Vulkan while preserving the scalar tensor and autodiff oracles.
+- 51-mixed-precision-training: Train with FP16 working computation, protected FP32 state, and reproducible dynamic loss scaling under explicit numeric-health rules.
+- 52-memory-bounded-training: Accumulate valid-token gradients and recompute selected activations inside a measured single-device memory envelope.
+- 53-optimizer-schedules-clipping: Execute schedules, unscaling, finite checks, valid-token averaging, clipping, AdamW, and state transitions as one exact update event.
+- 54-tensor-artifact-interchange: Export and import a bounded SafeTensors dense bundle with exact course configuration, tokenizer, tensor census, and conversion lineage.
+- 55-immutable-artifact-persistence: Store large immutable artifacts as content-addressed local files and publish complete successors atomically.
+- 56-exact-job-resume: Interrupt and continue the complete training job without losing data, RNG, optimizer, scaler, schedule, accumulation, evaluation, or identity state.
+- 57-resource-observability: Plan and measure memory, communication, throughput, time, disk, device identity, and numerical health under enforceable ceilings.
+- 58-multi-seed-evaluation: Evaluate conventional held-out autoregressive loss and bounded tasks, contamination, privacy, baselines, and three-seed sensitivity with explicit uncertainty.
+- 59-quantized-gguf-artifacts: Implement transparent calibrated quantization plus a bounded GGUF-v3 parser, writer, admission, and lineage path for the selected compatible base and its course-produced quantized derivative.
+- 60-laptop-hardware-admission: Admit or refuse the exact laptop device, dtype, free-memory, component-budget, throughput, and stability profile before expensive execution.
+- 61-gqa-context-policy: Implement grouped-query attention and explicit full or sliding causal context policy through runtime settings in the same decoder.
+- 62-online-tiled-attention: Compute exact masked attention with an online tiled recurrence and lower score storage while preserving the materialized oracle.
+- 63-kv-block-pool: Allocate, append, and reclaim bounded KV blocks under exact per-request ownership while preserving full-prefix semantics.
+- 64-nucleus-penalties-logprobs: Add exact nucleus sampling, additive count penalties, immutable processor ordering, and noninterfering model and sampling logprobs.
+- 65-stop-strings-unicode-streaming: Stop on literal generated-byte sequences spanning tokens while streaming only complete valid Unicode and SSE bytes.
+- 66-continuous-batch-scheduling: Continuously admit, prefill, decode, and independently complete requests while preserving their serial semantics and state isolation.
+- 67-cancellation-backpressure-budgets: Cancel and reclaim requests predictably while bounding queues, timeouts, cache, output buffers, and slow-client backpressure.
+- 68-loopback-serving-metrics: Expose the bounded scheduler through a separately invoked loopback-only HTTP/SSE executable with content-minimal operational metrics.
+- 69-lora-sft-adapters: Train a nonzero response-masked LoRA/SFT adapter, keep the base frozen, and bind the adapter as an immutable, mergeable artifact.
+- 70-direct-preference-optimization: Train one immutable DPO successor adapter from governed chosen and rejected response pairs and compare it with the disabled and SFT states.
+- 71-qlora-boundary: Compare LoRA training through the course-produced quantized frozen base while keeping quantization and gradients visible.
+- 72-prefix-cache-reuse: Reuse and evict exact authorized immutable prefixes within the bounded local KV pool without changing request semantics.
+- 73-rope-context-scaling: Make partial RoPE, frequency base, and context-scaling behavior explicit versioned settings with exact cache and artifact compatibility.
+- 74-retrieval-provenance: Retrieve stable exact top-k authorized records from bounded memory or files and assemble provenance-visible cited text for ordinary tokenization.
+- 75-constrained-json-decoding: Generate bounded JSON by masking tokens through an incremental automaton for an explicit finite JSON Schema subset and post-validating the result.
+- 76-authorized-tools: Execute only schema-valid, allowlisted, authorized, confirmed, bounded, deterministic local tools while treating all external text as untrusted.
+- 77-safety-privacy-model-card: Publish an endpoint-specific threat model, frozen scenario matrix, uncertainty, failure taxonomy, content-minimal telemetry policy, and model card.
+- 78-from-scratch-laptop-capstone: Train, interrupt, resume, evaluate, quantize, and locally serve one governed narrow-domain decoder from scratch inside the admitted laptop profile.
+- 79-import-adapt-serve-capstone: Import one exact compatible open decoder, adapt it with SFT and DPO, evaluate all states, quantize the successor, and serve that same successor locally.
+- 80-advanced-decoding-serving: Compare bounded search, deterministic proposal-trace verification, chunked or fair scheduling, and parallel prefill while the same single causal autoregressive decoder remains the only model that executes.
+- 81-distributed-schedule-simulation: Simulate distributed training partitions, collectives, pipeline schedules, and serving placement with exact local tensor and byte oracles.
+- 82-moe-routing-simulation: Implement exact tiny sparse-expert routing and capacity arithmetic, then simulate deterministic expert-serving queues over the frozen router trace.
+- 83-persistence-scale-decision: Measure the frozen larger vector workload and decide whether a PostgreSQL/pgvector advanced adapter is justified beyond exact local files.
 
 ## 6. Two capstones
-Chapter 80 consumes the immutable from-scratch experiment receipts plus the standalone admitted tokenizer and two independent dense-fixture oracle receipts. External model selection occurs only after Chapter 80. Chapter 81 consumes the terminal DPO successor, selected-base identity matrix, and course-produced quantized served identity.
+Chapter 78 consumes the immutable from-scratch experiment receipts plus the standalone admitted tokenizer and two independent dense-fixture oracle receipts. External model selection occurs only after Chapter 78. Chapter 79 consumes the terminal DPO successor, selected-base identity matrix, and course-produced quantized served identity.
 The from-scratch result is governed narrow TinyStories-domain laptop evidence only: it makes no general-purpose, production-scale or state-of-the-art claim. The imported path covers one exact compatible decoder and makes no general safety or production-reliability claim.
 
 ## 7. Review, adjudication, localization, and Firefox publication
-Every chapter is one vertical slice: English authoring, two independent reviews, two same-role adjudications, direct Russian localization, bilingual and target-only reviews, then static and sole-project Firefox validation.
+Current Chapters40+ are English-first: authoring, two independent reviews, two same-role adjudications, static and sole-project Firefox validation. Russian40+ remains deferred by the user. Chapters0–39 retain their bilingual policy; historical Russian40 publications and reviews remain unchanged evidence.
 
 ## 8. Conditional PostgreSQL and pgvector decision
-The immutable protocol starts with bounded memory/filesystem exact top-k. Chapter 85 must freeze exactly one declared need before executing the 100,000-by-384 workload. The checker derives premeasurement, measured-local, or measured-selected state from the lifecycle and recomputed receipt; selection requires either that one declared numeric metric to cross its own threshold in at least two of three repetitions, or the predeclared atomic vector-plus-authorization need to observe at least four writers plus hash-bound proof that the bounded file snapshot cannot satisfy that relational requirement. Neither an undeclared metric crossing nor Chapter 85 nor a selected branch rewrites this plan or checker, and the static site never depends on a database.
+The immutable protocol starts with bounded memory/filesystem exact top-k. Chapter 83 must freeze exactly one declared need before executing the 100,000-by-384 workload. The checker derives premeasurement, measured-local, or measured-selected state from the lifecycle and recomputed receipt; selection requires either that one declared numeric metric to cross its own threshold in at least two of three repetitions, or the predeclared atomic vector-plus-authorization need to observe at least four writers plus hash-bound proof that the bounded file snapshot cannot satisfy that relational requirement. Neither an undeclared metric crossing nor Chapter 83 nor a selected branch rewrites this plan or checker, and the static site never depends on a database.
 
-## 9. Exact implementation queue and closure dependency
-The 66-step linear base queue and conditional four-step branch are frozen in the frontmatter and BUILD_STATE projection. Closed offline-workspace, Firefox, content-addressed artifact-cache, three full data-transform, and GPU execution boundaries make every declared command independently runnable.
-The preexisting ./course run and ./course check commands remain developer workflows that may build with network access and lack specialized mounts; they are explicitly non-authoritative for this successor. Every base, selected, preclosure, and closure acceptance command uses a closed successor runner or the host-only git diff and audit-host checks.
+## 9. Current implementation queue and historical closure
+Revision2 replaces the old three corpus chapters with merged Chapter41, preserves all original run/queue/review/cache evidence, and renumbers only future44–85 to42–83. The next full-corpus NeMo preparation is separately pending; its closed command and full resource/source/privacy/group/protected-evaluation policies must be frozen before execution. New Chapter42 depends on that prepared-corpus receipt. The bounded chapter exercise is not the full-corpus job.
 
-Closure depends on audit-functional-successor-preclosure; the base queue is linear and the immutable measured-selected database template inserts only between Chapter 85 and preclosure. Plan and checker bytes never change across premeasurement, measured-local, or measured-selected lifecycle state.
+The standalone GPT2 tokenizer oracle, remaining algorithm/resource policies, two capstones and conditional PostgreSQL release gates remain substantive and unchanged. Current exact identities and the permitted seam delta are bound by compatibility-v6. Old immutable66-step and measured-selected queue assertions remain historical v1–v5 evidence, not new completed aliases.
 
 ## 10. Exact coverage and ownership maps
 The frontmatter owns exactly 79 capabilities once, 17 F/P records, 40 reference claims and 21 overbroad surface dispositions.

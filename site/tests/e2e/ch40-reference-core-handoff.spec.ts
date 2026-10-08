@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
+// @ts-ignore Shared plain Node locale projection.
+import {readFunctionalChapterLocaleConfiguration} from '../../../scripts/functional-chapter-locale-config.mjs';
 import { auditDiagramContainment } from './helpers/diagram-containment';
 import { expectNoPageOverflow, expectOnlySharedDiagramClientScript } from './chapter-helpers';
-for (const locale of ['en', 'ru'] as const) {
+for (const locale of readFunctionalChapterLocaleConfiguration('..').chapters.find((chapter: {chapterId:string}) => chapter.chapterId === '40-reference-core-handoff')!.activeLocales) {
 const path = `/${locale}/course/40-reference-core-handoff/`;
 const figureSelector = 'figure[data-visualization-id="reference-core-handoff"]';
 const digest = 'cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648';

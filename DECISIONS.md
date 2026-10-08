@@ -30591,3 +30591,945 @@ old Chapter43 implementation. Its preserved pending step/interrupted run are
 history, not permission to resume that obsolete scope. Require a new separately
 frozen migration claim before any chapter replacement or renumbering. This policy
 step changes none of the old Chapter43 step/run fields or staged teaching bytes.
+
+### 2026-10-07 — Coherent merged Chapter41 migration claim
+
+Root freezes merge-ch41-nemo-corpus-preparation-20261007 as one coherent successor:
+new41-corpus-preparation replaces published old41/42 and interrupted old43; only
+future old44–85 become42–83. Root owns teaching/schema/Rust loader/demo/NeMo recipe
+and semantics; machinery owns ledgers, approved mechanical mapping/plumbing/tests
+and deterministic packaging/validation. No partially numbered canonical state.
+
+Clean baseline2c876b9 and immutable inputs.json bind the complete parsed plan,
+exact old41–43/data-execution records, queue/build hashes and125bounded material
+files. Inventory32currentRust files,15activeoldsurfaces and42future packets;
+declare123initial candidate output boundaries. Root freezes the prepared format,
+replacement records and reusable plumbing retention, plus exact recipe/figure/
+schema/additional shared paths, before their mutation. Old41/42 remain canonical
+until full staged validation. Old sealed reviews/source/artifact/run/cache bytes
+and old43 six-file staging are preserved, never blindly renumbered.
+
+Medium preflight then large integratedC3/G1/N1 has no development elapsed stop or
+finite budget. Official NVIDIA-NeMo/Curator v1.3.0 source/tag/commit/tree and
+root-selected docs/tutorial lookup uses existing curl, aggregate<=8MiB, no full
+repository/model/corpus acquisition. Optional official pinned image provisioning
+and actual NVIDIA recipe smoke require accepted exact phase inputs. No paid
+service, remote execution or GPU/cloud purchase; all runs network-none.
+
+The user clarifies that the host has an NVIDIA driver and authorizes appropriate
+NVIDIA Docker tools/images. Sandbox nvidia-smi/device-node failure is not proof of
+Docker GPU absence. After claim, run bounded read-only nvidia-smi via the existing
+approved image with --gpus all, escalating Docker permission as necessary, without
+privileged mode/benchmark/model/corpus work. Record its raw result before deciding
+any official image provisioning; no NeMo execution is implied by availability.
+
+Preserve exact source census/Chapter40 Rust and unrelated substantive resource,
+identity and algorithm policies; reuse maintained overlays/review tools rather
+than a new framework. English41+ only, repairs held, no routine screenshots. The
+sole migration build is active while historical extension is idle/pending with
+every original step/run unchanged. Future active queue reconciliation requires
+the explicit approved replacement, not obsolete pending43 resumption.
+
+### 2026-10-07 — Docker GPU evidence, separate NeMo image and stdin boundary
+
+After the user's host-driver clarification, read-only Docker --gpus all with
+the already approved image590b0c2f succeeds. Actual device is NVIDIA GeForce
+RTX4070 Laptop GPU, UUID GPU-8c717ace-ab94-27e1-d976-ee709eebb776, PCI
+00000000:01:00.0,8188MiB, driver580.178.04, compute capability8.9. This corrects
+the inference boundary, not the preserved failed sandbox observation. It is
+device availability only, not NeMo stack execution or definitive laptop admission.
+Both exact invocation results are immutable run artifacts with hashes.
+
+The user explicitly requests a separate external-tool image. Add
+docker/nemo-curator.Dockerfile and the root-owned tools/nemo-curator recipe,
+fixture and README to the declared integrated output inventory before edits.
+Do not add NeMo/CUDA/Python dependencies or huge corpus payloads to the existing
+Rust/site image. Prefer the official pinned26.07 image after actual package/API
+identity verification; all runs remain network-none with supplied mounts.
+
+Official v1.3.0 tag resolves commit6b956ce8965820de1b638fedf6de0cbcf0cc46ba,
+treea7482ccd7b031383307f1440aefe6406579d219f. Bounded curl tag/commit/tree
+responses and a candidate file metadata index are retained; selected content
+lookup stays under8MiB aggregate and does not install or execute dependencies.
+Root freezes new-chapter41-spec.json, including prepared JSONL loader contract
+and actual integrated implementation-step identity. No fake completed alias is
+introduced. Mechanical renumbering is staged; historical queues/runs stay intact.
+
+Current course rust-run and Rust overlay lack Docker stdin forwarding. Root
+approves narrow -i, never -t, for the relevant run paths and focused redirected
+fixture/EOF/error regressions. Preserve network/mount/resource controls and old
+reference source/stdout. This reusable plumbing change avoids a bespoke learner
+launcher; commands must actually deliver the caller's prepared bytes.
+
+Root approves retained-plumbing strategy A: move four generic artifact modules
+into the existing operational functional-artifact-cache crate and retarget
+imports, preserving behavior/tests. The LLM core keeps only prepared_corpus.rs
+for new41; protected Chapter40 artifact_identity.rs remains byte-identical.
+Remove five old preparation data modules, old demos/fragments and filtering-only
+operational runner/config paths from the coherent staged replacement. Preserve
+historical source/cache/receipt/review bytes and do not redownload raw data.
+
+The official26.07 linux/amd64 manifest digest is
+a9615e68a91af484e52aa35d5c6be0d92e02dc43767f44df7a22de31298fe80a;
+28 compressed layers total16,891,060,571bytes. The filesystem containing Docker
+has755,357,163,520bytes available at observation. Expanded image size remains
+unmeasured, not a promised compression factor. Root inspected and approved the
+thin staged Dockerfile: only this official digest, WORKDIR/course and Python
+entrypoint; no install, copied assets or corpus/model acquisition. Network-enabled
+official provisioning/build is authorized as external development setup, not a
+course-workload result or charged substitute for its unchanged resource caps.
+No Linux package census or upstream all-extra image reassembly is performed.
+Verify actual installed Curator/package APIs and stack offline after provisioning.
+
+### 2026-10-07 — Merged41 staged loader and actual external runtime checkpoint
+
+The thin official image build succeeded: derived96d814b03d02a134cdc3f7702c8a11471f8940fa638ef7895e2054cadd7fb196,
+expanded31,527,725,237bytes. Offline observation confirms Curator1.3.0,
+Python3.13.14, CUDA runtime12.9/driver API13.0 and one NVIDIA device. Fourteen
+selected installed package sources exactly match the pinned v1.3.0 commit.
+The first root/cap-drop probe silently could not traverse group-owned750source
+directories and enumerated zero files; it is not accepted as matching evidence.
+A narrow explicit-list/nonempty probe with user0:1000 fixes observation scope.
+These are tool/runtime facts, not NeMo pipeline or definitive laptop acceptance.
+
+Transitional offline loader13module tests plus3demo tests and maintained stdin
+transport13regressions pass. Actual redirected fixture is3documents/39decoded
+UTF8bytes; empty EOF0/0 and malformed input exit1/zero stdout. Public CLI is
+course run COMMAND, not a new rust-run API. Canonical reference bytes unchanged.
+Existing test harness failures were corrected narrowly; no chapter-language
+review is claimed for plumbing-only gates.
+
+Root freezes supplied source-group split policy and bounded recipe before actual
+fixture smoke; add its split-policy fixture/helper tests and new figure to current
+ownership. Working semantic spec evolved intentionally and is now frozen as
+revision02; retain the initial observed hash as superseded input history rather
+than claiming old bytes remain current. Generic four-module relocation and exact
+25obsoleteRust-file deletion inventory are staged only. Empty-parent pruning is
+rmdir-only for touched declared Rust parents, stops at rust root and preserves
+unrelated empty directories. No canonical deletion/publication or bulk corpus
+run occurs before complete coherent migration gates.
+
+### 2026-10-07 — Bounded NeMo handoff and closed revision-two projection
+
+The actual offline NVIDIA fixture completed six input, four quality-selected and
+three prepared documents; its predeclared roles contain one document each.
+Decoded text totals are 39 bytes overall and 11/11/17 by role. The Rust reader
+loaded the actual all-role and training-only exports as 3/39 and 1/11. This is
+bounded fixture evidence, not bulk privacy, rights, near-duplicate, related-group
+completeness, benchmark clearance or model-quality evidence. The failed initial
+hostname smoke is preserved. A loopback hostname mapping fixes Ray startup
+without granting container network access.
+
+The four generic relocated operational modules pass 39 focused tests; seven
+reference-registry tests preserve the scalar source census. Eighteen focused
+stdin/deletion/runner tests include explicit empty-directory cleanup in a private
+overlay only. Root approved the narrow shared functional-corpus-migration-v2
+helper: deterministic exact numbering and supplied semantic delta, maintained
+focused tests and usage documentation, no new general migration framework.
+Declare that helper before editing; preserve all v1–v5 constants and receipts.
+Current 44-entry plan/registry projections must not relabel historical runs.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Coherent static candidate and necessary route fixture
+
+The first coherent private Chapter41 build passes exact contract/content/parity,
+Astro diagnostics (240files, zero errors/warnings/hints), 88static pages and
+3040local references with88SEO/sitemap routes. Root corrected only author-owned
+section markers, exact formula notation and matched ordered optional-task answers
+before that build. No GPU/image/Rust proof was repeated for those prose fixes.
+English packaging receives the exact source-v4 manifest and source-bound built
+HTML; independent judgments are still pending, not replaced by static checks.
+
+Root approves necessary shared site/tests/functional-course-routes.test.ts:
+86metadata entries become84 under44successor entries and revision2; its negative
+revision case becomes1. Keep every exact revision78prefix hash, frozen40fixture,
+receipt and locale-isolation predicate. Current AGENTS/SKILLS also document the
+explicit separate external NeMo image and future44–85→42–83 numbering; no CUDA,
+NeMo or Python package enters the unchanged Rust/site Dockerfile and no corpus
+or model is embedded in the thin separate image. Original raw/cache receipts
+bind only preserved configs/source metadata, not removed demo/module files.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Current operational cache and stdin-example convention
+
+The relocated generic cache build and actual immutable synthetic self-test pass
+under the unchanged pinned offline image: four payloads/46 bytes, read-only replay,
+write/corruption/symlink/mode/uid refusals and exact runtime identity. These validate
+changed operational plumbing, not an unchanged historical implementation or a
+NeMo bulk preparation receipt. The owned run root's initial group-write mode
+correctly refused before work; only that staging root was normalized to0755,
+without weakening the existing cache boundary. A staged wrapper must be selected
+from the current owning run and invoked with Bash; the focused18-test regression
+preserves canonical fallback and the complete-overlay path.
+
+Root approves a narrow existing example-checker convention: when a chapter demo
+contains fixtures/prepared.jsonl, forward its bounded<=1MiB exact bytes to cargo
+stdin. The new41 fixture is explicitly manually prepared learner input, not a
+fabricated NeMo golden; its origin/hash remain recorded. Demos without this file,
+including40, retain no-fixture behavior and exact stdout comparison. This is test
+plumbing, not a dataset or retrieval decision in the LLM library. Shared selectors
+pass30tests and the one documented failure test actually selects one case.
+
+Current plan8f49beb0 is frozen while fresh English judgments run. Historical83-step
+queue and all runs remain unchanged. The completed42-packet validated generation
+was hash-checked and snapshotted immutably before adding two explicit current
+amendments per packet: inherited example-only core paths are superseded by
+chapter-specific rust/demos folders, and inherited agent elapsed-time maxima are
+historical/unenforced. Removing those paragraphs reconstructs every original
+packet byte; shared algorithms/tests/registry and taught workload/profile/protocol/
+test limits remain unchanged. Successor manifest SHA256:
+660501821aea1fa3201ed31e26b159f91d1a97a19e4b092cad4ca4575ee24a00.
+
+Root approved insertion of current queue03 under
+extend-course-functional-nemo-revision2-20261007. Its56steps are all pending with
+no runs or completed aliases; each retains exact origin build/step/contract
+references. Approved proposal SHA256:
+cffb89b8292a881f7c74094a7e5a8b24317d3034b04705f733ecec3993287e59.
+The migration remains the only active scheduler until coherent completion and
+commit; only then activate this revision2 queue. Build-qualified current selection
+prevents same-named lifecycle records in historical builds being reclaimed. The
+existing repair remains uniquely pending and excluded until explicit user request.
+Bulk NeMo preparation still lacks its required preflight and prepared receipt;
+queue insertion alone does not authorize executing an unsupported pipeline.
+No full corpus preparation, Russian41+, repairs, screenshots or canonical product
+publication occurs at this checkpoint. Affected step:
+merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Failed r01 preservation and source-bound r02 rendering
+
+Root reports blocking isolated-review findings for command-local execution context
+and diagram quantity referents. r01 must not publish; preserve its exact source,
+HTML, raw reviews and adjudication history. Root edits only mutable r02 contract
+heading, lesson/catalog title, three command-local prerequisite/working-directory
+paragraphs and diagram description. Machinery captures actual publish bytes
+directly and never reassembles stale r01 metadata/body inputs. New English source,
+reading/isolated inventory and fresh two-review/two-adjudication judgments remain
+required; deterministic rendering cannot certify those findings resolved.
+
+Successor static07 passes contract/content/parity,243Astrofiles with zero diagnostics,
+88pages/3040links/88SEO+sitemap. Firefox02 preserves four passes and three failures
+caused only by two stale expected title literals. Only those test expectations
+are corrected; same static07, successorFirefox03 passes7/7in5.3seconds. No image
+interpretation, screenshots, Rust/GPU/source/history/full-plan or queue rerun.
+Actual generic dynamic names remain byte-identical. Completed prior evidence is
+not overwritten and failed validation is not labeled a passing gate.
+
+Ownership06 reconciles an ancillary snapshot omission with live declared diagram,
+split-fixture and helper-test outputs, and explicitly records the necessary
+already-approved diagram-test boundary:142current paths. Internal README process
+documentation reflects40–83, bilingual0–40/English41+, the scoped external NeMo
+exception/separate image and Rust-reader-only boundary. A proposed coherent
+110staged-file/92exact-deletion manifest excludes review-worker-owned r01HTML and
+has no publication authority. It predates the final expected-title-only test
+correction and must be refreshed after all owning gates pass. No canonical product
+bytes or immutable historical source/review/run/cache bodies are changed.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Current r02 mirrors and bounded non-review readiness
+
+Root selects the four exact english-html/r02/en route mirrors already bound by
+the fresh r02 spec. Ownership07 makes those current required built outputs
+explicit inside the existing writable artifact subtree; its146boundaries are
+a writable superset, not a mandatory-file inventory. Earlier default r01HTML
+mirrors and promotion-plan01 remain immutable historical/noneligible evidence,
+never current canonical existence, receipt or promotion inputs.
+
+The four current mirrors match their private spec and accepted static07 bytes.
+Fresh non-review promotion-plan02 binds110current staged files and92unchanged
+exact named deletions. Only the two E2E title-expectation literals differ from
+the prior non-review manifest, and accepted Firefox03 already covers them.
+Chapter/source and diagram unit tests have no stale title literal; reuse their
+unchanged passing gates rather than repeat broad validation. The six English
+sources, frozen plan, Rust/NeMo/source/cache proofs are unchanged. No teaching
+edit, publication, completed checkpoint or commit is made by this preparation.
+
+Current r02 still requires both fresh English reviews and both fresh same-role
+adjudications to pass exact maintained verification. Review archive, eligible
+publication receipt and complete final promotion inventory remain owning gates.
+Keep the revision2 queue inactive until coherent completion and commit; bulk
+preparation preflight, held repairs and deferred Russian41+ are unchanged.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Archive-safe current Chapter40 forward-reference scope
+
+Root reports the r02 technical review blocks on Chapter40's live outgoing
+acquisition topic and missing forward reading unit. Its archive-safe proof and
+preceding-source baseline are hash-verified before mutable successor staging.
+Declare curriculum/chapters/40-reference-core-handoff.md and the matching
+English MDX as root-only content outputs:148writable boundaries. Initial staged
+copies are exact current canonical bytes, not machinery-authored revisions.
+Root may now change only the forward reference and corresponding English field/
+internal successor boundary, preserving formulas, Rust and recorded output.
+
+Original completed40publication/source evidence and failed r01/r02 candidate,
+review and adjudication bytes remain immutable. The r03 binding is not frozen;
+old HTML mirrors do not become current eligible output evidence by this scope
+declaration. No canonical product write, publication or green-producer repeat.
+After independently approved English, refresh only affected Russian40surfaces
+through localization workflow; Russian41+ remains deferred. This necessary merge
+integration does not release held Chapter6/8–10repairs or the bulk preparation.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Explicit private English40/41 pair and command scope
+
+Root authorizes one fresh shared English candidate40revision2 and41, with one
+honestly shared four-role judgment chain rather than two independent chains.
+Current40English changes supersede the earlier live-publication-bytes-unchanged
+assumption: original completed40publication and allr01/r02 archives remain
+historical, while formulas, scalarRust, literal report and source census stay
+unchanged. The English catalog changes only its neutral revision counter.
+Fresh approved English must precede Russian40refresh; Russian41+ remains held.
+
+The maintained private selector accepts only a closed explicit ordered40/41
+version2 pair, binding both actual English revisions/hashes. Production and
+legacy version1 remain unchanged. Version2 checks the complete shared40contract
+structure against final English/Russian keys, but lesson integration/parity and
+private routes use selected English only; retained Russian is not current review
+evidence. Final bilingual40 locale activation/switch/hreflang remains unchanged.
+One shared configuration view verifies production receipts strictly before the
+first private candidate, not stale candidate receipts. Unselected predecessor
+errors, default production and legacy version1 still fail closed. No public
+receipt or held repair becomes eligible through this development projection.
+
+Preserve static08 bilingual-structure, static09 retained-Russian parity and
+static10 eager stale-candidate-receipt failures as operational harness evidence,
+not language judgments. The successor focused tests pass3Node/11Vitest cases.
+The user-authorized command-only/local-context rule verifies the exact maintained
+Cargo invocation: one selected pure identity-input mutation test passed with
+three filtered tests and zero training. Root separately revised the narrow
+singular answer referent, so fresh English reviews cover its current bytes.
+Do not repeat accepted Rust/NeMo/GPU/history/plan producers for these changes.
+
+Ownership152 declares narrow existing selector/catalog/link/browser consumers;
+no production policy, canonical teaching publication or compatibility alias is
+introduced. This merge integration does not release repairs6/8–10, bulk NeMo
+preparation or Russian41+. Affected step:
+merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Current40/41 render handoff and versioned receipt ownership
+
+Static12 binds the final root-authored current40revision2 and41 sources and
+preserves actual private HTML. All contract/content/parity/selector/SEO gates
+pass, with243Astrofiles/zero diagnostics,87private pages and3006local references.
+Only selected English40renders; final bilingual activation/switch/hreflang is
+unchanged and retained Russian40is not certified. SoleFirefox08 passes8/8in6.3s
+and records both diagrams' actual normal/expanded/restored accessible names and
+Escape attributes, without screenshots. Static11's successful ephemeral build
+was lost after its old SEO expectation failed; one successor12second build
+recovered exact HTML, and the launcher now persists dist before auditing links.
+The narrow selected-EN SEO rule is version2-only; production/legacy stay intact.
+
+Root selects a fresh current40publication-receipt-r02.json and versionedru-r02
+review subtree. Declare those boundaries and the affected Russian40lesson/catalog
+before future localization writes. Both current40revision2 and41 inventories
+reference the exact same41English spec and four seals directly. Revision1 APIs
+and all original40receipt/English aliases/Russian archives remain unchanged;
+do not copy duplicate English aliases or overwrite historical publication proof.
+Fresh final bilingual full-contract hash and maintained English-projection equality
+remain mandatory. Current40/41 render identity uses successor hashes, not an
+old live-source-unchanged assertion; scalarRust/formula/literal-report proofs
+and actual NeMo/loader/source/plan evidence remain reusable exactly.
+
+The156boundary ledger is a writable superset, not publication permission.
+Shared fresh English judgments, Russian40localization/reviews/affected layout,
+final88page production and exact receipt/inventory gates remain pending. No
+canonical promotion, bulkNeMo, held6/8–10repair or Russian41+ work is released.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Closed revision-aware shared English publication paths
+
+The maintained publication inventory and language-verifier APIs now accept the
+validated contentRevision. Their default40revision1 mapping retains original
+English/Russian paths verbatim. Current40revision2 directly references41's shared
+English spec/four seals and its own freshru-r02 localization records, preserving
+the closed version1 receipt shape and all original aliases. The current revision2
+evidence adapter selects only publication-receipt-r02.json; missing stops current
+activation, malformed or wrong revision refuses, and original publication-receipt.json
+is never a fallback. Unknown40revisions/chapter IDs/unsafe paths refuse.
+
+Packager confirms shared scopech40-ch41.en.corpus-handoff and exact source.ch40.contract
+projection at41/english/contract-projections/40.en.json. A bounded identity guard
+requires all five complete40source IDs and both chapter lesson/catalog identities,
+then compares canonicalJson(localizedContractProjection(final40,'en')) to that exact
+frozen projection. This proves only exact source/projection identity, not review
+substance. Final full bilingual contract hash/validateContractLesson and actual
+maintained English four-role/Russian two-role verification remain mandatory.
+
+Focused final tests pass12Node and11Vitest cases, including original40path/history
+preservation, exact shared seals, unsupported revisions, no old-receipt fallback,
+wrong current40revision before verifier invocation, and scope/path/byte/projection
+drift. Protected original40receipt equalsHEAD bytes exactly (SHA2562a66fd5c628dadb8a2fb35d0915e6be8f055d44a107232ca80524c8f2b3dfc35).
+No English source/HTML, Rust or NeMo producer changed or reran; no full site rebuild.
+The checkpoint stays running, with fresh shared judgments/Russian40/final coherent
+publication still pending. Affected step:
+merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — Pending Russian40 boundaries and unchanged staging
+
+Audit confirms current40full contract, Russian lesson/catalog, versionedru-r02
+review subtree and new current publication receipt already belong to ownership11.
+Ownership12 names the three requiredru-r02 spec/bilingual.raw/target-only.raw
+files precisely inside that existing subtree, producing159declared boundaries
+without expanding translation or publication authority. Both Russian40canonical
+lesson/catalog are copied unchanged into mutable publish staging and verified
+against their already immutable preceding40baseline snapshots. These revision1
+copies are preparation only, not current revision2 localization or approval.
+
+The content owner may revise Russian40only after fresh shared English judgments
+pass and under the localization skill. No translation, review, counter change,
+English source/render edit, producer validation, canonical promotion or commit
+occurs in this checkpoint. Russian41+, repairs and bulk preparation remain held.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — r03 closed noneligible; inventory-only successor pending
+
+Exact r03 outcome7210bytes/SHA256f9c2276554fd64adbb6c8a63a3f81a821251aea04f3e97f6cf9134d68b5aa660
+records technical/isolated reviews fail/pass and same-role adjudications fail/pass.
+All four original raw/sealed semantic records, receipts and context/native evidence
+remain unchanged; the maintained verifier exits1 unresolved-blocker and creates
+no eligible report. Isolated passes never approve this failed candidate, and the
+technical adjudication failure does not repair or relabel its original failing review.
+
+Root reports review-inventory coverage blockers for Chapter41's actual lesson-header
+metadata and separate visible description, not source/Rust/tool defects. Packager
+audits actual header/card/objective relationships for one inventory-only successor;
+root must approve its exact role inventory before all fresh judgments. This is
+diagnostic run history, excluded from successor model judgment bundles. Final
+shared receipts must select whichever actual chain passes, never an assumed suffix.
+
+Preserve static12/Firefox08/source/Rust/NeMo/history/plan and pending Russian40copies
+without producer repeats or edits. Russian40 remains held until English eligible;
+no canonical promotion, future queue activation, bulk preparation, repairs or
+Russian41+ release. Affected step:
+merge-ch41-nemo-corpus-preparation-20261007.
+
+### 2026-10-07 — r04 inventory-only author approval and neutral commitment
+
+Root approval07 binds exact inventory701294bytes/SHA25607252f040575dfc06b8ad1c8bd9489676f306a8c5edf5bca84f4f9b21c00be3b
+and neutral commitment-map02 16207bytes/SHA256043bf609ae071ec4fa1d2b8f46f7e80ace700f119e9af4d381b67f659a5a1a96.
+The actual metadata, visible description and catalog ordinal receive separate
+role units; one introductory reading unit reflects the actual header sequence.
+Only the two explicitly approved existing role requirements change, and the
+twelve body reading IDs/members/relative order remain with a one-position rebase.
+This declaration binds root-approved roles/requirements, not language quality.
+The current inventory has11complete sources,4built documents,23reading units
+and197isolated units. Operational approval/comparison stays outside fresh judgment
+contexts, and all four successor judgments remain required.
+
+The current eleven source hashes and four saved HTML routes, static12 and
+Firefox08 input/output/dynamic records are reverified unchanged read-only. Reuse
+accepted Rust/NeMo/source/history/plan producer evidence without new execution.
+Packager alone owns review-workspace05 and fresh routing. r03 remains closed
+noneligible, with original failing/pass records retained unchanged as history.
+Russian40authoring, publication and future queue activation stay held until actual
+eligible judgments and their remaining gates. No semantic judgment, source/render
+edit, producer repeat, canonical promotion or held-work release occurs here.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-07 — r04 global selector reconciliation and pending Russian40 plumbing
+
+Root approval08 binds final inventory701294bytes/SHA2569b58545bb8896f85397f962c7cb37625f02a8f93e0a0ff9cfc3b02628d408bb4
+and unchanged commitment-map02. Only ten Chapter40 global reading-selector
+numbers shift13–22 to14–23 after the added Chapter41 introductory reading unit.
+All IDs, extracted values, neutral role requirements, member relationships,
+provenance and relative reading order remain unchanged. Rejected workspace05
+failed contiguous-order preparation before bundles/routes or semantic responses;
+preserve its exact evidence externally, never normalize or relabel it. Fresh
+workspace06 uses the final inventory. These operational facts and approvals
+stay outside fresh four-artifact judgment contexts, not language certification.
+
+Read-only Russian40 preparation inspected the existing Chapter40 run02
+extraction/preparation pattern and unchanged maintained localization/routing
+interfaces. Old run paths,93roles,author settings and verdicts are historical,
+not a current package. Root approves a narrowly versioned private mixed-locale
+current40revision2 English/Russian plus41revision1 English pair after all four
+English judgments pass; legacy privatev1/v2 and public production remain intact.
+Current frozen English source/HTML must remain exact through the later bilingual
+render. No selector implementation, translation, package freeze or render occurs
+now. Existing159ownership includes staged unchanged Russian40baselines, full
+contract,ru-r02 archive/spec/raw records and new publication-receipt-r02; original
+receipt/archives remain untouched. Russian41+,repairs,bulk preparation and future
+queue activation remain held. No source/producer repeats or promotion.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-07 — User defers Russian40 and removes its current delivery
+
+The user explicitly directs removal of Chapter40Russian and says it will be
+added later, with no Russian validation now. This supersedes pendingru-r02
+authoring,packages,reviews,rendering and the unimplemented mixed-locale preview
+fit. Current Chapters40+ are English-first; Chapters0–39 remain bilingual and
+the general localization architecture/review rules are preserved for future
+explicitly resumed localization. No Russian40placeholder or approval gate.
+
+Record the exact three current Russian40product removal candidates and unchanged
+staged baselines before scope-approved mutation. All original sealed Russian/
+English review archives,publication receipts,source/run/cache evidence remain
+historical and immutable. Milestone16 and its RUpreparation handoff are retained
+as superseded pending design,not overwritten or presented as current work.
+
+Read-only frozenHTML inspection shows currentEN40contains a Russian40alternate
+link and visible locale-switch anchor. Actual locale deferral therefore changes
+EN40rendered bytes/affected roles even if English teaching/projection/Rust stays
+exact. Preserve current r04records/evidence and establish the applicable fresh
+English rendered candidate/review bindings; do not pretend prior completeHTML
+reviews apply to changed navigation. Unchanged NeMo/Rust/source/history/plan
+producer proofs remain reusable. No product deletion,activation change,English
+edit,newbuild or producer occurs in this checkpoint. Current159writable boundary
+superset remains until root scopes exact successor outputs/deletions/selectors;
+supersededRUpaths are not current acceptance requirements. Repairs,bulk preparation and
+future queue activation remain held.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-07 — Fresh English-only40 successor after material user scope change
+
+Interrupt the original integrated run01 honestly; preserve all completed/failed
+source,HTML,review,NeMo/Rust/image/primary/cache evidence. Fresh run02 records
+actual input fingerprints,scope and preflight before edits. The live157path
+ownership removes four prospective ru-r02 boundaries from159 and adds exact
+RU40sheet deletion plus active-locale Chapter40Firefox test. Original ownership
+records remain immutable history. The three RU40learner files are removal-owned,
+not current delivered products; canonical removal waits for coherent successful
+English publication/receipts. Current40revision2 is English-only and original
+40revision1 receipt/archives stay unchanged. No mixed-localev3 or RU40validation.
+
+Cost is large integrated C3/G0/N0 for this successor, no elapsed agent stop.
+Reuse exact unchanged Rust,NeMo,GPU,image,history and substantive plan evidence;
+do not repeat producer or acquisition/image/dependency work. Reuse the existing
+BaseLayout Russian course-index fallback,not new notices/messages/chrome. This
+changes actualEN40nav/meta and requires a fresh immutable rendered English
+candidate/four-rolechain,while Englishteaching/projection/Rust/data stay exact.
+Root owns current contract notes/neutral role decisions; machinery owns narrowly
+declared locale/selector/tests/deletion integration. Chapters0–39 remain bilingual,
+repairs/bulk/futurequeue remain held. No canonical publication in this claim.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-07 — English-only40 successor render and bounded current policy
+
+The exact user locale override now has a closed current v6 delta: Chapter40
+active English only, empty current Russian outputs and no Russian review gate;
+all original v1–v5 plan/queue/run/review and substantive unrelated resource and
+algorithm assertions remain history unchanged. Future queue stays inactive and
+its current plan hash is updated to81d445a0; no completed aliases are introduced.
+The current40fullcontract lost21localized Russian dictionary fields only; its
+canonical English projection remains exact f19b1d8f. English lesson/catalog/
+sheet/figure and immutable program data stay unchanged. Stage-only removal of
+RU40lesson/catalog and exact3product deletion selection does not remove current
+canonical files yet. Current40revision2 selects shared English seals only; old
+revision1 paths and original publication receipt remain untouched history.
+
+Reuse the maintained Rust-only deletion helper without broadening it; exact site
+removals use the existing explicit launcher list. Preserve two cheap pre-build
+harness failures (deletion scope/omitted YAML input) and one browser test-loading
+JSONimport failure, then correct narrowly.23Node/11route tests, selectors, both
+contracts/Englishcontent/parity/currentplan pass; first actual static03 builds
+87pages/3005links with zero243-file Astro diagnostics.15sole-Firefox EN40/41 tests
+pass without a Russian40route or screenshot. Actual English40Russian switch uses
+the unchanged course-index fallback and has no Russian40hreflang/route. Its
+complete HTML changes; the other three scoped English routes remain exact.
+
+Root supplies C14 and neutral role decisions; a fresh unchanged-projection
+English candidate/four-role chain remains required. No old review is relabeled.
+Packager exclusively owns newrun02/review-packaging; main machinery retains
+ledger/policy/selectors/removal/render/promotion. No Rust/NeMo/GPU/sourcehistory
+producer repeat, acquisition, installation or image rebuild. Repairs, bulk
+NeMo, Russian40+ and future activation remain held; no canonical publication.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-07 — Current English evidence rebinding without producer repetition
+
+The newrun02 technical manifest reuses hash-verified actual NeMo/Rust/primary
+and original Chapter40scalar/source/output records at their original scope. It
+replaces retired static12/Firefox08/current-policy descriptors with actual
+static03/Firefox04/current81d445a0 plan and English-only40scope; no source edit,
+producer,fetch,build/browser or language judgment was repeated. The primary
+local map changes only current full-plan identity; its historical observation
+limits,20selected NeMo files and actual smoke export root remain exact.
+
+The maintained parser extracted the identical author-selected plan regions.
+Root inspected and approved their actual delta:40active-locales/Russian-output/
+reviewgate,42policy amendment wording and narrative7locale scope only. Both
+data-pipeline objects and selected algorithm/resource/handoff meanings remain
+unchanged. Current full40contract12640bytes SHA60ddb91e is source provenance;
+its English projection remains f19b1d8f. Fresh actualnav and inventory approvals
+are recorded externally, not independent publication judgments. Russian40+ is
+deferred and has no review/validation gate. Main keeps receipt/ledger/promotion
+ownership; packager exclusively prepares fresh exact r05review artifacts.
+Run remains running,all4sharedEnglishjudgments pending,no canonical promotion.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-07 — Link-only exception and unchanged-input English review recovery
+
+The user requests skipping English Chapter40 validation only when its change is
+Russian-link removal. Exact comparison confirms the pre-removal staged and
+current English lesson are both19391bytes/SHA4278a70b, and the standard English
+contract projection remains4027bytes/SHAf19b1d8f. No fresh wording judgment is
+required specifically for that removal; product absence, active locale, routes,
+alternate links and course-index navigation remain programmatic checks. No new
+English isolated role is added for unchanged foreign shared navigation, and no
+Russian40language or route-layout validation is required.
+
+This conditional exception does not waive the earlier unpublished Chapter40
+revision2 edits versus published HEAD: decoder_connection, practice prose and
+instructions, historical successor-label explanation and current NeMo/Rust
+handoff. Root confirms the existing combined Chapter40revision2/new41 scope stays
+11sources/5built/23readings/197isolates/236technical assessments with unchanged
+neutral requirements. Do not project or narrow old responses or treat a waiver
+as a passing language judgment. External authority and exact comparison are in
+run02/english40-link-removal-exception-01.md, outside all judgment bundles.
+
+The daemon restart erased both r05role contexts. Their durable native sessions
+01a11743-d11c-7c81-843a-340c158df01d and
+01a11744-352c-73d0-89cd-a626d2a6d967 contain no assistant message or final semantic
+record and are interrupted, not completed reviews. Preserve their native partials,
+routes and all prior raw/sealed/run evidence. Read-only recovery verifies the
+current24ledger artifacts, twelve nonledger material fingerprint inputs, all
+35source/HTML descriptors and the prepared candidate's278bound/16publication
+copies. BUILD_STATE/DECISIONS hash differences are normal owned checkpoint
+outputs, not hidden source drift. Existing static03/Firefox04/Rust/NeMo/history
+evidence remains unchanged; no producer is repeated.
+
+Root approves documented unchanged-input safe continuation of run02 via one
+write-once maintained prepare-routing review transition only. The r05spec remains
+54ba110b and candidate binding68ddeaad. New sibling review-routing-recovery-01 has
+SHA33d5e3b and exactly five private files; original route2375c2df and its mirror
+remain unchanged. Fresh logical contexts6182cd37/903fb26a receive byte-identical
+canonical prompts and the same own-role bundles/schemas. Actual fresh technical
+v_c2p9 native01a11767-9634-7851-b261-8d9472abbb2b inherits gpt-6.1-sol/max with no
+override; actual isolated/adjudicator contexts are still pending. These settings
+are observed run provenance, not permanent repository pins. Preserve the initial
+nonsemantic path-request row and opaque tool metadata separately; no decrypted
+access proof or semantic verdict is inferred from them.
+
+Use serial fresh reviewer and then same-role adjudicator contexts when the four
+platform slots require it; a cancelled pending-init slot is no reason to inspect
+or mutate server internals. Capture untouched final bytes and reject defects;
+no normalization, response repair or seal is authorized by this recovery
+checkpoint. A read-only provenance-check receipt-parent error is preserved and
+only that inspection is corrected. All four judgments, exact receipts and final
+publication verification remain pending. Repairs, bulk preparation, Russian40+,
+future queue activation and canonical product publication remain held.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+Recovery checkpoint validation passes the complete91build YAML, all42then-recorded
+artifact bytes/hashes, and the unchanged maintained revision2
+validateCurrentCorpusQueue API with build-qualified current selection. The
+56future steps remain pending with empty runs, every build's local step IDs and
+build IDs are unique, and the excluded repair remains uniquely pending. An extra
+global-step-ID assertion incorrectly combined preserved historical and current
+queues; retain that failed inspection rather than rename13same-named lifecycle
+records. The existing queue03 approval and current checker preserve historical
+projections and qualify current selection by build. Root inspected those exact
+existing excerpts and confirms this scope; no new architecture or acceptance
+repair is inferred. A separate parsed-YAML timestamp JSON-transport failure is
+also preserved and corrected only in read-only inspection. Successful bounded
+checkpoint evidence is run02/recovery-02/checkpoint-validation-01.json. No review
+record, seal, product, producer or publication is changed by this inspection.
+
+### 2026-10-07 — User-requested stop with exact r05 review checkpoint
+
+The user explicitly requests "checkpoint now and stop". Run02 is interrupted with
+finished_at2026-10-07T18:12:36Z; the migration step returns to pending, with no
+running owner or future queue activation. This is an interrupted checkpoint, not
+a completed-step or publication claim; no Git completion commit is authorized.
+
+Both current native final responses are captured directly and remain untouched.
+Technical v_c2p9/native01a11767-9634-7851-b261-8d9472abbb2b declares pass with
+236pass assessments and no findings (107386bytes/SHAcc5b13f3). Isolated
+v_n9q4/native01a1177c-a2e6-7e23-b57f-a931d205eacd declares fail with197assessments,
+196pass and one blocking finding finding.isolated.001 onch40.unit.066
+(78819bytes/SHA6f79c16c). Both observed gpt-6.1-sol/max without overrides; both
+pass only the maintained read-only byte/schema/current-routing/requirement-echo/
+coverage checks. Machinery does not adjudicate their substance or approve
+publication. The external root owner statement SHA d0397193 binds the truthful
+actual native/logical identities, current route and exact canonical prompt/
+four-path deliveries; it is preserved outside all judgment bundles.
+
+The complete optional task unit's report referent remains unresolved: it says
+"the output" without naming the scalar-reference report. Root's proposed minimal
+explicit-report wording fix has not been implemented; optional source/contract
+inspection is dropped on the stop instruction. The current r05candidate, private
+package, both reviews, original/replacement routes, partial native histories and
+current build/Firefox evidence are failed/superseded candidate history, not a
+fresh acceptance chain. No response repair, raw copy, seal, adjudication,
+refreeze, new reviewer, product/source edit or canonical publication occurs.
+
+Preserve all staged products and prior Rust/NeMo/history/build/Firefox producer
+evidence. Reuse is conditional on exact hashes, provenance and fit to future
+inputs; a changed English candidate cannot inherit these r05judgments as fresh
+approval. Russian40 removal/deferment remains staged and has no Russian
+validation. The user's link-removal-only English exception still does not waive
+the earlier unpublished Chapter40revision2 prose or this unrelated unresolved
+report referent. Russian41+ remains deferred; held repairs, acquisition/GPU work
+and future queue activation remain excluded. Exact stop/continuation pointers
+are run02/recovery-02/user-requested-stop-01.json. Explicit user resumption is
+required before further author inspection/fix or a new bound judgment chain.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+
+### 2026-10-08 — Explicit resumption in fresh run03 after stopped r05 candidate
+
+The user resumes after the explicit checkpoint/stop. Both interrupted runs and
+all exact source/build/review/raw/receipt/cache/producer evidence remain immutable.
+Run03 claims only the same migration step after read-only verification of no prior
+active owner, completed dependencies,157boundaries and139regular staged files.
+The stopped r05 isolated review fails one optional task report referent; its
+technical pass and exact valid raw responses remain failed/superseded candidate
+history, not approval of changed bytes. No r05 seal or adjudication is added.
+
+Root authorizes only the first optional Chapter40 task to name the JSON report
+printed by the Chapter40 reference example. Its frozen neutral role requirement,
+contract English projection, other teaching/math/Rust/data/NeMo/history stay exact.
+Root owns that source edit after valid claim/copy; machinery owns pre-edit
+fingerprints, byte-preserving staging, ledgers and subsequently authorized gates.
+Any changed English text invalidates both prior reviews and dependent evidence;
+new affected static/sole-Firefox validation and fresh independent2+2Englishchain
+with exact routing/raw bytes/receipts are still required before publication.
+
+Current run cost is bounded local C3/G0/N0 continuation; preserve/reuse unchanged
+producer proofs only at verified original scope, with no image provisioning,
+dependency/history/Rust/GPU rerun, acquisition/install/network/paid/remote work.
+All Docker executions remain network-none. Russian40+ is deferred with noRussian
+validation;0–39bilingual and held repairs/bulk/future queue remain unchanged.
+Observed native machinery01a119b0 inherits gpt-6.1-sol/max without overrides;
+these actual settings are run provenance, not permanent model pins. Pre-edit
+claim confers no build/refreeze/route/seal/canonical publication or commit verdict.
+The root subsequently approves the exact current render/inventory delta and
+freezes r06 with unchanged neutral requirements, groups and11/5/23/197scope.
+Current static01 and affected English40 sole-Firefox01 pass; unchanged producers
+retain their original scope. The maintained author schema's freshContexttrue
+means this dedicated author role is independent of all four fresh judgments;
+the manifest explicitly binds the genuine continuing root thread/current turn
+and states that the thread is not newly spawned or a certifying judgment context.
+No protocol/tool change or invented author identity is made. Maintained prepare
+and review-stage prepare-routing each run once on the fresh exact candidate;
+root approves their handoff and starts two fresh no-override reviewers. Their
+semantic judgments, exact raw bytes, receipts and same-role adjudications remain
+required; preparation or procedural evidence is not a publication verdict.
+Fresh actual native metadata confirms two distinct root-child reviewers with
+the inherited model/effort and no overrides. The root router attests exact API
+canonical-prompt/four-path deliveries; the external owner statement explicitly
+does not claim decrypted native argument proof and stays outside judge bundles.
+The isolated native final is captured untouched (83,913 bytes, SHA d5f2ae3c),
+passes the maintained read-only byte/schema/routing/coverage/requirement checks,
+and declares pass with no findings. Technical completion remains pending here;
+no seal or adjudication has run. Preserve the Docker-socket refusal as an
+execution-boundary diagnostic before the authorized read-only retry.
+Root requests only a dormant coherent publication plan: actual143staged files,
+95 exact owned deletions including exactly3 current RU40 products, backed-up
+recoverable named removals and receipt-last publication. All four r06 mirrors
+and future fresh archive/receipt/report/inventory paths remain within157owned
+boundaries. Historical review/run/source/cache bytes are retained; no recursive
+canonical target or automatic promotion/commit/queue activation is authorized.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 05:51 UTC — r06 exact four-role chain and disposable production eligibility
+
+The continuing dedicated author and four fresh inherited gpt-6.1-sol/max
+judgment contexts remain genuinely distinct. Both untouched reviews declare
+pass with no findings (technical236/isolated197); both same-role adjudications
+declare pass and support every exact echoed assessment, with no review-defect
+findings. Maintained read-only validators pass, each seal/prepare/route transition
+runs once as authorized, all raw/sealed bytes remain identical, and full verify
+reports adjudication-verified for r06 (reportc37d71d0). Router owner declarations
+are external post-judgment provenance, not decrypted access proof or a fifth
+model-visible artifact. Failed/superseded RUN1/RUN2 records remain immutable.
+
+Guarded existing staging copies336current archive files and freezes479products.
+The predecessor's all-sources-staged assumption is corrected only by a bounded
+explicit frozen-inventory resolver: declared stage files cannot fall back if
+missing or changed; two undeclared unchanged canonical sources must match exact
+frozen hashes. Its4direct cases pass; the8existing operation cases also pass.
+Diagnostics are retained, no source/meaning/role/group requirement changes or
+equivalent generalized publication framework are introduced.
+
+The final disposable canonical-path overlay has483owned writes (49replacement/
+434addition),95root-inspected named deletions including exactly3RU40 products,
+and157boundaries. The existing receipt-last adapter adds exclusive hash-checked
+replacement/deletion backups and qualified historical-ID selection. Private
+prepare/normal production/prepublication pass with no private-review waiver:
+full-chain and287-bound/16-publication durability checks, EN40revision2/EN41
+publication selectors, contracts/content/parity/current plan, type/static build
+and links, and exact4r06HTML bytes. All Docker runs use cached590b/networknone;
+unchanged Rust/GPU/history/dependency/Firefox producers are not rerun.
+
+Canonical HEAD/index/products remain unchanged, only the two operational ledgers
+are dirty, all56RUN1 and57RUN2 recorded artifacts hash-check exactly, current
+step/run stay running and future queue remains pending. The small final-ready
+handoff is sent to root for guard/source inspection. Actual canonical promotion,
+completion checkpoint and dedicated commit require a separate explicit release;
+private eligibility is not publication or a new content judgment.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:06 UTC — exact coherent r06 publication and canonical completion gate
+
+Root inspects the final frozen plan84c36c85 and releases exactly483writes and95
+named removals, with the single explicitly empty old Rust directory. Before
+promotion the qualified .03 running claim, HEAD and empty index are rechecked;
+all144old-byte backups (49replacements/95deletions) are precreated by exclusive
+copy and verified source/backup byte hashes. The inspected receipt-last adapter
+and frozen candidate/plan remain unchanged. Actual promotion exits0; both current
+chapter receipts publish last. Every removed file is recoverable from the
+hash-bound per-file backup, with no recursive canonical deletion.
+
+Actual canonical full-chain and both durability checks pass. The first receipt
+selector stops before validation on cached css-tree ESM resolution: NODE_PATH
+supports CJS but not that ESM import. Preserve its exact failed stderr/status.
+Root approves only the disposable container-root /node_modules link to pinned
+/workspace/site/node_modules, with preexisting-target refusal, read-only /repo,
+cached pull-never/network-none image, disposal and no privilege/capability
+expansion; no-new-privileges is added. Only the remaining ten selectors retry in
+fresh02 outputs and all pass. No install/download, candidate/receipt/code edit,
+passed-chain rerun, or producer rerun occurs.
+
+Canonical483products,95absences,144old-byte backups and exact changed/new paths
+verify. All56RUN1 and57RUN2 recorded artifacts remain exact/interrupted and all56
+future steps remain pending/no runs. The already matching normal-production
+four-HTML/sole-Firefox/Rust/GPU/history evidence is reused only at its accepted
+scope. These completed canonical gates authorize the qualified migration step
+completed/current run succeeded checkpoint, not a next-step start. Dedicated
+exact580pathspec Git commit and final byte/status verification follow; any commit
+gate failure must remain raw evidence and stop without an invented waiver.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:21 UTC — one-time exact-byte immutable-evidence whitespace exception
+
+The original dedicated commit attempt stages the exact 580 owned paths but
+stops before commit: full cached whitespace checking exits 2 with 113 warnings
+(103 trailing-whitespace and 10 blank-EOF warnings). Preserve its original
+136942-byte stdout (SHA-256 14803efd62d53e21a4177f38013ad76a812c2c8c2bd0d2b42c1df9071e1695a3)
+and exit status; this command did not pass. No commit was created by that attempt.
+
+Root inspects the complete exact-24-file descriptor summary 726cd480 and approves
+a one-time exact-path plus frozen-plan-hash command exception for those files
+only: 12 generated HTML files, 10 raw producer outputs and 2 primary/historical
+source snapshots. Their approved/provenance bytes must not be normalized. No
+authored lesson, contract, tool or raw semantic judgment record is exempted.
+The exception manifest is in the current run's final-operations-r06-01 directory
+as immutable-whitespace-exception-r06-01.json, SHA-256
+011e07e539ada4aeb710cbe02c79508e016ab2fe1a8577297d0cbb4656d534d6.
+
+A separate bounded commit-attempt adapter retains the inspected operations and
+plan bytes, qualified completed/succeeded selection, exact product/deletion and
+index guards. It must verify both working and indexed bytes of all 24 exact
+descriptors before and after commit, check every other 556 intended path strictly
+with literal pathspecs, and restage only the two owned ledgers after this note.
+There is no directory/glob exemption, global whitespace disabling, source edit,
+candidate reclassification or future exception. Retry remains this same dedicated
+580-path commit, followed by exact contents and clean-status verification; no
+future chapter may be claimed or started.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:30 UTC — dedicated commit persistence blocked by approval system
+
+The separate bounded overlay passes syntax and read-only exact24working/indexed
+descriptor checks, retaining the original operations32cc58b3 and plan84c36c85.
+The requested commit command is rejected by auto-review before process creation
+because trusted user authorization for this exact local580path Git mutation is
+required. No retry ledger-restage or commit command body runs, no commit is
+created, and HEAD remains2c876b9cc4cc1f50462e6a0fbf4ad209f877b74b.
+
+Preserve the denial in the current run's final-operations-r06-01 directory as
+commit-retry-02-execution-denied-01.json and the exact24exception as
+immutable-whitespace-exception-r06-01.json. The original full cached whitespace
+check remains a failed113warning command; approval of the bounded exception is
+not a successful commit or a passed original check. Do not retry through another
+launcher or sandbox path. Root will request the trusted user approval needed
+for this same dedicated commit.
+
+The already validated canonical product publication and qualified migration
+completed/currentrun03succeeded pair remain unchanged. The prior exact580owned
+paths remain staged; only BUILD_STATE.yaml and DECISIONS.md have subsequent
+unstaged end-of-session bookkeeping. Those ledgers must be restaged through the
+guarded authorized retry after approval. No old run artifact, frozen plan,
+candidate, raw judgment, review receipt or product byte changes; future queue
+and held work remain pending, with no next-step claim/start. This is a commit
+persistence blocker, not a content or validation failure.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:39 UTC — explicit user approval for the same local dedicated commit
+
+After the preserved auto-review denial, the user explicitly answers "Yes, you
+can" to the root's question authorizing this exact local580path commit:
+483writes,95removals and the two owned ledgers. Nothing may be pushed. This is
+new trusted authority for the same operation, not permission to bypass a
+rejection, change the launcher, expand the set or start another chapter.
+
+Read-only resumption rechecks baselineHEAD2c876b9c, exact580index pathset
+341f78ab, only the two owned ledgers' unstaged bookkeeping, qualified
+completed/succeeded state,483exactproducts/95absences/144hash-checked backups,
+and unchanged operations32cc58b3/plan84c36c85/exact24exception011e07e5.
+Update only truthful blocker accounting, restage only BUILD_STATE.yaml and
+DECISIONS.md, and execute the already prepared operations-commit-r06-02.mjs
+guarded retry unchanged. Strict cached whitespace checking of the other556
+paths, exact24working/indexed evidence before and after commit, and final
+exact580commit-contents/product/status checks remain gates. The original full
+whitespace113warning failure, approval denial and all prior evidence stay
+preserved; no normalization, broad exception or producer rerun is authorized.
+Read-only next-step information may be handed back after success, but no
+next-step claim/start is authorized in this continuation.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:45 UTC — exact-index staging-idempotence correction
+
+The user-authorized02command starts and its exact two-ledger restage exits0.
+The unchanged predecessor's redundant all580Git-add then exits128 because
+configs/functional-data-pipeline/corpus-filter-v1.json is already absent from
+the index and worktree as a staged deletion; its HEAD blob remains historical.
+Preserve attempt02's raw stderr62dff188 and status. HEAD and exact580index
+pathset remain unchanged; strict whitespace and Git commit are not reached.
+This is a staging-idempotence defect, not a permission or product failure.
+
+Root inspects02adapter/failure and authorizes a fresh disjoint03closed-marker
+overlay under the same explicit local580path commit approval. Omit only the
+redundant predecessor re-add after complete580-index and per-path indexed/current
+checks. Do not substitute permissive missing-path suppression. Original
+operations32cc58b3,02adapter665ba42a,plan84c36c85 and attempt02 remain exact.
+Only the run-coupled ledger-restage/proof namespaces advance to unused03.
+Exact two-ledger restage, qualification/product/deletion/index/hash guards,
+strict556whitespace and exact24immutable-evidence gates, original parentHEAD,
+exact580commit contents and clean-status verification all remain required.
+No producer rerun, push, product edit or next-step claim/start is authorized.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:51 UTC — literal580-path inner index enumeration
+
+Attempt03 passes the outer exact580-index check but its new inner guard sees531
+entries because the inherited cached name-list command permits Git rename
+detection:49old/new pairs are presented as renames. Preserve03adapterc2b8dd05
+and attempt03's assertion diagnostic; strict whitespace/commit are not reached.
+Read-only explicit --no-renames enumeration still has580paths and byte-matches
+the frozen NUL pathspec341f78ab. HEAD/index/products are unchanged.
+
+Under the same trusted-user local580path approval, root authorizes only adding
+--no-renames to that inner cached staged-path query, with fresh04namespaces.
+Retain the580exact-set and every per-path, qualification, deletion, product,
+hash, exact24immutable-evidence, strict556whitespace and final commit guard;
+never relax the count to531. The03redundant-readd omission remains unchanged.
+Syntax/read-only-check then execute the existing bounded commit flow; preserve
+all earlier failures, and do not push, rerun producers or claim another step.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 06:59 UTC — restore only the live course CLI execute boundary
+
+The requested stat/Git-mode check finds only course among31declared script/tool
+writes with a lost worktree execute boundary. Both current/staging copies are
+0664 while the already-correct index is100755; core.filemode=false hides that
+filesystem drift from ordinary Git diff. Root authorizes only adding execute
+bits to /home/int/rust/learn_llm/course, preserving other permissions and bytes.
+The exact chmod a+x changes0664→0775; Git's executable mode stays100755.
+
+Unchanged source/current/index bytes all hash2e832993299fea291cd59fe596fdc1fdb4afd47b2f6cda7fcfc6ab21ea1c9a94,
+test-x passes, and all31declared script/tool execute boundaries match their
+index. Immutable stagingcourse remains0664 unchanged, recording copier metadata
+loss rather than editing frozen run evidence. No other path's mode, Git config,
+product byte or producer evidence changes. Restage only the two owned ledgers
+and execute the already checked04bounded flow under the user's local580path
+commit approval; retain every exact index/byte/deletion/exception/whitespace
+and final parent/contents/status guard. No push or next-step claim/start.
+Affected step: merge-ch41-nemo-corpus-preparation-20261007.

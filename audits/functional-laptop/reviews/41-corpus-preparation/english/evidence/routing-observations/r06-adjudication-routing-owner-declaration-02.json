@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "ownerAgentPath": "/root",
+  "ownerNativeSessionId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+  "statement": "I routed /root/v_b2r6 (native 01a119f5-74d1-7292-ac28-8a78886e9cf2; logical ctx.0c38a97d.20261008.07) and /root/v_t8n4 (native 01a119f5-c556-7fc3-8a73-6961cd913ed2; logical ctx.91df5ab2.20261008.07) as separate fresh fork_turns:none contexts, without model/effort overrides, inheriting the user selection. Their initial tasks were the exact corresponding canonical prompt strings from the prepared handoff, followed only by the corresponding four absolute artifact paths. No sibling role bundle, past finding, expected classification or verdict was routed. This is an external orchestrator statement supported by the actual calls and captured context metadata, not a claim of decrypted/cryptographic access isolation. The unchanged raw finals declared gpt-6.1-sol/max and the actual context observation must agree. Capture/hash this as run evidence only; do not edit frozen prompts/bundles/records/receipts.",
+  "recordedAt": "2026-10-08 05:40:51 UTC",
+  "placement": "External run evidence outside four-artifact judgment bundles; unchanged current finalized routing, prompts, bundles, raw records, seals and receipts.",
+  "statementSource": "Actual current parent collaboration message; declarant root is the routing owner."
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "scope": "Programmatic actual DOM/accessibility values only; not language judgment or screenshot",
+  "route": "/en/course/41-corpus-preparation/",
+  "figure_id": "corpus-preparation",
+  "figure_title": "Prepare documents outside the Rust language model",
+  "ordinary": {
+    "outerHTML": "<button class=\"diagram-full-view-toggle\" data-diagram-full-view-toggle=\"\" type=\"button\" aria-controls=\"course-diagram-corpus-preparation\" aria-expanded=\"false\" aria-label=\"View diagram full screen\"><span class=\"diagram-full-view-icon\" aria-hidden=\"true\">⛶</span><span>View diagram full screen</span></button>",
+    "ariaSnapshot": "- button \"View diagram full screen\"",
+    "text": "⛶View diagram full screen",
+    "ariaLabel": "View diagram full screen",
+    "title": null,
+    "ariaKeyshortcuts": null
+  },
+  "expanded": {
+    "outerHTML": "<button class=\"diagram-full-view-toggle\" data-diagram-full-view-toggle=\"\" type=\"button\" aria-controls=\"course-diagram-corpus-preparation\" aria-expanded=\"true\" aria-label=\"Exit full screen\" aria-keyshortcuts=\"Escape\"><span class=\"diagram-full-view-icon\" aria-hidden=\"true\">⛶</span><span>Exit full screen</span></button>",
+    "ariaSnapshot": "- button \"Exit full screen\" [expanded]",
+    "text": "⛶Exit full screen",
+    "ariaLabel": "Exit full screen",
+    "title": null,
+    "ariaKeyshortcuts": "Escape"
+  },
+  "restored": {
+    "outerHTML": "<button class=\"diagram-full-view-toggle\" data-diagram-full-view-toggle=\"\" type=\"button\" aria-controls=\"course-diagram-corpus-preparation\" aria-expanded=\"false\" aria-label=\"View diagram full screen\"><span class=\"diagram-full-view-icon\" aria-hidden=\"true\">⛶</span><span>View diagram full screen</span></button>",
+    "ariaSnapshot": "- button \"View diagram full screen\"",
+    "text": "⛶View diagram full screen",
+    "ariaLabel": "View diagram full screen",
+    "title": null,
+    "ariaKeyshortcuts": null
+  }
+}

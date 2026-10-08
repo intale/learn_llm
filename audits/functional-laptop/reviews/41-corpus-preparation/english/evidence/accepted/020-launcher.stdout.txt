@@ -1,0 +1,39 @@
+{
+  "first_documents": [
+    {
+      "id": "story-a",
+      "metadata_fields": [
+        "source_group",
+        "split",
+        "word_count"
+      ],
+      "text_utf8_bytes": 11
+    },
+    {
+      "id": "story-c",
+      "metadata_fields": [
+        "source_group",
+        "split",
+        "word_count"
+      ],
+      "text_utf8_bytes": 11
+    },
+    {
+      "id": "story-d",
+      "metadata_fields": [
+        "source_group",
+        "split",
+        "word_count"
+      ],
+      "text_utf8_bytes": 17
+    }
+  ],
+  "loaded": {
+    "documents": 3,
+    "text_bytes": 39
+  }
+}
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch41-corpus-preparation v0.1.0 (/work/rust/demos/ch41-corpus-preparation)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.43s
+     Running `/target/debug/ch41-corpus-preparation`

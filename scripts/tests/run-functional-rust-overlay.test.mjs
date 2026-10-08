@@ -19,12 +19,14 @@ function fixture() {
   writeFileSync(join(bin,'docker'),`#!/usr/bin/env node
 const fs=require('node:fs');
 fs.writeFileSync(process.env.MOCK_DOCKER_LOG,JSON.stringify(process.argv.slice(2)));
+if(process.argv.includes('-i'))fs.writeFileSync(process.env.MOCK_STDIN_LOG,fs.readFileSync(0));
 process.stdout.write('mock Docker transport only\\n');
 process.exit(Number(process.env.MOCK_DOCKER_EXIT||0));
 `,{mode:0o700});
-  return {root,run,log,call(args=[runId,'compile-01',image,'--','cargo','check','--locked','--offline'],exit=0){
-    return spawnSync('bash',[launcher,...args],{cwd:root,encoding:'utf8',
-      env:{...process.env,PATH:bin+':'+process.env.PATH,MOCK_DOCKER_LOG:log,MOCK_DOCKER_EXIT:String(exit)}});
+  const stdinLog=join(root,'stdin-bytes');
+  return {root,run,log,stdinLog,call(args=[runId,'compile-01',image,'--','cargo','check','--locked','--offline'],exit=0,input=undefined){
+    return spawnSync('bash',[launcher,...args],{cwd:root,encoding:'utf8',input,
+      env:{...process.env,PATH:bin+':'+process.env.PATH,MOCK_DOCKER_LOG:log,MOCK_STDIN_LOG:stdinLog,MOCK_DOCKER_EXIT:String(exit)}});
   },close(){rmSync(root,{recursive:true,force:true});}};
 }
 test('fixed offline cached-image overlay preserves argv and scopes every mount',()=>{
@@ -32,6 +34,7 @@ test('fixed offline cached-image overlay preserves argv and scopes every mount',
     const result=f.call();assert.equal(result.status,0,result.stderr);
     const args=JSON.parse(readFileSync(f.log,'utf8'));
     assert.deepEqual(args.slice(0,6),['run','--rm','--pull','never','--network','none']);
+    assert.ok(!args.includes('-i') && !args.includes('-t'));
     assert.ok(args.includes('/work:rw,nosuid,nodev,size=512m,mode=0755'));
     assert.ok(args.includes(f.root+':/repo:ro'));
     assert.ok(args.includes(f.run+'/publish:/staged:ro'));
@@ -44,6 +47,18 @@ test('fixed offline cached-image overlay preserves argv and scopes every mount',
     assert.match(program,/if "\$@"/);
     assert.equal(readFileSync(join(f.run,'validation/compile-01/argv.nul'),'utf8'),'cargo\0check\0--locked\0--offline\0');
   }finally{f.close();}
+});
+test('only Cargo run forwards supplied bytes, empty EOF and malformed input without a TTY',()=>{
+  for(const input of ['{"id":"a","text":"one"}\n','','not-json\n']){
+    const f=fixture();try{
+      const result=f.call([runId,'stdin-run-01',image,'--','cargo','run','--locked','--offline','-p','ch41-corpus-preparation'],0,input);
+      assert.equal(result.status,0,result.stderr);
+      assert.equal(readFileSync(f.stdinLog,'utf8'),input);
+      const args=JSON.parse(readFileSync(f.log,'utf8'));
+      assert.deepEqual(args.slice(0,7),['run','--rm','--pull','never','--network','none','-i']);
+      assert.ok(!args.includes('-t') && !args.includes('--tty'));
+    }finally{f.close();}
+  }
 });
 test('Docker/Cargo failure is returned and recorded without replacing evidence',()=>{
   const f=fixture();try{

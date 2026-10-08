@@ -99,19 +99,19 @@ test('successful dispatch runs English then Russian and returns no semantic surr
 });
 
 test('Chapter41 dispatch uses current publication evidence and its baseline-chain or command-only gate',()=>{
-  const prefix='audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02';
-  const invocations=verifierInvocations('ch41-governed-corpus-acquisition',repositoryRoot);
+  const prefix='audits/functional-laptop/reviews/41-corpus-preparation/english-candidate-02';
+  const invocations=verifierInvocations('ch41-corpus-preparation',repositoryRoot);
   assert.deepEqual(invocations,[{
     executable:process.execPath,
-    args:[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-governed-corpus-acquisition'],
+    args:[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation'],
   }]);
   assert.ok(!invocations[0].args.some(a=>a.includes('/ru/')));
 });
 test('Chapter41 propagates real verifier refusal without another locale dispatch',()=>{
   const calls=[];
-  assert.equal(dispatchVerifiers('ch41-governed-corpus-acquisition',{root:repositoryRoot,
+  assert.equal(dispatchVerifiers('ch41-corpus-preparation',{root:repositoryRoot,
     run(executable,args,options){calls.push({executable,args,options});return {status:3};}}),3);
   assert.equal(calls.length,1);
-  assert.deepEqual(calls[0].args,[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-governed-corpus-acquisition']);
+  assert.deepEqual(calls[0].args,[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation']);
   assert.equal(calls[0].options.shell,false);
 });

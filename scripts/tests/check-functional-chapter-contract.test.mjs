@@ -13,7 +13,7 @@ const plan=readFunctionalPlan(root);
 const contract=chapter=>({chapter_id:chapter.chapter_id,order:chapter.order,
   rust:{package:'ch'+chapter.chapter_id,sources:[demoPaths(chapter.chapter_id).source,demoPaths(chapter.chapter_id).library]}});
 
-test('legacy dispatch stays unchanged; all46 exact successors use demos',()=>{
+test('legacy dispatch stays unchanged; all44 exact successors use demos',()=>{
   assert.equal(contractDispatch('00-llm-parts'),'legacy-demo');
   assert.equal(contractDispatch('39-end-to-end-llm'),'legacy-demo');
   for(const chapter of plan.chapters) {
@@ -49,21 +49,21 @@ test('unknown contract refuses before any Rust source/manifest/registry access',
 test('demo contract rejects cumulative targets and another demo source',()=>{
   const base=contract(plan.chapters[2]);
   assert.throws(()=>validateDemoContractBinding({...base,rust:{...base.rust,package:'llm-from-scratch'}},plan),/exact approved demo/);
-  assert.throws(()=>validateDemoContractBinding({...base,rust:{...base.rust,sources:[...base.rust.sources,'rust/demos/ch41-governed-corpus-acquisition/src/lib.rs']}},plan),/exact approved demo/);
+  assert.throws(()=>validateDemoContractBinding({...base,rust:{...base.rust,sources:[...base.rust.sources,'rust/demos/ch41-corpus-preparation/src/lib.rs']}},plan),/exact approved demo/);
   for(const source of base.rust.sources)
     assert.throws(()=>validateDemoContractBinding({...base,rust:{...base.rust,sources:base.rust.sources.filter(p=>p!==source)}},plan),/exact approved demo/);
 });
 
 test('Chapter40 has no cumulative fragment; every actual shared owner uses its exact fragment',()=>{
   assert.equal(validateDemoContractBinding(contract(plan.chapters[0]),plan).fragment,null);
-  const binding=validateDemoContractBinding(contract(plan.chapters[2]),plan);
-  assert.equal(binding.fragment,'rust/crates/llm-from-scratch/module-registry/functional-v1/ch42-deterministic-corpus-filtering.module');
-  assert.equal(binding.expected.length,5);
-  const good=Buffer.from('version=1\nmodule=functional::data::stream\nsource=src/data/stream.rs\n');
-  assert.deepEqual(parseRegistryFragment('ch42-deterministic-corpus-filtering.module',good,binding.owners),
-    [{module:'functional::data::stream',source:'src/data/stream.rs'}]);
-  assert.throws(()=>parseRegistryFragment('ch41-governed-corpus-acquisition.module',good,binding.owners),/owner drift/);
-  const base=contract(plan.chapters[2]);
+  const binding=validateDemoContractBinding(contract(plan.chapters[1]),plan);
+  assert.equal(binding.fragment,'rust/crates/llm-from-scratch/module-registry/functional-v1/ch41-corpus-preparation.module');
+  assert.equal(binding.expected.length,1);
+  const good=Buffer.from('version=1\nmodule=functional::data::prepared_corpus\nsource=src/data/prepared_corpus.rs\n');
+  assert.deepEqual(parseRegistryFragment('ch41-corpus-preparation.module',good,binding.owners),
+    [{module:'functional::data::prepared_corpus',source:'src/data/prepared_corpus.rs'}]);
+  assert.throws(()=>parseRegistryFragment('ch42-scalable-bpe-tokenizer.module',good,binding.owners),/owner drift/);
+  const base=contract(plan.chapters[1]);
   assert.throws(()=>validateDemoContractBinding({...base,rust:{...base.rust,sources:[...base.rust.sources,
-    'rust/crates/llm-from-scratch/src/artifact/inventory.rs']}},plan),/another chapter owner/);
+    'rust/crates/llm-from-scratch/src/tokenizer/policy.rs']}},plan),/another chapter owner/);
 });

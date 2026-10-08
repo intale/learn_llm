@@ -1,0 +1,6 @@
+81de1992f9e59b61cfbaf40d2f8b941ecbeb27222bc198a892ff1f6a10c3bb24  site/tests/e2e/ch41-corpus-preparation.spec.ts
+69803e07f0d0cef567298cd1f2c89359a99e96bf0180f139e60aba1844293faa  site/playwright.config.ts
+68fcfa8e13a8b2fb5ba59329463df07cd958f2a8be0ef9238302c1e8b9a04264  site/src/lib/diagram-full-view.ts
+e9f8615754b56a62c521fbbdbc2e4ce34cd5f25faeea822a52ceb235a711829d  site/src/lib/functional-course-publication.mjs
+e340a8dad5f190a8b7af425a5bc3a59f0453f6ce7b18a2520ad7d41c0a18b171  site/tests/e2e/helpers/publishable-chapter-navigation.ts
+7ca0cccb26a8986309ffccd219fb5be7e1b440cb986b6ec48e68a40e109358d0  site/src/i18n/functional-catalogs/private-review.json

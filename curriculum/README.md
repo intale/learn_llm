@@ -3,19 +3,25 @@
 The reviewed [Chapters 0–39 plan](course-plan.md) remains the source of truth for
 the completed scalar reference core. The
 [functional-laptop extension plan](functional-laptop-llm-extension-plan.md) is
-the separate source of truth for Chapters 40–85. Each plan fixes its architecture,
+the separate source of truth for Chapters 40–83. Each plan fixes its architecture,
 prerequisite order, per-chapter learning boundary, cumulative Rust contribution,
 visualization decision, and handoff. `BUILD_STATE.yaml` mirrors the selected plan
-with one complete bilingual chapter implementation step per chapter plus only the
+with one complete chapter implementation step per chapter plus only the
 declared reusable infrastructure, acquisition, dependency, experiment, and audit
 checkpoints.
+
+Current delivery amendment: Chapters0–39 retain their bilingual policy. Chapters40
+and higher deliver English first; their Russian authoring, review and publication
+remain deferred until the user resumes them. Apply the bilingual clauses below
+only to active locales. Missing deferred Russian artifacts do not block English
+completion after its unchanged independent English and technical/browser gates.
 
 Chapters 0–39 publish one exact English/Russian locale pair per chapter. The
 current revisions of Chapters 1–13 are 5, 8, 7, 9, 8, 5, 6, 5, 5, 4, 4, 8, and 6 respectively
 after their meaning-first language, notation, accessibility, and
 rendered-containment work. Chapter 2 onward extends one cumulative Rust decoder
 with a narrow, audited supporting-library boundary. Chapters 0–39 end at a
-deterministic 1,188-parameter scalar integration proof. Chapters 40–85 continue
+deterministic 1,188-parameter scalar integration proof. Chapters 40–83 continue
 that same causal decoder-only text/token implementation through runtime-configured
 bridge, laptop, and production-planning profiles. The extension may add one
 crate-private checked prepared-embedding seam inside that decoder, but it adds no
@@ -76,6 +82,19 @@ replace them.
 Record the supporting role and rationale in `DECISIONS.md`, enable only required
 features, lock and inspect the complete transitive graph, allowlist it explicitly,
 and retain the denylist for concept-implementing crates.
+
+## Scoped external corpus-preparation exception
+
+Current Chapter41 uses replaceable external NeMo Python/shell workflows and
+tool-provided preparation libraries; its Rust code only loads caller-supplied
+tool-neutral prepared JSONL. NeMo/CUDA/Python stay in the separate
+`docker/nemo-curator.Dockerfile`, never the Rust/site image, and no corpus/model
+payload is embedded there. This user-authorized exception covers external corpus
+preparation only, not tokenizer, tensor, autodiff, decoder, training or inference
+algorithms. The course GPU-backed practical path requires a compatible NVIDIA
+GPU; CPU reference chapters and prepared-corpus Rust loading remain CPU-usable.
+The bounded chapter fixture is not the separately pending bulk pipeline or its
+privacy, rights, overlap, group and resource release evidence.
 
 ## English is the translation source
 
@@ -219,8 +238,8 @@ autolink there; metadata alone is not teaching evidence.
 Markers are boundaries, not evidence by themselves. Every section needs a heading
 and substantive teaching content. In an implementation lesson, the formula section
 displays the exact frontmatter notation, the Rust section contains its source
-evidence, and the exercise section pairs predict-first questions with checked
-answers. The orientation uses overview and course-path sections instead. A useful
+evidence, and the exercise section pairs optional reproduction or explanation tasks with
+explicit answers. The orientation uses overview and course-path sections instead. A useful
 visualization is invoked in its own section in either content kind.
 
 ## Lesson locations and publication

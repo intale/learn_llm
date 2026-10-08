@@ -1,0 +1,1 @@
+Functional current plan valid:44chapters(40–83),79capabilities; explicit NeMo/reader revision2 delta; original v1–v5 audit/resource/history preserved.

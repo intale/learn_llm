@@ -19,7 +19,7 @@ import {
   DEFAULT_SITE_URL,
   renderSitemapXml,
 } from '../site/sitemap.config.mjs';
-import {readPrivateBuildScope} from './check-functional-site-content.mjs';
+import {readPrivateBuildScope,privateReviewCandidateForChapter} from './check-functional-site-content.mjs';
 
 export const GOOGLE_ANALYTICS_MEASUREMENT_ID = 'G-B5JVTL721S';
 export const GOOGLE_ANALYTICS_COOKIE_DOMAIN = 'intale.github.io';
@@ -478,6 +478,7 @@ export function deriveSeoExpectations(
   const issues = [];
   const expectations = new Map();
   const catalogs = new Map();
+  const privateScope = readPrivateBuildScope(repositoryRoot);
 
   for (const locale of localeConfiguration.locales ?? []) {
     const catalog = readSeoCatalog(repositoryRoot, locale, issues);
@@ -572,6 +573,9 @@ export function deriveSeoExpectations(
       issues.push(sourceName + ': lesson locale is not active for this chapter');
       continue;
     }
+    const privateCandidate = privateReviewCandidateForChapter(privateScope, data.chapter_id);
+    if (privateScope?.schemaVersion === 2 && privateCandidate &&
+        !Object.hasOwn(privateCandidate.sourceHashes, data.locale)) continue;
 
     addSeoExpectation(
       expectations,
@@ -1232,10 +1236,10 @@ export function auditStaticSite(
       }
       if (!candidates.some((candidate) => knownFiles.has(candidate))) {
         // Only this declared Russian equivalent may be absent in EN-only review.
-        if (privateScope?.chapterId?.startsWith('40-') &&
-            !Object.hasOwn(privateScope.sourceHashes, 'ru') &&
-            relative === 'en/course/' + privateScope.chapterId + '/index.html' &&
-            candidates.includes('ru/course/' + privateScope.chapterId + '/index.html')) continue;
+        const private40 = privateReviewCandidateForChapter(privateScope, '40-reference-core-handoff');
+        if (private40 && !Object.hasOwn(private40.sourceHashes, 'ru') &&
+            relative === 'en/course/' + private40.chapterId + '/index.html' &&
+            candidates.includes('ru/course/' + private40.chapterId + '/index.html')) continue;
         issues.push(
           relative +
             ': local reference "' +

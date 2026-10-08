@@ -168,9 +168,9 @@ fn lib_prefix_and_course_source_only_census_remain_exact() {
 
 #[test]
 fn registry_parser_preserves_exact_owned_ascii_grammar() {
-    let filename = "ch41-governed-corpus-acquisition.module";
+    let filename = "ch41-corpus-preparation.module";
     let good =
-        "version=1\nmodule=functional::artifact::acquisition\nsource=src/artifact/acquisition.rs\n";
+        "version=1\nmodule=functional::data::prepared_corpus\nsource=src/data/prepared_corpus.rs\n";
     assert_eq!(
         registry::parse_fragment(filename, good.as_bytes())
             .unwrap()
@@ -180,14 +180,14 @@ fn registry_parser_preserves_exact_owned_ascii_grammar() {
     for bad in [
         good.replace("version=1", "version=2"),
         good.replace("module=", "unknown="),
-        good.replace("artifact::acquisition", "other::acquisition"),
-        good.replace("src/artifact", "src/../artifact"),
+        good.replace("data::prepared_corpus", "other::prepared_corpus"),
+        good.replace("src/data", "src/../data"),
         good.replace("src/", "src\\"),
         good.replace("\n", "\r\n"),
         format!("{good}\n"),
         good.trim_end().to_owned(),
         format!("{good}\n{good}"),
-        good.replace("acquisition.rs", "acquisitiön.rs"),
+        good.replace("prepared_corpus.rs", "prepared_corpüs.rs"),
     ] {
         assert!(registry::parse_fragment(filename, bad.as_bytes()).is_err());
     }

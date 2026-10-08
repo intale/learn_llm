@@ -9,15 +9,15 @@ const ENGLISH_VERIFIER = '.agents/skills/author-llm-course-english/scripts/engli
 const RUSSIAN_VERIFIER = '.agents/skills/localize-llm-course/scripts/localization-review.mjs';
 
 const REVIEW_ROOTS = Object.freeze({
-  'ch41-governed-corpus-acquisition': 'audits/functional-laptop/reviews/41-governed-corpus-acquisition',
+  'ch41-corpus-preparation': 'audits/functional-laptop/reviews/41-corpus-preparation',
   'reference-core': 'audits/functional-laptop/reviews/reference-core-reframe',
   'measured-postgresql-v1': 'audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1',
 });
 
 export function verifierInvocations(scope, root = REPOSITORY_ROOT) {
-  if (!Object.hasOwn(REVIEW_ROOTS, scope)) throw new Error('scope must be reference-core, measured-postgresql-v1 or ch41-governed-corpus-acquisition');
-  if(scope==='ch41-governed-corpus-acquisition')return [{executable:process.execPath,
-    args:[resolve(root,'scripts/check-functional-step-receipt.mjs'),'41-governed-corpus-acquisition']}];
+  if (!Object.hasOwn(REVIEW_ROOTS, scope)) throw new Error('scope must be reference-core, measured-postgresql-v1 or ch41-corpus-preparation');
+  if(scope==='ch41-corpus-preparation')return [{executable:process.execPath,
+    args:[resolve(root,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation']}];
   const reviewRoot = REVIEW_ROOTS[scope];
   const english = `${reviewRoot}/${scope === 'reference-core' ? 'english-candidate-01' : 'english'}`;
   const russian = `${reviewRoot}/${scope === 'reference-core' ? 'ru-candidate-01' : 'ru'}`;
@@ -67,7 +67,7 @@ export function dispatchVerifiers(scope, { root = REPOSITORY_ROOT, run = spawnSy
 
 function main(argv) {
   if (argv.length !== 1 || !Object.hasOwn(REVIEW_ROOTS, argv[0])) {
-    process.stderr.write('usage: node scripts/check-functional-chapter-reviews.mjs <reference-core|measured-postgresql-v1|ch41-governed-corpus-acquisition>\n');
+    process.stderr.write('usage: node scripts/check-functional-chapter-reviews.mjs <reference-core|measured-postgresql-v1|ch41-corpus-preparation>\n');
     return 2;
   }
   return dispatchVerifiers(argv[0]);

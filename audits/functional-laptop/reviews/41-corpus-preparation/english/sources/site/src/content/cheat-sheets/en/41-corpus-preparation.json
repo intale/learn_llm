@@ -1,0 +1,17 @@
+{
+  "chapter_id": "41-corpus-preparation",
+  "locale": "en",
+  "title": "Corpus preparation",
+  "description": "Terms for selecting training text, handling repeated examples, protecting evaluation roles and reading prepared documents.",
+  "terms": [
+    {"term": "Training corpus", "definition": "The selected documents that supply examples for tokenizer learning and model training, together with evidence of their source and preparation policy."},
+    {"term": "Document occurrence", "definition": "One stored instance of a document. Two records containing the same text are two occurrences and can give that text extra training weight."},
+    {"term": "Retention fraction", "definition": "Prepared-document count divided by input-document count for a nonempty input. It measures how much the declared pipeline retains, not the quality of its survivors."},
+    {"term": "Exact deduplication", "definition": "Remove repeated text under a declared equality policy. The NeMo example groups text hashes and keeps one representative; it does not detect paraphrases or certify collision-proof equality."},
+    {"term": "Near-duplicate", "definition": "A document sufficiently similar to another under a declared matching method. Approximate searches can miss related text or group text that should remain distinct."},
+    {"term": "Source group", "definition": "Records declared to belong to one related source family. The exercise assigns each supplied group to a single split; that assignment does not prove all related records were discovered."},
+    {"term": "Held-out split", "definition": "Validation or test documents kept out of tokenizer learning and model fitting. Validation informs setting choices; test evaluation is reserved for the final assessment."},
+    {"term": "Decontamination", "definition": "Check and exclude training overlap with declared protected evaluation material using a specified method. Passing that check does not establish absence of every possible leak."},
+    {"term": "Prepared-document interchange", "definition": "UTF-8 JSONL records with nonblank string id and text fields and retained metadata. Rust loads the supplied selection without redoing filtering, duplicate removal or split assignment."}
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-08T05:23:14.894Z",
+  "statementKind": "actual-router-owner-adjudication-attestation-recorded-by-machinery",
+  "candidateId": "ch40-ch41.en.nemo.20261008.r06",
+  "scopeId": "ch40-ch41.en.corpus-handoff",
+  "routerNativeContextId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+  "preparedHandoff": {
+    "path": ".build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/prepared-adjudication-handoff-01.json",
+    "bytes": 26378,
+    "sha256": "c915cb73431dbdd3aa30b22f69445dbb1d763a6122f59ef449e437637faee42b"
+  },
+  "adjudicationRouting": {
+    "bytes": 2061,
+    "path": "audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing/adjudication-routing.json",
+    "sha256": "e9972df89a2eda5717fc173c87f99b068c0dbf1fc70b9abc3c96dae5687005d6"
+  },
+  "attestationSource": "Direct root message after reading the complete prepared adjudication handoff and approving its canonical prompts, four-artifact boundaries, fixed five semantics and same-role receipt bindings.",
+  "routerAttestation": "The actual root router attests that both adjudicators were spawned with fork_turns:none and no model or effort override. Each initial API delivery was its exact compact canonical adjudication JSON plus single final LF, followed by a separate delivery containing only its four absolute paths in context/prompt/own-role-bundle/schema order. Nonsemantic requests for paths before queued path delivery were not judgments. Neither adjudicator received sibling private evidence, prior findings or judgments, root correction discussion, expected verdicts or an additional role instruction.",
+  "routes": [
+    {
+      "role": "technical-pedagogical",
+      "actualAgentPath": "/root/v_b2r6",
+      "nativeContextId": "01a119f5-74d1-7292-ac28-8a78886e9cf2",
+      "logicalContextId": "ctx.0c38a97d.20261008.07",
+      "model": "gpt-6.1-sol",
+      "reasoning": "max",
+      "nativeCreationTimestamp": "2026-10-08T05:21:19.116Z",
+      "spawn": {
+        "callId": "call_67ec3db484564a9a81b557c8efe7b0d9",
+        "forkTurns": "none",
+        "limitation": "Encrypted native arguments do not expose transmitted plaintext prompt bytes; exact root transport evidence must bind the current API-call strings separately.",
+        "modelOverride": "not-present",
+        "reasoningOverride": "not-present",
+        "storedMessageEncoding": "encrypted-native-argument",
+        "storedMessageSha256": "9b750db80d9dce076d1b12c93b1980b73168e19bc519971388ce1b57d4e3017a",
+        "taskName": "v_b2r6",
+        "timestamp": "2026-10-08T05:21:19.053Z"
+      },
+      "nativeObservation": {
+        "path": ".build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/native-r06-adjudication-observe-technical-v_b2r6.json",
+        "bytes": 1927,
+        "sha256": "6a32d6da272dac87f1f80d4f691446f8f0522f26ab5f888e3e2ba32597418333"
+      },
+      "artifacts": [
+        {
+          "bytes": 1258,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing/contexts/technical-pedagogical.json",
+          "sha256": "2305f0ae983cd0d3f70bcf95bf89f37026d8895c40e86ee7b2dfaf42eaf058fb"
+        },
+        {
+          "bytes": 2716,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing/prompts/technical-pedagogical.json",
+          "sha256": "328ba25abc094aebe0573e4f40c2440643f48d7c68fd51f7ff6c2370569b8017"
+        },
+        {
+          "bytes": 4295045,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-bundle/technical-pedagogical/adjudication-bundle.json",
+          "sha256": "c4f03d4e4d5ee3319252c9720902132b1192ca9b200a82f4d524ad16dd695025"
+        },
+        {
+          "bytes": 9175,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/schemas/adjudication-record.schema.json",
+          "sha256": "6463982e2e84c5cea564699242abc5e681d13364e3b7457961d62f9b3c26ca69"
+        }
+      ],
+      "promptByteIdentityVerified": true,
+      "sameRoleReviewReceipt": {
+        "bytes": 2245,
+        "path": "audits/functional-laptop/reviews/41-corpus-preparation/english/review-seals/technical-pedagogical/receipt.json",
+        "sha256": "ae59b1b44231f09f644a9fc91002b6344ded4b797d0104db940a50761f164c30"
+      },
+      "deliveredPathOrder": [
+        "context-manifest",
+        "canonical-prompt",
+        "own-role-adjudication-bundle",
+        "adjudication-record-schema"
+      ]
+    },
+    {
+      "role": "isolated-surface",
+      "actualAgentPath": "/root/v_t8n4",
+      "nativeContextId": "01a119f5-c556-7fc3-8a73-6961cd913ed2",
+      "logicalContextId": "ctx.91df5ab2.20261008.07",
+      "model": "gpt-6.1-sol",
+      "reasoning": "max",
+      "nativeCreationTimestamp": "2026-10-08T05:21:39.728Z",
+      "spawn": {
+        "callId": "call_1cd2487ae53e43de87099c0fc30f5655",
+        "forkTurns": "none",
+        "limitation": "Encrypted native arguments do not expose transmitted plaintext prompt bytes; exact root transport evidence must bind the current API-call strings separately.",
+        "modelOverride": "not-present",
+        "reasoningOverride": "not-present",
+        "storedMessageEncoding": "encrypted-native-argument",
+        "storedMessageSha256": "20036975bdf70abb7b5d3218110dfd04e3460bc2553f21e78fde47d1a688fc48",
+        "taskName": "v_t8n4",
+        "timestamp": "2026-10-08T05:21:39.667Z"
+      },
+      "nativeObservation": {
+        "path": ".build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/native-r06-adjudication-observe-isolated-v_t8n4.json",
+        "bytes": 1917,
+        "sha256": "40f2ee5c3873ac5568eaa8d1e1ffa8b49ff6e48190aa157bae0ef97feb8e4baf"
+      },
+      "artifacts": [
+        {
+          "bytes": 1238,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing/contexts/isolated-surface.json",
+          "sha256": "79e62c55fb9ba9007b8c9a62a3f946e3921cd42f0ab84221e7aae6c5ba0b2695"
+        },
+        {
+          "bytes": 2701,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-routing/prompts/isolated-surface.json",
+          "sha256": "1eb6b75e802bfa0f7ef5f3aaeeffdb3453c19a467bf121367c424755e9a1bb83"
+        },
+        {
+          "bytes": 211196,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/adjudication-bundle/isolated-surface/adjudication-bundle.json",
+          "sha256": "6d4681e4189c862e6fe078915bafdd3bf98f664d4d72c178aca43662f1c2e154"
+        },
+        {
+          "bytes": 9175,
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/schemas/adjudication-record.schema.json",
+          "sha256": "6463982e2e84c5cea564699242abc5e681d13364e3b7457961d62f9b3c26ca69"
+        }
+      ],
+      "promptByteIdentityVerified": true,
+      "sameRoleReviewReceipt": {
+        "bytes": 2242,
+        "path": "audits/functional-laptop/reviews/41-corpus-preparation/english/review-seals/isolated-surface/receipt.json",
+        "sha256": "ccb2b264cde99f9e1640103ab338a743cf961d607484458266f1662860399eda"
+      },
+      "deliveredPathOrder": [
+        "context-manifest",
+        "canonical-prompt",
+        "own-role-adjudication-bundle",
+        "adjudication-record-schema"
+      ]
+    }
+  ],
+  "pairwiseNativeContextSeparation": {
+    "author": "019f744e-94e7-7861-a1c6-79205fb55b53",
+    "reviewers": [
+      {
+        "role": "technical-pedagogical",
+        "nativeContextId": "01a119e1-0126-7620-81bd-b6ab6dd96c3d"
+      },
+      {
+        "role": "isolated-surface",
+        "nativeContextId": "01a119e1-52e3-7ca2-8d19-1daa5d04d009"
+      }
+    ],
+    "adjudicators": [
+      {
+        "role": "technical-pedagogical",
+        "nativeContextId": "01a119f5-74d1-7292-ac28-8a78886e9cf2"
+      },
+      {
+        "role": "isolated-surface",
+        "nativeContextId": "01a119f5-c556-7fc3-8a73-6961cd913ed2"
+      }
+    ],
+    "distinctNativeContexts": 5
+  },
+  "limitations": [
+    "Actual root API-delivery attestation, not decrypted native tool-argument proof. Stored encrypted message hashes cannot expose plaintext.",
+    "External provenance only, excluded from all four-artifact judgment bundles; not a fifth judgment artifact.",
+    "Adjudicators must judge the soundness and completeness of their same-role review. No fresh record, severity, finding support or verdict is inferred here.",
+    "No raw normalization, repair, sealing, final complete-chain verification, canonical publication, completion or commit is authorized by this statement."
+  ]
+}

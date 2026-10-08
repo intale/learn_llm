@@ -1,0 +1,4 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch40-reference-core-handoff v0.1.0 (/work/rust/demos/ch40-reference-core-handoff)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.81s
+     Running tests/reference_handoff.rs (/target/debug/deps/reference_handoff-2b2932af5a29b63b)

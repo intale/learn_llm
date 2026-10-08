@@ -1,0 +1,11 @@
+
+Running 7 tests using 1 worker
+
+[1/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:11:1 › en Chapter40 static evidence, formula and activated neighbor surfaces
+[2/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:38:3 › en Chapter40 nearest-box containment 1280
+[3/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:38:3 › en Chapter40 nearest-box containment 390
+[4/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:47:1 › en Chapter40 full view reuses one readable tree with keyboard exit and reachability
+[5/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:71:1 › en Chapter40 forced colors and RTL retain containment and literal data direction
+[6/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:83:3 › en Chapter40 cheat sheet keyboard and contained scrolling 1280
+[7/7] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:83:3 › en Chapter40 cheat sheet keyboard and contained scrolling 390
+  7 passed (5.5s)

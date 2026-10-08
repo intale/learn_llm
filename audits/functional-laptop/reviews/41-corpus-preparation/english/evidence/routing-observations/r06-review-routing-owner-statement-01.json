@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-08T05:07:04.516Z",
+  "statementKind": "actual-router-owner-attestation-recorded-by-machinery",
+  "candidateId": "ch40-ch41.en.nemo.20261008.r06",
+  "scopeId": "ch40-ch41.en.corpus-handoff",
+  "routerNativeContextId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+  "preparedHandoff": {
+    "path": ".build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/prepared-review-handoff-01.json",
+    "bytes": 29314,
+    "sha256": "c4a6822ad27cec08b14733b8b8794f493d4fea552e4224e8b182cc0634f34100"
+  },
+  "reviewRouting": {
+    "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing/review-routing.json",
+    "bytes": 1984,
+    "sha256": "878d7d3a529860935d48ba95057a2c562078823052829ee9e8ee0b65c775f3a9"
+  },
+  "attestationSource": "Direct root message to /root/resume_nemo_machinery authorizing observation and exact-response capture after root inspected the complete prepared handoff.",
+  "routerAttestation": "The actual root router attests that both listed reviewers were spawned with fork_turns:none and no model or effort override. Each initial API message was the exact applicable canonical prompt JSON, including its single final LF, copied from the prepared handoff. A separate delivery contained only its four absolute paths, in context/prompt/own-role-bundle/schema order. Initial path requests before queued path delivery were nonsemantic transport requests, not judgment responses. No prior findings, expected classification, verdict, root correction discussion, sibling judgment, or additional role instruction was supplied.",
+  "routes": [
+    {
+      "role": "technical-pedagogical",
+      "actualAgentPath": "/root/v_h7m2",
+      "nativeContextId": "01a119e1-0126-7620-81bd-b6ab6dd96c3d",
+      "logicalContextId": "ctx.8d14f3b6.20261008.06",
+      "model": "gpt-6.1-sol",
+      "reasoning": "max",
+      "nativeCreationTimestamp": "2026-10-08T04:58:58.785Z",
+      "spawn": {
+        "callId": "call_d8132f2d7b10485cb829cc7081ceaf15",
+        "forkTurns": "none",
+        "limitation": "Encrypted native arguments do not expose transmitted plaintext prompt bytes; exact root transport evidence must bind the current API-call strings separately.",
+        "modelOverride": "not-present",
+        "reasoningOverride": "not-present",
+        "storedMessageEncoding": "encrypted-native-argument",
+        "storedMessageSha256": "e33b98de33546031e8858c191a2bd2ca87755c1ff50017b3f14570b144b08285",
+        "taskName": "v_h7m2",
+        "timestamp": "2026-10-08T04:58:58.724Z"
+      },
+      "nativeObservation": {
+        "path": ".build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/native-r06-review-observe-technical-v_h7m2.json",
+        "bytes": 1915,
+        "sha256": "6400000343d719e3c91f570fc302cd71a91f8ace144fe2d2791552cd1f24b787"
+      },
+      "artifacts": [
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing/contexts/technical-pedagogical.json",
+          "bytes": 1197,
+          "sha256": "6b0cde0dc9bad6139a6ee20815cc14487aa21dea0c2bc866654368a577e4e1c1"
+        },
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing/prompts/technical-pedagogical.json",
+          "bytes": 2821,
+          "sha256": "7c856b30a0eb10c2e4683054594c25730ad2a47ece93c105aa20bf6577add7db"
+        },
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/bundle/technical-pedagogical/review-bundle.json",
+          "bytes": 4166246,
+          "sha256": "9a92622248689cbaa0249418b0a84d13405ffac8ef2ce653f92ef4f8478fcc48"
+        },
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/schemas/review-record.schema.json",
+          "bytes": 4763,
+          "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177"
+        }
+      ],
+      "promptByteIdentityVerified": true,
+      "deliveredPathOrder": [
+        "context-manifest",
+        "canonical-prompt",
+        "own-role-review-bundle",
+        "review-record-schema"
+      ]
+    },
+    {
+      "role": "isolated-surface",
+      "actualAgentPath": "/root/v_q3k8",
+      "nativeContextId": "01a119e1-52e3-7ca2-8d19-1daa5d04d009",
+      "logicalContextId": "ctx.54b8c2e9.20261008.06",
+      "model": "gpt-6.1-sol",
+      "reasoning": "max",
+      "nativeCreationTimestamp": "2026-10-08T04:59:19.709Z",
+      "spawn": {
+        "callId": "call_b5660a82f9c64041ab6b18b9cc5fefba",
+        "forkTurns": "none",
+        "limitation": "Encrypted native arguments do not expose transmitted plaintext prompt bytes; exact root transport evidence must bind the current API-call strings separately.",
+        "modelOverride": "not-present",
+        "reasoningOverride": "not-present",
+        "storedMessageEncoding": "encrypted-native-argument",
+        "storedMessageSha256": "b17897d67fd1ce19a13695028cc98cc0a56490de2fceaa8a4f079aa1375decf7",
+        "taskName": "v_q3k8",
+        "timestamp": "2026-10-08T04:59:19.648Z"
+      },
+      "nativeObservation": {
+        "path": ".build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/native-r06-review-observe-isolated-v_q3k8.json",
+        "bytes": 1905,
+        "sha256": "bb6456bb826aeb9ef7d54f761e0f723741f4e0fa44db6bfbe3155c34f04fa78c"
+      },
+      "artifacts": [
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing/contexts/isolated-surface.json",
+          "bytes": 1177,
+          "sha256": "f5150119a76759afc18cab9534d2c061a841d2d1c533a4e424dc2b6c68970ae5"
+        },
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/review-routing/prompts/isolated-surface.json",
+          "bytes": 3007,
+          "sha256": "3446b07cf8acdfa4c1b7fee323637d57cfd561d9f70cc4081b1e16b96bf531ba"
+        },
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/bundle/isolated-surface/review-bundle.json",
+          "bytes": 116901,
+          "sha256": "d17d6f5b27c712280161483b27cc8966ac4ca71469f7c00f402a3599552f9941"
+        },
+        {
+          "path": "/home/int/rust/learn_llm/.build/runs/20261008T041111Z-merge-ch41-nemo-corpus-preparation-03/review-packaging/review-workspace-01/audits/functional-laptop/reviews/41-corpus-preparation/english/schemas/review-record.schema.json",
+          "bytes": 4763,
+          "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177"
+        }
+      ],
+      "promptByteIdentityVerified": true,
+      "deliveredPathOrder": [
+        "context-manifest",
+        "canonical-prompt",
+        "own-role-review-bundle",
+        "review-record-schema"
+      ]
+    }
+  ],
+  "limitations": [
+    "The root owner attests actual API delivery text. Native tool arguments are encrypted; opaque stored argument hashes are not decrypted transport proof.",
+    "This external statement is excluded from all judgment bundles and is not a fifth model-facing artifact.",
+    "Actual author and both reviewers are native/context-distinct. No adjudicator context is claimed or approved by this statement.",
+    "The continuing root author is not a fresh reviewer or certifying context. This is routing and file-byte evidence only, not a semantic judgment, seal, publication or completion."
+  ]
+}

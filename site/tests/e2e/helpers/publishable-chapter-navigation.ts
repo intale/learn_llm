@@ -7,7 +7,7 @@ import functional from '../../../src/i18n/functional-chapter-locales.json' with 
 // @ts-ignore Shared filesystem-neutral composition.
 import {composeChapterConfigurations} from '../../../src/lib/functional-course-publication.mjs';
 // @ts-ignore Maintained private-stage descriptor binding.
-import {readPrivateBuildScope} from '../../../../scripts/check-functional-site-content.mjs';
+import {readPrivateBuildScope,privateReviewCandidateForChapter} from '../../../../scripts/check-functional-site-content.mjs';
 
 declare const process: {cwd():string};
 interface PublishedChapter {chapterId:string;order:number;activeLocales:('en'|'ru')[]}
@@ -21,8 +21,9 @@ for(const chapter of configuration.chapters) {
     existsSync(resolve(root,'site/dist',locale,'course',chapter.chapterId,'index.html')));
   if(!actual.length){ended=true;continue;}
   if(ended)throw new Error('Rendered publication has a gap');
+  const privateCandidate=privateReviewCandidateForChapter(privateScope,chapter.chapterId);
   if(actual.length!==chapter.activeLocales.length &&
-      !(privateScope?.chapterId===chapter.chapterId&&JSON.stringify(actual)===JSON.stringify(Object.keys(privateScope.sourceHashes))))
+      !(privateCandidate&&JSON.stringify(actual)===JSON.stringify(Object.keys(privateCandidate.sourceHashes))))
     throw new Error('Partial active-locale publication outside private review');
   published.push({...chapter,activeLocales:actual});
 }

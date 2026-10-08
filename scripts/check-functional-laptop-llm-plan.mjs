@@ -5,6 +5,7 @@ import { closeSync, existsSync, lstatSync, openSync, readFileSync, readSync, rea
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateCurrentCorpusPlan, validateCurrentCorpusQueue, jsonDigest, CORPUS_MIGRATION_STEP } from './lib/functional-corpus-migration-v2.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = HERE.endsWith(sep + 'scripts') ? resolve(HERE, '..') : resolve(HERE, '../../..');
@@ -4715,9 +4716,53 @@ export {
   authoritativeValidateSchema as validateSchema
 };
 
+function validateCurrentCorpusMigration(root,args) {
+  const file=readBounded(root,args['--plan']||DEFAULTS.plan,'extension plan',8388608);
+  const parsed=parseFrontmatter(file.text,'extension plan');
+  if(parsed.data.plan_revision!==2)return false;
+  check(!args['--constants']&&!args['--schema']&&!args['--queue']&&!args['--records'],'revision2 uses its closed current amendment, not alternative design inputs');
+  const compatibility=parseJsonExact(readBounded(root,'configs/functional-execution-compatibility-v6.json','corpus compatibility',1048576).text,'corpus compatibility');
+  check(compatibility.schema_version===1&&compatibility.compatibility_id==='functional-corpus-preparation-compatibility-v6','current corpus compatibility identity drift');
+  check(compatibility.historical_compatibility_path==='configs/functional-execution-compatibility-v5.json','historical compatibility location drift');
+  check(hashRegularFile(resolve(root,compatibility.historical_compatibility_path)).sha256===compatibility.historical_compatibility_sha256,'v5 historical compatibility byte drift');
+  check(compatibility.origin_plan_sha256===PUBLISHED_EXTENSION_PLAN_SHA256&&jsonDigest(EMBEDDED_PLAN_DATA)===compatibility.origin_plan_projection_sha256,'historical plan binding drift');
+  check(jsonDigest(compatibility.delta)==='83acab726c0d03f9818cd397d3ca5e6800470167dd564de1291b3cd1f6f8d0cd','frozen root-owned corpus semantic delta drift');
+  validateCurrentCorpusPlan(parsed.data,EMBEDDED_PLAN_DATA,compatibility.delta);
+  check(jsonDigest(parsed.data)===compatibility.current_plan_projection_sha256,'current plan projection binding drift');
+  // The original external audit/source/resource inputs retain their frozen bytes.
+  const accepted=validateAccepted(root,EMBEDDED_CONSTANTS,args);
+  validateCoverage(accepted.coverage_sha256.text,accepted.requirements_sha256.text,EMBEDDED_CONSTANTS);
+  validateResource(accepted.resource_contract_sha256.text,EMBEDDED_CONSTANTS);
+  const document=parseStateYaml(readBounded(root,args['--state']||DEFAULTS.state,'BUILD_STATE',67108864).text,root);
+  const historical=document.builds.find(build=>build.build_id===compatibility.origin_build_id);
+  check(historical,'historical extension build missing');
+  const projection=historical.steps.map(({id,depends_on,status})=>({id,depends_on,status}));
+  deepEqual(projection,compatibility.historical_queue_projection,'historical queue/status projection must not be relabeled');
+  const current=document.builds.flatMap(build=>build.steps.map(step=>({build,step}))).filter(record=>record.step.id===CORPUS_MIGRATION_STEP);
+  check(current.length===1&&['running','completed','pending'].includes(current[0].step.status),'actual current migration record missing/ambiguous');
+  validateCurrentCorpusQueue(document,parsed.data);
+  const held=document.builds.flatMap(build=>build.steps).filter(step=>step.id==='repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces');
+  check(held.length===1&&held[0].status==='pending','held existing-chapter repairs changed');
+  const manifest=parseJsonExact(readBounded(root,'site/src/i18n/functional-chapter-locales.json','current locale manifest',1048576).text,'current locale manifest');
+  check(manifest.planRevision===2&&manifest.chapters.length===44,'current locale revision/count drift');
+  deepEqual(manifest.chapters,parsed.data.chapters.map((chapter,index)=>({chapterId:chapter.chapter_id,order:chapter.order,activeLocales:['en']})),'current English-first locale projection');
+  const inventory=parseJsonExact(readBounded(root,'curriculum/future-chapter-plans/index.json','current packet inventory',1048576).text,'current packet inventory');
+  check(inventory.chapters.length===44&&inventory.current_plan_revision===2,'current packet revision/count drift');
+  for(let index=0;index<44;index++){
+    const packet=inventory.chapters[index],chapter=parsed.data.chapters[index];
+    check(packet.id===chapter.chapter_id&&packet.number===chapter.order&&packet.status==='planning-ready','current packet ID/order/status drift');
+    check(packet.planned_packet===chapter.chapter_id+'.md','current packet path drift');
+    readBounded(root,'curriculum/future-chapter-plans/'+packet.planned_packet,'current packet',262144);
+  }
+  console.log('Functional current plan valid:44chapters(40–83),79capabilities; explicit NeMo/reader revision2 delta; original v1–v5 audit/resource/history preserved.');
+  console.error('Limit: structural identity checks do not prove teaching/review quality, GPU correctness or full-corpus rights/privacy/overlap release. Bulk preparation remains separately pending.');
+  return true;
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = realpathSync(resolve(args['--root'] || DEFAULT_ROOT));
+  if(validateCurrentCorpusMigration(root,args))return;
   const externalNames = [['--constants','constants',8388608],['--schema','schema',2097152],['--queue','queue',8388608],['--records','chapter records',4194304]];
   const externalFlags = externalNames.filter(([flag]) => args[flag]);
   check(externalFlags.length === 0 || externalFlags.length === externalNames.length, 'staged constants/schema/queue/records flags must be supplied together');

@@ -1,0 +1,10 @@
+
+running 1 test
+test every_identity_input_is_bound_without_training ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.06s
+
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch40-reference-core-handoff v0.1.0 (/work/rust/demos/ch40-reference-core-handoff)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.81s
+     Running tests/reference_handoff.rs (/target/debug/deps/reference_handoff-2b2932af5a29b63b)

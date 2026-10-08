@@ -1,0 +1,17 @@
+{
+  "first_documents": [
+    {
+      "id": "story-a",
+      "metadata_fields": [
+        "source_group",
+        "split",
+        "word_count"
+      ],
+      "text_utf8_bytes": 11
+    }
+  ],
+  "loaded": {
+    "documents": 1,
+    "text_bytes": 11
+  }
+}

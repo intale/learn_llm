@@ -4,14 +4,14 @@ import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
-import {examplePaths,demoPaths,validateExampleOutput,checkFunctionalRustExamples} from '../check-functional-rust-examples.mjs';
+import {examplePaths,demoPaths,demoFixtureInput,validateExampleOutput,checkFunctionalRustExamples} from '../check-functional-rust-examples.mjs';
 import {readFunctionalPlan} from '../check-functional-rust-ownership.mjs';
 
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const plan=readFunctionalPlan(root);
 
-test('all46 exact planned functional IDs map to their chapter-specific demo',()=>{
-  assert.equal(plan.chapters.length,46);
+test('all44 exact planned functional IDs map to their chapter-specific demo',()=>{
+  assert.equal(plan.chapters.length,44);
   for(const chapter of plan.chapters) {
     const id=chapter.chapter_id,prefix='rust/demos/ch'+id+'/';
     assert.deepEqual(demoPaths(id),{package:'ch'+id,source:prefix+'src/main.rs',
@@ -48,6 +48,7 @@ test('--all runs each implemented exact demo and compares its actual selected go
     assert.deepEqual(args.slice(0,4),['run','--quiet','--locked','-p']);
     assert.equal(args.length,5);
     const id=args[4].slice(2);
+    if(id==='40-reference-core-handoff')assert.equal(Object.hasOwn(options,'input'),false);
     assert.ok(plan.chapters.some(c=>c.chapter_id===id));
     calls.push(id);
     return {status:0,stdout:readFileSync(join(root,demoPaths(id).expected))};
@@ -55,7 +56,7 @@ test('--all runs each implemented exact demo and compares its actual selected go
   const implemented=plan.chapters.filter(c=>existsSync(join(root,demoPaths(c.chapter_id).source)))
     .map(c=>c.chapter_id);
   assert.deepEqual(calls,implemented);assert.equal(result.examples,implemented.length);
-  assert.ok(calls.includes('40-reference-core-handoff'));assert.ok(calls.includes('41-governed-corpus-acquisition'));
+  assert.ok(calls.includes('40-reference-core-handoff'));assert.ok(calls.includes('41-corpus-preparation'));
 });
 
 test('a selected known absent demo fails rather than falling back to cumulative examples',()=>{
@@ -67,7 +68,7 @@ test('a selected known absent demo fails rather than falling back to cumulative 
 });
 
 test('failed Cargo and stdout byte drift are not acceptance',()=>{
-  const chapterId='41-governed-corpus-acquisition';
+  const chapterId='41-corpus-preparation';
   assert.throws(()=>checkFunctionalRustExamples(root,{chapterId,run:()=>({status:1,stderr:Buffer.from('fixture failure')})}),/Successor demo failed/);
   assert.throws(()=>checkFunctionalRustExamples(root,{chapterId,run:()=>({status:0,stdout:Buffer.from('wrong\n')})}),/stdout differs/);
 });
@@ -76,4 +77,20 @@ test('stdout is compared as exact bytes, not trimmed or projected',()=>{
   validateExampleOutput(Buffer.from('ok\n'),Buffer.from('ok\n'));
   for(const bytes of ['ok','ok\n\n','different\n',' ok\n'])
     assert.throws(()=>validateExampleOutput(Buffer.from(bytes),Buffer.from('ok\n')));
+});
+
+test('prepared corpus demo receives exact bounded caller fixture bytes through standard input',()=>{let calls=0;checkFunctionalRustExamples(root,{chapterId:'41-corpus-preparation',run:(command,args,options)=>{calls++;assert.deepEqual(options.input,readFileSync(join(root,'rust/demos/ch41-corpus-preparation/fixtures/prepared.jsonl')));return{status:0,stdout:readFileSync(join(root,'rust/demos/ch41-corpus-preparation/expected.txt'))};}});assert.equal(calls,1);});
+
+test('fixture convention preserves empty and exact-cap bytes and rejects one byte over',t=>{
+  const fixture=mkdtempSync(join(tmpdir(),'functional-stdin-fixture-'));
+  t.after(()=>rmSync(fixture,{recursive:true,force:true}));
+  const chapterId='41-corpus-preparation',directory=join(fixture,'rust/demos/ch'+chapterId+'/fixtures');
+  assert.equal(demoFixtureInput(fixture,chapterId),undefined);
+  mkdirSync(directory,{recursive:true});
+  const path=join(directory,'prepared.jsonl');
+  for(const bytes of [Buffer.alloc(0),Buffer.from('{"id":"caller","text":"provided"}\n'),Buffer.alloc(1048576,0x20)]){
+    writeFileSync(path,bytes);assert.deepEqual(demoFixtureInput(fixture,chapterId),bytes);
+  }
+  writeFileSync(path,Buffer.alloc(1048577));
+  assert.throws(()=>demoFixtureInput(fixture,chapterId),/oversized input/);
 });

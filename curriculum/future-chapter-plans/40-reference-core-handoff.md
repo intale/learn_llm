@@ -1,5 +1,7 @@
 # Chapter 40 — detailed implementation packet
 
+Current execution amendment (2026-10-07): Chapter40 is English-first; its current Russian learner products and gates are deferred by the user. Historical bilingual packet assumptions and completed evidence below remain history, not active prerequisites. English gates, formulas, Rust implementation and immutable program data are unchanged.
+
 Status: planning-ready after internal planning validation, not implemented or
 publication-approved. The 2026-10-03 request releases Chapter 40 and its required
 setup after the separately recorded execution compatibility gate; repairs and

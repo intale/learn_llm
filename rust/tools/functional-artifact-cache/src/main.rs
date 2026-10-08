@@ -4,13 +4,13 @@ use std::fs::File;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 
-use functional_artifact_cache::filesystem::{CacheLayout, FileLayout, FileSource, FileStore};
-use llm_from_scratch::functional::artifact::{
+use functional_artifact_cache::artifact::{
     acquisition::{acquire_bundle, replay_bundle},
     canonical_manifest::{MAX_MANIFEST_BYTES, artifact_id},
     inventory::{VerifiedBundle, read_manifest, verify_bundle},
     lineage::{AcquisitionError, DatasetPolicy},
 };
+use functional_artifact_cache::filesystem::{CacheLayout, FileLayout, FileSource, FileStore};
 use serde::Deserialize;
 use serde_json::{Value, json};
 

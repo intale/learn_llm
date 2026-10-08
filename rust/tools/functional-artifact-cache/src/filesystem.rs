@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::{Component, Path, PathBuf};
 
-use llm_from_scratch::functional::artifact::{
+use crate::artifact::{
     acquisition::{AssetStore, StagedAssets},
     canonical_manifest::{
         DatasetArtifactManifestV2, PayloadEntry, artifact_id, canonical_manifest_bytes,
@@ -616,8 +616,7 @@ impl StagedAssets for FileStage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use llm_from_scratch::artifact_identity::sha256;
-    use llm_from_scratch::functional::artifact::{
+    use crate::artifact::{
         acquisition::{acquire_bundle, replay_bundle},
         canonical_manifest::{
             Attribution, DatasetScope, License, Producer, Redistribution, SourceRecord,
@@ -625,6 +624,7 @@ mod tests {
         inventory::verify_bundle,
         lineage::DatasetPolicy,
     };
+    use llm_from_scratch::artifact_identity::sha256;
     use std::sync::atomic::{AtomicU64, Ordering};
     static NEXT: AtomicU64 = AtomicU64::new(0);
     struct Temp(PathBuf);

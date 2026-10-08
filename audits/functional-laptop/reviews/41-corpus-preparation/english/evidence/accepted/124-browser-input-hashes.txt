@@ -1,0 +1,7 @@
+3810755732475a93678f9d7ec535c749e6ea66fd5240f44ac866d4d8f639692e  site/src/content/chapters/en/40-reference-core-handoff.mdx
+05029ba843919fd987b96c5403a31b233bc1aae70dc7b93547be17621905404c  site/tests/e2e/ch40-reference-core-handoff.spec.ts
+69803e07f0d0cef567298cd1f2c89359a99e96bf0180f139e60aba1844293faa  site/playwright.config.ts
+68fcfa8e13a8b2fb5ba59329463df07cd958f2a8be0ef9238302c1e8b9a04264  site/src/lib/diagram-full-view.ts
+e9f8615754b56a62c521fbbdbc2e4ce34cd5f25faeea822a52ceb235a711829d  site/src/lib/functional-course-publication.mjs
+e340a8dad5f190a8b7af425a5bc3a59f0453f6ce7b18a2520ad7d41c0a18b171  site/tests/e2e/helpers/publishable-chapter-navigation.ts
+a44a077d4a470d30996266dff983bf84961bc4dfd9226716b7d1ac41f922e3c6  site/src/i18n/functional-catalogs/private-review.json

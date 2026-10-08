@@ -340,7 +340,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ch41-governed-corpus-acquisition"
+name = "ch41-corpus-preparation"
 version = "0.1.0"
 dependencies = [
  "llm-from-scratch",
@@ -348,13 +348,9 @@ dependencies = [
  "serde_json",
 ]
 
-[[package]]
-name = "ch42-deterministic-corpus-filtering"
-version = "0.1.0"
-dependencies = [
- "llm-from-scratch",
- "serde_json",
-]
+
+
+
 
 [[package]]
 name = "chapter-demo-template"

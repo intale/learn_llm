@@ -1,0 +1,24 @@
+
+running 3 tests
+test tests::loads_the_explicitly_hand_prepared_course_fixture ... ok
+test tests::malformed_later_input_has_no_success_summary ... ok
+test tests::summary_retains_only_three_document_descriptions ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch41-corpus-preparation v0.1.0 (/work/rust/demos/ch41-corpus-preparation)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.85s
+     Running unittests src/lib.rs (/target/debug/deps/ch41_corpus_preparation-4d03be8760042b77)
+     Running unittests src/main.rs (/target/debug/deps/ch41_corpus_preparation-b8102faf9ca6a34c)
+   Doc-tests ch41_corpus_preparation

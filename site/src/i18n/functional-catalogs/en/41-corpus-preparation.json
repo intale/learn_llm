@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "41-corpus-preparation",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Prepare text externally, then load it in Rust",
+  "description": "Use NVIDIA NeMo Curator to apply a word-count rule, remove repeated text and preserve known source-group splits, then load prepared JSONL in Rust.",
+  "objective": "Explain how source choices, exclusions, duplicates and evaluation overlap affect a training corpus; prepare a bounded example with NeMo Curator and load its selected documents through a caller-supplied Rust reader."
+}

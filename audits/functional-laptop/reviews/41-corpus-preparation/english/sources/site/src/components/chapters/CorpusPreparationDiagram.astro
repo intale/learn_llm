@@ -1,0 +1,90 @@
+---
+import trace from '../../../../artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json';
+import InlineMath from '../InlineMath.astro';
+
+const roles = [
+  { key: 'train', name: 'Training', use: 'Learn tokenizer choices and fit the model.' },
+  { key: 'validation', name: 'Validation', use: 'Select settings; do not learn tokenizer choices from this text.' },
+  { key: 'test', name: 'Test', use: 'Reserve for final evaluation; do not fit the model or tokenizer on this text.' },
+] as const;
+---
+<figure class="course-diagram corpus-preparation-diagram" data-diagram-style="course-v1"
+  data-visualization-id="corpus-preparation" tabindex="0"
+  aria-labelledby="corpus-preparation-title" aria-describedby="corpus-preparation-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="corpus-preparation-title">Prepare documents outside the Rust language model</h3>
+    <p id="corpus-preparation-description" class="course-diagram__description">
+      The six-document course fixture passes through NeMo's word-count rule and
+      exact duplicate removal, leaving three documents. A fixed policy assigns
+      known source groups to training, validation and test; Rust loads the exported
+      records. Document counts count those records. Decoded text bytes measure only
+      the UTF-8 size of their text, excluding metadata. Neither quantity certifies
+      privacy, complete related-source discovery or trained-model quality.
+    </p>
+  </figcaption>
+  <div class="course-diagram__grid preparation-flow">
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <h4>1. Declare the source and policy</h4>
+      <p>Keep document IDs, source-group metadata and intended-use context. Freeze
+        quality and split choices before observing their outcomes.</p>
+      <dl>
+        <dt>Fixture input documents</dt>
+        <dd class="course-diagram__technical"><code>{trace.documents.input}</code></dd>
+      </dl>
+    </section>
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <h4>2. Run external NeMo preparation</h4>
+      <dl>
+        <dt>After the word-count rule</dt>
+        <dd class="course-diagram__technical"><code>{trace.documents.after_quality}</code> document occurrences</dd>
+        <dt>After exact duplicate removal</dt>
+        <dd class="course-diagram__technical"><code>{trace.documents.prepared}</code> documents</dd>
+        <dt>Final document-retention fraction</dt>
+        <dd><InlineMath latex={'\\frac{' + trace.documents.prepared + '}{' + trace.documents.input + '}'} /></dd>
+      </dl>
+      <p>One cat-story occurrence remains. Either original cat-story ID may be kept.</p>
+    </section>
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <h4>3. Export and load the selected role</h4>
+      <p>NeMo-prepared JSONL crosses into a caller-supplied Rust reader. Loading
+        validates records and limits, not their suitability for training.</p>
+      <dl>
+        <dt>All-role inspection export loaded by Rust</dt>
+        <dd><code>{trace.loading.all_roles.documents}</code> documents;
+          <code>{trace.loading.all_roles.text_utf8_bytes}</code> decoded text bytes</dd>
+        <dt>Training export loaded by Rust</dt>
+        <dd><code>{trace.loading.training_only.documents}</code> document;
+          <code>{trace.loading.training_only.text_utf8_bytes}</code> decoded text bytes</dd>
+      </dl>
+    </section>
+  </div>
+  <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+    <h4>The provided groups keep the three learning roles separate</h4>
+    <div class="course-diagram__grid preparation-role-grid">
+      {roles.map(role => <section class="course-diagram__card-stack" data-diagram-card data-diagram-box data-corpus-role={role.key}>
+        <h4>{role.name}</h4>
+        <p><code>{trace.splits[role.key].documents}</code> fixture document;
+          <code>{trace.splits[role.key].decoded_text_utf8_bytes}</code> decoded text bytes.</p>
+        <p>{role.use}</p>
+      </section>)}
+    </div>
+    <p class="course-diagram__description">Only the training export supplies
+      tokenizer learning. Disjoint role labels alone do not prove that near-copies
+      or protected benchmark text are absent.</p>
+  </section>
+</figure>
+
+<style>
+  .preparation-flow,
+  .preparation-role-grid {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  @container (min-width: 55rem) {
+    .preparation-flow,
+    .preparation-role-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
