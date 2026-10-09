@@ -7,8 +7,11 @@ readonly repository_root
 # Supporting crates must be listed explicitly after their rationale is recorded
 # in DECISIONS.md. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
+  aho-corasick
   atomic-waker
   base64
+  bit-set
+  bit-vec
   bitflags
   block-buffer
   bumpalo
@@ -22,6 +25,7 @@ readonly -a allowed_supporting_crates=(
   digest
   displaydoc
   errno
+  fancy-regex
   fastrand
   find-msvc-tools
   foreign-types
@@ -74,6 +78,8 @@ readonly -a allowed_supporting_crates=(
   proc-macro2
   quote
   r-efi
+  regex-automata
+  regex-syntax
   reqwest
   rustix
   rustls-pki-types

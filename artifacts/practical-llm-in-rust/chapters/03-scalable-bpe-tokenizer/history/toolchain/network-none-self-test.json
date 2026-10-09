@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "network": "none",
+  "image": "sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3",
+  "results": [
+    {
+      "name": "standards-parser-visible-main-and-hidden-exclusion",
+      "outcome": "pass"
+    },
+    {
+      "name": "ambiguous-main-refusal",
+      "outcome": "pass"
+    },
+    {
+      "name": "strict-utf8-no-replacement",
+      "outcome": "pass"
+    },
+    {
+      "name": "pdfinfo-page-count-and-ordered-page-extraction",
+      "outcome": "pass",
+      "pages": 2,
+      "text_byte_lengths": [
+        12,
+        13
+      ]
+    }
+  ]
+}

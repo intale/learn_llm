@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "scope": "fixture",
+  "split": "train",
+  "provenance": "The course author manually wrote these two documents for the Chapter 42 example.",
+  "input": {
+    "encoding": "prepared-jsonl",
+    "path": "train.jsonl",
+    "sha256": "d72804e22c9be2b8f8f51bf235040265f967308f3d62e77096b35d78f6628c6e"
+  },
+  "document_ids": ["train-a", "train-b"],
+  "admission": "Bounded authored fixture only; this receipt does not admit full-corpus preparation, overlap, resource use or model quality."
+}

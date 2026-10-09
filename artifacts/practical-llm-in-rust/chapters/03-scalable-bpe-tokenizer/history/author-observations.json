@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "source_ids": [
+    "SRC-DTH-TOK-01",
+    "SRC-DTH-TOK-04"
+  ],
+  "root_content_judgment": true,
+  "author_context": "/root",
+  "records": [
+    {
+      "source_id": "SRC-DTH-TOK-01",
+      "paraphrase": "Sennrich and colleagues describe a character-based subword representation, repeatedly count adjacent symbol pairs and merge a frequent pair, and exclude pairs that cross word boundaries. Chapter 42 uses a separate course raw-byte policy; its numeric token IDs, tie order and document framing are not claims about the paper.",
+      "rights_observation": "The paper displays a 2016 Association for Computational Linguistics copyright notice. No redistribution grant was observed in the retrieved paper. Full PDF and full extracted text remain ignored run evidence only.",
+      "spans": [
+        {
+          "id": "character-units",
+          "quote": "we merge characters or\ncharacter sequences.",
+          "decoded_utf8_byte_start": 11877,
+          "decoded_utf8_byte_end": 11920,
+          "pdf_page": 3,
+          "page_byte_start": 3557,
+          "printed_page": 1717,
+          "section": "3.2"
+        },
+        {
+          "id": "pair-counts",
+          "quote": "We iteratively count all symbol pairs",
+          "decoded_utf8_byte_start": 12165,
+          "decoded_utf8_byte_end": 12202,
+          "pdf_page": 3,
+          "page_byte_start": 3845,
+          "printed_page": 1717,
+          "section": "3.2"
+        },
+        {
+          "id": "word-boundary",
+          "quote": "we do not consider pairs that\ncross word boundaries.",
+          "decoded_utf8_byte_start": 12697,
+          "decoded_utf8_byte_end": 12749,
+          "pdf_page": 3,
+          "page_byte_start": 4377,
+          "printed_page": 1717,
+          "section": "3.2"
+        }
+      ]
+    },
+    {
+      "source_id": "SRC-DTH-TOK-04",
+      "paraphrase": "The published GPT-2 encoder builds a reversible representation of all 256 byte values as Unicode symbols. Its pretokenization expression separates categories such as letters and numbers before BPE. Within each resulting piece, the encoder chooses the adjacent pair with the smallest learned rank, merges nonoverlapping occurrences and repeats. Encoding converts each piece to UTF-8 bytes before mapping those bytes; decoding joins the token symbols, maps them back to bytes and then decodes the combined byte sequence. Chapter 42 reproduces these operations with a tiny illustrative vocabulary to expose the letter-versus-digit boundary in `a1`. That vocabulary is course-authored and supplies no pretrained GPT-2 token IDs or tokenizer parity result.",
+      "rights_observation": "Full GitHub HTML and full extracted official code remain ignored run evidence only. Canonical source observation uses the exact official source hash, bounded line and byte locators, and an author paraphrase with no direct code quotations.",
+      "spans": [
+        {
+          "id": "byte-mapping",
+          "quote": null,
+          "line_start": 9,
+          "line_end": 31,
+          "decoded_utf8_byte_start": 123,
+          "decoded_utf8_byte_end": 1117
+        },
+        {
+          "id": "merge-rank-table",
+          "quote": null,
+          "line_start": 49,
+          "line_end": 49,
+          "decoded_utf8_byte_start": 1712,
+          "decoded_utf8_byte_end": 1783
+        },
+        {
+          "id": "pretokenization-pattern",
+          "quote": null,
+          "line_start": 53,
+          "line_end": 53,
+          "decoded_utf8_byte_start": 1917,
+          "decoded_utf8_byte_end": 2030
+        },
+        {
+          "id": "rank-choice",
+          "quote": null,
+          "line_start": 65,
+          "line_end": 66,
+          "decoded_utf8_byte_start": 2255,
+          "decoded_utf8_byte_end": 2391
+        },
+        {
+          "id": "encode-sequence",
+          "quote": null,
+          "line_start": 96,
+          "line_end": 101,
+          "decoded_utf8_byte_start": 3275,
+          "decoded_utf8_byte_end": 3582
+        },
+        {
+          "id": "decode-sequence",
+          "quote": null,
+          "line_start": 103,
+          "line_end": 105,
+          "decoded_utf8_byte_start": 3583,
+          "decoded_utf8_byte_end": 3778
+        }
+      ]
+    }
+  ]
+}

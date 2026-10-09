@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "owner_step": "implement-ch42-scalable-bpe-tokenizer",
+  "run_id": "20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01",
+  "scope": "Independent current history extraction tool use only; this does not complete or admit the historical offline-workspace foundation.",
+  "derived_image_id": "sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3",
+  "runtime_network": "none",
+  "runtime_read_only": true,
+  "node_version": "v22.12.0",
+  "base_workspace_receipt_sha256": null,
+  "base_workspace_receipt_status": "Original required receipt absent; no foundation admission claimed",
+  "historical_provenance": {
+    "status": "mismatch-retained-only",
+    "admitted": false,
+    "base_inventory_expected_sha256": "71c37818868f24f73bc0179005ac8f0ca8fd812f8cf755d1340a90fb4c4510b5",
+    "base_inventory_actual_sha256": "9eaaeb47b9fc015768229458a819ef919b8490587da9343cc606d49ec5cb0008",
+    "base_inventory_match": false,
+    "original_foundation_completion_claimed": false
+  },
+  "historical_provenance_failure": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/original-base-provenance-mismatch.txt",
+    "sha256": "0ee0acf96b41053e66ad13654c0420aabc260e52cb34f50b202989e5f5105f16"
+  },
+  "site_package_lock": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/site-package-lock.json",
+    "sha256": "e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"
+  },
+  "parse5_version": "7.3.0",
+  "parse5_package_integrity": "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==",
+  "npm_parser_graph": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/npm-parser-graph.json",
+    "sha256": "a55ae936fc15af7a716d7deede96793542b97dfb5667a5fccc7d6b6601e65085"
+  },
+  "poppler_utils_version": "22.12.0-2+deb12u2",
+  "poppler_utils_deb_sha256": "237d8ae3012bb0b275b681bb7fbd00ee591215e9dc276231d7e4f7bb64efacea",
+  "poppler_utils_deb_bytes": 191800,
+  "poppler_archive_installed_validation": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/archive-installed-validation.json",
+    "sha256": "32d8a5872cc6f6520761787b367ddf0eb881f2a04d5d545b49d7a7b2d51469fc"
+  },
+  "poppler_complete_package_graph": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/poppler-package-graph.json",
+    "sha256": "d83d35c2f48788f4f0e35139f44d61368eca9e7c6d103b349b9590e98fc035ec"
+  },
+  "pdftotext_executable_sha256": "fc66428c317090606e4bc03e9862d3fb1ae08720fe122c48ed25ef282af383c3",
+  "pdfinfo_executable_sha256": "4aa5fe4f3e1c83f9bddd3d5cf611de4cea65285df8edb8dbba1dd312d1fb0f18",
+  "linked_library_hashes": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/linked-libraries.json",
+    "sha256": "3bed580d6d3a9dbae80f33542e3fa7a5252f454d1c4e50b76c646b336130a970"
+  },
+  "current_installed_packages": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/installed-packages.tsv",
+    "sha256": "7ab248dbb28d74487030ebfe155e6b3cd6c7809ba6e27024dbe1a22d456dd29a"
+  },
+  "installed_file_inventory": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/installed-file-inventory.json",
+    "sha256": "4f5f713770f4e208d4f99541e027beb6831741601d431c02b524efbcd665ec61"
+  },
+  "license_inventory": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-inventory.json",
+    "sha256": "54185c08faa5682f3f195e081cb25cc4ebf924bf00a7cd3710b3749a24b976b2"
+  },
+  "extractor_source_inventory": [
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/extract-github-code-02.mjs",
+      "bytes": 4086,
+      "sha256": "648da23fbdb791ad47640b936b43967f9c5cce0f9912ed9793bda31f65aadae7"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/extract-sources-02.mjs",
+      "bytes": 5774,
+      "sha256": "dd47613b0926baa79172ca1525f498fa3ff125854c8e7d5735f11d66a698ef4f"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/parser.mjs",
+      "bytes": 1753,
+      "sha256": "121aeac963a8a5a05069afb8649a3f7886211ae684f25507891425f531b2d66a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/toolchain-adapter.mjs",
+      "bytes": 8266,
+      "sha256": "bffedd27d9101c825f0b430a8bcc6109ac8f159df9ed73d7b72371d8891adff7"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/transport-01.sh",
+      "bytes": 1691,
+      "sha256": "e1706f51ca46ac658cf9953b299abd1d000b285faec2852b33ffd824a40c60bc"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/verify-archive-installed-02.mjs",
+      "bytes": 3947,
+      "sha256": "4d068fd973cb5f9475894773416436578075de5c41f3a20a8ffe5c0095e5e6d2"
+    }
+  ],
+  "extractor_test_fixture_inventory": [
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-page-1.txt",
+      "bytes": 12,
+      "sha256": "a9e972315e898d81dcc289f15ac427ac54323bfd5c70b7ce266eabcea0a0b288"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-page-2.txt",
+      "bytes": 13,
+      "sha256": "31f0246a4de0744b1faa5486b542d2d82a6e840438eca32648efbc447c35e9cb"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-pdfinfo.txt",
+      "bytes": 299,
+      "sha256": "636bd49725c14ce86977a22f7adf2ee1e221c30d8e212ce06ad2ea0c0909d630"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-two-pages.pdf",
+      "bytes": 849,
+      "sha256": "f52c122add590ca4761c86ac23ce9364222ed828e6d8372b0085a0d629836a71"
+    }
+  ],
+  "network_zero_self_test": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/network-none-self-test.json",
+    "sha256": "e798d623705f1bf5d06665d41efd438971418eb40765cc919bd169df39a75100"
+  },
+  "current_source_spec": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/current-source-spec.json",
+    "sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a"
+  },
+  "closed_assertion_scope": "Transport, source identity, toolchain and exact extraction plumbing only; no tokenizer behavior, compatibility, technical/pedagogical or English publication judgment."
+}

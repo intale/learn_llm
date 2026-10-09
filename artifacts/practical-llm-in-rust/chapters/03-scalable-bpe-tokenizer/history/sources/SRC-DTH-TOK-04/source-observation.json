@@ -1,0 +1,156 @@
+{
+  "source_id": "SRC-DTH-TOK-04",
+  "title": "OpenAI GPT-2 byte-level BPE encoder at commit e5c5054474f583d6d9499624649353995d63c70a",
+  "canonical_citation_locator": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+  "requested_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+  "original_request_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+  "final_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+  "status": 200,
+  "redirects": [],
+  "content_type": "text/html",
+  "content_encoding": "gzip",
+  "request_bytes": 43637,
+  "response_sha256": "f767302eef8aee3974cf4a621d09b81053a504fbc8afe806c5ff1f4a4a0bfc79",
+  "response_header_sha256": "ac0c886eb0120405a6bd2c3b500846a9b3ff46ac31b92dcce80de212872eef9e",
+  "decoded_response_bytes": 297694,
+  "decoded_response_sha256": "b03c4befa5336b24e4c245330ba265d6757f88e8aac18480358273976033ff4f",
+  "extracted_text_bytes": 484,
+  "extracted_text_sha256": "428e54862e6553e6641d34ef1c331f74a5f5a96ecd3c47c660d26b67d31b9e7d",
+  "extraction": {
+    "method": "standards-parser-visible-main-text-v1",
+    "main_count": 1,
+    "rules": "One visible main or role=main; exclude script/style/template/noscript/nav/header/footer/aside and hidden/aria-hidden/inline display:none or visibility:hidden; text nodes in document order; LF around block roles and br."
+  },
+  "started_at": "2026-10-08T09:35:54Z",
+  "finished_at": "2026-10-08T09:35:55Z",
+  "transport_wall_seconds": 0.558742,
+  "current_request_spec_sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a",
+  "transport": {
+    "request_method": "GET",
+    "request_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+    "request_headers": {
+      "accept": "text/html,application/xhtml+xml,application/pdf,text/plain,application/json;q=0.9",
+      "accept_encoding": "identity,gzip,br",
+      "authorization": "absent",
+      "cookie": "absent",
+      "caller_headers": "forbidden"
+    },
+    "redirect_limit": 0,
+    "request_limit_bytes": 67108864,
+    "expanded_limit_bytes": 268435456,
+    "attempt_count": 1,
+    "retry_count": 0,
+    "curl_exit_status": 0,
+    "http_status": 200,
+    "http_version": "2",
+    "final_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+    "redirect_count": 0,
+    "response_headers_bytes": 5310,
+    "response_headers_sha256": "ac0c886eb0120405a6bd2c3b500846a9b3ff46ac31b92dcce80de212872eef9e",
+    "curl_metadata_sha256": "0227df0fce216237b87594f8dba48fb60e11c313f000d2a60aa07c3106f666d6",
+    "raw_body_bytes": 43637,
+    "raw_body_sha256": "f767302eef8aee3974cf4a621d09b81053a504fbc8afe806c5ff1f4a4a0bfc79",
+    "decoded_body_bytes": 297694,
+    "decoded_body_sha256": "b03c4befa5336b24e4c245330ba265d6757f88e8aac18480358273976033ff4f",
+    "content_type": "text/html",
+    "content_encoding": "gzip",
+    "etag": [
+      "W/\"f4465aaf44eb134f92f38839bca5d080\""
+    ],
+    "last_modified": null,
+    "curl_version": "libcurl/8.18.0 OpenSSL/3.5.5 zlib/1.3.1 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.68.0 librtmp/2.3 mit-krb5/1.22.1 OpenLDAP/2.6.10",
+    "tls_verify_result": 0,
+    "started_at": "2026-10-08T09:35:54Z",
+    "finished_at": "2026-10-08T09:35:55Z",
+    "wall_seconds": 0.558742
+  },
+  "author_observation": {
+    "source_id": "SRC-DTH-TOK-04",
+    "paraphrase": "The published GPT-2 encoder builds a reversible representation of all 256 byte values as Unicode symbols. Its pretokenization expression separates categories such as letters and numbers before BPE. Within each resulting piece, the encoder chooses the adjacent pair with the smallest learned rank, merges nonoverlapping occurrences and repeats. Encoding converts each piece to UTF-8 bytes before mapping those bytes; decoding joins the token symbols, maps them back to bytes and then decodes the combined byte sequence. Chapter 42 reproduces these operations with a tiny illustrative vocabulary to expose the letter-versus-digit boundary in `a1`. That vocabulary is course-authored and supplies no pretrained GPT-2 token IDs or tokenizer parity result.",
+    "rights_observation": "Full GitHub HTML and full extracted official code remain ignored run evidence only. Canonical source observation uses the exact official source hash, bounded line and byte locators, and an author paraphrase with no direct code quotations.",
+    "spans": [
+      {
+        "id": "byte-mapping",
+        "quote": null,
+        "line_start": 9,
+        "line_end": 31,
+        "decoded_utf8_byte_start": 123,
+        "decoded_utf8_byte_end": 1117
+      },
+      {
+        "id": "merge-rank-table",
+        "quote": null,
+        "line_start": 49,
+        "line_end": 49,
+        "decoded_utf8_byte_start": 1712,
+        "decoded_utf8_byte_end": 1783
+      },
+      {
+        "id": "pretokenization-pattern",
+        "quote": null,
+        "line_start": 53,
+        "line_end": 53,
+        "decoded_utf8_byte_start": 1917,
+        "decoded_utf8_byte_end": 2030
+      },
+      {
+        "id": "rank-choice",
+        "quote": null,
+        "line_start": 65,
+        "line_end": 66,
+        "decoded_utf8_byte_start": 2255,
+        "decoded_utf8_byte_end": 2391
+      },
+      {
+        "id": "encode-sequence",
+        "quote": null,
+        "line_start": 96,
+        "line_end": 101,
+        "decoded_utf8_byte_start": 3275,
+        "decoded_utf8_byte_end": 3582
+      },
+      {
+        "id": "decode-sequence",
+        "quote": null,
+        "line_start": 103,
+        "line_end": 105,
+        "decoded_utf8_byte_start": 3583,
+        "decoded_utf8_byte_end": 3778
+      }
+    ]
+  },
+  "publication_scope": {
+    "raw_response_body_retained": false,
+    "full_extracted_source_retained": false,
+    "raw_body_location": "Ignored current run evidence only",
+    "bounded_excerpts_words": 0,
+    "fresh_clone_audit": "Current request/response/extraction/toolchain bindings, hashes, page or line map and author-selected bounded spans are retained; full source replay requires reacquisition from the exact official request URL."
+  },
+  "code_extraction": {
+    "schema_version": 1,
+    "source_id": "SRC-DTH-TOK-04",
+    "method": "pinned-github-embedded-source-json-v1",
+    "input_decoded_html_sha256": "b03c4befa5336b24e4c245330ba265d6757f88e8aac18480358273976033ff4f",
+    "parser": "parse5",
+    "parser_version": "7.3.0",
+    "selector": "script[type=\"application/json\"][data-target=\"react-app.embeddedData\"]",
+    "embedded_json_decoded_html_byte_start": 165391,
+    "embedded_json_decoded_html_byte_end": 185726,
+    "embedded_json_sha256": "290d80906f85d70c381f9035793eb39de4e7e037470e2e33e82af311a292a80b",
+    "source_json_pointer": "/payload/codeViewBlobLayoutRoute.StyledBlob/rawLines",
+    "repo_owner": "openai",
+    "repo_name": "gpt-2",
+    "path": "src/encoder.py",
+    "commit": "e5c5054474f583d6d9499624649353995d63c70a",
+    "raw_lines_count": 117,
+    "assembly": "Join the exact rawLines strings with LF and append one final LF; reject CR, embedded LF, size or official source SHA drift",
+    "code_bytes": 4242,
+    "code_sha256": "84caddd892377b74de8b61f1fdf2437de9dc025c2f3bc73a981edcb0605e4f9a",
+    "line_map_sha256": "47321af2fe9033898b1a987258bafbd4edf418f387f217535b52084a80aa41fe",
+    "visible_main_metadata_only_sha256": "428e54862e6553e6641d34ef1c331f74a5f5a96ecd3c47c660d26b67d31b9e7d",
+    "visible_main_metadata_is_code_evidence": false,
+    "new_request_count": 0,
+    "network": "none"
+  },
+  "visible_main_metadata_is_code_evidence": false
+}

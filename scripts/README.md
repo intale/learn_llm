@@ -30,17 +30,35 @@ that same implementation. Its old frozen-plan regression APIs require explicit
 remain historical interfaces; they do not select current routes or certify moved
 practical lessons. Preserve their original identifiers and completed evidence.
 
-The current practical private-review descriptor is
-`site/src/i18n/practical-catalogs/private-review.json`. It admits exactly the
-three current foundation candidates0–2 with their actual revisions and English
-source hashes and requires `COURSE_BUILD_ROLE=private-review`. Production
-rejects this descriptor. Production lesson admission instead requires
-`artifacts/practical-llm-in-rust/foundation/publication-receipt.json`, its complete
-source bindings and the maintained exact English two-review/two-adjudication
-verification. A status flag or relabeled historical review cannot admit a
-lesson. Index, lesson, navigation, sitemap, content and static SEO use this same
-course boundary. A future practical lesson requires a separately declared
-admission amendment; a source file alone does not activate its route.
+The practical private-review descriptor is
+`site/src/i18n/practical-catalogs/private-review.json`. It admits a complete
+foundation profile0–2 or current profile0–3, binding actual revisions and English
+source hashes under `COURSE_BUILD_ROLE=private-review`. The current profile uses
+orientation revision2 and lesson revisions1. Production rejects private scope.
+
+Production prefers the present current head at
+`artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json`.
+It requires the exact current audit namespace, all six complete English source
+and built-document bindings, and the maintained two-review/two-adjudication
+verification. An invalid present head refuses without falling back. When no
+current head exists, the unchanged foundation receipt admits only its own0–2
+profile. Index, lesson, navigation, sitemap, content and static SEO reuse this
+same course boundary; a source file or status flag cannot activate a route.
+
+The retained foundation regression fixture must use its exact revision1 sources
+and original chain. For prepublication current checks, set
+`COURSE_BOUNDARY_FOUNDATION_ROOT` to that immutable fixture and run:
+
+```sh
+node --test --test-skip-pattern='sealed current publication' scripts/tests/course-boundaries.test.mjs
+```
+
+This selects21 tests. After the actual current chain is sealed, set
+`COURSE_BOUNDARY_CURRENT_ROOT` to the complete current realization and run the
+unfiltered selector above; all24 tests are required. The optional historical
+policy example in the Practical3 demo is captured as learner evidence. Do not
+register its whole stdout in the Rust example golden runners or assert foreign
+compatibility from its displayed values.
 
 Optional localized root chooser copy is one complete nine-key home group.
 Practical index copy is a separate complete two-key group. A reviewed Russian

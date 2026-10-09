@@ -1,0 +1,12 @@
+undefined:1
+{"date":["Thu, 08 Oct 2026 09:35:54 GMT"],
+
+SyntaxError: Expected double-quoted property name in JSON at position 42 (line 1 column 43)
+    at parse (<anonymous>)
+    at Array.map (<anonymous>)
+    at file:///inputs/extract-sources-01.mjs:14:109
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+
+Node.js v22.12.0

@@ -1,0 +1,1522 @@
+[
+  {
+    "publicationPath": "configs/course-boundaries-v1.json",
+    "snapshotPath": "sources/configs/course-boundaries-v1.json",
+    "sha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7",
+    "bytes": 1422,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 31,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/configs/course-boundaries-v1.json",
+      "bytes": 1422,
+      "sha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "configs/practical-reference-source-v1.json",
+    "snapshotPath": "sources/configs/practical-reference-source-v1.json",
+    "sha256": "16fcf0149a9ce487d2cd2d531a81199acd84ec66fcd86874c5e2e09ae2f1a986",
+    "bytes": 4932,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 43,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/configs/practical-reference-source-v1.json",
+      "bytes": 4932,
+      "sha256": "16fcf0149a9ce487d2cd2d531a81199acd84ec66fcd86874c5e2e09ae2f1a986"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "curriculum/practical/chapters/00-course-structure.md",
+    "snapshotPath": "sources/curriculum/practical/chapters/00-course-structure.md",
+    "sha256": "a3236d5d7990478c697059a4957a223fbd752c9fce9ada9c0b7005a1c0dcbf8b",
+    "bytes": 5421,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 0",
+    "completeSourceRequirement": "Explain the practical course's completed starting implementation, required experience, CPU and NVIDIA prerequisites, ordered learning path, current availability and the limits of small examples.",
+    "sourceScalarCount": 23,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/curriculum/practical/chapters/00-course-structure.md",
+      "bytes": 5421,
+      "sha256": "a3236d5d7990478c697059a4957a223fbd752c9fce9ada9c0b7005a1c0dcbf8b"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "curriculum/practical/chapters/01-reference-core-handoff.md",
+    "snapshotPath": "sources/curriculum/practical/chapters/01-reference-core-handoff.md",
+    "sha256": "caae844f877f4995f2e4f1b4a38c57e0aa4044bd3be7b98c7b603c949e9c4652",
+    "bytes": 12574,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 1",
+    "completeSourceRequirement": "Teach how the fixed original scalar experiment binds configuration, fixture and verified source identity; interpret replay target accounting, window-slot evaluation, reload and generation with their units and limits; make Rust, history, figure, practice and handoff agree.",
+    "sourceScalarCount": 60,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/curriculum/practical/chapters/01-reference-core-handoff.md",
+      "bytes": 12574,
+      "sha256": "caae844f877f4995f2e4f1b4a38c57e0aa4044bd3be7b98c7b603c949e9c4652"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "curriculum/practical/chapters/02-corpus-preparation.md",
+    "snapshotPath": "sources/curriculum/practical/chapters/02-corpus-preparation.md",
+    "sha256": "e5e491611487535044558b7b770b2fa02f955be2911a083f654e24b9c9434702",
+    "bytes": 16867,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 2",
+    "completeSourceRequirement": "Teach corpus selection, duplicate weighting and protected split boundaries through the bounded external preparation example; explain tool-neutral JSONL loading, preservation, distinct resource units and failure behavior in Rust; make formulas, code, evidence, history, practice and handoff agree without treating fixture success as full-data or quality proof.",
+    "sourceScalarCount": 72,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/curriculum/practical/chapters/02-corpus-preparation.md",
+      "bytes": 16867,
+      "sha256": "e5e491611487535044558b7b770b2fa02f955be2911a083f654e24b9c9434702"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "curriculum/practical/chapters/03-scalable-bpe-tokenizer.md",
+    "snapshotPath": "sources/curriculum/practical/chapters/03-scalable-bpe-tokenizer.md",
+    "sha256": "e5ca00b179eaf13af0edcf1febcd90de779ef7e63ef0aabe34b619f590aff5ab",
+    "bytes": 20433,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 76,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/curriculum/practical/chapters/03-scalable-bpe-tokenizer.md",
+      "bytes": 20433,
+      "sha256": "e5ca00b179eaf13af0edcf1febcd90de779ef7e63ef0aabe34b619f590aff5ab"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/build.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/build.rs",
+    "sha256": "387ad4c662b621d44ca21dffb30a0bfe279673d0d4a5e6847d8107c224806f1e",
+    "bytes": 4453,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/build.rs",
+      "bytes": 4453,
+      "sha256": "387ad4c662b621d44ca21dffb30a0bfe279673d0d4a5e6847d8107c224806f1e"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/artifact_identity.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/artifact_identity.rs",
+    "sha256": "b6a801ab9a6357f8e21c7e5d15c144a91aa2eb9603a4713df94982c3a27cfbe1",
+    "bytes": 7368,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/artifact_identity.rs",
+      "bytes": 7368,
+      "sha256": "b6a801ab9a6357f8e21c7e5d15c144a91aa2eb9603a4713df94982c3a27cfbe1"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs",
+    "sha256": "7f9be0d6925d3030aa0819eef6986145b435769bed69cc1b45c657563a0c23ab",
+    "bytes": 16949,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 2",
+    "completeSourceRequirement": "Teach corpus selection, duplicate weighting and protected split boundaries through the bounded external preparation example; explain tool-neutral JSONL loading, preservation, distinct resource units and failure behavior in Rust; make formulas, code, evidence, history, practice and handoff agree without treating fixture success as full-data or quality proof.",
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs",
+      "bytes": 16949,
+      "sha256": "7f9be0d6925d3030aa0819eef6986145b435769bed69cc1b45c657563a0c23ab"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/lib.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/lib.rs",
+    "sha256": "6f7c670e6a1a59de8cac74e916232a4aaa53aab2bbd2bbcda172e1ff058c2865",
+    "bytes": 1845,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/lib.rs",
+      "bytes": 1845,
+      "sha256": "6f7c670e6a1a59de8cac74e916232a4aaa53aab2bbd2bbcda172e1ff058c2865"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs",
+    "sha256": "c8ef8e460b73b6fb09ca149bc8af076022a6e084c62f47a9a1f913e92159d373",
+    "bytes": 8306,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs",
+      "bytes": 8306,
+      "sha256": "c8ef8e460b73b6fb09ca149bc8af076022a6e084c62f47a9a1f913e92159d373"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/tokenizer/artifact.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/tokenizer/artifact.rs",
+    "sha256": "e4ebc78a7fd396eebfd5f8d903e29f581c7ffdf158d5b31d745379f61a29fef6",
+    "bytes": 7064,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "complete-reached-bpe-implementation",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/tokenizer/artifact.rs",
+      "bytes": 7064,
+      "sha256": "e4ebc78a7fd396eebfd5f8d903e29f581c7ffdf158d5b31d745379f61a29fef6"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/tokenizer/bpe.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/tokenizer/bpe.rs",
+    "sha256": "e6cec2b838f914e76ce78550a9dbb7c0a8bf438deefcc2a66edaa25d48e98ed0",
+    "bytes": 41612,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "complete-reached-bpe-implementation",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/tokenizer/bpe.rs",
+      "bytes": 41612,
+      "sha256": "e6cec2b838f914e76ce78550a9dbb7c0a8bf438deefcc2a66edaa25d48e98ed0"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs",
+    "sha256": "8b5437341ad7ef573b1792b1338a4f800a46abc7244fa673d825850850859f7a",
+    "bytes": 17339,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "complete-reached-bpe-implementation",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs",
+      "bytes": 17339,
+      "sha256": "8b5437341ad7ef573b1792b1338a4f800a46abc7244fa673d825850850859f7a"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/tokenizer/encoding.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/tokenizer/encoding.rs",
+    "sha256": "a701323069c7594d240e1e5820087050a517aae992c5c570c764e31f9b069a20",
+    "bytes": 5691,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "complete-reached-bpe-implementation",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/tokenizer/encoding.rs",
+      "bytes": 5691,
+      "sha256": "a701323069c7594d240e1e5820087050a517aae992c5c570c764e31f9b069a20"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs",
+    "sha256": "b20e39c23656e0ed3217493ce29caf81e074643f0c7a76fabbb53fe90ffe49f2",
+    "bytes": 19284,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "complete-reached-bpe-implementation",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs",
+      "bytes": 19284,
+      "sha256": "b20e39c23656e0ed3217493ce29caf81e074643f0c7a76fabbb53fe90ffe49f2"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/src/tokenizer/policy.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/src/tokenizer/policy.rs",
+    "sha256": "d62c2eebc78d2982a28cd615f050344657d448a2e26eceb38027aa652d586e8a",
+    "bytes": 5806,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "complete-reached-bpe-implementation",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/src/tokenizer/policy.rs",
+      "bytes": 5806,
+      "sha256": "d62c2eebc78d2982a28cd615f050344657d448a2e26eceb38027aa652d586e8a"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/tests/practical_ch03_tokenizer.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/tests/practical_ch03_tokenizer.rs",
+    "sha256": "0c66b40406724c7143601dc237d5017976345fd7c277bf3541f12012d9769d35",
+    "bytes": 23162,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/tests/practical_ch03_tokenizer.rs",
+      "bytes": 23162,
+      "sha256": "0c66b40406724c7143601dc237d5017976345fd7c277bf3541f12012d9769d35"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs",
+    "sha256": "f581e32645d90bd9478e70cca41cc00ce4283dd638333637f72f26dc710a2a6a",
+    "bytes": 5273,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs",
+      "bytes": 5273,
+      "sha256": "f581e32645d90bd9478e70cca41cc00ce4283dd638333637f72f26dc710a2a6a"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch/src/evaluation.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch/src/evaluation.rs",
+    "sha256": "fc7124213b94c87adb7fc6a2c51d85f52bdb75dc5ea922c75fbe75608a0ea81a",
+    "bytes": 56900,
+    "completeSourceBytesRetained": true,
+    "classification": "Read-only original-reference technical evidence for Practical1; outside protected first-course language scope",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "read-only-reference-technical-evidence",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch/src/evaluation.rs",
+      "bytes": 56900,
+      "sha256": "fc7124213b94c87adb7fc6a2c51d85f52bdb75dc5ea922c75fbe75608a0ea81a"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/crates/llm-from-scratch/src/pipeline.rs",
+    "snapshotPath": "sources/rust/crates/llm-from-scratch/src/pipeline.rs",
+    "sha256": "38792f1ec24b6f3e388ddf544db4c9404979d71da3544e6655a9fbcead03bd3f",
+    "bytes": 42359,
+    "completeSourceBytesRetained": true,
+    "classification": "Read-only original-reference technical evidence for Practical1; outside protected first-course language scope",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "read-only-reference-technical-evidence",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/crates/llm-from-scratch/src/pipeline.rs",
+      "bytes": 42359,
+      "sha256": "38792f1ec24b6f3e388ddf544db4c9404979d71da3544e6655a9fbcead03bd3f"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch01-reference-core-handoff/Cargo.toml",
+    "snapshotPath": "sources/rust/demos/practical-ch01-reference-core-handoff/Cargo.toml",
+    "sha256": "e7e2d02333346f31638619250a2a928fcb132797e75bf232b3c99241ce322c93",
+    "bytes": 351,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch01-reference-core-handoff/Cargo.toml",
+      "bytes": 351,
+      "sha256": "e7e2d02333346f31638619250a2a928fcb132797e75bf232b3c99241ce322c93"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch01-reference-core-handoff/expected.txt",
+    "snapshotPath": "sources/rust/demos/practical-ch01-reference-core-handoff/expected.txt",
+    "sha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5",
+    "bytes": 1895,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 49,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch01-reference-core-handoff/expected.txt",
+      "bytes": 1895,
+      "sha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+    "sha256": "d0b3fedf20b517054282a2136c9caed2d743e48e3ac3f4e1752b7b6264051af8",
+    "bytes": 12233,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 1",
+    "completeSourceRequirement": "Teach how the fixed original scalar experiment binds configuration, fixture and verified source identity; interpret replay target accounting, window-slot evaluation, reload and generation with their units and limits; make Rust, history, figure, practice and handoff agree.",
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+      "bytes": 12233,
+      "sha256": "d0b3fedf20b517054282a2136c9caed2d743e48e3ac3f4e1752b7b6264051af8"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+    "sha256": "c765134e6e11b5413e36d0c32553c212a98f1b64ffb04eef738c855f7cd8ca32",
+    "bytes": 1484,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 1",
+    "completeSourceRequirement": "Teach how the fixed original scalar experiment binds configuration, fixture and verified source identity; interpret replay target accounting, window-slot evaluation, reload and generation with their units and limits; make Rust, history, figure, practice and handoff agree.",
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+      "bytes": 1484,
+      "sha256": "c765134e6e11b5413e36d0c32553c212a98f1b64ffb04eef738c855f7cd8ca32"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs",
+    "sha256": "885ad089acbec1da10c5e86613567f1085346d83a6738af9f37c63a3bd4d31c3",
+    "bytes": 6571,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs",
+      "bytes": 6571,
+      "sha256": "885ad089acbec1da10c5e86613567f1085346d83a6738af9f37c63a3bd4d31c3"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch02-corpus-preparation/Cargo.toml",
+    "snapshotPath": "sources/rust/demos/practical-ch02-corpus-preparation/Cargo.toml",
+    "sha256": "ae7d237e5bbb09855cab267675263a59f1403e32b8bd41132b7b463a4b869636",
+    "bytes": 386,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch02-corpus-preparation/Cargo.toml",
+      "bytes": 386,
+      "sha256": "ae7d237e5bbb09855cab267675263a59f1403e32b8bd41132b7b463a4b869636"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch02-corpus-preparation/expected.txt",
+    "snapshotPath": "sources/rust/demos/practical-ch02-corpus-preparation/expected.txt",
+    "sha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac",
+    "bytes": 459,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 11,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch02-corpus-preparation/expected.txt",
+      "bytes": 459,
+      "sha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch02-corpus-preparation/fixtures/README.md",
+    "snapshotPath": "sources/rust/demos/practical-ch02-corpus-preparation/fixtures/README.md",
+    "sha256": "56637c3961a82a0b073b882fa5a24fdad1a48656871e8b155f37840b7551c7ee",
+    "bytes": 584,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch02-corpus-preparation/fixtures/README.md",
+      "bytes": 584,
+      "sha256": "56637c3961a82a0b073b882fa5a24fdad1a48656871e8b155f37840b7551c7ee"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl",
+    "snapshotPath": "sources/rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl",
+    "sha256": "70ae1ef0720da70fc0bab3848bbc5605b38c1253ad9a182168a5489adf994f69",
+    "bytes": 198,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl",
+      "bytes": 198,
+      "sha256": "70ae1ef0720da70fc0bab3848bbc5605b38c1253ad9a182168a5489adf994f69"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch02-corpus-preparation/src/lib.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch02-corpus-preparation/src/lib.rs",
+    "sha256": "5558d3660d896f09ca6d55290e0090b7d400ad659f277c20c8a856ab3ec0386f",
+    "bytes": 3669,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 2",
+    "completeSourceRequirement": "Teach corpus selection, duplicate weighting and protected split boundaries through the bounded external preparation example; explain tool-neutral JSONL loading, preservation, distinct resource units and failure behavior in Rust; make formulas, code, evidence, history, practice and handoff agree without treating fixture success as full-data or quality proof.",
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch02-corpus-preparation/src/lib.rs",
+      "bytes": 3669,
+      "sha256": "5558d3660d896f09ca6d55290e0090b7d400ad659f277c20c8a856ab3ec0386f"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch02-corpus-preparation/src/main.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch02-corpus-preparation/src/main.rs",
+    "sha256": "633436fcb4b8c585a954d44685148a85f8f19eccd52838ca5fbc7851dfab53b1",
+    "bytes": 493,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 2",
+    "completeSourceRequirement": "Teach corpus selection, duplicate weighting and protected split boundaries through the bounded external preparation example; explain tool-neutral JSONL loading, preservation, distinct resource units and failure behavior in Rust; make formulas, code, evidence, history, practice and handoff agree without treating fixture success as full-data or quality proof.",
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch02-corpus-preparation/src/main.rs",
+      "bytes": 493,
+      "sha256": "633436fcb4b8c585a954d44685148a85f8f19eccd52838ca5fbc7851dfab53b1"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/Cargo.toml",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/Cargo.toml",
+    "sha256": "69528f9483dd5ee589abde647be87fafa8090be37c0445094828aaffdb5bfbe9",
+    "bytes": 384,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/Cargo.toml",
+      "bytes": 384,
+      "sha256": "69528f9483dd5ee589abde647be87fafa8090be37c0445094828aaffdb5bfbe9"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/expected.txt",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/expected.txt",
+    "sha256": "7487c46bbcb12287e850b946cb09c25d7ac57d5fd4e1745c07a7edcfb819e38c",
+    "bytes": 5481,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/expected.txt",
+      "bytes": 5481,
+      "sha256": "7487c46bbcb12287e850b946cb09c25d7ac57d5fd4e1745c07a7edcfb819e38c"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/boundary-corpus-receipt.json",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/boundary-corpus-receipt.json",
+    "sha256": "60004d6d574ca964b4d36aadee1416add6be90eb39a48fb1e684277ed0d5a956",
+    "bytes": 418,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 8,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/boundary-corpus-receipt.json",
+      "bytes": 418,
+      "sha256": "60004d6d574ca964b4d36aadee1416add6be90eb39a48fb1e684277ed0d5a956"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/corpus-receipt.json",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/corpus-receipt.json",
+    "sha256": "7d30eb59c71b31a7e60e3b121f6fb69567d32c182964d637264abbf425ed6948",
+    "bytes": 512,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 10,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/corpus-receipt.json",
+      "bytes": 512,
+      "sha256": "7d30eb59c71b31a7e60e3b121f6fb69567d32c182964d637264abbf425ed6948"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/train.jsonl",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/train.jsonl",
+    "sha256": "d72804e22c9be2b8f8f51bf235040265f967308f3d62e77096b35d78f6628c6e",
+    "bytes": 94,
+    "completeSourceBytesRetained": true,
+    "classification": "supporting exact implementation/configuration/fixture/output evidence; no independent English isolation",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "rust-configuration-fixture-test-output-provenance",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/train.jsonl",
+      "bytes": 94,
+      "sha256": "d72804e22c9be2b8f8f51bf235040265f967308f3d62e77096b35d78f6628c6e"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs",
+    "sha256": "e8d56c5d297c64bbee09d7dfe8f5e26d5c5518de2342eb796acc0ed8678590a2",
+    "bytes": 4741,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "practical03-rust-example-evidence",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs",
+      "bytes": 4741,
+      "sha256": "e8d56c5d297c64bbee09d7dfe8f5e26d5c5518de2342eb796acc0ed8678590a2"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs",
+    "sha256": "f8ef4b8ab34c66a902d9784fc6bb2a21c1dd08cebd85dcb253b239b70460be13",
+    "bytes": 11375,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "practical03-rust-example-evidence",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs",
+      "bytes": 11375,
+      "sha256": "f8ef4b8ab34c66a902d9784fc6bb2a21c1dd08cebd85dcb253b239b70460be13"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "rust/demos/practical-ch03-scalable-bpe-tokenizer/src/main.rs",
+    "snapshotPath": "sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/main.rs",
+    "sha256": "35c28b0a09624ab1e8eda725459ab33221b6deded7629731161ed2b507606fd6",
+    "bytes": 306,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete executable Rust learner evidence",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 0,
+    "classificationRule": "practical03-rust-example-evidence",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/main.rs",
+      "bytes": 306,
+      "sha256": "35c28b0a09624ab1e8eda725459ab33221b6deded7629731161ed2b507606fd6"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "scripts/check-site-content.mjs",
+    "snapshotPath": "sources/scripts/check-site-content.mjs",
+    "sha256": "65dc857ceb26722db2316696f25faeedce3612042f523a81b3acef862d11bd72",
+    "bytes": 70488,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-03/inventory-discovery-03/sources/scripts/check-site-content.mjs",
+      "bytes": 70488,
+      "sha256": "65dc857ceb26722db2316696f25faeedce3612042f523a81b3acef862d11bd72"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/ChapterNavigation.astro",
+    "snapshotPath": "sources/site/src/components/ChapterNavigation.astro",
+    "sha256": "254567583419929767fd1d029b93861ed768095310208fac0dc8c75fe8943468",
+    "bytes": 3319,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/components/ChapterNavigation.astro",
+      "bytes": 3319,
+      "sha256": "254567583419929767fd1d029b93861ed768095310208fac0dc8c75fe8943468"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/CheatSheet.astro",
+    "snapshotPath": "sources/site/src/components/CheatSheet.astro",
+    "sha256": "72c47c61384d84984600ab47f1107d330611a60ab4e39789041b11cd5b5e8598",
+    "bytes": 13024,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/components/CheatSheet.astro",
+      "bytes": 13024,
+      "sha256": "72c47c61384d84984600ab47f1107d330611a60ab4e39789041b11cd5b5e8598"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/InlineMath.astro",
+    "snapshotPath": "sources/site/src/components/InlineMath.astro",
+    "sha256": "f63b6aac6bb2920a7dffb7bf2dd913f8cbe36a7b03206eceac416cb8ba18c564",
+    "bytes": 844,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/components/InlineMath.astro",
+      "bytes": 844,
+      "sha256": "f63b6aac6bb2920a7dffb7bf2dd913f8cbe36a7b03206eceac416cb8ba18c564"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/RustSource.astro",
+    "snapshotPath": "sources/site/src/components/RustSource.astro",
+    "sha256": "19b628e9be0a6abae4987afb789c8a4834364d8e152fe38b802699d66f739201",
+    "bytes": 3994,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/components/RustSource.astro",
+      "bytes": 3994,
+      "sha256": "19b628e9be0a6abae4987afb789c8a4834364d8e152fe38b802699d66f739201"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/chapters/CorpusPreparationDiagram.astro",
+    "snapshotPath": "sources/site/src/components/chapters/CorpusPreparationDiagram.astro",
+    "sha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a",
+    "bytes": 4795,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner static figure source",
+    "completeSourceRole": "Teaching reading unit",
+    "completeSourceRequirement": "Explain this section's stated concept, relevant inputs and operations, quantities and units, causal relationships, prerequisites, evidence and limits in the local teaching order.",
+    "sourceScalarCount": 0,
+    "classificationRule": "registered-figure-source",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/components/chapters/CorpusPreparationDiagram.astro",
+      "bytes": 4795,
+      "sha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+    "snapshotPath": "sources/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+    "sha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a",
+    "bytes": 3050,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner static figure source",
+    "completeSourceRole": "Teaching reading unit",
+    "completeSourceRequirement": "Explain this section's stated concept, relevant inputs and operations, quantities and units, causal relationships, prerequisites, evidence and limits in the local teaching order.",
+    "sourceScalarCount": 0,
+    "classificationRule": "registered-figure-source",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+      "bytes": 3050,
+      "sha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/components/chapters/ScalableBpeTokenizerDiagram.astro",
+    "snapshotPath": "sources/site/src/components/chapters/ScalableBpeTokenizerDiagram.astro",
+    "sha256": "244f3e35ddc2ac6e7b50dc80061755478b71f7dede750e232ced0e2809baa559",
+    "bytes": 7036,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner static figure source",
+    "completeSourceRole": "Teaching reading unit",
+    "completeSourceRequirement": "Explain this section's stated concept, relevant inputs and operations, quantities and units, causal relationships, prerequisites, evidence and limits in the local teaching order.",
+    "sourceScalarCount": 0,
+    "classificationRule": "registered-figure-source",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-03/inventory-discovery-03/sources/site/src/components/chapters/ScalableBpeTokenizerDiagram.astro",
+      "bytes": 7036,
+      "sha256": "244f3e35ddc2ac6e7b50dc80061755478b71f7dede750e232ced0e2809baa559"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content.config.ts",
+    "snapshotPath": "sources/site/src/content.config.ts",
+    "sha256": "e9b7c6a175a07a6298081bf634d32c8200e336500f2d3aee674533e110813ac5",
+    "bytes": 12247,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content.config.ts",
+      "bytes": 12247,
+      "sha256": "e9b7c6a175a07a6298081bf634d32c8200e336500f2d3aee674533e110813ac5"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-chapters/en/00-course-structure.mdx",
+    "snapshotPath": "sources/site/src/content/practical-chapters/en/00-course-structure.mdx",
+    "sha256": "fe800cf23ba80a82653ba6853235ad695a7715b291fbdbd02ae464627f879bde",
+    "bytes": 5638,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 0",
+    "completeSourceRequirement": "Explain the practical course's completed starting implementation, required experience, CPU and NVIDIA prerequisites, ordered learning path, current availability and the limits of small examples.",
+    "sourceScalarCount": 18,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content/practical-chapters/en/00-course-structure.mdx",
+      "bytes": 5638,
+      "sha256": "fe800cf23ba80a82653ba6853235ad695a7715b291fbdbd02ae464627f879bde"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-chapters/en/01-reference-core-handoff.mdx",
+    "snapshotPath": "sources/site/src/content/practical-chapters/en/01-reference-core-handoff.mdx",
+    "sha256": "34b1bd585a9644610f7244598255c75da5859e546482ac0248aa453a0745b5b0",
+    "bytes": 19785,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 1",
+    "completeSourceRequirement": "Teach how the fixed original scalar experiment binds configuration, fixture and verified source identity; interpret replay target accounting, window-slot evaluation, reload and generation with their units and limits; make Rust, history, figure, practice and handoff agree.",
+    "sourceScalarCount": 55,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content/practical-chapters/en/01-reference-core-handoff.mdx",
+      "bytes": 19785,
+      "sha256": "34b1bd585a9644610f7244598255c75da5859e546482ac0248aa453a0745b5b0"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-chapters/en/02-corpus-preparation.mdx",
+    "snapshotPath": "sources/site/src/content/practical-chapters/en/02-corpus-preparation.mdx",
+    "sha256": "d62c7841dac5db0da532c93e21defdc650af7ffaef187a7442d409a8c9c12811",
+    "bytes": 29489,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 2",
+    "completeSourceRequirement": "Teach corpus selection, duplicate weighting and protected split boundaries through the bounded external preparation example; explain tool-neutral JSONL loading, preservation, distinct resource units and failure behavior in Rust; make formulas, code, evidence, history, practice and handoff agree without treating fixture success as full-data or quality proof.",
+    "sourceScalarCount": 52,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content/practical-chapters/en/02-corpus-preparation.mdx",
+      "bytes": 29489,
+      "sha256": "d62c7841dac5db0da532c93e21defdc650af7ffaef187a7442d409a8c9c12811"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx",
+    "snapshotPath": "sources/site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx",
+    "sha256": "43dd736c74f0dc1cb2485ba050156448edc871ce7eec87cc6a84e2c4776e23c6",
+    "bytes": 25965,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source lesson/contract",
+    "completeSourceRole": "Practical Chapter 3",
+    "completeSourceRequirement": "Teach how bounded prepared-document training and ranked application extend the existing BPE implementation while preserving current adjacent counts, numeric tie order, nonoverlapping leftmost replacement, training-only learning and exact byte reconstruction; relate the formula, local-update and scalar evidence, artifact identity, units, scoped historical boundary example, Rust reproduction and practice without treating bounded fixtures as full-corpus, performance or model-quality evidence.",
+    "sourceScalarCount": 66,
+    "classificationRule": "practical-lesson-contract",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-03/inventory-discovery-03/sources/site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx",
+      "bytes": 25965,
+      "sha256": "43dd736c74f0dc1cb2485ba050156448edc871ce7eec87cc6a84e2c4776e23c6"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json",
+    "snapshotPath": "sources/site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json",
+    "sha256": "b604cfd85223a044abe6c3f2a881d8e829f66469939b178d3ff9684d56c7c470",
+    "bytes": 2021,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source cheat sheet",
+    "completeSourceRole": "Source sheet",
+    "completeSourceRequirement": "Define only the matching chapter's LLM concepts concisely, preserving the referents and distinctions needed to interpret that chapter's evidence.",
+    "sourceScalarCount": 18,
+    "classificationRule": "practical-cheat-sheet",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json",
+      "bytes": 2021,
+      "sha256": "b604cfd85223a044abe6c3f2a881d8e829f66469939b178d3ff9684d56c7c470"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json",
+    "snapshotPath": "sources/site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json",
+    "sha256": "d6511e0dccecf7ba8e2e8260df64b2ca431fcb13c376dfb36595a09115738787",
+    "bytes": 2241,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source cheat sheet",
+    "completeSourceRole": "Source sheet",
+    "completeSourceRequirement": "Define only the matching chapter's LLM concepts concisely, preserving the referents and distinctions needed to interpret that chapter's evidence.",
+    "sourceScalarCount": 22,
+    "classificationRule": "practical-cheat-sheet",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json",
+      "bytes": 2241,
+      "sha256": "d6511e0dccecf7ba8e2e8260df64b2ca431fcb13c376dfb36595a09115738787"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/content/practical-cheat-sheets/en/03-scalable-bpe-tokenizer.json",
+    "snapshotPath": "sources/site/src/content/practical-cheat-sheets/en/03-scalable-bpe-tokenizer.json",
+    "sha256": "25cca5117b22035fdbcf7eb6d74f3f6007392c40c48999863856c365d78777b5",
+    "bytes": 1804,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source cheat sheet",
+    "completeSourceRole": "Source sheet",
+    "completeSourceRequirement": "Define only the matching chapter's LLM concepts concisely, preserving the referents and distinctions needed to interpret that chapter's evidence.",
+    "sourceScalarCount": 18,
+    "classificationRule": "practical-cheat-sheet",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/content/practical-cheat-sheets/en/03-scalable-bpe-tokenizer.json",
+      "bytes": 1804,
+      "sha256": "25cca5117b22035fdbcf7eb6d74f3f6007392c40c48999863856c365d78777b5"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/catalogs/en.json",
+    "snapshotPath": "sources/site/src/i18n/catalogs/en.json",
+    "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca",
+    "bytes": 3185,
+    "completeSourceBytesRetained": true,
+    "classification": "Complete physical English catalog with scoped new/shared language values and explicit outside-scope provenance",
+    "completeSourceRole": "Source message catalog",
+    "completeSourceRequirement": "Supply the course-choice, practical-index and shared site, navigation and accessibility copy used by the scoped English documents, with complete referents for each value's presentation role; preserve protected first-course-specific and unused values as provenance outside this language scope.",
+    "sourceScalarCount": 44,
+    "classificationRule": "english-message-catalog",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/catalogs/en.json",
+      "bytes": 3185,
+      "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/index.ts",
+    "snapshotPath": "sources/site/src/i18n/index.ts",
+    "sha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb",
+    "bytes": 6348,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/index.ts",
+      "bytes": 6348,
+      "sha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/locales.json",
+    "snapshotPath": "sources/site/src/i18n/locales.json",
+    "sha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad",
+    "bytes": 258,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 7,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/locales.json",
+      "bytes": 258,
+      "sha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/messages.ts",
+    "snapshotPath": "sources/site/src/i18n/messages.ts",
+    "sha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f",
+    "bytes": 2319,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/messages.ts",
+      "bytes": 2319,
+      "sha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json",
+    "snapshotPath": "sources/site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json",
+    "sha256": "8caa84cf34ed6337fc9d742bbe9e6a35e813eb1415bede2b86500321f70e59c2",
+    "bytes": 587,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source chapter catalog",
+    "completeSourceRole": "Source catalog",
+    "completeSourceRequirement": "Identify the corresponding available practical chapter and its scoped learning purpose consistently with its lesson and destination.",
+    "sourceScalarCount": 7,
+    "classificationRule": "practical-chapter-catalog",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json",
+      "bytes": 587,
+      "sha256": "8caa84cf34ed6337fc9d742bbe9e6a35e813eb1415bede2b86500321f70e59c2"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/practical-catalogs/en/02-corpus-preparation.json",
+    "snapshotPath": "sources/site/src/i18n/practical-catalogs/en/02-corpus-preparation.json",
+    "sha256": "da2e0c3232b868f3c69cc7adb02bb796a7062874a8a90e1590a9863c49de2fb3",
+    "bytes": 567,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source chapter catalog",
+    "completeSourceRole": "Source catalog",
+    "completeSourceRequirement": "Identify the corresponding available practical chapter and its scoped learning purpose consistently with its lesson and destination.",
+    "sourceScalarCount": 7,
+    "classificationRule": "practical-chapter-catalog",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/practical-catalogs/en/02-corpus-preparation.json",
+      "bytes": 567,
+      "sha256": "da2e0c3232b868f3c69cc7adb02bb796a7062874a8a90e1590a9863c49de2fb3"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json",
+    "snapshotPath": "sources/site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json",
+    "sha256": "009c415aff60ca916acadbbb1135fe3831d87c0040137b643ecf9249b723d2b7",
+    "bytes": 587,
+    "completeSourceBytesRetained": true,
+    "classification": "current complete learner source chapter catalog",
+    "completeSourceRole": "Source catalog",
+    "completeSourceRequirement": "Identify the corresponding available practical chapter and its scoped learning purpose consistently with its lesson and destination.",
+    "sourceScalarCount": 7,
+    "classificationRule": "practical-chapter-catalog",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json",
+      "bytes": 587,
+      "sha256": "009c415aff60ca916acadbbb1135fe3831d87c0040137b643ecf9249b723d2b7"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/layouts/BaseLayout.astro",
+    "snapshotPath": "sources/site/src/layouts/BaseLayout.astro",
+    "sha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340",
+    "bytes": 5024,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/layouts/BaseLayout.astro",
+      "bytes": 5024,
+      "sha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/chapter-navigation.ts",
+    "snapshotPath": "sources/site/src/lib/chapter-navigation.ts",
+    "sha256": "1140a2b7435fec59678baef8f6b55fbd17c2c01eb70475ba7717d4104febf277",
+    "bytes": 2018,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/chapter-navigation.ts",
+      "bytes": 2018,
+      "sha256": "1140a2b7435fec59678baef8f6b55fbd17c2c01eb70475ba7717d4104febf277"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/chapter-publication.ts",
+    "snapshotPath": "sources/site/src/lib/chapter-publication.ts",
+    "sha256": "5dd03f987651ed8a83b26d36387bc11d547688e9e8c69e89f77a064ddbbbb2a5",
+    "bytes": 5595,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/chapter-publication.ts",
+      "bytes": 5595,
+      "sha256": "5dd03f987651ed8a83b26d36387bc11d547688e9e8c69e89f77a064ddbbbb2a5"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/cheat-sheets.ts",
+    "snapshotPath": "sources/site/src/lib/cheat-sheets.ts",
+    "sha256": "156b9efa4e098b5373b293fc42fe491870b69a334cbd978922b81fba62f7f629",
+    "bytes": 4648,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/cheat-sheets.ts",
+      "bytes": 4648,
+      "sha256": "156b9efa4e098b5373b293fc42fe491870b69a334cbd978922b81fba62f7f629"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/course-boundaries.mjs",
+    "snapshotPath": "sources/site/src/lib/course-boundaries.mjs",
+    "sha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1",
+    "bytes": 4439,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/course-boundaries.mjs",
+      "bytes": 4439,
+      "sha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/course-build.ts",
+    "snapshotPath": "sources/site/src/lib/course-build.ts",
+    "sha256": "f99652d0d15a9f6396be866b5fdc2113fa41a2d26080ec7abfc1db7e8ffe88ff",
+    "bytes": 959,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/course-build.ts",
+      "bytes": 959,
+      "sha256": "f99652d0d15a9f6396be866b5fdc2113fa41a2d26080ec7abfc1db7e8ffe88ff"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/course-configuration.ts",
+    "snapshotPath": "sources/site/src/lib/course-configuration.ts",
+    "sha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100",
+    "bytes": 1046,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/course-configuration.ts",
+      "bytes": 1046,
+      "sha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/course-page-paths.ts",
+    "snapshotPath": "sources/site/src/lib/course-page-paths.ts",
+    "sha256": "dbe0602f53b307e43c8ae652a6d1152c66b9baa664f11d515ba5f207f39f49e3",
+    "bytes": 1838,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/course-page-paths.ts",
+      "bytes": 1838,
+      "sha256": "dbe0602f53b307e43c8ae652a6d1152c66b9baa664f11d515ba5f207f39f49e3"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/functional-chapter-catalogs.ts",
+    "snapshotPath": "sources/site/src/lib/functional-chapter-catalogs.ts",
+    "sha256": "817e7ada818d775055e4545bcb3938503c12542890c46f5b9af63488ac832b58",
+    "bytes": 1989,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/functional-chapter-catalogs.ts",
+      "bytes": 1989,
+      "sha256": "817e7ada818d775055e4545bcb3938503c12542890c46f5b9af63488ac832b58"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/functional-chapter-locales.ts",
+    "snapshotPath": "sources/site/src/lib/functional-chapter-locales.ts",
+    "sha256": "509dbfe7aaa21383812b015a8f487ffeb25f49d4ab85d3046b40d205e80e13b3",
+    "bytes": 1043,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/functional-chapter-locales.ts",
+      "bytes": 1043,
+      "sha256": "509dbfe7aaa21383812b015a8f487ffeb25f49d4ab85d3046b40d205e80e13b3"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/lib/functional-course-routes.ts",
+    "snapshotPath": "sources/site/src/lib/functional-course-routes.ts",
+    "sha256": "64b0ecf87ec1c53a57195d9eec26be20693af33323ff802bf4c839d6ac80e661",
+    "bytes": 403,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/lib/functional-course-routes.ts",
+      "bytes": 403,
+      "sha256": "64b0ecf87ec1c53a57195d9eec26be20693af33323ff802bf4c839d6ac80e661"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/pages/[locale]/course/[...slug].astro",
+    "snapshotPath": "sources/site/src/pages/[locale]/course/[...slug].astro",
+    "sha256": "d668b2ee78385e6a937c5d20977bbda10ee50447611cfb9d1b180b9e0f992e29",
+    "bytes": 7877,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-03/inventory-discovery-03/sources/site/src/pages/[locale]/course/[...slug].astro",
+      "bytes": 7877,
+      "sha256": "d668b2ee78385e6a937c5d20977bbda10ee50447611cfb9d1b180b9e0f992e29"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/pages/[locale]/course/index.astro",
+    "snapshotPath": "sources/site/src/pages/[locale]/course/index.astro",
+    "sha256": "5b85f29ba942e63d98ef1d95b66d5b542cc4fea371e35676156850b6c2937523",
+    "bytes": 3831,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/pages/[locale]/course/index.astro",
+      "bytes": 3831,
+      "sha256": "5b85f29ba942e63d98ef1d95b66d5b542cc4fea371e35676156850b6c2937523"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/pages/[locale]/index.astro",
+    "snapshotPath": "sources/site/src/pages/[locale]/index.astro",
+    "sha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49",
+    "bytes": 3386,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/pages/[locale]/index.astro",
+      "bytes": 3386,
+      "sha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro",
+    "snapshotPath": "sources/site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro",
+    "sha256": "c8f242b21f9fb89cc092fe29116dc49b1ab079056a45811c4284932ee11881bd",
+    "bytes": 687,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-03/inventory-discovery-03/sources/site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro",
+      "bytes": 687,
+      "sha256": "c8f242b21f9fb89cc092fe29116dc49b1ab079056a45811c4284932ee11881bd"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/pages/[locale]/practical-llm-in-rust/index.astro",
+    "snapshotPath": "sources/site/src/pages/[locale]/practical-llm-in-rust/index.astro",
+    "sha256": "74fb0fad272702a1b553c6b11db91219802f7e0c5b23e366d3822a9a6f15b2e4",
+    "bytes": 448,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/pages/[locale]/practical-llm-in-rust/index.astro",
+      "bytes": 448,
+      "sha256": "74fb0fad272702a1b553c6b11db91219802f7e0c5b23e366d3822a9a6f15b2e4"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  },
+  {
+    "publicationPath": "site/src/pages/sitemap.xml.ts",
+    "snapshotPath": "sources/site/src/pages/sitemap.xml.ts",
+    "sha256": "fb8c8e50aa6795f1faf1da52818a8edb292b95ea31bf8dcde963d538c4a7f7ac",
+    "bytes": 1589,
+    "completeSourceBytesRetained": true,
+    "classification": "rendering/publication machinery or unchanged framework source; no taught-algorithm or wording judgment by machinery",
+    "completeSourceRole": null,
+    "completeSourceRequirement": null,
+    "sourceScalarCount": 0,
+    "classificationRule": "exact-path-prior-source-convention",
+    "authorExactClassificationApproval": false,
+    "sourceSnapshotArtifact": {
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-inventory-extraction-01/inventory-discovery-01/sources/site/src/pages/sitemap.xml.ts",
+      "bytes": 1589,
+      "sha256": "fb8c8e50aa6795f1faf1da52818a8edb292b95ea31bf8dcde963d538c4a7f7ac"
+    },
+    "sourceToUnitMappingStatus": "pending-main-integration"
+  }
+]

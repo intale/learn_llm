@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "scope": "Independent current cached parser image validation; no original foundation completion or base-provenance admission",
+  "image": "sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3",
+  "archive": {
+    "path": "/opt/learn-llm/cache/debian/workspace/poppler-utils_22.12.0-2+deb12u2_amd64.deb",
+    "sha256": "237d8ae3012bb0b275b681bb7fbd00ee591215e9dc276231d7e4f7bb64efacea",
+    "bytes": 191800,
+    "version": "22.12.0-2+deb12u2",
+    "snapshot_url": "https://snapshot.debian.org/archive/debian-security/20260731T202417Z/pool/updates/main/p/poppler/poppler-utils_22.12.0-2+deb12u2_amd64.deb"
+  },
+  "historical_provenance": {
+    "status": "mismatch-retained-only",
+    "admitted": false,
+    "base_inventory_expected_sha256": "71c37818868f24f73bc0179005ac8f0ca8fd812f8cf755d1340a90fb4c4510b5",
+    "base_inventory_actual_sha256": "9eaaeb47b9fc015768229458a819ef919b8490587da9343cc606d49ec5cb0008",
+    "base_inventory_match": false,
+    "original_foundation_completion_claimed": false
+  },
+  "all_archive_payload_files_match_installed": true,
+  "files": [
+    {
+      "path": "/usr/bin/pdfattach",
+      "bytes": 18752,
+      "sha256": "8379a899fc225fdd6ce734f2bf6918691f93bb949b14cb3861c524712956560e",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdfdetach",
+      "bytes": 27056,
+      "sha256": "b744b83b1d17a25a506e21e9a8469fbf2ef0ba188ca41ba2c34866082ed4c5f9",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdffonts",
+      "bytes": 22968,
+      "sha256": "b4d32c70e78578bd379b3b91e910a188145b59bbcc975e28362b7922d7bbeeb4",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdfimages",
+      "bytes": 43448,
+      "sha256": "ccd28ad29f48dbc0f670842d2efcbab5087c93a72f87ecd7815af5418e8cd450",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdfinfo",
+      "bytes": 63928,
+      "sha256": "4aa5fe4f3e1c83f9bddd3d5cf611de4cea65285df8edb8dbba1dd312d1fb0f18",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdfseparate",
+      "bytes": 22848,
+      "sha256": "92e1b385baf802ada74fe27f2e98c1ee9ccf6fa143abbb4db730d5257780ee61",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdfsig",
+      "bytes": 35536,
+      "sha256": "4e54aad63c748906244589a33183073f3faac735b7fc171fce710916629a70f3",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdftocairo",
+      "bytes": 158104,
+      "sha256": "d303fc4058911112cb49be76b125e79f98d42003c428606d24e123bbaed326f3",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdftohtml",
+      "bytes": 121176,
+      "sha256": "5729cbb45287b7d505a02eff9cb77c6074389ca0a46efe2e491ce94e308f34bc",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdftoppm",
+      "bytes": 35168,
+      "sha256": "e2fbea663fe3e8f42943b010eb1885f66b87b3b49a175b43dfc9baa406d665f9",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdftops",
+      "bytes": 39360,
+      "sha256": "c76c52de992836ed8bd71d905be6c7674f1f14a6d7c9f1b3d8dd600896e4b665",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdftotext",
+      "bytes": 51648,
+      "sha256": "fc66428c317090606e4bc03e9862d3fb1ae08720fe122c48ed25ef282af383c3",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/bin/pdfunite",
+      "bytes": 31040,
+      "sha256": "78153dd6bf8934b9b0dabe3eb2db2e749f5b49fd9d5971d4cd022cb6091006c3",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/doc/poppler-utils/changelog.Debian.gz",
+      "bytes": 2594,
+      "sha256": "63007bf63630ab2203827d3d4e06552dea8e92fd36a7b9df7f750709c0842df0",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/doc/poppler-utils/copyright",
+      "bytes": 12722,
+      "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfattach.1.gz",
+      "bytes": 559,
+      "sha256": "f0b40a15dbaab3007fcf88e81a2d60717eb0821df25dd133a3d7e488214a98fd",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfdetach.1.gz",
+      "bytes": 992,
+      "sha256": "88bd5cf088706bc8dd4d24cbcdbab034a95355246de7ee4f4503eacb2d76f9a1",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdffonts.1.gz",
+      "bytes": 1068,
+      "sha256": "7c3f8f54f3c9f63b2cf38a932819589756d81f4f2435aaf927afb225ecff1872",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfimages.1.gz",
+      "bytes": 2412,
+      "sha256": "590eabe5dc922bba34430dfb0bc3acb10ee1f13c9d387c04d799e3f95756b6a5",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfinfo.1.gz",
+      "bytes": 1671,
+      "sha256": "20033be44eab476e5cf0a2f9c48439cf6289e74835f8d6fcffac728b127d7580",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfseparate.1.gz",
+      "bytes": 730,
+      "sha256": "8c49c7f2395d8e0f2ceb3a500006acc9ac24fd2aa2d965176772f719cbd5a342",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfsig.1.gz",
+      "bytes": 1728,
+      "sha256": "821016592418f43bea3584bf7ca7833ced6bd3218b42fe2f23675dfad5dde964",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdftocairo.1.gz",
+      "bytes": 3915,
+      "sha256": "686db53583a32e58e2d50d3e24dfdb49b14b8db8af63dd11fc3bc1d283a752d8",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdftohtml.1.gz",
+      "bytes": 1333,
+      "sha256": "05873e94b5a33329a8e7bb6bbb03c1f073404fe6464c1392486c883c6ad6cb7b",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdftoppm.1.gz",
+      "bytes": 2332,
+      "sha256": "85de4b9628d4b0284bfc41bd2482e89f460d7129af7613f528064fbf7e1fc12b",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdftops.1.gz",
+      "bytes": 3117,
+      "sha256": "51814fdd0cb4b3df9c3d9246d34b34b081aafdcd7f2403f3eebca6176c647bd5",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdftotext.1.gz",
+      "bytes": 1688,
+      "sha256": "4828b291d5e0f16483b9033a3876ac9cc129d07336ff9bce21327aa15749d9c9",
+      "installed_match": true
+    },
+    {
+      "path": "/usr/share/man/man1/pdfunite.1.gz",
+      "bytes": 575,
+      "sha256": "d37202027a8c2c26a3a42f036b1e1d81d258e25da0a23e318069b132442c7012",
+      "installed_match": true
+    }
+  ],
+  "symlinks": [],
+  "linked_library_records_rehashed": 58,
+  "npm_parser_files_rehashed": 150,
+  "installed_file_records_rehashed": 449
+}

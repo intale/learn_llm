@@ -67824,34 +67824,666 @@ builds:
           strategies while preserving one owner of layout, ranks, byte expansions, framing and decoding.
         depends_on:
           - establish-independent-practical-course-20261008
-        status: pending
+        status: completed
         inputs:
-          - Accepted independent practical base and English practical0–2 checkpoint
-          - Original interrupted Chapter42 artifacts may be reused only after exact hash/provenance/input-fit checks
-          - Bounded authored fixtures only; full-data gates remain downstream
-          - Root must freeze exact fresh course3outputs/acceptance/runner before claim
+          - "38395e74cb606064e329e406fdd6a5c962249c6c accepted completed foundation; original first core/wording protected"
+          - ".build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/practical-ch03-claim-approval-20261009.md SHA 308b8ca1f8a3f055d20f77e43f2ef29b7ecdc12657adb40ed6535aea1ca53eb3"
+          - ".build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/operations/foundation-head-fit-20261009-01/declaration.md SHA 86e3862890f5b990ddc7943ffdf2d7694deb52beb1eb1fe5a37d3a083155ddf4"
+          - ".build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/operations/foundation-head-fit-20261009-01/current-input-fit.json SHA 27b79b6d71c3db816757521747321430b33cb09a13c602c2b1760e710c57e9df"
+          - "Current19 root-authored proposals; exact fixtures; cached six supporting archives; no new acquisition"
+          - "Literal wrapper provisioning/build unrun; identical declared Cargo argv through cached offline overlay"
+          - "Full-data preparation, tokenizer fitting, protected evaluation and measured resource acceptance remain downstream"
         outputs:
-          - curriculum/practical/chapters/03-scalable-bpe-tokenizer.md
-          - rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs
+          - scripts/check-site-content.mjs
+          - scripts/tests/check-chapter-contract.test.mjs
+          - site/src/pages/[locale]/course/[...slug].astro
+          - site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro
           - rust/crates/llm-from-scratch-practical/src/tokenizer/bpe.rs
+          - rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs
+          - rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs
+          - rust/crates/llm-from-scratch-practical/src/tokenizer/encoding.rs
+          - rust/crates/llm-from-scratch-practical/src/tokenizer/policy.rs
+          - rust/crates/llm-from-scratch-practical/src/tokenizer/artifact.rs
           - rust/crates/llm-from-scratch-practical/tests/practical_ch03_tokenizer.rs
-          - rust/demos/practical-ch03-scalable-bpe-tokenizer/
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/Cargo.toml
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/src/main.rs
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/train.jsonl
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/corpus-receipt.json
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/boundary-corpus-receipt.json
+          - curriculum/practical/chapters/03-scalable-bpe-tokenizer.md
           - site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx
           - site/src/content/practical-cheat-sheets/en/03-scalable-bpe-tokenizer.json
           - site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json
-          - audits/practical-llm-in-rust/03-scalable-bpe-tokenizer/
-          - artifacts/practical-llm-in-rust/03-scalable-bpe-tokenizer/
-          - BUILD_STATE.yaml
+          - site/src/components/chapters/ScalableBpeTokenizerDiagram.astro
+          - rust/crates/llm-from-scratch-practical/src/lib.rs
+          - rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs
+          - rust/demos/practical-ch03-scalable-bpe-tokenizer/expected.txt
+          - scripts/check-course-boundaries.mjs
+          - scripts/tests/course-boundaries.test.mjs
+          - site/tests/practical-course.test.ts
+          - site/tests/course-page-paths.test.ts
+          - site/tests/e2e/practical-course.spec.ts
+          - site/tests/e2e/chapter-helpers.ts
+          - scripts/README.md
+          - scripts/check-rust-dependencies.sh
+          - Cargo.lock
           - DECISIONS.md
+          - BUILD_STATE.yaml
+          - site/src/content/practical-chapters/en/00-course-structure.mdx
+          - curriculum/practical/chapters/00-course-structure.md
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/supporting-dependency-receipt.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/scalable-bpe-tokenizer-trace.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/payloads/scalar-tokenizer.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/payloads/incremental-tokenizer.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/producers/scalar-receipt.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/producers/incremental-receipt.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/fixture-consumer-receipt.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/image.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/argv.nul
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/stdout.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/stderr.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/input-hashes.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/cargo-exit-status.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-01/launcher-exit-status.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/image.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/argv.nul
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/stdout.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/stderr.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/input-hashes.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/cargo-exit-status.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/launcher-exit-status.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/author-observations.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/current-source-spec.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/initial-curl-header-json-assumption-failure.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/initial-github-pointer-assumption-failure.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/initial-output-permission-failure.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/original-base-provenance-mismatch.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/curl-executable.sha256
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/curl-version.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/extract-github-code-02.mjs
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/extract-sources-02.mjs
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/parser.mjs
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/toolchain-adapter.mjs
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/transport-01.sh
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/verify-archive-installed-02.mjs
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/page-map.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/pdfinfo.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/source-observation.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/code-extraction-record.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/line-map.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/source-observation.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/archive-installed-validation.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/base-installed-packages.tsv
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/installed-file-inventory.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/installed-packages.tsv
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-entities.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-inventory.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libbrotli1_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libc6_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libdeflate0_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libexpat1_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libfontconfig1_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libfreetype6_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libgcc-s1_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libjbig0_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libjpeg62-turbo_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-liblcms2-2_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-liblerc4_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-liblzma5_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libnspr4_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libnss3_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libopenjp2-7_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libpng16-16_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libpoppler126_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libstdc++6_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libtiff6_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libwebp7_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libzstd1_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-parse5.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-poppler-utils.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-zlib1g_amd64.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/linked-libraries.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/network-none-self-test.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/npm-parser-graph.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/observed-toolchain.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/pdfinfo-ldd.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/pdftotext-ldd.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/poppler-package-graph.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-page-1.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-page-2.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-pdfinfo.txt
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-two-pages.pdf
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/site-package-lock.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/workspace-debian-archive-evidence.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/transport-authority-spec.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-source-evidence-receipt.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-toolchain-receipt.json
+          - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-reuse-receipt.json
         acceptance:
-          - New bounded behavior extends existing copied APIs; no parallel tokenizer implementation or duplicate
-            vocabulary/frame/decode owner.
-          - Own scalar/incremental deterministic differential and refusal evidence; no external oracle/parity/admission.
-          - Fresh English2reviewers+2same-role adjudicators and exact static/sole-Firefox gates; English-only; no
-            full-corpus/resource result inferred from fixtures.
+          - "Extend existing trainer/tokenizer APIs; one owner of vocabulary/ranks/expansions/framing/decode; return semantic diagnoses to author."
+          - "Actual16 own integration and3 demo tests;100corpora/10000byte strings using existing SplitMix64; each learner filter selects exactly1."
+          - "Freeze actual locked offline full dependency/features/allowlist graph and preserve125 registry identities before product execution."
+          - "Optional historical contrast is displayed actual evidence only; no test invokes/asserts it and no whole-output foreign golden or parity/admission gate."
+          - "P0 exact link/contract revision2; complete current0–3 receipt/private profiles; fail closed on invalid current head; preserve historical foundation."
+          - "Fresh six-document English2reviewers+2same-role adjudicators; exact static/Firefox/source/build/current locale/protected fits."
+          - "Record new figure inline/full-view dimensions and bounded painted ink; no screenshots; full-data/resource gates remain unclosed."
+          - "Declare every additional artifact/audit leaf before its stage; publication/checkpoint/own commit only after all mandatory gates."
         validate:
-          - Exact supported selectors/fixtures/resource preflight are declared before execution.
+          - "cargo metadata --offline --format-version 1; cargo metadata --locked --offline --format-version 1 (declared cached provisioning stage)"
+          - "cargo check --offline --locked -p llm-from-scratch-practical -p practical-ch03-scalable-bpe-tokenizer"
+          - "cargo test --offline --locked -p llm-from-scratch-practical --test practical_ch03_tokenizer"
+          - "cargo test --offline --locked -p practical-ch03-scalable-bpe-tokenizer --lib"
+          - "cargo test --offline --locked -p llm-from-scratch-practical --lib"
+          - "cargo test --offline --locked -p llm-from-scratch-practical --doc"
+          - "cargo test --offline --locked -p llm-from-scratch-practical --test reference_source_identity"
+          - "cargo test --offline --locked -p llm-from-scratch-practical --test practical_ch03_tokenizer leftmost_overlap -- --exact"
+          - "cargo test --offline --locked -p practical-ch03-scalable-bpe-tokenizer --lib tests::optional_third_rank_is_the_checked_course_exercise -- --exact"
+          - "cargo run --offline --locked -p practical-ch03-scalable-bpe-tokenizer (actual capture only)"
+          - "cargo clippy --offline --locked -p llm-from-scratch-practical -p practical-ch03-scalable-bpe-tokenizer --all-targets -- -D warnings"
+          - "cargo fmt --all -- --check"
+          - "node --test scripts/tests/course-boundaries.test.mjs"
+          - "node scripts/check-course-boundaries.mjs"
+          - "node scripts/check-site-content.mjs --course practical-llm-in-rust"
+          - "node scripts/check-chapter-contract.mjs --course practical-llm-in-rust"
+          - "npm --prefix site run test -- tests/practical-course.test.ts tests/course-page-paths.test.ts"
+          - "npm --prefix site run build; maintained actual-profile static math/figure/link/SEO/sitemap gates"
+          - "Maintained English prepare/route/seal/verify after root-approved actual evidence and neutral inventory"
+          - "Sole-Firefox existing practical-course and localized-home selectors; workers1/retries0; current declared geometry and protected profile"
         cost:
           class: large
-          notes: cpu=C3;gpu=G0;network=N0;paid=none;model=user-selected;scope=bounded-own-course-fixtures-only;new_artifact_download_authority_bytes=0
-        runs: []
+          notes: "cpu=C3;gpu=G0;network=N0;paid=none;model=user-selected/inherited;observed=gpt-6.1-sol/max;new_artifact_download_authority_bytes=0;cached-fixtures-and-supporting-graph-only"
+        runs:
+          - run_id: 20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01
+            started_at: '2026-10-09T11:22:19.329824Z'
+            status: completed
+            input_fingerprint:
+              commit: 38395e74cb606064e329e406fdd6a5c962249c6c
+              files:
+              - path: .build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/practical-ch03-claim-approval-20261009.md
+                sha256: 308b8ca1f8a3f055d20f77e43f2ef29b7ecdc12657adb40ed6535aea1ca53eb3
+              - path: .build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/operations/foundation-head-fit-20261009-01/declaration.md
+                sha256: 86e3862890f5b990ddc7943ffdf2d7694deb52beb1eb1fe5a37d3a083155ddf4
+              - path: .build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/operations/foundation-head-fit-20261009-01/current-input-fit.json
+                sha256: 27b79b6d71c3db816757521747321430b33cb09a13c602c2b1760e710c57e9df
+              - path: .build/plans/20261008T103836Z-practical-course-split-01/tokenizer-extension-draft/operations/foundation-head-fit-20261009-01/context-settings/receipt.json
+                sha256: 8854d693e626d146dfa4e1cd57283e9a898f6e5b1d8c3857484adfec9d57e9b7
+              tool_versions:
+                image: sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23
+                rust: 1.93.1
+                node: 22.12.0
+            staging_dir: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01
+            commands:
+            - python3 operations/transfer-01.py (19 proposals/31 staged files; exit0)
+            - cp -a --reflink=auto historical cargo-cache to private run cache (exit0; six archives exact/distinct
+              inodes)
+            - bash operations/resolve-cached-dependencies-01.sh (exit1 before Docker/Cargo; parent absent)
+            - bash operations/resolve-cached-dependencies-02.sh (exit0; cached offline metadata then locked metadata)
+            - bash operations/run-dependency-policy-01.sh (exit0; maintained locked/offline allowlist policy)
+            - 'cargo check/test/run/clippy and learner filters before format: all passed; initial cargo fmt --all
+              -- --check exit1 retained'
+            - python3 operations/project-rust-output-01.py (exit1 operational value-span assumption; partial bytes
+              preserved)
+            - python3 operations/project-rust-output-02.py (exit0; exact13 capture artifacts/expected/contract)
+            - bash operations/rustfmt-practical-ch03-01.sh (exit0;12 owned files; original first crate unchanged)
+            - cargo fmt --all -- --check (current formatted sources;exit0)
+            - cargo test --offline --locked -p llm-from-scratch-practical -p practical-ch03-scalable-bpe-tokenizer
+              (472+16+5+3 tests and5 doctests pass; normal empty binary/demo-doc targets recorded)
+            - cargo run --offline --locked -p practical-ch03-scalable-bpe-tokenizer (current formatted sources;exit0;
+              actual capture only)
+            - cargo clippy --offline --locked -p llm-from-scratch-practical -p practical-ch03-scalable-bpe-tokenizer
+              --all-targets -- -D warnings (current sources;exit0)
+            - both exact learner filters on current sources:1selected/pass each
+            - python3 operations/project-rust-output-03.py (exit0; preserves earlier15records; current producer
+              metadata and seven demo-02 execution leaves)
+            - node initial admission selector01 (selected24;21pass/3missing-head failures retained); corrected explicit
+              skip02 selected21/pass21; final24 pending
+            - Vitest11 initial10pass/1ordered-destination assertion failure retained; test-only first-occurrence
+              uniqueness correction; fresh02 and03 selected11/pass11
+            - practical content01/history metadata mismatch and contract01/excerpt-source-set mismatch retained;
+              owner authored alignments; current content02/contract02 and private course scope pass0
+            - npm --prefix site run build (exit0;174files/90HTML;both home bytes and40 locale bindings exact)
+            - Firefox development01 exit1 selected0; driver-only title-filter correction02 selected8:4pass/4fail;
+              no screenshots
+            - sole-Firefox figure rectangle diagnostic01 selected1/pass1; actualfullview1364x766/scrollH1936; zero
+              diagram bounded-ink errors; layout gate remainsfailed
+            - Root authored revised diagram grouping and explicit strategy description; current source-only deltas
+              preserved against prior snapshots.
+            - npm --prefix site run build (fresh03 exit0;174files/90HTML; onlyP3 changed,173unchanged,2home and40locale
+              bindings exact)
+            - sole-Firefox Chapter3 development04 (8selected/8passed;bounded ink0;fullview1364x766/scrollH1139;final28pending)
+            - unchanged discovery extractor02 (one changed source/one changedP3HTML;79sources/5HTML/58primary-executable
+              evidence retained through current exact fit)
+            - owner inspection proposal44reading/48isolated groups, requirements unassigned; current description
+              fit pending owner neutral requirement specification
+            - Owner-approved351 units/38 exact neutral requirements;704 exhaustive fields/80 source classifications,
+              eleven current source-document links, one exact standalone answer role adjustment. No learner/source/layout
+              revision at inventory closure.
+            - Maintained prepareEvidence02 exits0:384 technical/247 isolated assessments, exact author/source/build/schema/inventory
+              binding b9ba773d. Attempt01 failed only at build manifest.files interface and is retained.
+            - Maintained prepareRouting exits0 with actual route review-routing/review-routing.json; prior placeholder
+              routing.json recorded as declaration fit correction, no alias. Two fork-none inherited gpt-6.1-sol/max
+              contexts have initial and location READY5B/0tools; exact canonical JSON+LF delivered after completed
+              second captures. Genuine routed turn/settings/encrypted envelopes are separate from canonical plaintext
+              without decoded-equivalence claim.
+            - Full sole-Firefox attempt01:28selected/27pass/1fail, orientation test omitted already-approved practical
+              index href. One declared test-only argument correction outside all frozen source/publication/direct
+              evidence bindings; helper default/learner/build bytes exact. Fresh attempt02:28selected/28pass,0skipped,14.6s.
+              No screenshots or alternate engine.
+            - Untouched raw finals/access collectors are fitted and ready. Both reviewers currently active; no review
+              verdict inferred. Two fresh same-role adjudications await owner inspection/authorization after paired
+              valid review seals.
+            - Bounded final static/SEO/link/MathML and retained locale verification pass; Firefox current practical28/28,
+              retained bilingual first-ending1/1 and homes2/2 pass. Last exact preservation fit175seed/80source/32complete/174build/396Rust/58first/40locale/2homes;
+              no repeated product gates.
+            - 'Both exact raw reviews captured from their actual bound native turns and paired sealReviews exit0:
+              technical pass384/no findings; isolated fail247/three blocking IS-001, IS-002, IS-003. Native LF preserved;
+              no response normalization.'
+            - Fresh fork-none inherited gpt-6.1-sol/max same-role adjudicators have two READY5B/0tools turns before
+              exact canonical JSON+LF delivery. Real contexts01a1212d-dce4/01a1212d-f367 and third turns01a12132-533c/01a12132-9150
+              are bound; opaque native payload limitation retained. Actual full four-artifact access wrappers and
+              untouched finals safely captured; parent archived completed contexts.
+            - 'Maintained paired sealAdjudications exit0: technical pass384 supported/no findings; isolated pass247
+              supported, all3 blocking review assessment severities exact-echoed and IS-001/002/003 supported. Both
+              raw responses byte-identical to sealed records and bind same-role upstream review receipts.'
+            - Maintained verifyEvidence and verifyAdjudication each return unresolved-blocker, actual verify-current-chain-01
+              exit1. Candidate01 failed English acceptance; no publication/localization/promotion/commit, no current-head
+              admission24 claim. Earlier completed static/Rust/browser evidence and failed attempts remain exact.
+            - Read-only current header/retained locale inquiry closes with preserved wrong-locator FileNotFoundError.
+              Course configuration equals retained complete provenance snapshot; wrapper/shared renderer absent
+              from direct locale bindings. Owner narrower future renderer Props+practical-wrapper API preserves
+              course configuration/catalogs and adds three existing-role isolated indicators; no product change
+              in this checkpoint. Obsolete scripts/english-review-routing.mjs lookup failure retained; actual maintained
+              verifyEvidence/verifyAdjudication module used.
+            - Owner activates ordinary candidate02 in a distinct audit tail after both sealed adjudications. This
+              checkpoint preserves candidate01 failure and keeps the owning run/step running; support transfer and
+              successor source/build/inventory/judgments remain future work.
+            - Current candidate02 owner inventory354/38 approved; maintained prepareEvidence exit0 binds387/250
+              packets
+            - Two fresh fork-none inherited gpt-6.1-sol/max reviewers have initial/location READY5B/0tools; canonical
+              JSON+LF delivered after completed captures; actual deliveryd0880967 opaque envelope recorded separately
+            - Single existing failing-review preparation regression selected1/pass1/exit0; fresh current static/content/math/links/SEO/sitemap
+              and both retained-RU verifiers exit0 on exact174-file build04
+            - Current isolated02 native final untouched97791B/f02001f5 reports pass250/0 findings; access wrappers
+              and preliminary canonical byte/context validator pass; paired full seal awaits technical final
+            - Current candidate02 untouched paired reviews pass387/250 with0 findings; same-role fresh adjudications
+              support387/250 exact pass echoes with0 findings. Paired maintained sealAdjudications and both whole
+              verifiers exit0. Actual native settings/access/canonical delivery and original LF preserved, all completed
+              judgment contexts safely captured/parent archived.
+            - Final all24 current/foundation admission tests pass24/24; actual current02 accepted and prior01/wrong
+              audit/stale index/P2 navigation rejected. Initial read-only tmpfs EACCES setup and optional acquired-license
+              path failures preserved; only that nonsemantic sourceHash key omitted with required-source fit, retaining
+              exact340 publication hash.
+            - Current production and promoted canonical verification both exit0 using maintained current0-3 selectors/content/contracts/static/math/link/SEO/sitemap/current
+              English/retained-locale APIs. Canonical runner has no staged overlay; all340 canonical files/174 rebuilt
+              files/six scoped pages/two homes exact,90HTML/3107 links/90SEO+sitemap+analytics,40+12 RU records
+              and42 catalog fields/no RU practical routes unchanged.
+            - Closed340-path atomic promotion pass with0 retirements and0 index writes. Canonical lockfd3d96e4 preserves
+              current four LF formatting and exact executed dependency graph131 records/old125 identities unchanged;
+              vanished unowned residual not recreated. Current396 Rust/58 protected first/80 source inputs exact;
+              reuse501 Rust and full28 Firefox/first ending1/home2 by verified source/output fit.
+            - Read-only Git whitespace diagnostics are preserved for22 exact immutable acquired/generated/historical
+              paths. Owner inspected and approved literal22 exclusions (a49f5b65), strict every other authored/operational
+              path and all publication/hash/language gates; no source normalization or broad exclusion.
+            - All current ordinary candidate02 four-role judgments pass387/250 with0 findings, raw native LF and
+              sealed records byte-identical; current whole maintained verification pass. Candidate01 failed3-blocker
+              chain remains immutable. User-selected inherited gpt-6.1-sol/max and actual distinct native contexts/settings/access/delivery
+              receipts retained; no opaque body equivalence claim.
+            - Canonical Practical3 bounded-fixture implementation is complete after successful canonical validation;
+              full-corpus preparation/fitting/lineage/evaluation/measured resource execution remains downstream
+              unclosed. Optional published GPT-2 policy example is learner evidence only, no foreign compatibility/parity/whole-output
+              oracle. Literal ./course wrapper provisioning remains unrun while exact learner Cargo selectors execute1
+              each. Persist this step only in the required local commit next; no deploy/push or future-step claim.
+            artifacts:
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/claim-01/receipt.json
+              sha256: a983fe884c00661797fce6c90165195a46e415c16f8e94bfdda808cae922cf01
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/transfer-01/receipt.json
+              sha256: 9fb7df6442fd87c1d72e9f930b68f4d2a7800fce560e97b3d17b295ab855b02d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/cache-copy-01/receipt.json
+              sha256: a46be340a1fa223e362d168b888fcfe616ec6ac4b38faa867257b9f0685bc785
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/support-worker-contexts-01/receipt.json
+              sha256: 6ac7f4a29e45a27a6a69cca256a18670e796a7dc1e22c359b3f3bd097c9977ce
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/dependency-stage-01/launch-failure-01.json
+              sha256: 7bd94cb1b10bc1c488107c1e7cc74459b397bca25f484eb65978fa3efa02580c
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/dependency-stage-01/graph-fit-01.json
+              sha256: 86030c938673a8c2a32bbdcf920cd9e17bc75f69c700ec5134dbec1f042ba38a
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/dependency-stage-01/completion-receipt.json
+              sha256: fcf5102e464f2c42630c66a072ae73c14689ac8eb69431888bd77115691a63ba
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/supporting-dependency-receipt.json
+              sha256: d6ff1e82919916a970a64187c8b5a2e654b07c8b2845eafbe2436be6605d069a
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/rust-current-completion-01/receipt.json
+              sha256: cf074a8d64d660620da2e424a3df2aec82d14172189d515072390ccacfdab2e8
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/artifact-projection-01/failure-receipt.json
+              sha256: d39313c5de762152c269704c9e29cc3f4b6ce06c244797a5c1b458ddd205ed47
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/artifact-projection-02/receipt.json
+              sha256: c2cdfb6f97dd70ac2acc63ff1720764532745ae9dddca1d71bbdc8ff37e0a999
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/artifact-projection-03/receipt.json
+              sha256: 1766604b3842ae6c39952c9e7f70d7db5108e9cae3ea9a297a9e12c50a1f1ab9
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/site-gates-checkpoint-01/receipt.json
+              sha256: 1b5ad4e148b07e4e56f51ec44d5bcde5f2c9e68018694e7f059ef3289b2f02c3
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/site-gates-checkpoint-02/receipt.json
+              sha256: 64e71508c135395475a38204fed0c716528e1aad4756b2a6e6f8fae74ebc1f8f
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/author/practical-ch03-inventory-approval-01.md
+              sha256: 8420b904cda7d0d9e5393c20dcb8109512ddc85e9c9319c7d2ade29f3929edd0
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/review-prep/inventory-draft-02/receipt.json
+              sha256: aaf5c6564b21e61286a5a7f86d5d6d32c2bc286cd8b031d7951afa1e6e4ae7a2
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/review-prep/inventory-draft-02/root-requirements.json
+              sha256: 3fd68b45f76dd80216788694525430162406b7b1cfd038090cfa772ff728ccfb
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/review-prep/inventory-draft-02/units.json
+              sha256: e86f417d4d49b58b038edc71e9e928c367c0d6c6c6dd28fe6b3034c1072a623d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/spec.json
+              sha256: cd4b9a842ede665ebe2b6b83b820b22ab10f6939b2ced63c2cf6d57488ea8215
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/schema-fit.json
+              sha256: 11f720e6ff95d1993481ab13bf285581eeb42961028d0d8015710590113cbca1
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/seed-inventory.json
+              sha256: 1e2de58cb7145397039a15a9f2c540d1a61377a964034202b3b769014f7dbad2
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/review-bundles/bindings.json
+              sha256: 7880dc3904021549f98d04bb5c83e60b7f25626df5c6a1eac07ae27920c96de1
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/review-bundles/inventory.json
+              sha256: f8f7bb1c59949fbd4355e5afa1551ee99a1d9ff6a0da7ac7e9dee94ccd125fe1
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/review-routing/review-routing.json
+              sha256: 09778706c5a00393b273e595fe3937e16be3cb66fcf3d0eff1cc89f7d5acee0e
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/review-routing-fit.json
+              sha256: 3bc9aae435418870e53e1d3a370ac1b7b00d8fc8d3fb921a0951d749cc9b135a
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/review-routing-handoff-01/receipt.json
+              sha256: 72be9975dfd5e41cbb8d403b0a526f70af80a1082019ff818c31e4bf62e421a7
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/reviewer-separation-03/receipt.json
+              sha256: 4a2e22dc969c5440be0d3ac16aaeaf82aab1e2d7473c43b1945d026960cc8f29
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/location-readiness-01/technical-pedagogical/receipt.json
+              sha256: 20a692d62c4d0ee52964bff668952c22702fa324256fca319d84f0d8bed162bf
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/location-readiness-01/isolated-surface/receipt.json
+              sha256: 50fdf78505a0ffda05f6c0ae7b41e3c05319d1d7e06a15104d27e4550f8bf74c
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/delivery-01/receipt.json
+              sha256: cea027802ed4503efe8da09eb9d507adc534f7954b45ed7a92cbf2bf2d50e419
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/response-adapter-fit-01.json
+              sha256: 21ca8ab40f62f7d0f1ff7bd6be0af9522f6e09a5939d48458f3bbe18ef43986e
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-firefox-test-correction-01/receipt.json
+              sha256: bbd9a1a2108f3a43066d2875870550f73e18d0e2e6677117094020aa45a314ae
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-01/argv.nul
+              sha256: b6c75bde605d4f09467f2bba4d49055cd0f4a24db3e54275a273f2829e5897af
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-01/launcher-exit-status.txt
+              sha256: 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/argv.nul
+              sha256: d2c704bcb9e2b0f04c6d73e2b3a0196ed25097ed0e2e8f4d2aca095f358013a6
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/launcher-exit-status.txt
+              sha256: 9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/review-routing-01/argv.nul
+              sha256: 8876075b2563db4c9b475a637f9ade64722d6d9dd5e1a893abda9e608023d766
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/review-routing-01/launcher-exit-status.txt
+              sha256: 9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-practical-course-final-01/argv.nul
+              sha256: a96b4fa79c174176810e4adaf8a03bc0f4ec85804ea04ffb60d48d70d31fd696
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-practical-course-final-01/launcher-exit-status.txt
+              sha256: 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-practical-course-final-02/argv.nul
+              sha256: a96b4fa79c174176810e4adaf8a03bc0f4ec85804ea04ffb60d48d70d31fd696
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-practical-course-final-02/launcher-exit-status.txt
+              sha256: 9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/adjudication-routing/adjudication-routing.json
+              sha256: b78aed4146aea59ad50d924bd34e6b61e2d6358c3a320e303e46bbdd8a72d21d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-static-and-preservation-01/final-gate-observation.json
+              sha256: 1a342db04f84f8eea816811878fd37fd66eabc9eec7b15da34bcd6bb1684fd31
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-static-and-preservation-01/source-build-rust-first-fit.json
+              sha256: 23905c80f67fb5dbe7df0fb94de7add53cf804a6f4db7ec3df00fb9c7da26b71
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/adjudication-delivery-01/receipt.json
+              sha256: 95d679dcbd6c366f50b0aed63c4691fc2518eba91a07a3b60059946f997a285f
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/declared-paired-adjudication-seal-verify-01.json
+              sha256: 48f9c0dd6cfa69ec7a41dcba7ff8c70dd13bd58e0dd69674b7e18eaa14e9dc0b
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/seal-adjudications-01/adjudication-sealing-observation.json
+              sha256: d964594def48c394b5e419a402a779a2f92a5cc26c3c8767c0328bc47f1ae13b
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/verify-current-chain-01/verification-observation.json
+              sha256: 35af513d9f09321a651d85eddb62b67d275484f541b2eac5f8ae1f7b21924e1e
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/future-header-fit-01/receipt.json
+              sha256: 3b7bfc6f5aa5bc330a55af4f254a967a83dea9b373e94e0d1304586b1cc9b138
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/future-header-fit-01/wrapper-source-fit-01.json
+              sha256: cf9d86a9b4c63c014e72b66a9ffd35daa45a2f5755d57595c1020f55c8b2269c
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/future-header-fit-01/renderer-props-successor-support-01.json
+              sha256: 7c0121226ec70fbed76a3771afeb9f1d247a720b4f258a56b6a83e20469ae89f
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/author/practical-ch03-clarity-successor-specification-01.md
+              sha256: bbeabd6adc17d7bd0b390f61096edd2777979f1b7a6308c2dac2e3a80c7dccde
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/author/practical-ch03-clarity-repair-proposal-01.md
+              sha256: 7792cacec899659ef61c9597e006bba3bf8ef19252b8ff86f043a7b045dde28b
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/adjudication-response-capture-01/technical-pedagogical/raw-response.json
+              sha256: c57ddc39eff76ab0cdc813066cf6949548346476a584f870e9d45cb66535c1bb
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/adjudication-seals/technical-pedagogical/record.json
+              sha256: c57ddc39eff76ab0cdc813066cf6949548346476a584f870e9d45cb66535c1bb
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/adjudication-seals/technical-pedagogical/receipt.json
+              sha256: a512611504bc2b25fe5540df36f5504dee589d052b9aec2c24bf181e7ede6a1d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/adjudication-response-capture-01/isolated-surface/raw-response.json
+              sha256: 3c74e862aabb52b89409ddb1329281ee2b8ee3a4b63da7ba178d779a47fbac75
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/adjudication-seals/isolated-surface/record.json
+              sha256: 3c74e862aabb52b89409ddb1329281ee2b8ee3a4b63da7ba178d779a47fbac75
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english/adjudication-seals/isolated-surface/receipt.json
+              sha256: e364dcfc2e297cdf4e7cb30e234333ce676f212e6fee7c1c7cab6421144f24f3
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/review-adjudication-checkpoint-02/candidate-chain-outcome.json
+              sha256: c289bb69b8abc2f48dc2b7a056cda37a5db21312d87499f832fac94bb0e3bf0d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/review-adjudication-checkpoint-02/owned-process-observation.json
+              sha256: 23fb4d8a5ee63c56c116a83bdad392af35c96e1d46d94dbf4da96c819985f5f0
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/review-adjudication-checkpoint-02/canonical-git-status.txt
+              sha256: bcd68b8f038804bb02b5a6525c3c48ac41153fe30bfebc9c383f090bcde76965
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/review-adjudication-checkpoint-02/README.md
+              sha256: 4b7f1c7458cdabc6e201bfb6c0e6a0af3dfe189268fe4a083d368ecb14fb4c9d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/declaration-01.json
+              sha256: 86884562f39aa1e6b092238654f568ca2c15b0b67561b7dd88e8d40f31fe838c
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/preparation-fit.json
+              sha256: 62e5217619e8dc2aeacee1097c3ec9ccb4d1faee15476309e617562e3490a93c
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/routing-fit-01.json
+              sha256: a63f013433a1830878a8dcc09d76241b00fc4f31201bc692f30c30bf6848ab26
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/delivery-01/receipt.json
+              sha256: d0880967e0f731915ed4b4de6f3016e3af04ea515ac6268a864ea6f19a1a2f3d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/response-adapter-fit-02.json
+              sha256: f3c753496e1b0f939b7baf6cd2ae03876a0a2abecc19e67e766f60be2cce5971
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-static-and-preservation-02/final-gate-observation.json
+              sha256: c5be0ee8ee11c08f4f9b63021906b6c043fa649bee6dc8724e7858712956aa1d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/clarity-successor-preservation-01/observation.json
+              sha256: 7e8641144a613a2959e414c7f0074519f84d2b3b0a8549e9dfa1b1e3390e7b25
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/review-prep/inventory-draft-04/receipt.json
+              sha256: 4881e02e47a7ec1f1878d737367368c72667a5d0d8904fe88b53d599daf05544
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/review-response-capture-01/isolated-surface/receipt.json
+              sha256: 54c98d2b2db2d16f6b4a1fb537f0fe88a7f536980d488a80a242a2378fac3a03
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/review-response-capture-01/isolated-surface/raw-response.json
+              sha256: f02001f51fcd1698ff9f41bd9003d2e34dd5b16423679a6b20220e0a032b7084
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-02/review-access-provenance-02/isolated-surface/receipt.json
+              sha256: b674de98a91bd40e5ed6717f676c3f4cc8e67ef887481afc6f842c7202165339
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/review-isolated-successor02-native-byte-check-01/byte-check.json
+              sha256: 64141f70c13baa62622bcb5f696854f88f08877b7d8f7e2653ac6a86b5dfd778
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/review-routing-checkpoint-02/receipt.json
+              sha256: c7062b8d7bedd8d3748f2e90f760f6abb44a5a4a68d17015b4ae0c49e924b7d5
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/current-chain-checkpoint-02/outcome.json
+              sha256: 1e3259aaf5bc1945630bb19f73a172490b359476028f1e9443690f574d9f9ce1
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/current-chain-checkpoint-02/declaration.json
+              sha256: acbee6cf8577e7c0a88a5879c0025c6bf6f9c20f12e9cbb325fc755b6751f845
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-successor02-prepare-01/frozen-workspace-01/audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/adjudication-verification/verification-observation.json
+              sha256: d5ded7618c78e525010c3751ae19ffbd99d4e1f6f1eeca6693041a0218166d29
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/production-final-fit-01/observation.json
+              sha256: fb792eee2dbf11551846246b66aeebf90c3b663202c6ad2d9a3cb20a8c23c851
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/publication-proposal-02/receipt.json
+              sha256: d6f346c13b1e2c41f8843dbaf69157d518d7c82b63c0d45e865f68060fc42455
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/publication-proposal-02/publication-and-index-manifest.json
+              sha256: 4989d7a5c049ca383367348c3fddfb5d6bf5aff8b80c6a0dbd710425ed93e3bf
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/publication-proposal-02/single-license-interface-fit.json
+              sha256: c4396cfe563925bc7993b5862d158528b4a387027a05dfd249098c06018f96df
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/promotion-01/receipt.json
+              sha256: b3dad7481a16406a7bdfe02b79a36502dc993901252dbaaaf8308c0ebd05d87d
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/canonical-admission-successor02-final-01/production-observation.json
+              sha256: 8f129721b81d2c81edaf242af027507a6c43b3bf3eff602b8051e1f716b2463f
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/course-admission-successor02-final-03/stdout.txt
+              sha256: a18909916f9fa2f490b4cce2804e5fdb8a9deda7adadf3e883f4e9b41cc563bb
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/commit-preflight-02/whitespace-observation.json
+              sha256: b16622021d9150c2fb6c6523fd887954611175272483c6ccae2f4cc009dd4135
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/commit-preflight-02/whitespace-scope-proposal.json
+              sha256: a49f5b6529bc296a746212bd018513228c6c65d375a70b69dad028b65c3729c9
+            - path: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/current-chain-checkpoint-02/receipt.json
+              sha256: 7d6d2de71f2d4f9976bc23d933c08e92935cf233025b829d14202bf7c7674ee8
+            - path: artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json
+              sha256: 4acdeebfcb0f4f84effeb7d6bef558f5273f0d71b7b6748e7af777e460e07030
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/adjudication-verification/verification-observation.json
+              sha256: d5ded7618c78e525010c3751ae19ffbd99d4e1f6f1eeca6693041a0218166d29
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/review-seals/technical-pedagogical/record.json
+              sha256: 14ebad8ebe01f9527a894f1850eb6a0bb572919c5f1a29011a3c8a67e634ad88
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/review-seals/technical-pedagogical/receipt.json
+              sha256: 1705ebb4c89fd6b1c86dfee94ad9535d3a43e705e09bb330ccbce1570ef4a53a
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/adjudication-seals/technical-pedagogical/record.json
+              sha256: 12fa3a8e89c7f56d86f60cc3ef049d7a40bb9433ec54c38ea49dc3da06731532
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/adjudication-seals/technical-pedagogical/receipt.json
+              sha256: 426d9e9b25527c0427e0eaf2fa6e2469edb8e4460769c98cf8b0ec7503c68a9d
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/review-seals/isolated-surface/record.json
+              sha256: f02001f51fcd1698ff9f41bd9003d2e34dd5b16423679a6b20220e0a032b7084
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/review-seals/isolated-surface/receipt.json
+              sha256: 7ad61cb1b42861502c7ae6d08f3393dc562bc8306c3d9d71746f5afd5b8ee67b
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/adjudication-seals/isolated-surface/record.json
+              sha256: 3d31cacb98836a61f034811f207b73a28eced0b01667340078e8eef36722878b
+            - path: audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english/adjudication-seals/isolated-surface/receipt.json
+              sha256: 61a560d8d08a72cc2b87c24b583d0ed39c34756d9b8092a3d105d88df39d057e
+            validation:
+            - name: offline-supporting-graph-and-policy
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/dependency-stage-01/completion-receipt.json
+            - name: formatted-own-course-rust-and-exact-learner-selection
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/rust-current-completion-01/receipt.json
+            - name: exact-rust-capture-and-current-producer-provenance
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/artifact-projection-03/receipt.json
+            - name: current-development-build-and-ch03-programmatic-layout
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/site-gates-checkpoint-02/receipt.json
+            - command:
+              - node
+              - /repo/.build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/seed-and-prepare-01.mjs
+              result: failed
+              exit_status: 1
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-01
+            - command:
+              - node
+              - /repo/.build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/seed-and-prepare-02.mjs
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-review-prepare-02
+            - command:
+              - node
+              - /repo/.build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-freeze-01/prepare-review-routing-01.mjs
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/review-routing-01
+            - command:
+              - node
+              - /repo/.build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/run-practical-firefox-04.mjs
+              - practical-course
+              result: failed
+              exit_status: 1
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-practical-course-final-01
+            - command:
+              - node
+              - /repo/.build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/run-practical-firefox-04.mjs
+              - practical-course
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-practical-course-final-02
+            - command_operation: seal-reviews-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/seal-reviews-01
+            - command_operation: prepare-adjudication-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/prepare-adjudication-01
+            - command_operation: prepare-adjudication-routing-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/prepare-adjudication-routing-01
+            - command_operation: adjudication-isolated-native-byte-check-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/adjudication-isolated-native-byte-check-01
+            - command_operation: adjudication-technical-native-byte-check-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/adjudication-technical-native-byte-check-01
+            - command_operation: seal-adjudications-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/seal-adjudications-01
+            - command_operation: verify-current-chain-01
+              result: failed
+              exit_status: 1
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/verify-current-chain-01
+            - name: current-bounded-static-browser-and-preservation
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/operations/final-static-and-preservation-01/final-gate-observation.json
+            - name: current-successor02-full-practical-firefox
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-successor02-practical-course-final-02
+            - name: current-successor02-static-and-retained-locale
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/current-static-and-locale-successor02-final-01
+            - name: single-existing-failing-review-regression
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/english-failing-review-regression-successor02-01
+            - name: isolated-successor02-preliminary-native-byte-context-check
+              passed: true
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/review-isolated-successor02-native-byte-check-01
+            - command_operation: seal-reviews-successor02-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/seal-reviews-successor02-01
+            - command_operation: prepare-adjudication-successor02-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/prepare-adjudication-successor02-01
+            - command_operation: prepare-adjudication-successor02-routing-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/prepare-adjudication-successor02-routing-01
+            - command_operation: adjudication-isolated-successor02-native-byte-check-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/adjudication-isolated-successor02-native-byte-check-01
+            - command_operation: adjudication-technical-successor02-native-byte-check-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/adjudication-technical-successor02-native-byte-check-01
+            - command_operation: seal-adjudications-successor02-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/seal-adjudications-successor02-01
+            - command_operation: verify-current-chain-successor02-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/verify-current-chain-successor02-01
+            - command_operation: course-admission-successor02-final-02
+              result: failed
+              exit_status: 1
+              selected: 24
+              passed: 21
+              failed: 3
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/course-admission-successor02-final-02
+            - command_operation: publication-receipt-chain-fit-03
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/publication-receipt-chain-fit-03
+            - command_operation: course-admission-successor02-final-03
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/course-admission-successor02-final-03
+            - command_operation: production-admission-successor02-final-03
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/production-admission-successor02-final-03
+            - command_operation: canonical-admission-successor02-final-01
+              result: passed
+              exit_status: 0
+              evidence: .build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/canonical-admission-successor02-final-01
+            notes: Canonical Practical3 implementation completed for bounded fixtures, separate practical course0-3,
+              with preserved first course and accepted foundation. Current02 all four English judgments pass387/250/0
+              findings and both full verifiers pass; actual final24/24,501 Rust by396-input fit,11 Vitest,28 Firefox/current
+              geometry,retained ending1/homes2,production and canonical174/90HTML static/link/math/SEO/sitemap and
+              retained40+12 RU proofs pass. Closed340 canonical files promoted,zero retirements; lock131 registry
+              records retains125 identities and current4LF formatting. Required local completed-step commit is next
+              and has not occurred at this checkpoint. Preserve candidate01 failed chain, all interrupted/failed
+              setups/selectors/metadata diagnostics, and exact22 owner-approved immutable artifact whitespace observations.
+              Full-corpus preparation/fitting/lineage/evaluation/resource gates remain unclosed; no external-tokenizer
+              compatibility/parity or golden gate. Literal wrapper provisioning unrun, exact cached learner Cargo
+              argv selected1 each. No deploy,push or next chapter claim.
+            finished_at: '2026-10-09T18:09:46.751277+00:00'

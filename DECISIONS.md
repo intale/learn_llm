@@ -33082,3 +33082,341 @@ approved Cargo index/worktree and four-LF residual remain unchanged. Actual comm
 contents/residual proof follows in operations/commit-05/receipt.json; Practical3
 stays pending until that stable proof passes.
 Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T11:22:19.329824Z — Practical Chapter3 bounded extension claimed after accepted independent foundation
+
+Context: Stable foundation commit38395e74 satisfies the dependency. Owner approval
+308b8ca1f8a3f055d20f77e43f2ef29b7ecdc12657adb40ed6535aea1ca53eb3 accepts current declaration86e38628/input-fit27b79b6d,
+19 authored mappings and34 exact first-phase mutation paths. Prior Chapter42 and
+all foundation attempts/audits remain immutable; no original run is resumed.
+
+Decision: Claim 20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01 at its actual UTC2026-10-09T11:22:19.329824Z,
+candidate practical.ch03.en.20261009.01, scope practical.ch03.en, exact audit
+audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-01/english.
+Reconcile only the current tail's obsolete broad artifact/audit paths to the
+approved /chapters/03 namespace; additional leaves are declared before each stage.
+Transfer/wire existing authored extensions behind BpeTrainer/BpeTokenizer; retain
+one invariant owner and existing SplitMix64/lower_hex helpers. Any semantic
+diagnostic returns to the author; no conflict is silently resolved.
+
+Supporting fancy-regex0.16.2 is demo-only published fixed-pattern execution
+plumbing with defaults off/std+unicode. Course-owned code maps bytes and chooses/
+applies ranked merges. Resolve its cached six-package graph offline and freeze
+actual complete features/allowlist before locked product validation; preserve all
+125 registry identities and the four unowned Cargo blank-line deletions.
+C3/G0/N0, no paid/GPU/network/new artifact work; all Docker runs pull-never/network-none.
+The literal ./course provisioning/build remains unrun; static unchanged forwarding
+and identical learner Cargo operations through the cached overlay are separate
+evidence. No optional historical-policy assertion/golden/parity/admission test.
+
+Consequences: Full-data preparation/fitting/protected evaluation/measured resource
+gates remain downstream. Fresh current0–3 six-document English chain is required;
+old verdicts/diagnostics stay outside it. Actual figure dimensions/ink evidence and
+sole Firefox are required, with no screenshots. Original first implementation and
+wording and the current Russian chooser stay exact. No product execution, language
+verdict, promotion or completion is claimed by this checkpoint.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T11:37:58.629373Z — Current Practical3 supporting graph frozen before product validation
+
+Cached offline resolution02 and locked metadata pass0. All125 existing registry
+records preserve name/version/source/checksum; six cached supporting records are
+added, for131records/130distinct names. The first read-only count by unique name
+was124/130; complete version/source identities are125/131 and are checked without
+collapsing duplicates. Actual minimal features/dependency edges match the admitted
+six-archive closure; no historical metadata is labeled current execution.
+
+The maintained allowlist command passes0 in the same cached network-none image.
+Only the six names are added. Fancy-regex remains demo-only fixed-pattern execution
+plumbing, defaults off/std+unicode; taught byte/rank decisions remain course code.
+Receipt d6ff1e82919916a970a64187c8b5a2e654b07c8b2845eafbe2436be6605d069a binds the complete current graph, raw metadata/lock,
+actual feature graph and policy output. Canonical lock545b59b1 remains unchanged;
+Cargo's generated stage already retains the four-LF deletion context. No wrapper
+build, download, image build, GPU work or foreign-tokenizer assertion occurs.
+
+Preserve launch01exit1 before Docker/Cargo (missing new validation parent). Fresh
+operation02 fixes only that precondition/evidence namespace; no prior byte is
+overwritten or relabeled. Locked own-course product validation can now begin.
+Supporting workers have distinct genuine native paths/settings and disjoint
+source outputs; main retains all command execution/locks/ledgers.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T12:04:31.922904Z — Practical3 current formatted Rust evidence and byte capture
+
+All own-course Rust checks pass. Current formatted-source execution records
+472 practical library tests,16 own integration tests,5 reference-proof tests,
+3 demo tests and5 doctests. Both exact learner commands select1/pass1. Current
+fmt and all-target Clippy pass0. The initial fmt-check1 is retained; the pinned
+formatter changes only12 declared staged Rust files and original first-crate
+hashes remain exact. No semantic algorithm repair or first-course change occurs.
+
+Preserve projection01exit1/value-span assumption and its partial outputs. Decoder-
+span adapter02 passes; adapter03 binds the actual post-format invocation and
+formatted producer sources, retaining every pre-format artifact/receipt and
+seven earlier execution files. Rust stdout/trace/expected5481B remain byte-identical
+SHA7487c46b; own payload781B SHA8b1534b8. This is actual display/source provenance,
+not a foreign-output assertion, parity verdict, or two-process producer claim.
+The literal ./course provisioning/build remains unrun. Site/layout/language
+gates and final publication remain pending; no old review is transferred.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T12:42:07.850293+00:00 — Practical3 static build and first measured development geometry
+
+Current initial admission selects21/pass21; final current sealed24 remains pending.
+Vitest11 passes after an authorized test-only ordered-unique destination correction.
+Owner aligns historical metadata/body and presentation-source inventory; actual
+content/contract/private-course checks and174-file/90HTML build pass. Displayed
+seven excerpt-source paths do not exclude reached bpe/policy algorithm evidence.
+Both EN/RU home bytes and40 accepted locale bindings remain exact; no new locale
+judgment or certification is inferred. Earlier selector/assertion/metadata failures
+remain immutable. Reused67 bounded history leaves retain originalChapter42 IDs and
+current-only toolchain provenance; no new transport or parser execution occurs.
+
+First Firefox attempt selects0 and fails operationally. Corrected unanchored
+filter selects8:4pass/4fail. Actual diagram bounded ink errors0 at desktop/narrow
+and fullview, but fullview scroll1936 inclient766 exceeds the mandatory travel
+limit. Root owns geometry reorganization. Two ancillary failures identify a
+first-index helper hard-code and clientWidth0 inline math measurement; declared
+helper/default-preserving and actual-painted-bounds corrections are test plumbing.
+Rectangle diagnostic1passes as collection only; it is no page-quality verdict.
+No learner/CSS mutation, language verdict, promotion or completion occurs here.
+
+Current canonical Cargo.lock is observed1bee6a4a (committed baseline), without
+attribution; earlier545b59b1/four-LF residual is absent. Do not recreate it. Future
+index preserves current fourLF plus only the accepted support closure and must
+prove parsed equality with executed private2b335876. Prior claims remain historical.
+Checkpoint 1b5ad4e148b07e4e56f51ec44d5bcde5f2c9e68018694e7f059ef3289b2f02c3 binds raw current operations and pending gates.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T13:28:14.452456+00:00 — Practical3 current revised figure and owner inventory preparation
+
+Owner revises only current diagram geometry/explanation, then names scalar recounting
+and incremental edge updates locally in its accessible description. Earlier builds,
+extractions, development failures and rectangle evidence remain exact. Fresh build03
+passes174files/90HTML; onlyP3HTML differs, other173files/2home proofs/40locale bindings
+remain exact. Eight fresh Chapter3Firefox cases pass; bounded ink errors0 and fullview
+client1364x766/scroll1364x1139 satisfy the declared development bound. Final full28
+requires the fresh English chain and remains pending. No screenshot is taken.
+
+Reuse the unchanged maintained extractor for only1changedsource/1changedP3HTML.
+Current fit proves79other source snapshots/5completepages/58primary-executable
+evidence records exact. All309P3IDs/order/attributes/ancestry/memberships are unchanged;
+only the description and its actual ancestor/IDref text values differ.80sources,
+6completeEnglish documents and704maintained JSON/frontmatter scalars are observed.
+Proposed44reading/48isolated P3 groups are metadata with unassigned role requirements;
+root owns semantic requirements and final grouping approval. No prior review/adjudication
+record, owner diagnostic/self-audit or foundation admission TEST fixture enters fresh
+judgments. Supporting history retains only applicable source/executable provenance.
+
+Initial compact browser projection incorrectly selects nonexistent top-level metadata
+properties and records null; retain it. Corrected projection reads actual nested
+diagram.errors/layout.errors/states with unchanged raw execution. No browser rerun
+was performed for this metadata repair. Canonical Cargo1bee remains the observed
+committed baseline; no vanished four-LF residual is recreated or attributed.
+Checkpoint 64e71508c135395475a38204fed0c716528e1aad4756b2a6e6f8fae74ebc1f8f records actual current operations
+and pending gates. No language verdict, promotion or completion is claimed.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T14:35:36.392329+00:00 — Practical3 exact frozen review delivery and full sole-Firefox gate
+
+Owner-approved inventory351/38 and exhaustive704 fields are closed. Maintained
+prepareEvidence02 and prepareRouting pass with384 technical/247 isolated
+assessments and candidate bindingb9ba773d. Initial seed01 manifest-interface
+failure is preserved. Actual maintained routing uses review-routing.json; the
+earlier routing.json placeholder is corrected by a separate declaration, without
+creating an alias or mutating prior evidence.
+
+Fresh technical01a12102-0f91-7eb3-a147-fac500f72b21 and isolated
+01a12102-2577-7ac1-b2b1-065736f9832c inherit gpt-6.1-sol/max/fork none.
+Both initial and four-location turns complete READY5B with0tools. Their exact
+canonical JSON+LF tasks were delivered only after durable second READY captures.
+Actual routed turns01a1210e-472d-7b63-a1db-98d82f59a01f and
+01a1210e-8a47-7262-a2d3-1dcb87a82aa3/settings/native opaque envelopes are bound
+by deliverycea02780 separately from frozen plaintext. No decoded-equivalence
+claim, sibling disclosure or extra judgment instruction is made.
+
+Full Firefox attempt01 selects28:27pass/1fail, only an orientation test call
+omitting the existing practical index argument. Owner authorizes the one-line
+test-only correction. Exclusion fitbbd9a1a2 proves spec/helper are outside all
+frozen English source/publication/direct evidence bindings and frozen candidate
+bytes stay exact. The helper first-course default is unchanged. Fresh attempt02
+selects28/pass28,0skipped,14.6s,sole Firefox/workers1/retries0/network-none.
+No screenshot or product/prose/CSS/build change occurs. Failure01 remains exact.
+
+Both reviewer turns remain active; no semantic verdict is inferred. Untouched
+final/access capture, paired maintained sealReviews, owner-authorized two fresh
+same-role adjudications and whole verification remain required. Final24 current
+admission and remaining bounded static/SEO/link/protected/locale fits precede any
+promotion/completion/commit. The step remains running. Original first-course
+bytes and all prior runs are preserved. Canonical Cargo stays observed committed
+1bee; the disappeared historical four-LF residual is not recreated.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T15:34:13.353656+00:00 — Practical3 candidate01 failed English chain and owner-activated successor
+
+Technical review pass384/0 findings and isolated review fail247/3 blocking findings are
+sealed from untouched actual native bytes. Fresh same-role adjudicators, pairwise-distinct
+from author/machinery/reviewers/prior contexts, inherit gpt-6.1-sol/max/fork none. Initial
+and location READY turns contain exactly5B/0tools before canonical JSON+oneLF delivery.
+Delivery95d679dc binds actual contexts01a1212d-dce4/01a1212d-f367 and routed turns
+01a12132-533c/01a12132-9150, separately from opaque native envelopes; no decoded
+equivalence or sibling evidence disclosure is claimed. Full access wrappers show only
+four routed artifacts, with operational clock metadata separate. Raw technicalc57ddc39
+and isolated3c74e862 remain byte-identical to sealed records. Paired sealAdjudications
+exit0:384/247 supported; isolated IS-001/002/003 and all3 blocking echoes are supported.
+The actual maintained verifyEvidence and verifyAdjudication each fail unresolved-blocker;
+whole verification exits1. A sound adjudication does not change candidate severity or
+publication eligibility. No semantic response is transformed.
+
+Previously completed current static/SEO/links/MathML/locale gates, Firefox28 practical/
+1 retained first-ending/2 localized-home passes and preservation175seed/80source/32complete/
+174build/396Rust/58first/40RU/2homes are hash-bound without repeating successful commands.
+No screenshot, first-course source/content repair, learner-byte edit, promotion or commit
+is performed. Candidate01 remains immutable, including its earlier failed attempts and
+running-delivery checkpoint. Current owning step/run stays running for the owner-activated
+ordinary candidate02 with distinct audit20261009T105211Z-02. Its private clarity/successor
+author specification stays outside judgments. Support copying and actual successor
+source/build/roles/reviews follow a separate declaration.
+
+Read-only inquiry records all four current grouped lesson headers and only the existing
+P3 isolated Chapter/revision indicator; it adds no role to candidate01. Course configuration
+is a retained complete-source locale snapshot, wrapper/shared lesson renderer are absent
+from direct locale review bindings. The first historical snapshot lookup incorrectly
+rooted a discovery locator under the canonical audit and failed; exact native failure is
+preserved and actual original snapshot separately hash-fit. Owner narrows the future API
+to shared-renderer optional locale Props plus the practical wrapper, preserving configuration
+and catalog bytes and requesting three genuine P0–2 isolated units under the existing
+exact indicator requirement. Future locale retention still requires actual current rebuilt
+homes/catalogs/all40 bindings; this machinery inquiry supplies no language certification.
+An obsolete router script lookup failed before execution; preserved diagnostic and the
+actual existing English module verifyEvidence/verifyAdjudication APIs are used.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T15:38:06.247776+00:00 — Practical3 ordinary clarity successor02 closed support transfer
+
+Owner activates candidatepractical.ch03.en.20261009.02, scopepractical.ch03.en,
+distinct audit20261009T105211Z-02/english after the full candidate01 chain is sealed.
+Current01 technical pass / isolated fail3blocking / both adjudications pass and
+actual two-verifier unresolved-blocker exit1 remain immutable. Checkpoint8c740cf9
+keeps owning step/run running and preserves historical prefixes/raw/seals/failed proof.
+
+Declare two additional exact support outputs on the current live step before byte-
+preserving canonical-to-private-stage copies: the shared course/[...slug].astro renderer
+and practical-llm-in-rust/[...slug].astro thin wrapper. Root owns their semantic patch
+and the already-owned Practical3 MDX answer group/figure description. Machinery may
+only update necessary candidate/audit/checker-test literals under its two existing
+owned paths; copied baseline support bytes remain exact until root applies the patch.
+Course configuration, both catalogs/homes, original first course and all Rust/lock/
+fixture inputs remain unchanged. Private owner repair/specification/diagnostics and
+all old language records stay outside fresh judgments. Actual successor build,
+source-field inventory, protected/default-renderer/retained-locale fit and current
+neutral role coverage must pass and receive owner approval before fresh routing.
+No successor product semantics, judge or publication verdict is implied by copying.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T17:07:55.072334+00:00 — Practical3 candidate02 exact frozen delivery and independent completion gates
+
+Owner-approved354units/38requirements and current80sources/704fields bind the new
+ordinary candidate practical.ch03.en.20261009.02. Maintained preparation/routing
+pass with387technical/250isolated assessments. Actual fresh contexts01a12190-076c
+and01a12190-18c5 inherit gpt-6.1-sol/max/fork none; initial and four-location
+READY turns complete5B/0tools before exact canonical JSON+LF delivery. Receipt
+d0880967 binds actual routed turns01a12196-8de6/01a12196-c665 separately from
+native opaque task envelopes; no decoded-equivalence or sibling disclosure claim.
+
+The single existing English failing-review regression selects1/pass1. Fresh
+current static/content/contracts/math/link/SEO/sitemap and both maintained retained
+Russian-home verifiers pass exit0 on exact174files/90HTML. Current full sole-Firefox
+28/28 passes; prior first-ending1/home2/Rust501 executions are reused only through
+current exact relevant source/build/protected/locale fit. Earlier failures remain
+immutable. No new Rust/browser rerun, screenshot or Russian practical page occurs.
+
+Isolated native final f02001f5 is preserved untouched, including finalLF; it reports
+pass250/0findings. Eight completed tool wrappers read only the four routed artifacts
+and repeated bundle slices, with operational clock metadata separate. Preliminary
+byte/context check passes; technical final, paired full sealing, both fresh same-role
+adjudications and whole English verification remain pending. An unexecuted access
+collector locator substitution is preserved and only its original historical helper
+path is restored in fresh adapter03; no response transformation occurs. Final all24
+current admission remains behind the four judgments. Candidate01 failed chain and
+private owner clarity/diagnostic records stay outside current judgment packets.
+No product promotion, step completion or commit is claimed; the owner run stays
+running. Checkpoint c7062b8d7bedd8d3748f2e90f760f6abb44a5a4a68d17015b4ae0c49e924b7d5 records actual current boundary.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T17:54:27.036245+00:00 — Practical3 current02 passing four-record English chain
+
+Untouched technical14ebad8e and isolatedf02001f5 reviews pass387/250 with no
+findings. Fresh same-role technical12fa3a8e and isolated3d31cacb adjudications
+pass, support every387/250 exact pass echo, and report no review defects.
+Maintained paired sealing and both whole verifiers exit0 on current binding
+cb894cba; actual model/effort gpt-6.1-sol/max and native context separation,
+completed four-artifact access and exact canonical delivery remain bound.
+Opaque native envelopes are not decoded; no response normalization occurs.
+
+The340-path proposal remains staged only, with zero retirements. Current396
+Rust inputs/58 protected first/80 sources and retained40+12 Russian inputs fit.
+Final24 attempt01 selected no tests due to read-only tmpfs Cargo.lock; fresh
+regular-file replacement setup02 ran24:21 pass/3 current-chain failures at the
+optional acquired libstdc++ license sourceHash path. Those failures stay exact.
+No source/checker bypass, canonical/index write, completion or commit is claimed.
+Final admission and production checks remain; prior failed candidate01 unchanged.
+Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T18:09:46.751277+00:00 — Practical3 bounded implementation completed and canonical verified
+
+Current ordinary candidate practical.ch03.en.20261009.02 has two reviews and
+two fresh same-role adjudications pass387/250 with zero findings and supported
+exact pass echoes. Both maintained whole verifiers pass; untouched raw responses
+and native finalLF remain byte-identical to sealed records. Actual selected
+gpt-6.1-sol/max, pairwise native identities, four-artifact accesses and canonical
+delivery are bound separately from opaque native envelopes. Prior candidate01
+three-blocker failed chain and every earlier diagnostic remain immutable.
+
+Final admission24/24 accepts current02 and refuses old01/stale index and P2
+navigation; no fallback on invalid present head. Production and canonical
+verification use maintained validators and cached network-none runtime. Actual
+340 canonical files and174 production files/90HTML equal reviewed build04; all
+six scoped English pages, two homes and40 direct+12 complete retained Russian
+records are exact. First80/practical4 source sets and40/4 contracts,3107 local
+links/90 SEO/sitemap/analytics pass. Reused501 Rust checks have396 exact input
+bindings;11 Vitest and current28 Firefox plus retained ending1/homes2 are
+recorded without unrelated repeated runs. Full-view1364x1139 and bounded ink
+checks pass, no screenshots. Protected first58 inputs remain exact.
+
+Promotion is the closed340 paths with zero retirements. Cargo lockfd3d96e4
+preserves current canonical four LF bytes with the executed131 registry graph
+and all125 existing identities. Six supporting packages serve narrowly scoped
+demo plumbing; course-owned trainer/tokenizer algorithms and invariants remain
+course-owned. Vanished unowned formatting is not recreated. The acquired
+libstdc++ license is excluded only from optional semantic receipt sourceHashes
+148, remains exactly hash-bound in publication/historical evidence, and all
+required32 sources/seven built records remain bound. Both fresh verifiers pass.
+Initial EACCES and21/24 unsafe-license attempts remain failed evidence.
+
+Read-only Git diagnostics are preserved for exactly22 immutable paths:12
+acquired/generated history/toolchain artifacts,8 generated reviewed HTML copies,
+2 byte-identical retained historical sources. Owner approves literal exclusions
+a49f5b65 only; strict Git whitespace checks apply to every other authored and
+operational path. No normalization or broad directory exemption is authorized.
+
+The canonical step/run completion is justified by current bounded-fixture
+implementation and acceptance. Full-corpus preparation/tokenizer fitting,
+lineage, protected evaluation and measured resource execution remain downstream
+gates, unclosed here. Published GPT-2 tiny policy output is historical learner
+evidence only, never a compatibility/parity or whole-output assertion gate.
+Literal ./course provisioning remains unrun; cached exact learner Cargo argv
+selected and executed one test each. The local completed-step-only commit is
+required next; no commit, deployment, push or following-step claim occurs in
+this checkpoint. Affected step: implement-practical-ch03-scalable-bpe-tokenizer.

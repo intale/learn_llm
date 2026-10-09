@@ -1,0 +1,150 @@
+{
+  "actualReport": {
+    "bytes": 39069,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-successor02-ch03-development-02/browser/playwright-report.json",
+    "sha256": "239e1804e328d316c42dc000a5b0723fdc46d61c1dc412e3b98c64ca743d53c8"
+  },
+  "executionStatus": {
+    "bytes": 116,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/validation/firefox-successor02-ch03-development-02/browser/execution-status.json",
+    "sha256": "4601e8ad76540d8dc08fbd6ee5ca201d636922754933444c55084eec37d89f33"
+  },
+  "languageVerdict": null,
+  "observations": [
+    {
+      "diagramErrorCount": 0,
+      "direction": null,
+      "forcedColors": null,
+      "geometry": {
+        "clientHeight": 1714,
+        "clientWidth": 830,
+        "scrollHeight": 1714,
+        "scrollWidth": 830
+      },
+      "name": "programmatic-geometry",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "inline",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    {
+      "diagramErrorCount": 0,
+      "direction": null,
+      "forcedColors": null,
+      "geometry": {
+        "clientHeight": 3758,
+        "clientWidth": 286,
+        "scrollHeight": 3758,
+        "scrollWidth": 286
+      },
+      "name": "programmatic-geometry",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "inline",
+      "viewport": {
+        "height": 844,
+        "width": 320
+      }
+    },
+    {
+      "diagramErrorCount": 0,
+      "direction": null,
+      "forcedColors": null,
+      "geometry": {
+        "clientHeight": 766,
+        "clientWidth": 1364,
+        "scrollHeight": 1139,
+        "scrollWidth": 1364
+      },
+      "name": "programmatic-full-view-geometry",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "full-view",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    {
+      "diagramErrorCount": 0,
+      "direction": "rtl",
+      "forcedColors": "active",
+      "geometry": {
+        "clientHeight": 1714,
+        "clientWidth": 830,
+        "scrollHeight": 1714,
+        "scrollWidth": 830
+      },
+      "name": "programmatic-direction-geometry-inline",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "inline",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    {
+      "diagramErrorCount": 0,
+      "direction": "rtl",
+      "forcedColors": "active",
+      "geometry": {
+        "clientHeight": 766,
+        "clientWidth": 1364,
+        "scrollHeight": 1139,
+        "scrollWidth": 1364
+      },
+      "name": "programmatic-direction-geometry-full-view",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "full-view",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    {
+      "diagramErrorCount": 0,
+      "direction": null,
+      "forcedColors": null,
+      "geometry": {
+        "clientHeight": 866,
+        "errors": [],
+        "reachedEnd": true,
+        "scrollHeight": 1225
+      },
+      "name": "programmatic-glossary-geometry",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "dialog-open",
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    },
+    {
+      "diagramErrorCount": 0,
+      "direction": null,
+      "forcedColors": null,
+      "geometry": {
+        "clientHeight": 462,
+        "errors": [],
+        "reachedEnd": true,
+        "scrollHeight": 1993
+      },
+      "name": "programmatic-glossary-geometry",
+      "ordinaryAndFormulaErrorCount": 0,
+      "route": "/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/",
+      "state": "dialog-open",
+      "viewport": {
+        "height": 480,
+        "width": 320
+      }
+    }
+  ],
+  "schemaVersion": 1,
+  "screenshots": false
+}

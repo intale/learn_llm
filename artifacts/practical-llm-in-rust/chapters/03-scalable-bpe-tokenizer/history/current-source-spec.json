@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "run_id": "20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01",
+  "step_id": "implement-ch42-scalable-bpe-tokenizer",
+  "chapter_id": "42-scalable-bpe-tokenizer",
+  "scope": "Current historical source evidence only; no tokenizer payload, model, corpus, search, crawl, fallback or compatibility execution.",
+  "amendment": "Root-authorized current source refinement: retrieve the full accepted Sennrich2016 paper by its direct official PDF URL; preserve the original immutable HTML source record as history. Root further authorized extracting exact pinned encoder rawLines from the already retrieved GitHub embeddedData JSON; visible-main metadata remains separately identified and is not code evidence. No new request or fallback.",
+  "original_plan": {
+    "path": "curriculum/functional-laptop-llm-extension-plan.md",
+    "sha256": "81d445a07868e6d1958557b1b166dea0cbdfbe447948095edebe8f037f806ad3"
+  },
+  "runtime_image": "sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3",
+  "request_headers": {
+    "accept": "text/html,application/xhtml+xml,application/pdf,text/plain,application/json;q=0.9",
+    "accept_encoding": "identity,gzip,br",
+    "authorization": "absent",
+    "cookie": "absent",
+    "caller_headers": "forbidden"
+  },
+  "request_method": "GET",
+  "initial_requests_exact": 2,
+  "requests_per_source_exact": 1,
+  "retries_used": 0,
+  "per_source_download_bytes_max": 67108864,
+  "per_source_expanded_bytes_max": 268435456,
+  "per_chapter_download_bytes_max": 134217728,
+  "per_chapter_expanded_bytes_max": 536870912,
+  "redirects_max": 0,
+  "sources": [
+    {
+      "source_id": "SRC-DTH-TOK-01",
+      "title": "Neural Machine Translation of Rare Words with Subword Units",
+      "kind": "primary-paper",
+      "role_and_claim_limit_sha256": "94aa38a3fa8d9f85df722d1cd6306254bb4e0dbed112f441b378db77598358c9",
+      "canonical_citation_locator": "https://aclanthology.org/P16-1162/",
+      "request_url": "https://aclanthology.org/P16-1162.pdf",
+      "request_host": "aclanthology.org",
+      "request_path_and_query": "/P16-1162.pdf",
+      "method": "GET",
+      "allowed_final_hosts": [
+        "aclanthology.org"
+      ],
+      "allowed_redirect_edges": [],
+      "redirects_max": 0,
+      "accepted_status": [
+        200
+      ],
+      "accepted_media_types": [
+        "text/html",
+        "application/xhtml+xml",
+        "application/pdf",
+        "text/plain",
+        "application/json"
+      ],
+      "accepted_content_encodings": [
+        "identity",
+        "gzip",
+        "br"
+      ],
+      "request_bytes_max": 67108864,
+      "expanded_bytes_max": 268435456,
+      "retry": {
+        "runner": "scripts/retry-transient-network.sh",
+        "operation": "history-source-src-dth-tok-01",
+        "max_attempts": 3,
+        "request_identity_unchanged": true
+      },
+      "cache_key": "sha256(exact request URL + method + normalized request-header inventory + observed body SHA-256)",
+      "cache_path": ".build/history-source-cache/v1/sha256/<cache-key>/body",
+      "extraction": {
+        "method_by_media": {
+          "text/html": "standards-parser-visible-main-text-v1",
+          "application/xhtml+xml": "standards-parser-visible-main-text-v1",
+          "application/pdf": "pinned-pdf-text-and-page-map-v1",
+          "text/plain": "strict-UTF8-no-replacement-v1",
+          "application/json": "canonical-JSON-pointer-and-byte-span-v1"
+        },
+        "method_version": "functional-history-extract-v1",
+        "span_unit": "exact decoded UTF-8 byte offset plus page/JSON-pointer when applicable",
+        "verbatim_words_max": 25,
+        "excerpt_bytes_max": 4096,
+        "paraphrase_required_beyond_excerpt": true
+      },
+      "payload_authority": "source-evidence-only; model/artifact/corpus/browser/database payload bytes forbidden",
+      "original_request_url": "https://aclanthology.org/P16-1162/"
+    },
+    {
+      "source_id": "SRC-DTH-TOK-04",
+      "title": "OpenAI GPT-2 byte-level BPE encoder at commit e5c5054474f583d6d9499624649353995d63c70a",
+      "kind": "official-specification",
+      "role_and_claim_limit_sha256": "f40fa20ba88bbd1ec19b7512c8b2c9dc8400eea74049d48663efc2c9d9551251",
+      "canonical_citation_locator": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "request_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "request_host": "github.com",
+      "request_path_and_query": "/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "method": "GET",
+      "allowed_final_hosts": [
+        "github.com"
+      ],
+      "allowed_redirect_edges": [],
+      "redirects_max": 0,
+      "accepted_status": [
+        200
+      ],
+      "accepted_media_types": [
+        "text/html",
+        "application/xhtml+xml",
+        "application/pdf",
+        "text/plain",
+        "application/json"
+      ],
+      "accepted_content_encodings": [
+        "identity",
+        "gzip",
+        "br"
+      ],
+      "request_bytes_max": 67108864,
+      "expanded_bytes_max": 268435456,
+      "retry": {
+        "runner": "scripts/retry-transient-network.sh",
+        "operation": "history-source-src-dth-tok-04",
+        "max_attempts": 3,
+        "request_identity_unchanged": true
+      },
+      "cache_key": "sha256(exact request URL + method + normalized request-header inventory + observed body SHA-256)",
+      "cache_path": ".build/history-source-cache/v1/sha256/<cache-key>/body",
+      "extraction": {
+        "method_by_media": {
+          "text/html": "standards-parser-visible-main-text-v1",
+          "application/xhtml+xml": "standards-parser-visible-main-text-v1",
+          "application/pdf": "pinned-pdf-text-and-page-map-v1",
+          "text/plain": "strict-UTF8-no-replacement-v1",
+          "application/json": "canonical-JSON-pointer-and-byte-span-v1"
+        },
+        "method_version": "functional-history-extract-v1",
+        "span_unit": "exact decoded UTF-8 byte offset plus page/JSON-pointer when applicable",
+        "verbatim_words_max": 25,
+        "excerpt_bytes_max": 4096,
+        "paraphrase_required_beyond_excerpt": true
+      },
+      "payload_authority": "source-evidence-only; model/artifact/corpus/browser/database payload bytes forbidden",
+      "current_additional_extraction": {
+        "method": "pinned-github-embedded-source-json-v1",
+        "selector": "script[type=application/json][data-target=react-app.embeddedData]",
+        "pointer": "/payload/codeViewBlobLayoutRoute.StyledBlob/rawLines",
+        "commit": "e5c5054474f583d6d9499624649353995d63c70a",
+        "path": "src/encoder.py",
+        "lines": 117,
+        "source_bytes": 4242,
+        "source_sha256": "84caddd892377b74de8b61f1fdf2437de9dc025c2f3bc73a981edcb0605e4f9a",
+        "semantic_repair": "forbidden",
+        "new_requests": 0,
+        "identity_pointers": [
+          "/payload/codeViewLayoutRoute/path",
+          "/payload/codeViewLayoutRoute/refInfo/currentOid",
+          "/payload/codeViewBlobLayoutRoute/path",
+          "/payload/codeViewBlobLayoutRoute/refInfo/currentOid"
+        ]
+      }
+    }
+  ],
+  "transport_authority_spec_sha256": "f01182af74311145f8bbabe4aea1353cbdbccb7a9d3752b9dbf0cfac880be704",
+  "publication_scope": {
+    "raw_responses": "ignored-run-only",
+    "full_source_extracted_text": "ignored-run-only",
+    "paper_excerpt_words_max": 25,
+    "code_excerpt_words_max": 25,
+    "paraphrase_words_per_source_max": 200,
+    "canonical_evidence": "complete bounded transport/extraction metadata, exact source hashes and page/line locators, bounded excerpts and author observations; full replay requires official-source reacquisition"
+  },
+  "extraction_structure_note": "Current exact GitHub embeddedData uses literal dotted key codeViewBlobLayoutRoute.StyledBlob; original pointer-assumption failure retained; only same response read, no content repair."
+}

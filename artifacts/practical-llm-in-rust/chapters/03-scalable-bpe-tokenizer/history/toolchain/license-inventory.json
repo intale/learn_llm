@@ -1,0 +1,163 @@
+[
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/share/doc/libbrotli1/copyright",
+    "bytes": 1354,
+    "sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1",
+    "retained_path": "license-libbrotli1_amd64.txt"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/copyright",
+    "bytes": 25467,
+    "sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987",
+    "retained_path": "license-libc6_amd64.txt"
+  },
+  {
+    "package": "libdeflate0:amd64",
+    "path": "/usr/share/doc/libdeflate0/copyright",
+    "bytes": 1483,
+    "sha256": "06b1e73b344fa5ad4c24a79547dd787623f3d118d681d6c9bd3fdc10a7070381",
+    "retained_path": "license-libdeflate0_amd64.txt"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/share/doc/libexpat1/copyright",
+    "bytes": 1756,
+    "sha256": "60919fe1a156395ff14511bb6ff79756c50ade2fff59ac60c9bae1d8a7fe6292",
+    "retained_path": "license-libexpat1_amd64.txt"
+  },
+  {
+    "package": "libfontconfig1:amd64",
+    "path": "/usr/share/doc/libfontconfig1/copyright",
+    "bytes": 1301,
+    "sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db",
+    "retained_path": "license-libfontconfig1_amd64.txt"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/share/doc/libfreetype6/copyright",
+    "bytes": 25069,
+    "sha256": "70a7a0a06e6440777417f6875476cb712b03943010abed1c32297798c8cc8ed8",
+    "retained_path": "license-libfreetype6_amd64.txt"
+  },
+  {
+    "package": "libgcc-s1:amd64",
+    "path": "/usr/share/doc/libgcc-s1/copyright",
+    "bytes": 68194,
+    "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3",
+    "retained_path": "license-libgcc-s1_amd64.txt"
+  },
+  {
+    "package": "libjbig0:amd64",
+    "path": "/usr/share/doc/libjbig0/copyright",
+    "bytes": 1849,
+    "sha256": "89ab20c324a191652e94598f2144a65442faed4f14f77bbd10516130ee20f05a",
+    "retained_path": "license-libjbig0_amd64.txt"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/share/doc/libjpeg62-turbo/copyright",
+    "bytes": 38846,
+    "sha256": "3821184e23385bf2cdc01f56bd999b34036fc3aa03d5135d41680374eb81bf8a",
+    "retained_path": "license-libjpeg62-turbo_amd64.txt"
+  },
+  {
+    "package": "liblcms2-2:amd64",
+    "path": "/usr/share/doc/liblcms2-2/copyright",
+    "bytes": 5362,
+    "sha256": "420fd2c72204652c08a48548a0d1002edab3d9b180d3c416578c61f74092f460",
+    "retained_path": "license-liblcms2-2_amd64.txt"
+  },
+  {
+    "package": "liblerc4:amd64",
+    "path": "/usr/share/doc/liblerc4/copyright",
+    "bytes": 1242,
+    "sha256": "6c55caa8cb2c87c4f6fbe23c21e887a506455d81b5a8e98a7a62e6c81af39daf",
+    "retained_path": "license-liblerc4_amd64.txt"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/copyright",
+    "bytes": 15465,
+    "sha256": "a2dc8fac0f496e1c58aff67018cf0c6b88336316afa5642f9335b71642e28aa8",
+    "retained_path": "license-liblzma5_amd64.txt"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/share/doc/libnspr4/copyright",
+    "bytes": 331,
+    "sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452",
+    "retained_path": "license-libnspr4_amd64.txt"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/share/doc/libnss3/copyright",
+    "bytes": 4058,
+    "sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408",
+    "retained_path": "license-libnss3_amd64.txt"
+  },
+  {
+    "package": "libopenjp2-7:amd64",
+    "path": "/usr/share/doc/libopenjp2-7/copyright",
+    "bytes": 42620,
+    "sha256": "eee37e01db9d8eabac77a49dbacb9ea8962e5cfc98a35b87ee02cc81eef94f40",
+    "retained_path": "license-libopenjp2-7_amd64.txt"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/copyright",
+    "bytes": 12976,
+    "sha256": "68bd3997355bc44ccb97ff5e2bb146360e762c7d9c721945a4fabf77d1349e4a",
+    "retained_path": "license-libpng16-16_amd64.txt"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/copyright",
+    "bytes": 12722,
+    "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63",
+    "retained_path": "license-libpoppler126_amd64.txt"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/share/doc/libstdc++6/copyright",
+    "bytes": 68194,
+    "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3",
+    "retained_path": "license-libstdc++6_amd64.txt"
+  },
+  {
+    "package": "libtiff6:amd64",
+    "path": "/usr/share/doc/libtiff6/copyright",
+    "bytes": 1935,
+    "sha256": "d73e31b03a0d7a515851601c19fee5792c7db03a312efacae146ddf9c91f86f1",
+    "retained_path": "license-libtiff6_amd64.txt"
+  },
+  {
+    "package": "libwebp7:amd64",
+    "path": "/usr/share/doc/libwebp7/copyright",
+    "bytes": 2027,
+    "sha256": "01eb328708a9454061dd13931b19135e1c2c6251a7e6a6d0efc4b9bc436109c7",
+    "retained_path": "license-libwebp7_amd64.txt"
+  },
+  {
+    "package": "libzstd1:amd64",
+    "path": "/usr/share/doc/libzstd1/copyright",
+    "bytes": 5389,
+    "sha256": "35e85e8e9bbb71492c5f5dddf39ed65b68775a02ad8d710c25d097b497f06c49",
+    "retained_path": "license-libzstd1_amd64.txt"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/doc/poppler-utils/copyright",
+    "bytes": 12722,
+    "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63",
+    "retained_path": "license-poppler-utils.txt"
+  },
+  {
+    "package": "zlib1g:amd64",
+    "path": "/usr/share/doc/zlib1g/copyright",
+    "bytes": 2927,
+    "sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6",
+    "retained_path": "license-zlib1g_amd64.txt"
+  }
+]

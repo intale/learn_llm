@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "scope": "fixture",
+  "split": "train",
+  "provenance": "The course author supplied a separate weighted-byte fixture to illustrate one letter-digit boundary.",
+  "input_encoding": "weighted-bytes-v1",
+  "documents": [{"bytes_hex": "61316131", "weight": 1}],
+  "admission": "Bounded authored contrast only; this is not pretrained GPT-2 data, an imported tokenizer or full-corpus evidence."
+}

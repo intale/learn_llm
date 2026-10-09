@@ -1,0 +1,884 @@
+{
+  "boundedCopies": [
+    {
+      "currentCopy": {
+        "bytes": 4249,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/author-observations.json",
+        "sha256": "82758f8d84fa0385f269a85b9925ea2055c4f2ffa561e8452a8b605a569a37fa"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 4249,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/author-observations.json",
+        "sha256": "82758f8d84fa0385f269a85b9925ea2055c4f2ffa561e8452a8b605a569a37fa"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 7976,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/current-source-spec.json",
+        "sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 7976,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/current-source-spec.json",
+        "sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 514,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/initial-curl-header-json-assumption-failure.txt",
+        "sha256": "4018f95166f1abd7ba26226788174dc17247e6fb081a1f89c3a1cfaf37ee2ba0"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 514,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/initial-curl-header-json-assumption-failure.txt",
+        "sha256": "4018f95166f1abd7ba26226788174dc17247e6fb081a1f89c3a1cfaf37ee2ba0"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 638,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/initial-github-pointer-assumption-failure.txt",
+        "sha256": "627d20843da0d10183ffb67e344a8f68f13eb0a23e7bc74cd1efa6f6843eed40"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 638,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/initial-github-pointer-assumption-failure.txt",
+        "sha256": "627d20843da0d10183ffb67e344a8f68f13eb0a23e7bc74cd1efa6f6843eed40"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 562,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/initial-output-permission-failure.txt",
+        "sha256": "0db7a83a56539cb4c882431694b80fc17159e661503511116aed1130668dc7f2"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 562,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/initial-output-permission-failure.txt",
+        "sha256": "0db7a83a56539cb4c882431694b80fc17159e661503511116aed1130668dc7f2"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 854,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/diagnostics/original-base-provenance-mismatch.txt",
+        "sha256": "0ee0acf96b41053e66ad13654c0420aabc260e52cb34f50b202989e5f5105f16"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 854,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/original-base-provenance-mismatch.txt",
+        "sha256": "0ee0acf96b41053e66ad13654c0420aabc260e52cb34f50b202989e5f5105f16"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 80,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/curl-executable.sha256",
+        "sha256": "86d6712a122a4ea8a477660248c1cade34d514251f3d40d857e573e8ba578c39"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 80,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/curl-executable.sha256",
+        "sha256": "86d6712a122a4ea8a477660248c1cade34d514251f3d40d857e573e8ba578c39"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 579,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/curl-version.txt",
+        "sha256": "f06be6c70b25ae737afebd2e19407c0b4f16e567bff2fb91f3f705fc38369f1d"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 579,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/curl-version.txt",
+        "sha256": "f06be6c70b25ae737afebd2e19407c0b4f16e567bff2fb91f3f705fc38369f1d"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 4086,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/extract-github-code-02.mjs",
+        "sha256": "648da23fbdb791ad47640b936b43967f9c5cce0f9912ed9793bda31f65aadae7"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 4086,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/extract-github-code-02.mjs",
+        "sha256": "648da23fbdb791ad47640b936b43967f9c5cce0f9912ed9793bda31f65aadae7"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 5774,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/extract-sources-02.mjs",
+        "sha256": "dd47613b0926baa79172ca1525f498fa3ff125854c8e7d5735f11d66a698ef4f"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 5774,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/extract-sources-02.mjs",
+        "sha256": "dd47613b0926baa79172ca1525f498fa3ff125854c8e7d5735f11d66a698ef4f"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1753,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/parser.mjs",
+        "sha256": "121aeac963a8a5a05069afb8649a3f7886211ae684f25507891425f531b2d66a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1753,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/parser.mjs",
+        "sha256": "121aeac963a8a5a05069afb8649a3f7886211ae684f25507891425f531b2d66a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 8266,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/toolchain-adapter.mjs",
+        "sha256": "bffedd27d9101c825f0b430a8bcc6109ac8f159df9ed73d7b72371d8891adff7"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 8266,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/toolchain-adapter.mjs",
+        "sha256": "bffedd27d9101c825f0b430a8bcc6109ac8f159df9ed73d7b72371d8891adff7"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1691,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/transport-01.sh",
+        "sha256": "e1706f51ca46ac658cf9953b299abd1d000b285faec2852b33ffd824a40c60bc"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1691,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/transport-01.sh",
+        "sha256": "e1706f51ca46ac658cf9953b299abd1d000b285faec2852b33ffd824a40c60bc"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 3947,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/machinery/verify-archive-installed-02.mjs",
+        "sha256": "4d068fd973cb5f9475894773416436578075de5c41f3a20a8ffe5c0095e5e6d2"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 3947,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/verify-archive-installed-02.mjs",
+        "sha256": "4d068fd973cb5f9475894773416436578075de5c41f3a20a8ffe5c0095e5e6d2"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 2772,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/page-map.json",
+        "sha256": "fab7e37bbaf6e91085c2a23553b0484e9a855ceb25f70abf384f90f5a4384803"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 2772,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/page-map.json",
+        "sha256": "fab7e37bbaf6e91085c2a23553b0484e9a855ceb25f70abf384f90f5a4384803"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 671,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/pdfinfo.txt",
+        "sha256": "8d9c6bbf92de0cc34d3db0056ad7172027f152d6543d0a33ab94be578f0f2b76"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 671,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/pdfinfo.txt",
+        "sha256": "8d9c6bbf92de0cc34d3db0056ad7172027f152d6543d0a33ab94be578f0f2b76"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 5371,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/source-observation.json",
+        "sha256": "a79d9c69cd81583e471afdeccbe6ae785f03114c408fe5d2dc3bc0fe44fa191f"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 5371,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/source-observation.json",
+        "sha256": "a79d9c69cd81583e471afdeccbe6ae785f03114c408fe5d2dc3bc0fe44fa191f"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1329,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/code-extraction-record.json",
+        "sha256": "7344ce7fa9cd3ceb8b2793a75d1e89c088378944592b2d529fb0949f61e0a4fa"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1329,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/code-extraction-record.json",
+        "sha256": "7344ce7fa9cd3ceb8b2793a75d1e89c088378944592b2d529fb0949f61e0a4fa"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 12493,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/line-map.json",
+        "sha256": "47321af2fe9033898b1a987258bafbd4edf418f387f217535b52084a80aa41fe"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 12493,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/line-map.json",
+        "sha256": "47321af2fe9033898b1a987258bafbd4edf418f387f217535b52084a80aa41fe"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 7744,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/source-observation.json",
+        "sha256": "0fe7e6b61a9e2884c44e1cafed73dd6c949cb0664658184d08ef0c7871d4de48"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 7744,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/source-observation.json",
+        "sha256": "0fe7e6b61a9e2884c44e1cafed73dd6c949cb0664658184d08ef0c7871d4de48"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 6665,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/archive-installed-validation.json",
+        "sha256": "32d8a5872cc6f6520761787b367ddf0eb881f2a04d5d545b49d7a7b2d51469fc"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 6665,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/archive-installed-validation.json",
+        "sha256": "32d8a5872cc6f6520761787b367ddf0eb881f2a04d5d545b49d7a7b2d51469fc"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 4956,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/base-installed-packages.tsv",
+        "sha256": "9eaaeb47b9fc015768229458a819ef919b8490587da9343cc606d49ec5cb0008"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 4956,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/base-installed-packages.tsv",
+        "sha256": "9eaaeb47b9fc015768229458a819ef919b8490587da9343cc606d49ec5cb0008"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 88860,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/installed-file-inventory.json",
+        "sha256": "4f5f713770f4e208d4f99541e027beb6831741601d431c02b524efbcd665ec61"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 88860,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/installed-file-inventory.json",
+        "sha256": "4f5f713770f4e208d4f99541e027beb6831741601d431c02b524efbcd665ec61"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 44064,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/installed-packages.tsv",
+        "sha256": "7ab248dbb28d74487030ebfe155e6b3cd6c7809ba6e27024dbe1a22d456dd29a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 44064,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/installed-packages.tsv",
+        "sha256": "7ab248dbb28d74487030ebfe155e6b3cd6c7809ba6e27024dbe1a22d456dd29a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1260,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-entities.txt",
+        "sha256": "cb992345949ccd6e8394b2cd6c465f7b897c864f845937dbf64e8997f389e164"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1260,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-entities.txt",
+        "sha256": "cb992345949ccd6e8394b2cd6c465f7b897c864f845937dbf64e8997f389e164"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 5683,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-inventory.json",
+        "sha256": "54185c08faa5682f3f195e081cb25cc4ebf924bf00a7cd3710b3749a24b976b2"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 5683,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-inventory.json",
+        "sha256": "54185c08faa5682f3f195e081cb25cc4ebf924bf00a7cd3710b3749a24b976b2"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1354,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libbrotli1_amd64.txt",
+        "sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1354,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libbrotli1_amd64.txt",
+        "sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 25467,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libc6_amd64.txt",
+        "sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 25467,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libc6_amd64.txt",
+        "sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1483,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libdeflate0_amd64.txt",
+        "sha256": "06b1e73b344fa5ad4c24a79547dd787623f3d118d681d6c9bd3fdc10a7070381"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1483,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libdeflate0_amd64.txt",
+        "sha256": "06b1e73b344fa5ad4c24a79547dd787623f3d118d681d6c9bd3fdc10a7070381"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1756,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libexpat1_amd64.txt",
+        "sha256": "60919fe1a156395ff14511bb6ff79756c50ade2fff59ac60c9bae1d8a7fe6292"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1756,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libexpat1_amd64.txt",
+        "sha256": "60919fe1a156395ff14511bb6ff79756c50ade2fff59ac60c9bae1d8a7fe6292"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1301,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libfontconfig1_amd64.txt",
+        "sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1301,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libfontconfig1_amd64.txt",
+        "sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 25069,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libfreetype6_amd64.txt",
+        "sha256": "70a7a0a06e6440777417f6875476cb712b03943010abed1c32297798c8cc8ed8"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 25069,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libfreetype6_amd64.txt",
+        "sha256": "70a7a0a06e6440777417f6875476cb712b03943010abed1c32297798c8cc8ed8"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 68194,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libgcc-s1_amd64.txt",
+        "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 68194,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libgcc-s1_amd64.txt",
+        "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1849,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libjbig0_amd64.txt",
+        "sha256": "89ab20c324a191652e94598f2144a65442faed4f14f77bbd10516130ee20f05a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1849,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libjbig0_amd64.txt",
+        "sha256": "89ab20c324a191652e94598f2144a65442faed4f14f77bbd10516130ee20f05a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 38846,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libjpeg62-turbo_amd64.txt",
+        "sha256": "3821184e23385bf2cdc01f56bd999b34036fc3aa03d5135d41680374eb81bf8a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 38846,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libjpeg62-turbo_amd64.txt",
+        "sha256": "3821184e23385bf2cdc01f56bd999b34036fc3aa03d5135d41680374eb81bf8a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 5362,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-liblcms2-2_amd64.txt",
+        "sha256": "420fd2c72204652c08a48548a0d1002edab3d9b180d3c416578c61f74092f460"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 5362,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-liblcms2-2_amd64.txt",
+        "sha256": "420fd2c72204652c08a48548a0d1002edab3d9b180d3c416578c61f74092f460"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1242,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-liblerc4_amd64.txt",
+        "sha256": "6c55caa8cb2c87c4f6fbe23c21e887a506455d81b5a8e98a7a62e6c81af39daf"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1242,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-liblerc4_amd64.txt",
+        "sha256": "6c55caa8cb2c87c4f6fbe23c21e887a506455d81b5a8e98a7a62e6c81af39daf"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 15465,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-liblzma5_amd64.txt",
+        "sha256": "a2dc8fac0f496e1c58aff67018cf0c6b88336316afa5642f9335b71642e28aa8"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 15465,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-liblzma5_amd64.txt",
+        "sha256": "a2dc8fac0f496e1c58aff67018cf0c6b88336316afa5642f9335b71642e28aa8"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 331,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libnspr4_amd64.txt",
+        "sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 331,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libnspr4_amd64.txt",
+        "sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 4058,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libnss3_amd64.txt",
+        "sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 4058,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libnss3_amd64.txt",
+        "sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 42620,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libopenjp2-7_amd64.txt",
+        "sha256": "eee37e01db9d8eabac77a49dbacb9ea8962e5cfc98a35b87ee02cc81eef94f40"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 42620,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libopenjp2-7_amd64.txt",
+        "sha256": "eee37e01db9d8eabac77a49dbacb9ea8962e5cfc98a35b87ee02cc81eef94f40"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 12976,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libpng16-16_amd64.txt",
+        "sha256": "68bd3997355bc44ccb97ff5e2bb146360e762c7d9c721945a4fabf77d1349e4a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 12976,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libpng16-16_amd64.txt",
+        "sha256": "68bd3997355bc44ccb97ff5e2bb146360e762c7d9c721945a4fabf77d1349e4a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 12722,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libpoppler126_amd64.txt",
+        "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 12722,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libpoppler126_amd64.txt",
+        "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 68194,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libstdc++6_amd64.txt",
+        "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 68194,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libstdc++6_amd64.txt",
+        "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1935,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libtiff6_amd64.txt",
+        "sha256": "d73e31b03a0d7a515851601c19fee5792c7db03a312efacae146ddf9c91f86f1"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1935,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libtiff6_amd64.txt",
+        "sha256": "d73e31b03a0d7a515851601c19fee5792c7db03a312efacae146ddf9c91f86f1"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 2027,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libwebp7_amd64.txt",
+        "sha256": "01eb328708a9454061dd13931b19135e1c2c6251a7e6a6d0efc4b9bc436109c7"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 2027,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libwebp7_amd64.txt",
+        "sha256": "01eb328708a9454061dd13931b19135e1c2c6251a7e6a6d0efc4b9bc436109c7"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 5389,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-libzstd1_amd64.txt",
+        "sha256": "35e85e8e9bbb71492c5f5dddf39ed65b68775a02ad8d710c25d097b497f06c49"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 5389,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libzstd1_amd64.txt",
+        "sha256": "35e85e8e9bbb71492c5f5dddf39ed65b68775a02ad8d710c25d097b497f06c49"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1109,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-parse5.txt",
+        "sha256": "8c535800331e1e4439835555b3f9edc7fe9dee2fab0d8bbbd5a982e8b8343d4d"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1109,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-parse5.txt",
+        "sha256": "8c535800331e1e4439835555b3f9edc7fe9dee2fab0d8bbbd5a982e8b8343d4d"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 12722,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-poppler-utils.txt",
+        "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 12722,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-poppler-utils.txt",
+        "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 2927,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/license-zlib1g_amd64.txt",
+        "sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 2927,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-zlib1g_amd64.txt",
+        "sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 21299,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/linked-libraries.json",
+        "sha256": "3bed580d6d3a9dbae80f33542e3fa7a5252f454d1c4e50b76c646b336130a970"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 21299,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/linked-libraries.json",
+        "sha256": "3bed580d6d3a9dbae80f33542e3fa7a5252f454d1c4e50b76c646b336130a970"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 595,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/network-none-self-test.json",
+        "sha256": "e798d623705f1bf5d06665d41efd438971418eb40765cc919bd169df39a75100"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 595,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/network-none-self-test.json",
+        "sha256": "e798d623705f1bf5d06665d41efd438971418eb40765cc919bd169df39a75100"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 32730,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/npm-parser-graph.json",
+        "sha256": "a55ae936fc15af7a716d7deede96793542b97dfb5667a5fccc7d6b6601e65085"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 32730,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/npm-parser-graph.json",
+        "sha256": "a55ae936fc15af7a716d7deede96793542b97dfb5667a5fccc7d6b6601e65085"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 1263,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/observed-toolchain.json",
+        "sha256": "0f30a9a60415cf5b8e109f4dd262ea332de24ca1e368be3248fec6bfe39a226a"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 1263,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/observed-toolchain.json",
+        "sha256": "0f30a9a60415cf5b8e109f4dd262ea332de24ca1e368be3248fec6bfe39a226a"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 2190,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/pdfinfo-ldd.txt",
+        "sha256": "6583e03ef4617ba81f74a1ff60caabf6555e75cca1c9c0a8c007378f87cf1d7b"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 2190,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/pdfinfo-ldd.txt",
+        "sha256": "6583e03ef4617ba81f74a1ff60caabf6555e75cca1c9c0a8c007378f87cf1d7b"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 2190,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/pdftotext-ldd.txt",
+        "sha256": "6084ae01b3de417e537ce675b1f0d708d7f4f33a8ee718ce39e1dfdda85df220"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 2190,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/pdftotext-ldd.txt",
+        "sha256": "6084ae01b3de417e537ce675b1f0d708d7f4f33a8ee718ce39e1dfdda85df220"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 6111,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/poppler-package-graph.json",
+        "sha256": "d83d35c2f48788f4f0e35139f44d61368eca9e7c6d103b349b9590e98fc035ec"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 6111,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/poppler-package-graph.json",
+        "sha256": "d83d35c2f48788f4f0e35139f44d61368eca9e7c6d103b349b9590e98fc035ec"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 12,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-page-1.txt",
+        "sha256": "a9e972315e898d81dcc289f15ac427ac54323bfd5c70b7ce266eabcea0a0b288"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 12,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-page-1.txt",
+        "sha256": "a9e972315e898d81dcc289f15ac427ac54323bfd5c70b7ce266eabcea0a0b288"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 13,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-page-2.txt",
+        "sha256": "31f0246a4de0744b1faa5486b542d2d82a6e840438eca32648efbc447c35e9cb"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 13,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-page-2.txt",
+        "sha256": "31f0246a4de0744b1faa5486b542d2d82a6e840438eca32648efbc447c35e9cb"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 299,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-pdfinfo.txt",
+        "sha256": "636bd49725c14ce86977a22f7adf2ee1e221c30d8e212ce06ad2ea0c0909d630"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 299,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-pdfinfo.txt",
+        "sha256": "636bd49725c14ce86977a22f7adf2ee1e221c30d8e212ce06ad2ea0c0909d630"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 849,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/self-test-two-pages.pdf",
+        "sha256": "f52c122add590ca4761c86ac23ce9364222ed828e6d8372b0085a0d629836a71"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 849,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-two-pages.pdf",
+        "sha256": "f52c122add590ca4761c86ac23ce9364222ed828e6d8372b0085a0d629836a71"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 308899,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/site-package-lock.json",
+        "sha256": "e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 308899,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/site-package-lock.json",
+        "sha256": "e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 212340,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/toolchain/workspace-debian-archive-evidence.json",
+        "sha256": "1a2590a26999c71ddbf82968f41a40ae609d26b3146e35e89f605566cc37f9a7"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 212340,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/workspace-debian-archive-evidence.json",
+        "sha256": "1a2590a26999c71ddbf82968f41a40ae609d26b3146e35e89f605566cc37f9a7"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 6133,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history/transport-authority-spec.json",
+        "sha256": "f01182af74311145f8bbabe4aea1353cbdbccb7a9d3752b9dbf0cfac880be704"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 6133,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/transport-authority-spec.json",
+        "sha256": "f01182af74311145f8bbabe4aea1353cbdbccb7a9d3752b9dbf0cfac880be704"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 31675,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-source-evidence-receipt.json",
+        "sha256": "1564f9acf0b14e15d0a8ac7dbc60a2422f4e0f36efa155d67616aa72a2fc2a5e"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 31675,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history-source-evidence-receipt.json",
+        "sha256": "1564f9acf0b14e15d0a8ac7dbc60a2422f4e0f36efa155d67616aa72a2fc2a5e"
+      }
+    },
+    {
+      "currentCopy": {
+        "bytes": 6843,
+        "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-toolchain-receipt.json",
+        "sha256": "85d05474b70b92cb69491738fa5d04dcb148110b192fd3b2adb07ad1602afd92"
+      },
+      "exactBytes": true,
+      "origin": {
+        "bytes": 6843,
+        "path": ".build/runs/20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01/publish/artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history-toolchain-receipt.json",
+        "sha256": "85d05474b70b92cb69491738fa5d04dcb148110b192fd3b2adb07ad1602afd92"
+      }
+    }
+  ],
+  "currentChapter": "03-scalable-bpe-tokenizer",
+  "currentCourse": "practical-llm-in-rust",
+  "fullBodies": "Original PDF/full text/HTML/encoder body stay in ignored historical run; not copied here.",
+  "languageReviewOrPublicationVerdict": null,
+  "newExtractionOrToolchainExecution": false,
+  "newSourceRequests": 0,
+  "originalChapter": "42-scalable-bpe-tokenizer",
+  "originalFoundationProvenance": "Original base-inventory mismatch remains explicit and unadmitted; retained current-only graph proof is separate.",
+  "originalIdsAndReceiptPayloadsUnchanged": true,
+  "originalRun": "20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01",
+  "originalRunStatus": "interrupted historical attempt; not resumed or completed",
+  "schemaVersion": 1,
+  "sourceReceipt": {
+    "bytes": 31675,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-source-evidence-receipt.json",
+    "sha256": "1564f9acf0b14e15d0a8ac7dbc60a2422f4e0f36efa155d67616aa72a2fc2a5e"
+  },
+  "toolchainReceipt": {
+    "bytes": 6843,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/history-toolchain-receipt.json",
+    "sha256": "85d05474b70b92cb69491738fa5d04dcb148110b192fd3b2adb07ad1602afd92"
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "efficiency": {
+    "content_tokens": 4,
+    "control_tokens": 4,
+    "input_bytes": 8,
+    "training_documents": 2
+  },
+  "gpt2_policy_contrast": {
+    "corpus_receipt_sha256": "60004d6d574ca964b4d36aadee1416add6be90eb39a48fb1e684277ed0d5a956",
+    "course_raw_bytes": {
+      "content_tokens": [
+        258
+      ],
+      "decoded": "a1",
+      "token_byte_fragments_hex": [
+        "6131"
+      ]
+    },
+    "explanation": "The published pretokenizer separates the letter from the digit before BPE; the supplied a-plus-1 merge cannot cross that boundary.",
+    "gpt2_policy_demo": {
+      "content_tokens": [
+        64,
+        16
+      ],
+      "decoded": "a1",
+      "pretokens": [
+        "a",
+        "1"
+      ],
+      "token_byte_fragments_hex": [
+        "61",
+        "31"
+      ]
+    },
+    "input": "a1",
+    "proposed_merge_bytes": [
+      "61",
+      "31"
+    ],
+    "scope": "published GPT-2 byte mapping and pretokenization with the course rank engine and a tiny illustrative vocabulary; IDs are not pretrained GPT-2 IDs",
+    "training_documents": [
+      {
+        "bytes_hex": "61316131",
+        "weight": 1
+      }
+    ]
+  },
+  "heldout": {
+    "content_tokens": [
+      259,
+      259
+    ],
+    "decoded": "acac",
+    "document_tokens": [
+      0,
+      259,
+      259,
+      1
+    ],
+    "text": "acac"
+  },
+  "layout": {
+    "bos": 0,
+    "bytes": [
+      2,
+      257
+    ],
+    "eos": 1,
+    "first_merge": 258,
+    "pad": null,
+    "version": 1
+  },
+  "payloads": {
+    "incremental_sha256": "8b1534b8711b1b55c97466fcdd94c6059395acf553e25ba66a6e4911604014b9",
+    "incremental_utf8": "{\"counters\":{\"content_tokens\":4,\"control_tokens\":4,\"input_bytes\":8,\"training_documents\":2},\"layout_version\":1,\"merges\":[{\"candidate_count\":3,\"left\":99,\"rank\":0,\"replacements\":3,\"right\":100,\"token_id\":258},{\"candidate_count\":1,\"left\":99,\"rank\":1,\"replacements\":1,\"right\":101,\"token_id\":259}],\"policy\":{\"exact_merge_count\":true,\"merge_count\":2,\"normalization\":\"none\",\"pretokenization\":\"raw-bytes-only\",\"tie_break\":\"count-descending-pair-ascending\"},\"schema_version\":1,\"trainer_semantics\":\"overlapping-count-leftmost-replace-v1\",\"training\":{\"corpus_receipt_sha256\":\"7d30eb59c71b31a7e60e3b121f6fb69567d32c182964d637264abbf425ed6948\",\"input_encoding\":\"prepared-jsonl\",\"input_sha256\":\"d72804e22c9be2b8f8f51bf235040265f967308f3d62e77096b35d78f6628c6e\",\"scope\":\"fixture\",\"split\":\"train\"}}\n",
+    "producer_receipts": "separate from canonical tokenizer payload",
+    "scalar_sha256": "8b1534b8711b1b55c97466fcdd94c6059395acf553e25ba66a6e4911604014b9",
+    "scalar_utf8": "{\"counters\":{\"content_tokens\":4,\"control_tokens\":4,\"input_bytes\":8,\"training_documents\":2},\"layout_version\":1,\"merges\":[{\"candidate_count\":3,\"left\":99,\"rank\":0,\"replacements\":3,\"right\":100,\"token_id\":258},{\"candidate_count\":1,\"left\":99,\"rank\":1,\"replacements\":1,\"right\":101,\"token_id\":259}],\"policy\":{\"exact_merge_count\":true,\"merge_count\":2,\"normalization\":\"none\",\"pretokenization\":\"raw-bytes-only\",\"tie_break\":\"count-descending-pair-ascending\"},\"schema_version\":1,\"trainer_semantics\":\"overlapping-count-leftmost-replace-v1\",\"training\":{\"corpus_receipt_sha256\":\"7d30eb59c71b31a7e60e3b121f6fb69567d32c182964d637264abbf425ed6948\",\"input_encoding\":\"prepared-jsonl\",\"input_sha256\":\"d72804e22c9be2b8f8f51bf235040265f967308f3d62e77096b35d78f6628c6e\",\"scope\":\"fixture\",\"split\":\"train\"}}\n"
+  },
+  "refusals": {
+    "exact_merge_exhaustion": "training exhausted pairs before the exact merge count",
+    "interior_control": "document control token 0 is not allowed at position 2"
+  },
+  "rounds": [
+    {
+      "counts": [
+        {
+          "count": 3,
+          "left": 99,
+          "right": 100
+        },
+        {
+          "count": 1,
+          "left": 99,
+          "right": 101
+        },
+        {
+          "count": 2,
+          "left": 100,
+          "right": 99
+        }
+      ],
+      "rule": {
+        "candidate_count": 3,
+        "left": 99,
+        "rank": 0,
+        "replacements": 3,
+        "right": 100,
+        "token_id": 258
+      },
+      "sequences": [
+        [
+          258,
+          258
+        ],
+        [
+          258,
+          99,
+          101
+        ]
+      ]
+    },
+    {
+      "counts": [
+        {
+          "count": 1,
+          "left": 99,
+          "right": 101
+        },
+        {
+          "count": 1,
+          "left": 258,
+          "right": 99
+        },
+        {
+          "count": 1,
+          "left": 258,
+          "right": 258
+        }
+      ],
+      "rule": {
+        "candidate_count": 1,
+        "left": 99,
+        "rank": 1,
+        "replacements": 1,
+        "right": 101,
+        "token_id": 259
+      },
+      "sequences": [
+        [
+          258,
+          258
+        ],
+        [
+          258,
+          259
+        ]
+      ]
+    }
+  ],
+  "scope": "bounded-course-fixtures; no full-corpus performance result",
+  "training_document_tokens": [
+    [
+      0,
+      258,
+      258,
+      1
+    ],
+    [
+      0,
+      258,
+      259,
+      1
+    ]
+  ],
+  "training_documents": [
+    {
+      "id": "train-a",
+      "text": "abab"
+    },
+    {
+      "id": "train-b",
+      "text": "abac"
+    }
+  ],
+  "working_representation": {
+    "local_edge_updates": 18,
+    "peak_heap_entries": 11,
+    "peak_nodes": 8,
+    "peak_pair_types": 4,
+    "queue_rebuilds": 0
+  }
+}

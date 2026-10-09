@@ -1,0 +1,34 @@
+{
+  "boundaryDisplayProvenance": "The complete historical-policy display is retained in the observed stdout; no predicted foreign-tokenizer output or compatibility verdict is checked.",
+  "consumer": "Practical Chapter3 bounded course fixtures",
+  "executedStdout": {
+    "bytes": 5481,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/stdout.txt",
+    "sha256": "7487c46bbcb12287e850b946cb09c25d7ac57d5fd4e1745c07a7edcfb819e38c"
+  },
+  "historicalOriginFieldsUnchanged": true,
+  "ownPayload": {
+    "bytes": 781,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/payloads/scalar-tokenizer.json",
+    "sha256": "8b1534b8711b1b55c97466fcdd94c6059395acf553e25ba66a6e4911604014b9"
+  },
+  "retainedInputs": [
+    {
+      "bytes": 94,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/train.jsonl",
+      "sha256": "d72804e22c9be2b8f8f51bf235040265f967308f3d62e77096b35d78f6628c6e"
+    },
+    {
+      "bytes": 512,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/corpus-receipt.json",
+      "sha256": "7d30eb59c71b31a7e60e3b121f6fb69567d32c182964d637264abbf425ed6948"
+    },
+    {
+      "bytes": 418,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/rust/demos/practical-ch03-scalable-bpe-tokenizer/fixtures/boundary-corpus-receipt.json",
+      "sha256": "60004d6d574ca964b4d36aadee1416add6be90eb39a48fb1e684277ed0d5a956"
+    }
+  ],
+  "schemaVersion": 1,
+  "scope": "fixture; no full-data acceptance"
+}

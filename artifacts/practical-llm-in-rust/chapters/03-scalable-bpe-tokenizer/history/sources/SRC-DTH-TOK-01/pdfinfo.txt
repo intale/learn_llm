@@ -1,0 +1,22 @@
+Title:           Neural Machine Translation of Rare Words with Subword Units
+Subject:         P16-1 2016
+Keywords:        
+Author:          Rico Sennrich ; Barry Haddow ; Alexandra Birch
+Creator:         LaTeX with hyperref package
+Producer:        pdfTeX-1.40.3
+CreationDate:    Thu Jul 21 02:45:13 2016 UTC
+ModDate:         Thu Jul 21 02:45:13 2016 UTC
+Custom Metadata: yes
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           11
+Encrypted:       no
+Page size:       595.276 x 841.89 pts (A4)
+Page rot:        0
+File size:       332371 bytes
+Optimized:       no
+PDF version:     1.4

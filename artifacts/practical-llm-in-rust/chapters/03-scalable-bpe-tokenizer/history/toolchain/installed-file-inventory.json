@@ -1,0 +1,2696 @@
+[
+  {
+    "package": "libc6:amd64",
+    "path": "/etc/ld.so.conf.d/x86_64-linux-gnu.conf",
+    "bytes": 100,
+    "sha256": "f03e4740e6922b4f4a1181cd696b52f62f9f10d003740a8940f7121795c59c98"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "bytes": 210904,
+    "sha256": "7288c75488697bad29619f7ad123b8e467744f500369689d97de13197d282e87"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libanl.so.1",
+    "bytes": 14480,
+    "sha256": "86a3ab1d183cff574b9bb877cb8f616be62f3d6634b95df2c49ad26e2e779878"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libBrokenLocale.so.1",
+    "bytes": 14640,
+    "sha256": "cb615a891baff58778576618a5922ae4c12aaee1b1aa64c5a040896169d43e6e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libc_malloc_debug.so.0",
+    "bytes": 50200,
+    "sha256": "bd20ef95b1d4ca64e86faf7a679e228c49f430600911639ea0f9c26787a0514b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libc.so.6",
+    "bytes": 1922136,
+    "sha256": "666bb96697d92290e2172a8403040f9e3ebdd06aa4d4769080649c92201a9aad"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libdl.so.2",
+    "bytes": 14480,
+    "sha256": "d71263682766154c159a63504fec543e3ea64a932e5f30d5f50758fab0405fa2"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/lib/x86_64-linux-gnu/libexpat.so.1",
+    "bytes": 174176,
+    "sha256": "5284992cab1e026b8fc254576c89e7fcc37bcf43d5b6dc66a9fb1fb1cd400f88"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/lib/x86_64-linux-gnu/libexpat.so.1.8.10",
+    "bytes": 174176,
+    "sha256": "5284992cab1e026b8fc254576c89e7fcc37bcf43d5b6dc66a9fb1fb1cd400f88"
+  },
+  {
+    "package": "libgcc-s1:amd64",
+    "path": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "bytes": 125312,
+    "sha256": "8b7e66a8f391da9240ea76f9a7863fc1beeca38eaf308ab509677ef19d3aaad0"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/lib/x86_64-linux-gnu/liblzma.so.5",
+    "bytes": 190456,
+    "sha256": "ab16801d2741fd99932c08718f0c0411a778bd863192eb5a054de358e2a82849"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/lib/x86_64-linux-gnu/liblzma.so.5.4.1",
+    "bytes": 190456,
+    "sha256": "ab16801d2741fd99932c08718f0c0411a778bd863192eb5a054de358e2a82849"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libm.so.6",
+    "bytes": 907784,
+    "sha256": "958fd4988943ab6713d04d4c7de8e468e358c5671db2acf9a7b025b465d10910"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libmemusage.so",
+    "bytes": 18880,
+    "sha256": "7794e386b7d9b458b92e4d9b181ac3cb38d125db5ba810911b99f605abe53b08"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libmvec.so.1",
+    "bytes": 1019408,
+    "sha256": "2fcb54a261ecdd8282a676ee9cb50743d3ba12e36a7d22624295393f39786987"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libnsl.so.1",
+    "bytes": 93248,
+    "sha256": "71bc2a3220a8ee8db9c0a4f308f84807711017d3f48860fd2249824ecb28dc03"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libnss_compat.so.2",
+    "bytes": 39896,
+    "sha256": "4f81d86d325108475d7e3f2c9522cd1d7860ed1f682735f290c5ca3a600705c9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libnss_dns.so.2",
+    "bytes": 14400,
+    "sha256": "eca6da0aa670a85eeb4a046b719d94d051b4d7082621c38e55ba7ae50796c7ca"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libnss_files.so.2",
+    "bytes": 14400,
+    "sha256": "55a9ae9a9cbf2dfc9b276976d1d972d8ad55af55bd2f1d5f2864c2d5eac72d2f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libnss_hesiod.so.2",
+    "bytes": 27136,
+    "sha256": "bdfd8d179e617cc43bf2a0303175868f53d711a7d11abcf27ee3395393004453"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libpcprofile.so",
+    "bytes": 14592,
+    "sha256": "bc286924c1055b70433dcfdea5f655276b6eadebad950270d59d0b215a2a38e4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libpthread.so.0",
+    "bytes": 14480,
+    "sha256": "df8e371a04bcf4ea2d455277ecc9cd47fc9b4c58ed27a7f4e6c8343122a4d270"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libresolv.so.2",
+    "bytes": 60328,
+    "sha256": "d2df0bd45f72cd9beba6195b0acc43b8d14d44c37d18ffdf4684ee62b0a8eb71"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/librt.so.1",
+    "bytes": 14640,
+    "sha256": "6445c275f2477ebf619b1e4ec6fe5a0e460b9745e360ef9b671cb5a2f9f362ae"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libthread_db.so.1",
+    "bytes": 35752,
+    "sha256": "08a9b5d8332f3b8fee092089c4ecb2360cf3102cf9cce735709cbb011b3164dd"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib/x86_64-linux-gnu/libutil.so.1",
+    "bytes": 14480,
+    "sha256": "fe279657c804dcec88728eeb27187f983f6e5dc0c89575c4bd01aa6a8147b3a1"
+  },
+  {
+    "package": "zlib1g:amd64",
+    "path": "/lib/x86_64-linux-gnu/libz.so.1",
+    "bytes": 121280,
+    "sha256": "7e2a72b4c4b38c61e6962de6e3f4a5e9ae692e732c68deead10a7ce2135a7f68"
+  },
+  {
+    "package": "zlib1g:amd64",
+    "path": "/lib/x86_64-linux-gnu/libz.so.1.2.13",
+    "bytes": 121280,
+    "sha256": "7e2a72b4c4b38c61e6962de6e3f4a5e9ae692e732c68deead10a7ce2135a7f68"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/lib64/ld-linux-x86-64.so.2",
+    "bytes": 210904,
+    "sha256": "7288c75488697bad29619f7ad123b8e467744f500369689d97de13197d282e87"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfattach",
+    "bytes": 18752,
+    "sha256": "8379a899fc225fdd6ce734f2bf6918691f93bb949b14cb3861c524712956560e"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfdetach",
+    "bytes": 27056,
+    "sha256": "b744b83b1d17a25a506e21e9a8469fbf2ef0ba188ca41ba2c34866082ed4c5f9"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdffonts",
+    "bytes": 22968,
+    "sha256": "b4d32c70e78578bd379b3b91e910a188145b59bbcc975e28362b7922d7bbeeb4"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfimages",
+    "bytes": 43448,
+    "sha256": "ccd28ad29f48dbc0f670842d2efcbab5087c93a72f87ecd7815af5418e8cd450"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfinfo",
+    "bytes": 63928,
+    "sha256": "4aa5fe4f3e1c83f9bddd3d5cf611de4cea65285df8edb8dbba1dd312d1fb0f18"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfseparate",
+    "bytes": 22848,
+    "sha256": "92e1b385baf802ada74fe27f2e98c1ee9ccf6fa143abbb4db730d5257780ee61"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfsig",
+    "bytes": 35536,
+    "sha256": "4e54aad63c748906244589a33183073f3faac735b7fc171fce710916629a70f3"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdftocairo",
+    "bytes": 158104,
+    "sha256": "d303fc4058911112cb49be76b125e79f98d42003c428606d24e123bbaed326f3"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdftohtml",
+    "bytes": 121176,
+    "sha256": "5729cbb45287b7d505a02eff9cb77c6074389ca0a46efe2e491ce94e308f34bc"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdftoppm",
+    "bytes": 35168,
+    "sha256": "e2fbea663fe3e8f42943b010eb1885f66b87b3b49a175b43dfc9baa406d665f9"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdftops",
+    "bytes": 39360,
+    "sha256": "c76c52de992836ed8bd71d905be6c7674f1f14a6d7c9f1b3d8dd600896e4b665"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdftotext",
+    "bytes": 51648,
+    "sha256": "fc66428c317090606e4bc03e9862d3fb1ae08720fe122c48ed25ef282af383c3"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/bin/pdfunite",
+    "bytes": 31040,
+    "sha256": "78153dd6bf8934b9b0dabe3eb2db2e749f5b49fd9d5971d4cd022cb6091006c3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ANSI_X3.110.so",
+    "bytes": 26872,
+    "sha256": "d1d4cd0279931acabf064c29cd3e309107a649afb051b0f50290cfd8c6a27481"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ARMSCII-8.so",
+    "bytes": 18680,
+    "sha256": "a660ea6e1cf419ff8c0812a2fa45c0363739366221ec7427674b97f9aa0b54a3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ASMO_449.so",
+    "bytes": 18680,
+    "sha256": "cbf1f6f1cad80af6d93e589f24a1de483719a2f0df938bdf6820ccb25fe65cb9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/BIG5.so",
+    "bytes": 96504,
+    "sha256": "6b4936b4a502dc0366514030387262e96612a8a3c575c2f212d4b75d86ca9b8d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/BIG5HKSCS.so",
+    "bytes": 239864,
+    "sha256": "ca571d537774532986494a3bb07210874b0d1a8bc1ac6f50819477eb02260960"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/BRF.so",
+    "bytes": 18680,
+    "sha256": "0b77ac12f5ba0b071c0e56e855050f2248f936b1d123b217611185f40ec0383c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP10007.so",
+    "bytes": 18680,
+    "sha256": "9a8010d0bf3effffc100f7d63876e5ef252e859704ca447317d7fd3e52e77328"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1125.so",
+    "bytes": 18680,
+    "sha256": "3f6cd8f66a23d2d9326643fa73f6395f97fd22b1966d6857284ebabb4d1a6bff"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1250.so",
+    "bytes": 18680,
+    "sha256": "6757706701b2c0106480850bc85a3894d67687b194d38d357c0c2b9a96e9bcd5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1251.so",
+    "bytes": 18680,
+    "sha256": "74a2229b0c79d5ddd0ec19cf1bca13724ed511e8eb086e640ab07318ace4ab43"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1252.so",
+    "bytes": 18680,
+    "sha256": "14d341ccabc82eca6c77ba87061944c0680f91a90b4bf3bff61de751b5af8172"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1253.so",
+    "bytes": 18680,
+    "sha256": "d9ff51eca5bb449295002bd0f04168393212ae023f037fdd2cf066c7d0b39303"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1254.so",
+    "bytes": 18680,
+    "sha256": "7c69aa234572d367acabeaf3e22044531cc3bb2059d7ab5f6b6a900edd8d49a2"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1255.so",
+    "bytes": 18680,
+    "sha256": "63aa1ea89740fb995c32fb88fe3141e3d710fbfb2e71337e62f9e2a7b76ab0af"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1256.so",
+    "bytes": 18680,
+    "sha256": "10493f78a7ee8c04cc8b7dd7d30c34eebfa4f4da6bd6df283529cec82c77da7d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1257.so",
+    "bytes": 18680,
+    "sha256": "c14bdab65a9ee9d1efcaab9a55fb14a77c156782a37f493e5e5c42949c2169e6"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP1258.so",
+    "bytes": 18688,
+    "sha256": "f75cc6955607637c042b651142bd756aa83094895004e728d164925749871cf8"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP737.so",
+    "bytes": 18680,
+    "sha256": "4d476da89bd0ff983cadfd59ecf3cc840922145c0a5d71f34be96d0b88f51ca4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP770.so",
+    "bytes": 18680,
+    "sha256": "3bcbbb74ab1f9a3a91d82fd96bfd7fdbc2ff9e274712afbaaece4ae22a5af9ea"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP771.so",
+    "bytes": 18680,
+    "sha256": "e81d5415be94395383cce5d2086e4e67e3a25c99a91c5ac629510d21cb1e6a29"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP772.so",
+    "bytes": 18680,
+    "sha256": "d608299bc05d41d79fd2420f96436d5a7e9548cc8f72d222d5f27c04d750929a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP773.so",
+    "bytes": 18680,
+    "sha256": "214e789602933aa97ea7280fb67206b6aae2ef039ae869178dfa17c34d74dfe9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP774.so",
+    "bytes": 18680,
+    "sha256": "a84418701e7371b8b178f506b66d5eb2dd5096a6e879190e639f36fb3daf06ae"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP775.so",
+    "bytes": 18680,
+    "sha256": "d5ff635672cfd3f2adfb943df5d8270e9537982b484f50d88115400d09241d9c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CP932.so",
+    "bytes": 100600,
+    "sha256": "dba5f6bd2c48fe3bb8a796b1e997a264886f22a9ca6dac7affd27b514e27afaa"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CSN_369103.so",
+    "bytes": 18680,
+    "sha256": "cb958c64ddccafd2665fb0738d0489b5e79247c0506c6910c5e99098c5d4d5c6"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/CWI.so",
+    "bytes": 18680,
+    "sha256": "c1985694b9a910c64345c60f2765811633b85ac4e288ab10be2b13edc7a308f3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/DEC-MCS.so",
+    "bytes": 18680,
+    "sha256": "8d38743fdca5f8d7e4af7223a4b5ba1e0f43cdfb700989353f12ae76a5ef03e7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-AT-DE-A.so",
+    "bytes": 18680,
+    "sha256": "8649341dfab36e6985bdff1f8a4c8f54c22981a937565237285bc73b3ce6d91b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-AT-DE.so",
+    "bytes": 18680,
+    "sha256": "ecf38486db21bea3e9db4283671f5424dd4733ee0a2ec9fb04f9f809da3ffa00"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-CA-FR.so",
+    "bytes": 18680,
+    "sha256": "3fec42e6af33ef0a8cd050bcde976dfe487716018711db1f9742712d58cbcae0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-DK-NO-A.so",
+    "bytes": 18680,
+    "sha256": "014795a0f91447b8fc65942e7457404551f9c2cd9b97f943df372c585d9c308f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-DK-NO.so",
+    "bytes": 18680,
+    "sha256": "225578e525ce4668361ade06e4c39aa4cebb8651ab4bf123a4ed018c9e6d2941"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-ES-A.so",
+    "bytes": 18680,
+    "sha256": "4787e1dc70869b5e5abfdfe05b5d0e4ca2015403759f51262323daedbc77a654"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-ES-S.so",
+    "bytes": 18680,
+    "sha256": "a12a56668cb712044223ed9e3a96c82dc1f79ac4e4c4cfa66bc23f47dd16b136"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-ES.so",
+    "bytes": 18680,
+    "sha256": "1ef04e517545dc1aeef29ec664295411d8730172a4ea95c33d9ea3d4e27945c5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-FI-SE-A.so",
+    "bytes": 18680,
+    "sha256": "a90bbd60332cbd174b44e0716eec3ba1e168a159cc91ec2366da8f2ba0413e0c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-FI-SE.so",
+    "bytes": 18680,
+    "sha256": "f2c168028d4a271cd29ca6020a0300b173b0a962c34067a9e8a3e259c9e9a183"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-FR.so",
+    "bytes": 18680,
+    "sha256": "373d4e0579d4c2b8d788ecde8abe91ab8e675bce3b4deeface670dec3085f126"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-IS-FRISS.so",
+    "bytes": 18680,
+    "sha256": "4330b708335bc2de1ab594c494ca903a4dd6f5817763817429367ca9254108a1"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-IT.so",
+    "bytes": 18680,
+    "sha256": "8e4cc287f851564265e90c5d9599cb9cc5b95cd58acd491d5ec03e807d31e637"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-PT.so",
+    "bytes": 18680,
+    "sha256": "dd59cc7aa76fc949222e5474b0b0b3c8acb4e1b455301e1417b2df72dd80756b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-UK.so",
+    "bytes": 18680,
+    "sha256": "726f79a2d4a6495ac6b1c3d369ac7e461f42a554b0e50029279b68b680a4d20d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EBCDIC-US.so",
+    "bytes": 18680,
+    "sha256": "86f88aa7f2f4bb77818556b4bf7f944a898853b11a5606be8d5efc86c43ba636"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ECMA-CYRILLIC.so",
+    "bytes": 18680,
+    "sha256": "332fc19f2ef82b5b0e452d2ff203161e7b5046f56d55a901c69db35fbd37abcc"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EUC-CN.so",
+    "bytes": 22776,
+    "sha256": "d006a304d93313a50887153696ec897010fa33e531f9a2fc8b92356020d7a124"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EUC-JISX0213.so",
+    "bytes": 22776,
+    "sha256": "4be41a9720b4f7f83aea0e4e1a27ac8f037cc49f289133d800a90e8d1aaeae96"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EUC-JP-MS.so",
+    "bytes": 92408,
+    "sha256": "b0ca439f53694ec068bea21a6f74e224f2f672d1fe7ec02d726cb831bd6ad748"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EUC-JP.so",
+    "bytes": 18680,
+    "sha256": "fbdce14dae9f8a889d7a6c8817219a7db5755bd0fbd42887a6274a0576c9709c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EUC-KR.so",
+    "bytes": 18680,
+    "sha256": "794857f6bda3dd5a8061a171780370ca9707b0eb9b611e7f570ffa3c19352e6a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/EUC-TW.so",
+    "bytes": 26872,
+    "sha256": "e83325774defcda526ded25b8e64d1b69ffe3089a3092b63031aacce5de502fd"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GB18030.so",
+    "bytes": 182520,
+    "sha256": "1818dc9c2660394950d5f5dab732132489ce646607e43e302a7bbd768abc7e4c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GBBIG5.so",
+    "bytes": 59632,
+    "sha256": "d6593d66691ce37a9494e8f5ae150f9ba8569118521d8250220dde5445bfe20e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GBGBK.so",
+    "bytes": 18680,
+    "sha256": "dab8d0b0d4ac1c95a19bff550543ca598eaa98c642b4403da4d26da2b61393c3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GBK.so",
+    "bytes": 121080,
+    "sha256": "2cf1c2e3bb88bb1ca84d9a945b0042eaff4e35919a0c9e51ab470840beb949e0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/gconv-modules",
+    "bytes": 3916,
+    "sha256": "57793b77fddf602134707ff717c99beb44941904f103175971dd653aa57fac85"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache",
+    "bytes": 27028,
+    "sha256": "52c227df9d53248238602c1ddaccd2c8ddc4cc6a61aa45d7c425af590b8806a5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.d/gconv-modules-extra.conf",
+    "bytes": 53974,
+    "sha256": "f2e27de033d617a30619daa611be070c2a3c6d853e6498781cb88b55fcf04ed7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GEORGIAN-ACADEMY.so",
+    "bytes": 18680,
+    "sha256": "e58ca9057122eb35d2bbb9cf6865a2db49a480090cb108df0bf211d7f004556b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GEORGIAN-PS.so",
+    "bytes": 18680,
+    "sha256": "c161331b6b663f7b9b4a42e2a57188ddfc8f8f19404e5c1ef0915705c37e777b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GOST_19768-74.so",
+    "bytes": 18680,
+    "sha256": "e4bb65b7a20cb701f976be6c3e5d83965c3df76d58069d45f8d36508297bc489"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GREEK-CCITT.so",
+    "bytes": 18680,
+    "sha256": "3931d2fc38619c78c229ccc870dfef51f77ce90958342c48aa53f363073cb251"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GREEK7-OLD.so",
+    "bytes": 18680,
+    "sha256": "fd73b78ab5de7bdda7fa2287e9eac0ce857af7755a35c3e0e76c499dc3f2c08f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/GREEK7.so",
+    "bytes": 18680,
+    "sha256": "bd48df28cff57274edd14efe95b616bf42696532124caf8162f5f8e635d8c7a8"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/HP-GREEK8.so",
+    "bytes": 18680,
+    "sha256": "3a522816633da40ae8fc5683a8e27a422e605ecbda7d23e388bec3081713b60b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/HP-ROMAN8.so",
+    "bytes": 18680,
+    "sha256": "76c26d697c78ec3b77378b8be445661eee6f296704caa384ec7b524eb19a79d0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/HP-ROMAN9.so",
+    "bytes": 18680,
+    "sha256": "623a10778229071759e571fd5bd0720378a9cc3236ab100ffad1b4ae97ff963c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/HP-THAI8.so",
+    "bytes": 18680,
+    "sha256": "9d844d102803af9d097221731a176d744e3bc1cc31193222983a97a144fc1211"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/HP-TURKISH8.so",
+    "bytes": 18680,
+    "sha256": "48a0fa82db75d9d6229e15f51d4c4da07dfc671f4521bfce4a30e0005ed2b0b8"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM037.so",
+    "bytes": 18680,
+    "sha256": "0fd3573e2989eabefca85625c1fbbd068d1b52a161140291a2a09013633899fd"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM038.so",
+    "bytes": 18680,
+    "sha256": "06ce3ad8de94e37c67319e6c094699943f717e6d71e4611b3592c28eb6e56f54"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1004.so",
+    "bytes": 18680,
+    "sha256": "108e5d86ce147f3294249bd0813412a52b4093fd7337eef964fb1a58b7f54dc4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1008_420.so",
+    "bytes": 14576,
+    "sha256": "5c9d1d9d13225106600b019d4c6ac2fb2e4c860c466e16d20aee4f8682b1c93a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1008.so",
+    "bytes": 18680,
+    "sha256": "c652a101734b1e123f59ffec8c6365ff411f1bb3199b0d9dcf912ca1d4cdd912"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1025.so",
+    "bytes": 18680,
+    "sha256": "c1c6343be9df0a48ec1af0bf6848bc802c9ce3e2da82b7fede0bd8a8969f73e4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1026.so",
+    "bytes": 18680,
+    "sha256": "15660fc8d571509239255ca621673a3d048516bda61f03f3b13590b0f55a15e1"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1046.so",
+    "bytes": 18680,
+    "sha256": "25bd260e57bf8e5ca1014b2ab08110477e1484b7cddac5acf31b010d7271b874"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1047.so",
+    "bytes": 18680,
+    "sha256": "8b0480ab7bf0f39f7250d95f905fff81a23e9199e9ac93bb6eab7946f2b53989"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1097.so",
+    "bytes": 18680,
+    "sha256": "3ff2c629d6a127b21cee5059b0103d72b54e19a563abc7b1191126bec805ac40"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1112.so",
+    "bytes": 18680,
+    "sha256": "81b9eed2a3024f2c3308ca68ff0715504d000c91479dfad38e720f7b8006207f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1122.so",
+    "bytes": 18680,
+    "sha256": "78481538e813cf7ad08bc5267aecb09145ac4f215bf242ed574522a39c0c984b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1123.so",
+    "bytes": 18680,
+    "sha256": "9199f52a2c5a7a52046be6f51e1fb2ec76fe2238546f138f39b2263968ae4a6a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1124.so",
+    "bytes": 18680,
+    "sha256": "7e3d44ac88f18273182d41f4c0e14afeb24fdbb81b29fbe3d77eb288568e6d7c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1129.so",
+    "bytes": 18680,
+    "sha256": "ec9f0df82f1265f994c8cd54f4d62e2e2550e3daeb186ec5cfcc228bbdd51edb"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1130.so",
+    "bytes": 18680,
+    "sha256": "3e3c5cd9280caab4a36bd8f6b3eb065beb658a34f184ecf442c8e3fecdbd12e7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1132.so",
+    "bytes": 18680,
+    "sha256": "c4d98a744a1710ab8704c5870054fe100efacafee64719afbc82d8e7c438d86a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1133.so",
+    "bytes": 18680,
+    "sha256": "08d35fc0f57054c236f9dbd853b5d5830ccc24fe57031980793acd2093c3f560"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1137.so",
+    "bytes": 18680,
+    "sha256": "5357421cbb078b7dbb97a167dba3bc5411004afa0c7a097f9831a2db236eee0a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1140.so",
+    "bytes": 18680,
+    "sha256": "1441c7a361f10648ac2bc31a668553f0b0edc2de95536be3e10b9cc3a87cc057"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1141.so",
+    "bytes": 18680,
+    "sha256": "eb0f9276410edb34cb9195c7c04aecfc46167259ec9367c3909d06c6f31effe9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1142.so",
+    "bytes": 18680,
+    "sha256": "1af844fd04a5e6e49b7f571692e98dbf08bd42352f9c66210eb2031383501a72"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1143.so",
+    "bytes": 18680,
+    "sha256": "65ce334719169beab0df8c3cc92f04811422ad649fe097e2c9fe15bc22abb394"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1144.so",
+    "bytes": 18680,
+    "sha256": "35cfc2267ed39ba3670d5c05733442d22bd7d944631c2fcceb1f97b4c7e2633d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1145.so",
+    "bytes": 18680,
+    "sha256": "9921b28fde6a7cb5538e9d2db150fc68d6adf42e666b3d7b357fce81532766f3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1146.so",
+    "bytes": 18680,
+    "sha256": "f9ffbe0eb213b236dfc0d2948b9cb41c8f63a37bb7814ecea50a5f32338cf784"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1147.so",
+    "bytes": 18680,
+    "sha256": "4c3b6ff110a30188a0d35037ead661cfff82b936738aa601932c7da5dbd81e45"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1148.so",
+    "bytes": 18680,
+    "sha256": "8d233ffa71ea60a14e2410facc25db374a1cc0778473437dad58dd73f223f5bf"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1149.so",
+    "bytes": 18680,
+    "sha256": "ad9cb58f49428a5dac5e0c96470c6f588cd44ee96804bad0458e0bb356d5ce8e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1153.so",
+    "bytes": 18680,
+    "sha256": "d4dcb2260d312808d681f8f950bed2508c42f37ceb546496b769bae66e31169f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1154.so",
+    "bytes": 18680,
+    "sha256": "e28395204e4f0b0c869284f9b3b11bc7e9af5c480d20161ea0b06845c13e55ab"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1155.so",
+    "bytes": 18680,
+    "sha256": "dbcff4c6495039b373376d282bcee9356a5b85fb5d431bea3abe225c3da26c4b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1156.so",
+    "bytes": 18680,
+    "sha256": "634bcef8c0098fc0f4970e804e9ca87cabd32b148553c539043a6367e2b4a474"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1157.so",
+    "bytes": 18680,
+    "sha256": "f5287806ac0e2e6d1bfff35b3c9ff255d221f437a4b71a9db5ac7138224ac55c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1158.so",
+    "bytes": 18680,
+    "sha256": "e4520d0bb70d3d55c5994f96a6b566d69c4c0750acd1882cd281dfdcbe5d6351"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1160.so",
+    "bytes": 18680,
+    "sha256": "c81a14ca040e53c88ff83f74188b8f99e9fa117f55f499c651f91cccc7b91d34"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1161.so",
+    "bytes": 18680,
+    "sha256": "77ca654300a629c4176892cfbdb678a5df63b5c3a0625c0353320790cb36d26d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1162.so",
+    "bytes": 18680,
+    "sha256": "46f94fb815bfc3e5676ae04d5f62cc47865d90223c6c327d07f1563dd38b4664"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1163.so",
+    "bytes": 18680,
+    "sha256": "6919bf159def4bd4da51bb95b63e0084901f77bb16236e2c9bd938a9cef96d30"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1164.so",
+    "bytes": 18680,
+    "sha256": "d64fa60d8ab3b2686e09f0fc04293fec30fcd33ef4d3d535567df6cd1f7c973e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1166.so",
+    "bytes": 18680,
+    "sha256": "afe9fce80a88ab68d29a422775625582436f5741a327ae8c16e4d29fe9318b5b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1167.so",
+    "bytes": 18680,
+    "sha256": "dc488133300de78a00afbfcd868adc3c3e136d6bf3ab95acdcd8fdeb9f9dce06"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM12712.so",
+    "bytes": 18680,
+    "sha256": "e54908766e555343e524bce22dfd492ef281227c3c87b58acea3b56e84047ea9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1364.so",
+    "bytes": 153840,
+    "sha256": "8daf41a8662aa32445265c9526a3207ae540123a61d8a9064d2ad65485b67c0d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1371.so",
+    "bytes": 133360,
+    "sha256": "c8912a1c1e2b74279a4d9f925019b970e90491b84ef8c439d6f116fe34fd7b5d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1388.so",
+    "bytes": 178416,
+    "sha256": "3c179ec2ed0a127ab2650826aafd030b4f1d465674be464401c213695d6ebd35"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1390.so",
+    "bytes": 235760,
+    "sha256": "7f354683aa64d33351ec79f28a86754e3845f916960e5d448a00b6b8b43c31df"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM1399.so",
+    "bytes": 235760,
+    "sha256": "a39917a35d37b019c1c2402b28a9a0a9d71fb22c856753c7ce22e33fd0328bae"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM16804.so",
+    "bytes": 18680,
+    "sha256": "7493224a981263e2dcf7a6c42dec3361187df5ecdf1e55dd0a5b02942ff7f8ab"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM256.so",
+    "bytes": 18680,
+    "sha256": "bd7aaf7c6477d4637ee420cf8df1cc9974e7faf65346147024c1f6d5578753f7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM273.so",
+    "bytes": 18680,
+    "sha256": "e381172a8b36c1911a9a6ca2880bd19c69eb95c11fb5d61475b6dd3e5ced0f9f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM274.so",
+    "bytes": 18680,
+    "sha256": "ade8cebd04ecbac79785d98d41679515549498329f3890a7d2b927336c312153"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM275.so",
+    "bytes": 18680,
+    "sha256": "783206e57e0e741e459b8055277f59c3fbd3a68fa3d128a2398b7f6b03b3277f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM277.so",
+    "bytes": 18680,
+    "sha256": "33a9dcfd575bfbc83b14dbbda0797740ed043f2a9a939ff0adcecf34b47801f5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM278.so",
+    "bytes": 18680,
+    "sha256": "d738c2a6ed40c043b0c119b44e90c7c1c7094d01ecc2b864f31acc12b5a78d6c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM280.so",
+    "bytes": 18680,
+    "sha256": "165891f4683c9fd2a60990971e6403003afd9a85d11799e5139d358938333738"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM281.so",
+    "bytes": 18680,
+    "sha256": "63fa43bcf90e08ab9fd5f4d970750406b309f16ea56a3d08490f41031b9158ce"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM284.so",
+    "bytes": 18680,
+    "sha256": "fa956e05420426206642d8d392dec1d53f1344029726e5f0dc287e784b94b79d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM285.so",
+    "bytes": 18680,
+    "sha256": "35bb3c5b9c61c056980d35e096826b9cf791ed8f8728b076eccbff15945187bd"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM290.so",
+    "bytes": 18680,
+    "sha256": "5353c072f4c9373081793d51fababcbe97219b7ae1e4bac76dd49b299121e95d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM297.so",
+    "bytes": 18680,
+    "sha256": "be59a19a6ce279595896600b0b7a6bc7e6651f410751320d3cadd7ad3ca614fc"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM420.so",
+    "bytes": 18680,
+    "sha256": "e3160f182f3a5bdaa6acdf3a82f0ac362e2eb8276205a0502fbee9337bb0c361"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM423.so",
+    "bytes": 18680,
+    "sha256": "ee76a81f33cbd9991e0141ce7e2d64f0ff0c69295ffca5f44b0192d687b382f0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM424.so",
+    "bytes": 18680,
+    "sha256": "6747cc773adc4ce0409e1f0be933e9291858826d384ed13b1ede8da34dc25e92"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM437.so",
+    "bytes": 18680,
+    "sha256": "bb1843b65e4f7568a443be7fe860e4947ac0468cc28fb84d3295d8232ee3564b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM4517.so",
+    "bytes": 18680,
+    "sha256": "a32c35235a73b653de324797c58fac1d1765e044a89ca891b1300dcc5578390b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM4899.so",
+    "bytes": 18680,
+    "sha256": "1a91f228b1910b2cf4e9f8861dba13e5a316284104ca0e837dd135f9d847f842"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM4909.so",
+    "bytes": 18680,
+    "sha256": "8f9dd3d73cd890ff6ff1e9d0ecb0acec5577a57130ab8035f1cea4e173a3392c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM4971.so",
+    "bytes": 18680,
+    "sha256": "f8733d28e4409c2138fd1befc1a750c22f11892742ee3de17713416537fbe92c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM500.so",
+    "bytes": 18680,
+    "sha256": "8688b07cb6a070d8adc29d0af846ec3342e8a6e8b085eccad5b1b46966ba97b7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM5347.so",
+    "bytes": 18680,
+    "sha256": "b881d5690c0530b5787e7d74d4d16b6cb208231d4a51fddfe40f64b82910d3fe"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM803.so",
+    "bytes": 18680,
+    "sha256": "53f94a943165496123d439c8d39d2c032cc2dff7a3b3e6ea58e625abb0386d48"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM850.so",
+    "bytes": 18680,
+    "sha256": "770eb226a529b4f4e9f2be951e52bb2b74e72a02c5e58572f1a7ba8064422d4f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM851.so",
+    "bytes": 18680,
+    "sha256": "49feacd5fed92d472d2582bf0eaac310dc9df62fc9cefdb40efe7b6a2fd523b4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM852.so",
+    "bytes": 18680,
+    "sha256": "c26859f0f8b4c7a910c7a1399aaf0e35230d4c56ef63702abc7611d7474a87f5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM855.so",
+    "bytes": 18680,
+    "sha256": "5a02336da7fc4a0052166b16cf784bd28db3b2932c16aa0c2534684a6ff1d801"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM856.so",
+    "bytes": 18680,
+    "sha256": "0370a9771407fba243df73ca8e9840af07b1f4a99c1bbe22336af1eb081aa6c8"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM857.so",
+    "bytes": 18680,
+    "sha256": "3d258725e070326b41224203cc284dce59370fd45bf15e1a925b5a14d843612c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM858.so",
+    "bytes": 18680,
+    "sha256": "cc2864891393dd32989ed77574a02857f814ca86b94e710fd426597327ef2200"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM860.so",
+    "bytes": 18680,
+    "sha256": "a98cdee8a94a93185785c09aa94e971364dba7dc788eedcf15d0d0de5fc8bd84"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM861.so",
+    "bytes": 18680,
+    "sha256": "bd613a59d0da64066bca2e9f1982f3c98ca0739483c9d808111d7da6a2acb72d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM862.so",
+    "bytes": 18680,
+    "sha256": "58b5b0b821ed8362e4fcb6d865784bbf7a4e11495a668029e64c1e8e23c270da"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM863.so",
+    "bytes": 18680,
+    "sha256": "d6ec875e5aa16886951a78dd8e1cd9d1de11dd9af12026e95db31ba30dfa9464"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM864.so",
+    "bytes": 18680,
+    "sha256": "81bf9545eac29ec7fb14a8c4fd8107d51e27988f7dbf87f43759d1a0bbe209dc"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM865.so",
+    "bytes": 18680,
+    "sha256": "33308f40ebed0a7c387b754bd74d2ea26f5f02ec0174c87e602de237b31c4aea"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM866.so",
+    "bytes": 18680,
+    "sha256": "e9efc14b8473eab7957c31e38825b68bb0c59561ccca212068aa4be39bfe2584"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM866NAV.so",
+    "bytes": 18680,
+    "sha256": "e69b449ca7d028291c3fa8a99e1b4a7f2687782d369b77946c30b7b91f6d5372"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM868.so",
+    "bytes": 18680,
+    "sha256": "860845c028439f5cd79d32e962f2e881a37d70eec3e99a56d7929d5911cd5904"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM869.so",
+    "bytes": 18680,
+    "sha256": "d68de291df1a994e3dc97c984d6981f09f252681b2bbe2588cf7bcf34b3e0d6f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM870.so",
+    "bytes": 18680,
+    "sha256": "78a1a78afc4a6cdf751dd5d3942953ca5f22eac31a20c616f95cb06850f6ad61"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM871.so",
+    "bytes": 18680,
+    "sha256": "8cbb8596ed22056f69c7b1ebf96d998a82f9b9ca2145ea24e2d8950939c8cc20"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM874.so",
+    "bytes": 18680,
+    "sha256": "387188843d5439bdb96090e494a3d837e270e092b7a6df93758c9f2b8e57b72c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM875.so",
+    "bytes": 18680,
+    "sha256": "bbc39702d8910090b52d36648ba8f33ac6dbd5f1076d3fb871ff66dcfac52e12"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM880.so",
+    "bytes": 18680,
+    "sha256": "1fd5a147e964a6a28c59a19bb2436a3a963b519dba86585f61a40ce613cbb569"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM891.so",
+    "bytes": 18680,
+    "sha256": "b8ee6800d61627c5372e62481b4eb8fe1238da2c33721780ec73a668454e5c6f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM901.so",
+    "bytes": 18680,
+    "sha256": "7d400c1f8250226a38237baa0b7c26c6251e83bb6eb2d2a2cf0a66976bb62740"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM902.so",
+    "bytes": 18680,
+    "sha256": "c21a5f156b3256f175676a4178ccdba08544143edbbb1288eb8155afe1af4da8"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM903.so",
+    "bytes": 18680,
+    "sha256": "4ee1c48e1d0d887a8c0e49e07180346aea0d4bbf694338f27c0c266bb5c10fc5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM9030.so",
+    "bytes": 18680,
+    "sha256": "533afde596f08662d0da3e291211bbb2aeb12900d868afe0dbd78b12d5491b9c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM904.so",
+    "bytes": 18680,
+    "sha256": "73da15d95de8631509b139fc15ffc6c4c15c9c1308fb23f212632d360c14807f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM905.so",
+    "bytes": 18680,
+    "sha256": "ca9369cfca57d36dd52d980fdbc02d695621c39f0d1bbc9a9a0ee97efaf6c0f0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM9066.so",
+    "bytes": 18680,
+    "sha256": "e61005c782c03701d08c6777bed16f2b8ded7f7c00dd03f580b1e6c834625552"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM918.so",
+    "bytes": 18680,
+    "sha256": "bc4e060392679f746d2b86d0b657ce0319054972c612a8d30282044f3b4ffe32"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM921.so",
+    "bytes": 18680,
+    "sha256": "8acc170faf573dad4969daa1bcab896147265fbf3c7b9132e722ffdfab19946b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM922.so",
+    "bytes": 18680,
+    "sha256": "a5a3c713330654ca4227e2700cf592e55d177b74950cbb163419f1d45db192a9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM930.so",
+    "bytes": 100600,
+    "sha256": "aae607cab8c05cd0aebd5bb1c454c8071ece915bcdc69ddc6a7a2956770dc70d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM932.so",
+    "bytes": 76024,
+    "sha256": "5e8d8884c02072e4be0c9e80b6032553ece53116491faa553298c37461867469"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM933.so",
+    "bytes": 121080,
+    "sha256": "552cb3020e95e4af7ef38f0350ac25612a7d2ba283f1335f39e8cb85d068428c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM935.so",
+    "bytes": 88312,
+    "sha256": "eba61c10a934f1d5ac794975a281301ae4bddbe5f279a70a02fd2826a63d7c45"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM937.so",
+    "bytes": 116984,
+    "sha256": "7dfddfa24fb516cb520940f5e3aec83f96dae8bdf9251d1ade3f0d55acb7f519"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM939.so",
+    "bytes": 100600,
+    "sha256": "1a810f0d9278a2a08ac81e32b68eb0f6197c2edbeaadf7fd2cc90331c6d69883"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM943.so",
+    "bytes": 76024,
+    "sha256": "c2bbf6ade39bd7e3bc2e054f56d04c38e75c989e6e4ab655b389ec1d105f0933"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IBM9448.so",
+    "bytes": 18680,
+    "sha256": "a8a0c70c284e09187252588a009bee82b016c73ba5664b321abf58efefecd87b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/IEC_P27-1.so",
+    "bytes": 18680,
+    "sha256": "8c3f3df624c4a9c24d9b4e6e8fa30140a9d182abeb8c1996788a524c38576138"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/INIS-8.so",
+    "bytes": 18680,
+    "sha256": "1927ed087b139ca1a1e0935ecc90cb663d1a525f81b1eab250dd675c4f7e484f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/INIS-CYRILLIC.so",
+    "bytes": 18680,
+    "sha256": "dcf4a51f0230d8d3cbb233c6480ff08438be99fbe045b6926bdbb65a1d5f595f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/INIS.so",
+    "bytes": 18680,
+    "sha256": "2d32bbdbe111777de5b05173572e4ef4b139150c9fdecfb941e226499f8bb2e4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISIRI-3342.so",
+    "bytes": 18680,
+    "sha256": "4bc6a652114ab81ac1da54cd8babb9ead9ecce06849e581cce261172f54a0331"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_10367-BOX.so",
+    "bytes": 18680,
+    "sha256": "777d0432c6e6da213e4b52ed9b194ff3f6b4247216766d24ac26ad02c8f4c3d2"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_11548-1.so",
+    "bytes": 14584,
+    "sha256": "2248b85f1bebbba90ebb375bf49e2c9bbbd68c4d7995bac379ce799f29331fdb"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_2033.so",
+    "bytes": 18680,
+    "sha256": "55e9fde07a952959527a3451fda62323a49260d4d782c5f4d9e40e837906c430"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_5427-EXT.so",
+    "bytes": 18680,
+    "sha256": "7601cba58691ad928ebf500d8e82d174177b7c24d569f7e5f4fc688de19751e3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_5427.so",
+    "bytes": 18680,
+    "sha256": "94f1309c59883cf5bf1c98b16852b64c4a0051c43a3f0148715d416664d5f3ff"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_5428.so",
+    "bytes": 18680,
+    "sha256": "d34f08e7698e9ec4318e8c89d5f5ee3a2fbd4db3e47c24101bdeef672ae6908b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_6937-2.so",
+    "bytes": 26872,
+    "sha256": "1c04621a72b10fc1aee147dcbefff570200d4a1b1c8d2813f12ca94e1f5daae2"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO_6937.so",
+    "bytes": 26872,
+    "sha256": "b1a063cae1f047af52aedaf34fdb4841dd23d72b204fae252474d55f6a231982"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-2022-CN-EXT.so",
+    "bytes": 59648,
+    "sha256": "324348fe7d352cef1f0181ec2d5daf879a8e3d4e8197c3732f064b17467ee4ef"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-2022-CN.so",
+    "bytes": 43256,
+    "sha256": "fef989fede3c435b504cf9a83cff1a4da8f3f8dac56adc849b3072c67d9edd9f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-2022-JP-3.so",
+    "bytes": 30968,
+    "sha256": "057c638204fad72486c34ae451c41bb0957540a6134c0493170e41588c821be0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-2022-JP.so",
+    "bytes": 55568,
+    "sha256": "971581b0ca6f6ab60d87e6225beefca3b619a226470a22b5f40b2682572723c2"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-2022-KR.so",
+    "bytes": 22776,
+    "sha256": "2cfc67d1dd1ce2e69f309ed2967177dfb647ea74029ef890f100335337784ea8"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-IR-197.so",
+    "bytes": 18680,
+    "sha256": "31815d65f248468b26b08cd2e0326b91d6963d7d4594da78771fc4eb9151e489"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO-IR-209.so",
+    "bytes": 18680,
+    "sha256": "db2343f674c4220a1412be0222114e1007c6c55385e1376ff79be8b53795ebb1"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO646.so",
+    "bytes": 39184,
+    "sha256": "904d4e262cbbaf3b6eb80d83963ee8cc8d5850efcb4ecb5b229abdf8fb8434f7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-1.so",
+    "bytes": 14584,
+    "sha256": "c05c25d0b39968bd5f565233ee5107b1a6a8112462146317f6e65313442cc9a0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-10.so",
+    "bytes": 18680,
+    "sha256": "be37ee85c2b9464bc09c41a58d074eac36e24b206c3cdb9aae0df4ec2d7c97ce"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-11.so",
+    "bytes": 18680,
+    "sha256": "e95fa33e466cee3691cd3d166d40eb950c96ebe1bca0ba60922155e68ca6c6eb"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-13.so",
+    "bytes": 18680,
+    "sha256": "6c7a3972a4669b3314fa099598562187ce2ab1ac83e54a879fec36b4bfad0baa"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-14.so",
+    "bytes": 18680,
+    "sha256": "e806684bf9ab3d48514cf840be43db165dc06e7d819916984e75f88e4e69c49d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-15.so",
+    "bytes": 18680,
+    "sha256": "8ff67983f6e7092d4b46d860ddbaf91558de1370899e92dfe5f482d9902f8ed5"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-16.so",
+    "bytes": 18680,
+    "sha256": "a67508b99641c22f25e4158c7c045691cb8d81ea7dd96f8a17b821faf7a6181d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-2.so",
+    "bytes": 18680,
+    "sha256": "dff604254965d5cc65102aa4eccc06257ef56286d5abf5bf14176b5b1ca76c86"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-3.so",
+    "bytes": 18680,
+    "sha256": "c7db3bccb1f873456485ea1b1db907b041529e560beaf355e27c522953829585"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-4.so",
+    "bytes": 18680,
+    "sha256": "c63fd2c3bfb09a89a3707e447eb3ed21a2653aa2fdaff8884efa95216a501971"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-5.so",
+    "bytes": 18680,
+    "sha256": "0aa46f6641682f912a003d9a7109842a531650534c4dc3cc40556eb56a2e071e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-6.so",
+    "bytes": 22776,
+    "sha256": "76bc3eede19d5465550bdb0a9776e909bbc0e43ca940fcde4d996ddba5cc7ea0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-7.so",
+    "bytes": 18680,
+    "sha256": "a425992893bcbdf6762a1d9fda48f47117be9caf917565c1dea1968f1bb3a81a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-8.so",
+    "bytes": 18680,
+    "sha256": "04bef1d7e504573b1370814e546092d2452377f1e18ef6add6851870ca4fee7b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-9.so",
+    "bytes": 18680,
+    "sha256": "96e23781655b2fdca6bb14c17f0455b8dd288da83925231c52c36d4487da0dea"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/ISO8859-9E.so",
+    "bytes": 18680,
+    "sha256": "7a3e399a2d0150c4264a946889dd8e00678937b87926401407d042efd8ab30c4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/JOHAB.so",
+    "bytes": 22776,
+    "sha256": "83ec6eb3c34a6a2bc154d3dbaf9bc994858533a0856e1f5996f5349d0765096b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/KOI-8.so",
+    "bytes": 18680,
+    "sha256": "836b9d6d040c4d518fbf6760662823dbed3543f9585783928b80f34ba471051f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/KOI8-R.so",
+    "bytes": 18680,
+    "sha256": "1d805ad55c593e3a7a923db50a8d58906705a68c53f4391a7454299d7c117d90"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/KOI8-RU.so",
+    "bytes": 18680,
+    "sha256": "b108905f69ae63764bb07e7225dcec76e062ac350b6c5ec6e4c9114a60fb0734"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/KOI8-T.so",
+    "bytes": 18680,
+    "sha256": "ff8b153eccbd432773964a1820aaf968b91f23183c821d45032e89309850c89e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/KOI8-U.so",
+    "bytes": 18680,
+    "sha256": "6473caf72731e34f9a913e771b92d26f08ae049ff6d3cdba57238ae0ac6c525c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/LATIN-GREEK-1.so",
+    "bytes": 18680,
+    "sha256": "665b5fdc33000127d49f64b48a832cbc01d2fcd42c0ec354c46bb78d4e14ca8e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/LATIN-GREEK.so",
+    "bytes": 18680,
+    "sha256": "8a38dbf82248b37162e98ff5e7ab2f6ee8dc28e7c926f816f2339f51e26b1f77"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/libCNS.so",
+    "bytes": 473144,
+    "sha256": "96180457c28ec5e312da9f769953632de7b7aebc20088410254086e1328032c4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/libGB.so",
+    "bytes": 71736,
+    "sha256": "15dd3f4f3c377361eb4f6682815340c6e6c845827d52d1cd7dffda0b76e5893f"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/libISOIR165.so",
+    "bytes": 63544,
+    "sha256": "e4cae5706f5838720f5b7e4c9ea090d0f6cd1361a96c798456ab59e21d85e325"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/libJIS.so",
+    "bytes": 104504,
+    "sha256": "4b934b3f8fedd8f27a68ec9a09aa4b69eb913a2fb48376fa45be4e254a3c5fee"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/libJISX0213.so",
+    "bytes": 129080,
+    "sha256": "86bd0e765fe51c1ffeeca9ac05845fbe63a04edf6faffccc91abb9e0418cf6a9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/libKSC.so",
+    "bytes": 51256,
+    "sha256": "50f4412b2ea466ec54313fa6e054fafccc12fa588e40d658c088eee784d9452d"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/MAC-CENTRALEUROPE.so",
+    "bytes": 18680,
+    "sha256": "d684a3f10a3315ccf865172d6a8247476da2a2d6dc07705c2b82af18145c5e07"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/MAC-IS.so",
+    "bytes": 18680,
+    "sha256": "94970c6214246ae06165ca89c8d0c07502c98d115132fad3cfa46456b9c73ac3"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/MAC-SAMI.so",
+    "bytes": 18680,
+    "sha256": "89fef9170b29dee60a0121e0930c153c91953e08528d7ab9ffa4eec6f77eb865"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/MAC-UK.so",
+    "bytes": 18680,
+    "sha256": "37e1132c26f71e7ff64ed602f2d7c11c304f42ac525887a65010b9fc0f1d5a35"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/MACINTOSH.so",
+    "bytes": 18680,
+    "sha256": "3deceeba8a3cf1bfa39deb26f18f4418d8384b7b467c9a405201465ce22e79a1"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/MIK.so",
+    "bytes": 18680,
+    "sha256": "53dcc21a1f0f2593125964e92c71283a1afa488314c7719d503b211a4ea7d212"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/NATS-DANO.so",
+    "bytes": 18680,
+    "sha256": "512189ebf2ce74487b8b734445bb511f0bacd1f9058cbeedb46e75d13eff634b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/NATS-SEFI.so",
+    "bytes": 18680,
+    "sha256": "1e627690f928964ec96f416c0c52b03072cd2e857301b01b73a2d7457be4577a"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/PT154.so",
+    "bytes": 18680,
+    "sha256": "a12e266f491207cc99b7c0e8fc8dd796fea4e537f426ec3486e64eeb403a992c"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/RK1048.so",
+    "bytes": 18680,
+    "sha256": "1f4e127fde3f18feaaa178ce8e49a68efb514a95d66c559a7014067570185480"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/SAMI-WS2.so",
+    "bytes": 18680,
+    "sha256": "d3fdaaeafb4bec170a2bc57ea4937dfcae2dd4c09ef3d4514f6352dab02e4ab7"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/SHIFT_JISX0213.so",
+    "bytes": 22776,
+    "sha256": "dd76658b951cee52c450c026002831785e210a8fc90c6c838692e96800f321be"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/SJIS.so",
+    "bytes": 100600,
+    "sha256": "3fca790fbea4622ac4935f9319238c2e141b43d3bd9fc235ec42f70468b9a5e4"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/T.61.so",
+    "bytes": 26872,
+    "sha256": "aa5c5a0eb426092f5338dd3795bea2226d3b767f4f64bf0b00f6fabe4e13ed04"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/TCVN5712-1.so",
+    "bytes": 18688,
+    "sha256": "6e8c1171eb3a78b75b434fa517d39b3ad6fabe8d6a3b8b9801312f51a9e6ab65"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/TIS-620.so",
+    "bytes": 18680,
+    "sha256": "c96a5c5d72eb97796449ef6ae2e5ad00a6942ba496c284ac0341339c4603fa4e"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/TSCII.so",
+    "bytes": 22776,
+    "sha256": "af30a3df6842e8d49cbfce8914d3ba540fba35ca7e60336bf81e815cced8444b"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/UHC.so",
+    "bytes": 76024,
+    "sha256": "5e7cbeff434fc5c1e01d2358f38f35c069255f7af5c0c91a3f8bdd4e2663a8f2"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/UNICODE.so",
+    "bytes": 18696,
+    "sha256": "54b072a9b78053543acab03c2fc6e41ac47195976ccaf2f5e7ec2f5314ffbb93"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/UTF-16.so",
+    "bytes": 18696,
+    "sha256": "953f051398791fe6ef7699ca0569e4c561d873ac86f5136a840c65bcd3827efe"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/UTF-32.so",
+    "bytes": 18696,
+    "sha256": "c1af9dd1794eb25f5fb4853831d8d6edb2146fbd2c796878953fad923771bbf0"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/UTF-7.so",
+    "bytes": 26904,
+    "sha256": "f321dec0636adfb311a39a2989265bb86b804f76998df1f4a5d9de0bddc20ae9"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/gconv/VISCII.so",
+    "bytes": 18680,
+    "sha256": "cb86123265642c276ff7ccbf5f96c97a026deaddc7f9c971c134d1b2147bd1cb"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1",
+    "bytes": 137376,
+    "sha256": "d0dd623a89c3cd7c085757e41c940a39916a571a9b22b50bd736accd3f3aec53"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.0.9",
+    "bytes": 137376,
+    "sha256": "d0dd623a89c3cd7c085757e41c940a39916a571a9b22b50bd736accd3f3aec53"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1",
+    "bytes": 47264,
+    "sha256": "928b2613f2d3d73f78bc05c81d79c04cef7e196564f733c0ffdf893602d83aaa"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.0.9",
+    "bytes": 47264,
+    "sha256": "928b2613f2d3d73f78bc05c81d79c04cef7e196564f733c0ffdf893602d83aaa"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlienc.so.1",
+    "bytes": 591920,
+    "sha256": "d7bbf3903f31428b5f0f0a3207f5f2e495c1c44bbd778ab79aae144051531a58"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlienc.so.1.0.9",
+    "bytes": 591920,
+    "sha256": "d7bbf3903f31428b5f0f0a3207f5f2e495c1c44bbd778ab79aae144051531a58"
+  },
+  {
+    "package": "libdeflate0:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "bytes": 149384,
+    "sha256": "7a20781883ba5f05bdf0a259b026109142b9d9af9169e489af608b51c4e233d5"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libexpatw.so.1",
+    "bytes": 174168,
+    "sha256": "9cb1bfaddb6a07ad646a66586a34ea1be47d474e73169e8473689fabee8e74e4"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libexpatw.so.1.8.10",
+    "bytes": 174168,
+    "sha256": "9cb1bfaddb6a07ad646a66586a34ea1be47d474e73169e8473689fabee8e74e4"
+  },
+  {
+    "package": "libfontconfig1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfontconfig.so.1",
+    "bytes": 306112,
+    "sha256": "eba9fe8895df08cb98d6a294825132a52b65b53f4f1bce26bb3f6ee6ac6b16ec"
+  },
+  {
+    "package": "libfontconfig1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.0",
+    "bytes": 306112,
+    "sha256": "eba9fe8895df08cb98d6a294825132a52b65b53f4f1bce26bb3f6ee6ac6b16ec"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreebl3.chk",
+    "bytes": 899,
+    "sha256": "edc36a12441a4c3f69a1816a229358efa06baa9f895eedb9c0875f3077a80899"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreebl3.so",
+    "bytes": 14408,
+    "sha256": "118a9561d0242dde7b992a821c9e7e9b869a4eecc5c6590217126e31ffe9ac4c"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreeblpriv3.chk",
+    "bytes": 899,
+    "sha256": "b15e1aa3f75dcb1c0b450bafaa595512d9e9f4267d9d8e5b1d3e131e362f839f"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreeblpriv3.so",
+    "bytes": 751784,
+    "sha256": "ba17932f369a34da5f0db2f56249d29666a31d9791150b47c7d44e375fce3627"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreetype.so.6",
+    "bytes": 821160,
+    "sha256": "385a9c39e8d7f71f895079a4763ce6dee10ce66951e5e2b506d68895d51f5bd5"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreetype.so.6.18.3",
+    "bytes": 821160,
+    "sha256": "385a9c39e8d7f71f895079a4763ce6dee10ce66951e5e2b506d68895d51f5bd5"
+  },
+  {
+    "package": "libjbig0:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjbig.so.0",
+    "bytes": 66240,
+    "sha256": "92f86d0ba0b9c6e342d61abe8edec5810d0d9cedad41e28a61fa1ecdbc040710"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjpeg.so.62",
+    "bytes": 600128,
+    "sha256": "dad87949ccad2be7e40a02986306087fdcfb35ccaadd59aea923a3f96d290eec"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjpeg.so.62.3.0",
+    "bytes": 600128,
+    "sha256": "dad87949ccad2be7e40a02986306087fdcfb35ccaadd59aea923a3f96d290eec"
+  },
+  {
+    "package": "liblcms2-2:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/liblcms2.so.2",
+    "bytes": 398304,
+    "sha256": "7826c2951dcb1d74bd6ef42571327ea365d4ab874184a47ca03efb8dc8e6de72"
+  },
+  {
+    "package": "liblcms2-2:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14",
+    "bytes": 398304,
+    "sha256": "7826c2951dcb1d74bd6ef42571327ea365d4ab874184a47ca03efb8dc8e6de72"
+  },
+  {
+    "package": "liblerc4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libLerc.so.4",
+    "bytes": 616464,
+    "sha256": "6b465f547b06f1b3ac7aef08d4f2233f1417417c3e4e5a5f80f8dec806b0e2c7"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnspr4.so",
+    "bytes": 254440,
+    "sha256": "d7ddad6e67266e1517ce5f5240ea5057f20038bf98954c255fe628e92e6ca1a9"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnss3.so",
+    "bytes": 1406352,
+    "sha256": "9e5194a16a5674fef6d1f817114597d81c6958fcbfb118d7fdf179b4ed46117d"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnssckbi.so",
+    "bytes": 582024,
+    "sha256": "56693fe66298776d6c8fe2e3e26887526b93a326919b97ca711c3bc12943c879"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnssdbm3.chk",
+    "bytes": 899,
+    "sha256": "349a37c1fc9fd7e68c67825124358dec8fb6f47b925dbaf6e92c2b0358e8f212"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnssdbm3.so",
+    "bytes": 186528,
+    "sha256": "056e948cd5021e8a97bdb57112fbac94ae5e1b5d5de31e95e4ac0fb1d67310f4"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnssutil3.so",
+    "bytes": 203056,
+    "sha256": "0d33ca0c9d4cd138caa8602478bcec10721da95befdaf481d82d55f9dd6d0a81"
+  },
+  {
+    "package": "libopenjp2-7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0",
+    "bytes": 408000,
+    "sha256": "36607a63e89882c71eae13027f59cd04341e46f9bf30337b7b700c3b4b36b7d3"
+  },
+  {
+    "package": "libopenjp2-7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libopenjp2.so.7",
+    "bytes": 408000,
+    "sha256": "36607a63e89882c71eae13027f59cd04341e46f9bf30337b7b700c3b4b36b7d3"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libplc4.so",
+    "bytes": 22632,
+    "sha256": "e1f9c8d573e371179f57c95ff99c5b7a89b4384eaaa6f8f0c231851bfb684eeb"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libplds4.so",
+    "bytes": 14472,
+    "sha256": "74cf29f1ad2c66a5811effb4473d721c97eceae692fa6c8c4b858a610161aab6"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpng16.so.16",
+    "bytes": 219056,
+    "sha256": "6f34e8ab44889b11e572ca7a3026a005ce846ba97aeb66afb5526fa737fb138d"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpng16.so.16.39.0",
+    "bytes": 219056,
+    "sha256": "6f34e8ab44889b11e572ca7a3026a005ce846ba97aeb66afb5526fa737fb138d"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpoppler.so.126",
+    "bytes": 3753768,
+    "sha256": "93c009cdc82b938f60396f39c00e7022aa7b94488c7667aa414274b17f119cd6"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpoppler.so.126.0.0",
+    "bytes": 3753768,
+    "sha256": "93c009cdc82b938f60396f39c00e7022aa7b94488c7667aa414274b17f119cd6"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libsmime3.so",
+    "bytes": 191072,
+    "sha256": "b6d811516e872c957e8192dbcff93cc34c08ce287a6f7308a0905e0ffde66f59"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libsoftokn3.chk",
+    "bytes": 899,
+    "sha256": "7088686af7e3c068621da5260f96baf60beb8ca8754db28e340677460b4f59aa"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libsoftokn3.so",
+    "bytes": 357768,
+    "sha256": "514fda078885a1eee62ce3045a9b7570dfe55e88d0ef83af4520faa6fffcbc8d"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libssl3.so",
+    "bytes": 417144,
+    "sha256": "a0f25b8ea55438ea44014df2a32d0bcacf84cfa58d622753eb431fd857b093ed"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6",
+    "bytes": 2190440,
+    "sha256": "2b7d4c5c549898f3fff509105d7c5b283f0cfcaa83d38954dc8690bd5aba88ed"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30",
+    "bytes": 2190440,
+    "sha256": "2b7d4c5c549898f3fff509105d7c5b283f0cfcaa83d38954dc8690bd5aba88ed"
+  },
+  {
+    "package": "libtiff6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libtiff.so.6",
+    "bytes": 567304,
+    "sha256": "0ab59f14c0e89fb47b9bb1e51b60264fcf62d6f8564c3dbf3c7725ebe844a2ea"
+  },
+  {
+    "package": "libtiff6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0",
+    "bytes": 567304,
+    "sha256": "0ab59f14c0e89fb47b9bb1e51b60264fcf62d6f8564c3dbf3c7725ebe844a2ea"
+  },
+  {
+    "package": "libwebp7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libwebp.so.7",
+    "bytes": 453240,
+    "sha256": "4fedb320592cad963eab7f598d3acf3fa9054a2ccffac95bc97085b134ffdc3e"
+  },
+  {
+    "package": "libwebp7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libwebp.so.7.1.5",
+    "bytes": 453240,
+    "sha256": "4fedb320592cad963eab7f598d3acf3fa9054a2ccffac95bc97085b134ffdc3e"
+  },
+  {
+    "package": "libzstd1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1",
+    "bytes": 763816,
+    "sha256": "37412b7ac11063c25a375bdff6f4fdb340362f926cd9c3a55962e8a9c9bc702e"
+  },
+  {
+    "package": "libzstd1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4",
+    "bytes": 763816,
+    "sha256": "37412b7ac11063c25a375bdff6f4fdb340362f926cd9c3a55962e8a9c9bc702e"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc-base/libpng16-16.libpng16",
+    "bytes": 1367,
+    "sha256": "4df0644bbc0e206506fa8804d84c149a6d6773573182826d0282b8498f98bda3"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/share/doc/libbrotli1/changelog.Debian.amd64.gz",
+    "bytes": 224,
+    "sha256": "98bbded0303234de0a59f0b87da1697e7a9be10de9e794bd59d85e556eb6b24e"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/share/doc/libbrotli1/changelog.Debian.gz",
+    "bytes": 910,
+    "sha256": "e63f0dc879eee1ef8b34cf256b5520697dc2cce2392dd1907135a22ef1688cae"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/share/doc/libbrotli1/copyright",
+    "bytes": 1354,
+    "sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/changelog.Debian.gz",
+    "bytes": 27500,
+    "sha256": "23a76569439e000e5725f1a88ead4bb57107a0b72d53ea95618108cc0fa25c86"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/changelog.gz",
+    "bytes": 153,
+    "sha256": "b66db2deaee0257c5a456c17ee3058e014b51d596466b8454da17936a38d7e88"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/copyright",
+    "bytes": 25467,
+    "sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/NEWS.Debian.gz",
+    "bytes": 2386,
+    "sha256": "79408d7c17b316acbd64927833f3e8b7c263b156f268bf88ded05dd484045fcd"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/NEWS.gz",
+    "bytes": 124909,
+    "sha256": "43b3c936b421e6338501de97577614b47e6a2ad7760a91abe1932186c4c6cfd6"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/README.Debian.gz",
+    "bytes": 2648,
+    "sha256": "103388d45c31c59534c3c71378dd532a69d90b6fa0618cf41cdc123613d463ac"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/doc/libc6/README.hesiod.gz",
+    "bytes": 2357,
+    "sha256": "1c29df03287ea5a50015da416a42ff3622fe7a97a7598f0cc9693b729fca15e1"
+  },
+  {
+    "package": "libdeflate0:amd64",
+    "path": "/usr/share/doc/libdeflate0/changelog.Debian.gz",
+    "bytes": 1804,
+    "sha256": "f1937c9a609c96ab1d78f5b73a68d05b159578083bb29d427b7168758b156181"
+  },
+  {
+    "package": "libdeflate0:amd64",
+    "path": "/usr/share/doc/libdeflate0/copyright",
+    "bytes": 1483,
+    "sha256": "06b1e73b344fa5ad4c24a79547dd787623f3d118d681d6c9bd3fdc10a7070381"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/share/doc/libexpat1/AUTHORS",
+    "bytes": 142,
+    "sha256": "59f14371c6b75912cfebb46e6247ee5146766e803a0365b124e5d3011e7d0877"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/share/doc/libexpat1/changelog.Debian.gz",
+    "bytes": 1897,
+    "sha256": "77427fd4f47e9cb801c1c862e2c7cae4a5139a7a4b37da7c60bf30cf0e1748ed"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/share/doc/libexpat1/changelog.gz",
+    "bytes": 20928,
+    "sha256": "ce34662f77787339bfbb1669608d0b914971f5de633ce520afcaae6cfdce9932"
+  },
+  {
+    "package": "libexpat1:amd64",
+    "path": "/usr/share/doc/libexpat1/copyright",
+    "bytes": 1756,
+    "sha256": "60919fe1a156395ff14511bb6ff79756c50ade2fff59ac60c9bae1d8a7fe6292"
+  },
+  {
+    "package": "libfontconfig1:amd64",
+    "path": "/usr/share/doc/libfontconfig1/changelog.Debian.gz",
+    "bytes": 1959,
+    "sha256": "dbbdaedd94add8e83e89360d6b70fafa94f9b49527c4f53dc7ca0da60deb22b1"
+  },
+  {
+    "package": "libfontconfig1:amd64",
+    "path": "/usr/share/doc/libfontconfig1/changelog.gz",
+    "bytes": 262491,
+    "sha256": "a2f4c9af2249d09f9eddf34860817d07e4ecde85d8877c70483b7bdd09be96b3"
+  },
+  {
+    "package": "libfontconfig1:amd64",
+    "path": "/usr/share/doc/libfontconfig1/copyright",
+    "bytes": 1301,
+    "sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/share/doc/libfreetype6/changelog.Debian.gz",
+    "bytes": 5713,
+    "sha256": "97fd7d5114f2fb866c39ec03605ec31e88c67bf736170204392874bfaba8e811"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/share/doc/libfreetype6/changelog.gz",
+    "bytes": 32111,
+    "sha256": "3dbd5f56676102d48516996b095a7a0ca39a662f099625d800cf550ff59d7892"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/share/doc/libfreetype6/copyright",
+    "bytes": 25069,
+    "sha256": "70a7a0a06e6440777417f6875476cb712b03943010abed1c32297798c8cc8ed8"
+  },
+  {
+    "package": "libfreetype6:amd64",
+    "path": "/usr/share/doc/libfreetype6/README",
+    "bytes": 2970,
+    "sha256": "d36030a7ef48fa87b3a3fdf3b9824f7a48e7c911ba112227fe4899292a031fd4"
+  },
+  {
+    "package": "libjbig0:amd64",
+    "path": "/usr/share/doc/libjbig0/changelog.Debian.gz",
+    "bytes": 743,
+    "sha256": "d66fdd8653e18207324441f28729be9a46b8923a74c3f81a5bb1f37bd26445c6"
+  },
+  {
+    "package": "libjbig0:amd64",
+    "path": "/usr/share/doc/libjbig0/changelog.gz",
+    "bytes": 3993,
+    "sha256": "0f79f34fd86e7dab3be8d4fa8b55059c372a138c2952c45c3aa5ef3bb7199fbf"
+  },
+  {
+    "package": "libjbig0:amd64",
+    "path": "/usr/share/doc/libjbig0/copyright",
+    "bytes": 1849,
+    "sha256": "89ab20c324a191652e94598f2144a65442faed4f14f77bbd10516130ee20f05a"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/share/doc/libjpeg62-turbo/changelog.Debian.gz",
+    "bytes": 3789,
+    "sha256": "9eb6c18b2b57ebf103d0351942a852af3c7f35f21b3657be4f343439aa21d3a1"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/share/doc/libjpeg62-turbo/changelog.gz",
+    "bytes": 29007,
+    "sha256": "55c3cf5fc6edfe7b6f48787ddc841b06a884c9477311e28d7d4e2d0eb4b359cf"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/share/doc/libjpeg62-turbo/copyright",
+    "bytes": 38846,
+    "sha256": "3821184e23385bf2cdc01f56bd999b34036fc3aa03d5135d41680374eb81bf8a"
+  },
+  {
+    "package": "liblcms2-2:amd64",
+    "path": "/usr/share/doc/liblcms2-2/changelog.Debian.gz",
+    "bytes": 1186,
+    "sha256": "c1f33ffc82ee16cc066142b353c78226b22b1659fe80216f5f30f6beee242cdd"
+  },
+  {
+    "package": "liblcms2-2:amd64",
+    "path": "/usr/share/doc/liblcms2-2/changelog.gz",
+    "bytes": 4260,
+    "sha256": "80a2c4eed04d990744a785fa66a312a04505a982afec4a2fa3b839a6c05e90db"
+  },
+  {
+    "package": "liblcms2-2:amd64",
+    "path": "/usr/share/doc/liblcms2-2/copyright",
+    "bytes": 5362,
+    "sha256": "420fd2c72204652c08a48548a0d1002edab3d9b180d3c416578c61f74092f460"
+  },
+  {
+    "package": "liblerc4:amd64",
+    "path": "/usr/share/doc/liblerc4/changelog.Debian.gz",
+    "bytes": 692,
+    "sha256": "993edc3ac5cece4ce2b014693bc930e060d06aafc1bf81fe23e7e52cbb36e41a"
+  },
+  {
+    "package": "liblerc4:amd64",
+    "path": "/usr/share/doc/liblerc4/changelog.gz",
+    "bytes": 3037,
+    "sha256": "791d8e8a5b20229f089083d1eb79c231b296cd48281342813defdd8d5f99ce08"
+  },
+  {
+    "package": "liblerc4:amd64",
+    "path": "/usr/share/doc/liblerc4/copyright",
+    "bytes": 1242,
+    "sha256": "6c55caa8cb2c87c4f6fbe23c21e887a506455d81b5a8e98a7a62e6c81af39daf"
+  },
+  {
+    "package": "liblerc4:amd64",
+    "path": "/usr/share/doc/liblerc4/NOTICE",
+    "bytes": 679,
+    "sha256": "4b358a6807dec2f782d030d1514ef1a83e1297db8bd8bdd88d6bdc02f82196c2"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/AUTHORS",
+    "bytes": 1402,
+    "sha256": "07def6a20ec5430b6ad04cf1286da3f53fbb86cf6d2026119945ccd55d3a2258"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/changelog.Debian.gz",
+    "bytes": 1348,
+    "sha256": "50c3d41db0ac350b27c4ae964fc77c555786d65990695024a5c3047a56f2b273"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/changelog.gz",
+    "bytes": 88441,
+    "sha256": "80390e4141d39c5f2b49ee326fce3cc2adbb9e426cb6c07c6d0fd87bb783bd51"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/copyright",
+    "bytes": 15465,
+    "sha256": "a2dc8fac0f496e1c58aff67018cf0c6b88336316afa5642f9335b71642e28aa8"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/NEWS.gz",
+    "bytes": 19047,
+    "sha256": "82eba951f032c47551fbac2c90307d1ef9cdccf93789fd14faffe8eb2bf7ebb5"
+  },
+  {
+    "package": "liblzma5:amd64",
+    "path": "/usr/share/doc/liblzma5/THANKS",
+    "bytes": 3205,
+    "sha256": "6e9ffdb483e1396d4d749216f8d001749c6b822a00e0df0b37452083bb018f6e"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/share/doc/libnspr4/changelog.Debian.gz",
+    "bytes": 6359,
+    "sha256": "a835fcdb08e758e5a651985ccb4f7e456fab1d8a2e850e112b88c2ce1dda3f39"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/share/doc/libnspr4/copyright",
+    "bytes": 331,
+    "sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/share/doc/libnss3/changelog.Debian.gz",
+    "bytes": 2942,
+    "sha256": "2611c63b5a3319810b19ad59f2b840d9221321a030c80244b58674193c774b0a"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/share/doc/libnss3/copyright",
+    "bytes": 4058,
+    "sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408"
+  },
+  {
+    "package": "libopenjp2-7:amd64",
+    "path": "/usr/share/doc/libopenjp2-7/changelog.Debian.gz",
+    "bytes": 1645,
+    "sha256": "8eb2199d5458004075535c0a5ea78f2ac4c17114a17289f5d36eebf7e87a493d"
+  },
+  {
+    "package": "libopenjp2-7:amd64",
+    "path": "/usr/share/doc/libopenjp2-7/changelog.gz",
+    "bytes": 22896,
+    "sha256": "4eb39ca34a70c96674f4bf918d9f67c21767bdcce1e29ad5ef26bbde84e85948"
+  },
+  {
+    "package": "libopenjp2-7:amd64",
+    "path": "/usr/share/doc/libopenjp2-7/copyright",
+    "bytes": 42620,
+    "sha256": "eee37e01db9d8eabac77a49dbacb9ea8962e5cfc98a35b87ee02cc81eef94f40"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/ANNOUNCE",
+    "bytes": 1443,
+    "sha256": "b6e72b56b44cfa6d8018644a06ebd2810d5a7b0244bc70e514952da3c4dfe08c"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/changelog.Debian.gz",
+    "bytes": 978,
+    "sha256": "2587eb600a6530ccb2d41feba202eeb4b8046b3e0728b650b551860a9b39f2cd"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/changelog.gz",
+    "bytes": 98110,
+    "sha256": "5b95faca110d931b43efeaf7875b6a4c77c5f31fc55c5e88c898e003b1f69b2c"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/copyright",
+    "bytes": 12976,
+    "sha256": "68bd3997355bc44ccb97ff5e2bb146360e762c7d9c721945a4fabf77d1349e4a"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/libpng-manual.txt.gz",
+    "bytes": 71613,
+    "sha256": "7ef41cdb5b9bd15db26da527fce178a8f6796977b0b6f2eb789edeb44cef9b80"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/README.gz",
+    "bytes": 3674,
+    "sha256": "5c68710fb92a4539ecd2479063d739a03b64e36dad3d06def137710d943b848b"
+  },
+  {
+    "package": "libpng16-16:amd64",
+    "path": "/usr/share/doc/libpng16-16/TODO",
+    "bytes": 1026,
+    "sha256": "0207fad4e633e252abee1a9b0695220f1aa25e7940575fc1df3fd9d221f3df5a"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/AUTHORS",
+    "bytes": 145,
+    "sha256": "9bb2a2d73128adae6044ccbaa6a477640c4ce86e30771b0efad67ec7385588a4"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/changelog.Debian.gz",
+    "bytes": 2591,
+    "sha256": "ae1795e321263a7bab9cbce3837586022e4220646ed936c533436aa3dda851e6"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/changelog.gz",
+    "bytes": 830635,
+    "sha256": "6b1c429e107ac7c53229ec54861de42e045bb584aad46f1656c45183ac8e56ad"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/copyright",
+    "bytes": 12722,
+    "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/NEWS.gz",
+    "bytes": 44137,
+    "sha256": "6f544265351e76d4a8a9fd2df1612cd375054f1365647f67832a9a70c66e8439"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/README-XPDF.gz",
+    "bytes": 6278,
+    "sha256": "6700b435152e215ffa1d2dc44f9ec6a4f57de4ac9d6f3375d4a4b64371fdcf55"
+  },
+  {
+    "package": "libpoppler126:amd64",
+    "path": "/usr/share/doc/libpoppler126/README.md.gz",
+    "bytes": 2156,
+    "sha256": "a47b4a40b62beaf5e3966d1bb3ad96533482af6cbfbbc41d837e8d718e7d7c95"
+  },
+  {
+    "package": "libtiff6:amd64",
+    "path": "/usr/share/doc/libtiff6/changelog.Debian.gz",
+    "bytes": 4075,
+    "sha256": "6c890c53495b11839166bc21e16a8aff49d6da195ba59720f24d94b80a976481"
+  },
+  {
+    "package": "libtiff6:amd64",
+    "path": "/usr/share/doc/libtiff6/changelog.gz",
+    "bytes": 133295,
+    "sha256": "2a4d102d9cffd057990aa6612b847ed3b9461002f4333b4190bbe06c461b3ba2"
+  },
+  {
+    "package": "libtiff6:amd64",
+    "path": "/usr/share/doc/libtiff6/copyright",
+    "bytes": 1935,
+    "sha256": "d73e31b03a0d7a515851601c19fee5792c7db03a312efacae146ddf9c91f86f1"
+  },
+  {
+    "package": "libwebp7:amd64",
+    "path": "/usr/share/doc/libwebp7/changelog.Debian.gz",
+    "bytes": 1450,
+    "sha256": "c0f5af3f195b2fcd2a5e6c370d68881575773004e959f256388ecb3e1a783b9d"
+  },
+  {
+    "package": "libwebp7:amd64",
+    "path": "/usr/share/doc/libwebp7/changelog.gz",
+    "bytes": 87157,
+    "sha256": "ddceba589dfae88a81cf46f4575133915cfca705c6fd97315838e982c38ab212"
+  },
+  {
+    "package": "libwebp7:amd64",
+    "path": "/usr/share/doc/libwebp7/copyright",
+    "bytes": 2027,
+    "sha256": "01eb328708a9454061dd13931b19135e1c2c6251a7e6a6d0efc4b9bc436109c7"
+  },
+  {
+    "package": "libzstd1:amd64",
+    "path": "/usr/share/doc/libzstd1/changelog.Debian.gz",
+    "bytes": 4380,
+    "sha256": "989988d3b9aa0dbb0d63d660711a4226a472c767df967a3419d8d15de9aa08ee"
+  },
+  {
+    "package": "libzstd1:amd64",
+    "path": "/usr/share/doc/libzstd1/changelog.gz",
+    "bytes": 16421,
+    "sha256": "efc48d1ae9426dc518dee99e7a3f2e921ad3f461ab59f74dafac78b80575fb36"
+  },
+  {
+    "package": "libzstd1:amd64",
+    "path": "/usr/share/doc/libzstd1/copyright",
+    "bytes": 5389,
+    "sha256": "35e85e8e9bbb71492c5f5dddf39ed65b68775a02ad8d710c25d097b497f06c49"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/doc/poppler-utils/changelog.Debian.gz",
+    "bytes": 2594,
+    "sha256": "63007bf63630ab2203827d3d4e06552dea8e92fd36a7b9df7f750709c0842df0"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/doc/poppler-utils/copyright",
+    "bytes": 12722,
+    "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+  },
+  {
+    "package": "zlib1g:amd64",
+    "path": "/usr/share/doc/zlib1g/changelog.Debian.gz",
+    "bytes": 1044,
+    "sha256": "8fbcef2966a6fe1d50573330e8c087af48b1e2d32942b3df59421c11d03d01c7"
+  },
+  {
+    "package": "zlib1g:amd64",
+    "path": "/usr/share/doc/zlib1g/changelog.gz",
+    "bytes": 29091,
+    "sha256": "b5d879c91dbaedb48c342bc8560ddcf29b472bbe0a7aaff6d622741a86ac199f"
+  },
+  {
+    "package": "zlib1g:amd64",
+    "path": "/usr/share/doc/zlib1g/copyright",
+    "bytes": 2927,
+    "sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/share/gcc/python/libstdcxx/__init__.py",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/share/gcc/python/libstdcxx/v6/__init__.py",
+    "bytes": 1161,
+    "sha256": "f904daea3a5c91d7b336377a93a85eaa0060842810230704f4c0b702b4154c6a"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/share/gcc/python/libstdcxx/v6/printers.py",
+    "bytes": 87875,
+    "sha256": "a11707c4086bfff865bb6533fe4a64729cea151955d692f4b7c71d050d09013b"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/share/gcc/python/libstdcxx/v6/xmethods.py",
+    "bytes": 28188,
+    "sha256": "ca0a5c9a7f946784e1bc97407fce251f481bfbbd9813a85d628ad602af4b3847"
+  },
+  {
+    "package": "libstdc++6:amd64",
+    "path": "/usr/share/gdb/auto-load/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30-gdb.py",
+    "bytes": 2387,
+    "sha256": "6990e32948295b48e5732bb3eaa49a2833343bdd0b254f5fb4d91ca92aac4168"
+  },
+  {
+    "package": "libbrotli1:amd64",
+    "path": "/usr/share/lintian/overrides/libbrotli1",
+    "bytes": 90,
+    "sha256": "2348de77b1f367dbd9891dd844d22a63299861d50db72b621849ecd0466467f2"
+  },
+  {
+    "package": "libc6:amd64",
+    "path": "/usr/share/lintian/overrides/libc6",
+    "bytes": 477,
+    "sha256": "721d9d61cab96ffc0d684525ce0858096a9fe78cde675a757a61dc393d3c191d"
+  },
+  {
+    "package": "libgcc-s1:amd64",
+    "path": "/usr/share/lintian/overrides/libgcc-s1",
+    "bytes": 45,
+    "sha256": "eed87afa7d83880a25ae5a41ba9d98d89a1fc2e2e3bba0f4d5c3cdda21a457a4"
+  },
+  {
+    "package": "libjpeg62-turbo:amd64",
+    "path": "/usr/share/lintian/overrides/libjpeg62-turbo",
+    "bytes": 386,
+    "sha256": "fe0c416dfe223cf9538e01337fd8574f1263a157f028f6df9ddfb69e9278a89b"
+  },
+  {
+    "package": "libnspr4:amd64",
+    "path": "/usr/share/lintian/overrides/libnspr4",
+    "bytes": 795,
+    "sha256": "e468620345b004fc233ec7a2710cd7927945dee564531cc73664309d41c7b502"
+  },
+  {
+    "package": "libnss3:amd64",
+    "path": "/usr/share/lintian/overrides/libnss3",
+    "bytes": 1809,
+    "sha256": "9936b68cfcc24e0d52ad995f889aa0a176beed71dd63ca1b316bfafc5ebb11a2"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfattach.1.gz",
+    "bytes": 559,
+    "sha256": "f0b40a15dbaab3007fcf88e81a2d60717eb0821df25dd133a3d7e488214a98fd"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfdetach.1.gz",
+    "bytes": 992,
+    "sha256": "88bd5cf088706bc8dd4d24cbcdbab034a95355246de7ee4f4503eacb2d76f9a1"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdffonts.1.gz",
+    "bytes": 1068,
+    "sha256": "7c3f8f54f3c9f63b2cf38a932819589756d81f4f2435aaf927afb225ecff1872"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfimages.1.gz",
+    "bytes": 2412,
+    "sha256": "590eabe5dc922bba34430dfb0bc3acb10ee1f13c9d387c04d799e3f95756b6a5"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfinfo.1.gz",
+    "bytes": 1671,
+    "sha256": "20033be44eab476e5cf0a2f9c48439cf6289e74835f8d6fcffac728b127d7580"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfseparate.1.gz",
+    "bytes": 730,
+    "sha256": "8c49c7f2395d8e0f2ceb3a500006acc9ac24fd2aa2d965176772f719cbd5a342"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfsig.1.gz",
+    "bytes": 1728,
+    "sha256": "821016592418f43bea3584bf7ca7833ced6bd3218b42fe2f23675dfad5dde964"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdftocairo.1.gz",
+    "bytes": 3915,
+    "sha256": "686db53583a32e58e2d50d3e24dfdb49b14b8db8af63dd11fc3bc1d283a752d8"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdftohtml.1.gz",
+    "bytes": 1333,
+    "sha256": "05873e94b5a33329a8e7bb6bbb03c1f073404fe6464c1392486c883c6ad6cb7b"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdftoppm.1.gz",
+    "bytes": 2332,
+    "sha256": "85de4b9628d4b0284bfc41bd2482e89f460d7129af7613f528064fbf7e1fc12b"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdftops.1.gz",
+    "bytes": 3117,
+    "sha256": "51814fdd0cb4b3df9c3d9246d34b34b081aafdcd7f2403f3eebca6176c647bd5"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdftotext.1.gz",
+    "bytes": 1688,
+    "sha256": "4828b291d5e0f16483b9033a3876ac9cc129d07336ff9bce21327aa15749d9c9"
+  },
+  {
+    "package": "poppler-utils",
+    "path": "/usr/share/man/man1/pdfunite.1.gz",
+    "bytes": 575,
+    "sha256": "d37202027a8c2c26a3a42f036b1e1d81d258e25da0a23e318069b132442c7012"
+  }
+]

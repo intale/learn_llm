@@ -1,0 +1,3 @@
+   Compiling practical-ch03-scalable-bpe-tokenizer v0.1.0 (/work/rust/demos/practical-ch03-scalable-bpe-tokenizer)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running `/target/debug/practical-ch03-scalable-bpe-tokenizer`

@@ -1,0 +1,639 @@
+{
+  "schema_version": 1,
+  "owner_step": "implement-ch42-scalable-bpe-tokenizer",
+  "chapter_id": "42-scalable-bpe-tokenizer",
+  "run_id": "20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01",
+  "current_source_spec": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/current-source-spec.json",
+    "sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a"
+  },
+  "transport_authority_spec": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/transport-authority-spec.json",
+    "sha256": "f01182af74311145f8bbabe4aea1353cbdbccb7a9d3752b9dbf0cfac880be704"
+  },
+  "history_toolchain_receipt": {
+    "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history-toolchain-receipt.json",
+    "sha256": "85d05474b70b92cb69491738fa5d04dcb148110b192fd3b2adb07ad1602afd92"
+  },
+  "source_ids": [
+    "SRC-DTH-TOK-01",
+    "SRC-DTH-TOK-04"
+  ],
+  "source_count": 2,
+  "initial_request_count": 2,
+  "additional_request_count": 0,
+  "retry_count": 0,
+  "redirect_count": 0,
+  "total_raw_response_bytes": 376008,
+  "total_decoded_response_bytes": 630065,
+  "download_ceiling_bytes": 134217728,
+  "expanded_ceiling_bytes": 536870912,
+  "source_records": [
+    {
+      "source_id": "SRC-DTH-TOK-01",
+      "title": "Neural Machine Translation of Rare Words with Subword Units",
+      "canonical_citation_locator": "https://aclanthology.org/P16-1162/",
+      "requested_url": "https://aclanthology.org/P16-1162.pdf",
+      "original_request_url": "https://aclanthology.org/P16-1162/",
+      "final_url": "https://aclanthology.org/P16-1162.pdf",
+      "status": 200,
+      "redirects": [],
+      "content_type": "application/pdf",
+      "content_encoding": "identity",
+      "request_bytes": 332371,
+      "response_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+      "response_header_sha256": "9792b176dd441b5b5fa0ea00519da719d4c13cf8ac99090b6b880f213ae8d8c9",
+      "decoded_response_bytes": 332371,
+      "decoded_response_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+      "extracted_text_bytes": 46862,
+      "extracted_text_sha256": "399e533f71f6edca20860bdb921678f052502572da32169550c0d0d20a49b720",
+      "extraction": {
+        "method": "pinned-pdf-text-and-page-map-v1",
+        "page_count": 11,
+        "pdfinfo_sha256": "8d9c6bbf92de0cc34d3db0056ad7172027f152d6543d0a33ab94be578f0f2b76",
+        "page_map_sha256": "fab7e37bbaf6e91085c2a23553b0484e9a855ceb25f70abf384f90f5a4384803",
+        "whole_equals_ordered_pages": true,
+        "argv": [
+          "pdftotext",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-nopgbrk",
+          "<input.pdf>",
+          "<output.txt>"
+        ]
+      },
+      "started_at": "2026-10-08T09:35:54Z",
+      "finished_at": "2026-10-08T09:35:54Z",
+      "transport_wall_seconds": 0.731718,
+      "current_request_spec_sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a",
+      "transport": {
+        "request_method": "GET",
+        "request_url": "https://aclanthology.org/P16-1162.pdf",
+        "request_headers": {
+          "accept": "text/html,application/xhtml+xml,application/pdf,text/plain,application/json;q=0.9",
+          "accept_encoding": "identity,gzip,br",
+          "authorization": "absent",
+          "cookie": "absent",
+          "caller_headers": "forbidden"
+        },
+        "redirect_limit": 0,
+        "request_limit_bytes": 67108864,
+        "expanded_limit_bytes": 268435456,
+        "attempt_count": 1,
+        "retry_count": 0,
+        "curl_exit_status": 0,
+        "http_status": 200,
+        "http_version": "1.1",
+        "final_url": "https://aclanthology.org/P16-1162.pdf",
+        "redirect_count": 0,
+        "response_headers_bytes": 240,
+        "response_headers_sha256": "9792b176dd441b5b5fa0ea00519da719d4c13cf8ac99090b6b880f213ae8d8c9",
+        "curl_metadata_sha256": "3ebbdfcd03bae422081f7e002462b1e51ed33933422ea80c6c8e114d36b561c1",
+        "raw_body_bytes": 332371,
+        "raw_body_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+        "decoded_body_bytes": 332371,
+        "decoded_body_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+        "content_type": "application/pdf",
+        "content_encoding": "identity",
+        "etag": [
+          "\"51253-539038d436604\""
+        ],
+        "last_modified": [
+          "Mon, 01 Aug 2016 14:38:21 GMT"
+        ],
+        "curl_version": "libcurl/8.18.0 OpenSSL/3.5.5 zlib/1.3.1 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.68.0 librtmp/2.3 mit-krb5/1.22.1 OpenLDAP/2.6.10",
+        "tls_verify_result": 0,
+        "started_at": "2026-10-08T09:35:54Z",
+        "finished_at": "2026-10-08T09:35:54Z",
+        "wall_seconds": 0.731718
+      },
+      "author_observation": {
+        "source_id": "SRC-DTH-TOK-01",
+        "paraphrase": "Sennrich and colleagues describe a character-based subword representation, repeatedly count adjacent symbol pairs and merge a frequent pair, and exclude pairs that cross word boundaries. Chapter 42 uses a separate course raw-byte policy; its numeric token IDs, tie order and document framing are not claims about the paper.",
+        "rights_observation": "The paper displays a 2016 Association for Computational Linguistics copyright notice. No redistribution grant was observed in the retrieved paper. Full PDF and full extracted text remain ignored run evidence only.",
+        "spans": [
+          {
+            "id": "character-units",
+            "quote": "we merge characters or\ncharacter sequences.",
+            "decoded_utf8_byte_start": 11877,
+            "decoded_utf8_byte_end": 11920,
+            "pdf_page": 3,
+            "page_byte_start": 3557,
+            "printed_page": 1717,
+            "section": "3.2"
+          },
+          {
+            "id": "pair-counts",
+            "quote": "We iteratively count all symbol pairs",
+            "decoded_utf8_byte_start": 12165,
+            "decoded_utf8_byte_end": 12202,
+            "pdf_page": 3,
+            "page_byte_start": 3845,
+            "printed_page": 1717,
+            "section": "3.2"
+          },
+          {
+            "id": "word-boundary",
+            "quote": "we do not consider pairs that\ncross word boundaries.",
+            "decoded_utf8_byte_start": 12697,
+            "decoded_utf8_byte_end": 12749,
+            "pdf_page": 3,
+            "page_byte_start": 4377,
+            "printed_page": 1717,
+            "section": "3.2"
+          }
+        ]
+      },
+      "publication_scope": {
+        "raw_response_body_retained": false,
+        "full_extracted_source_retained": false,
+        "raw_body_location": "Ignored current run evidence only",
+        "bounded_excerpts_words": 21,
+        "fresh_clone_audit": "Current request/response/extraction/toolchain bindings, hashes, page or line map and author-selected bounded spans are retained; full source replay requires reacquisition from the exact official request URL."
+      }
+    },
+    {
+      "source_id": "SRC-DTH-TOK-04",
+      "title": "OpenAI GPT-2 byte-level BPE encoder at commit e5c5054474f583d6d9499624649353995d63c70a",
+      "canonical_citation_locator": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "requested_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "original_request_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "final_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+      "status": 200,
+      "redirects": [],
+      "content_type": "text/html",
+      "content_encoding": "gzip",
+      "request_bytes": 43637,
+      "response_sha256": "f767302eef8aee3974cf4a621d09b81053a504fbc8afe806c5ff1f4a4a0bfc79",
+      "response_header_sha256": "ac0c886eb0120405a6bd2c3b500846a9b3ff46ac31b92dcce80de212872eef9e",
+      "decoded_response_bytes": 297694,
+      "decoded_response_sha256": "b03c4befa5336b24e4c245330ba265d6757f88e8aac18480358273976033ff4f",
+      "extracted_text_bytes": 484,
+      "extracted_text_sha256": "428e54862e6553e6641d34ef1c331f74a5f5a96ecd3c47c660d26b67d31b9e7d",
+      "extraction": {
+        "method": "standards-parser-visible-main-text-v1",
+        "main_count": 1,
+        "rules": "One visible main or role=main; exclude script/style/template/noscript/nav/header/footer/aside and hidden/aria-hidden/inline display:none or visibility:hidden; text nodes in document order; LF around block roles and br."
+      },
+      "started_at": "2026-10-08T09:35:54Z",
+      "finished_at": "2026-10-08T09:35:55Z",
+      "transport_wall_seconds": 0.558742,
+      "current_request_spec_sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a",
+      "transport": {
+        "request_method": "GET",
+        "request_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+        "request_headers": {
+          "accept": "text/html,application/xhtml+xml,application/pdf,text/plain,application/json;q=0.9",
+          "accept_encoding": "identity,gzip,br",
+          "authorization": "absent",
+          "cookie": "absent",
+          "caller_headers": "forbidden"
+        },
+        "redirect_limit": 0,
+        "request_limit_bytes": 67108864,
+        "expanded_limit_bytes": 268435456,
+        "attempt_count": 1,
+        "retry_count": 0,
+        "curl_exit_status": 0,
+        "http_status": 200,
+        "http_version": "2",
+        "final_url": "https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py",
+        "redirect_count": 0,
+        "response_headers_bytes": 5310,
+        "response_headers_sha256": "ac0c886eb0120405a6bd2c3b500846a9b3ff46ac31b92dcce80de212872eef9e",
+        "curl_metadata_sha256": "0227df0fce216237b87594f8dba48fb60e11c313f000d2a60aa07c3106f666d6",
+        "raw_body_bytes": 43637,
+        "raw_body_sha256": "f767302eef8aee3974cf4a621d09b81053a504fbc8afe806c5ff1f4a4a0bfc79",
+        "decoded_body_bytes": 297694,
+        "decoded_body_sha256": "b03c4befa5336b24e4c245330ba265d6757f88e8aac18480358273976033ff4f",
+        "content_type": "text/html",
+        "content_encoding": "gzip",
+        "etag": [
+          "W/\"f4465aaf44eb134f92f38839bca5d080\""
+        ],
+        "last_modified": null,
+        "curl_version": "libcurl/8.18.0 OpenSSL/3.5.5 zlib/1.3.1 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.68.0 librtmp/2.3 mit-krb5/1.22.1 OpenLDAP/2.6.10",
+        "tls_verify_result": 0,
+        "started_at": "2026-10-08T09:35:54Z",
+        "finished_at": "2026-10-08T09:35:55Z",
+        "wall_seconds": 0.558742
+      },
+      "author_observation": {
+        "source_id": "SRC-DTH-TOK-04",
+        "paraphrase": "The published GPT-2 encoder builds a reversible representation of all 256 byte values as Unicode symbols. Its pretokenization expression separates categories such as letters and numbers before BPE. Within each resulting piece, the encoder chooses the adjacent pair with the smallest learned rank, merges nonoverlapping occurrences and repeats. Encoding converts each piece to UTF-8 bytes before mapping those bytes; decoding joins the token symbols, maps them back to bytes and then decodes the combined byte sequence. Chapter 42 reproduces these operations with a tiny illustrative vocabulary to expose the letter-versus-digit boundary in `a1`. That vocabulary is course-authored and supplies no pretrained GPT-2 token IDs or tokenizer parity result.",
+        "rights_observation": "Full GitHub HTML and full extracted official code remain ignored run evidence only. Canonical source observation uses the exact official source hash, bounded line and byte locators, and an author paraphrase with no direct code quotations.",
+        "spans": [
+          {
+            "id": "byte-mapping",
+            "quote": null,
+            "line_start": 9,
+            "line_end": 31,
+            "decoded_utf8_byte_start": 123,
+            "decoded_utf8_byte_end": 1117
+          },
+          {
+            "id": "merge-rank-table",
+            "quote": null,
+            "line_start": 49,
+            "line_end": 49,
+            "decoded_utf8_byte_start": 1712,
+            "decoded_utf8_byte_end": 1783
+          },
+          {
+            "id": "pretokenization-pattern",
+            "quote": null,
+            "line_start": 53,
+            "line_end": 53,
+            "decoded_utf8_byte_start": 1917,
+            "decoded_utf8_byte_end": 2030
+          },
+          {
+            "id": "rank-choice",
+            "quote": null,
+            "line_start": 65,
+            "line_end": 66,
+            "decoded_utf8_byte_start": 2255,
+            "decoded_utf8_byte_end": 2391
+          },
+          {
+            "id": "encode-sequence",
+            "quote": null,
+            "line_start": 96,
+            "line_end": 101,
+            "decoded_utf8_byte_start": 3275,
+            "decoded_utf8_byte_end": 3582
+          },
+          {
+            "id": "decode-sequence",
+            "quote": null,
+            "line_start": 103,
+            "line_end": 105,
+            "decoded_utf8_byte_start": 3583,
+            "decoded_utf8_byte_end": 3778
+          }
+        ]
+      },
+      "publication_scope": {
+        "raw_response_body_retained": false,
+        "full_extracted_source_retained": false,
+        "raw_body_location": "Ignored current run evidence only",
+        "bounded_excerpts_words": 0,
+        "fresh_clone_audit": "Current request/response/extraction/toolchain bindings, hashes, page or line map and author-selected bounded spans are retained; full source replay requires reacquisition from the exact official request URL."
+      },
+      "code_extraction": {
+        "schema_version": 1,
+        "source_id": "SRC-DTH-TOK-04",
+        "method": "pinned-github-embedded-source-json-v1",
+        "input_decoded_html_sha256": "b03c4befa5336b24e4c245330ba265d6757f88e8aac18480358273976033ff4f",
+        "parser": "parse5",
+        "parser_version": "7.3.0",
+        "selector": "script[type=\"application/json\"][data-target=\"react-app.embeddedData\"]",
+        "embedded_json_decoded_html_byte_start": 165391,
+        "embedded_json_decoded_html_byte_end": 185726,
+        "embedded_json_sha256": "290d80906f85d70c381f9035793eb39de4e7e037470e2e33e82af311a292a80b",
+        "source_json_pointer": "/payload/codeViewBlobLayoutRoute.StyledBlob/rawLines",
+        "repo_owner": "openai",
+        "repo_name": "gpt-2",
+        "path": "src/encoder.py",
+        "commit": "e5c5054474f583d6d9499624649353995d63c70a",
+        "raw_lines_count": 117,
+        "assembly": "Join the exact rawLines strings with LF and append one final LF; reject CR, embedded LF, size or official source SHA drift",
+        "code_bytes": 4242,
+        "code_sha256": "84caddd892377b74de8b61f1fdf2437de9dc025c2f3bc73a981edcb0605e4f9a",
+        "line_map_sha256": "47321af2fe9033898b1a987258bafbd4edf418f387f217535b52084a80aa41fe",
+        "visible_main_metadata_only_sha256": "428e54862e6553e6641d34ef1c331f74a5f5a96ecd3c47c660d26b67d31b9e7d",
+        "visible_main_metadata_is_code_evidence": false,
+        "new_request_count": 0,
+        "network": "none"
+      },
+      "visible_main_metadata_is_code_evidence": false
+    }
+  ],
+  "evidence_inventory": [
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/author-observations.json",
+      "bytes": 4249,
+      "sha256": "82758f8d84fa0385f269a85b9925ea2055c4f2ffa561e8452a8b605a569a37fa"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/current-source-spec.json",
+      "bytes": 7976,
+      "sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/initial-curl-header-json-assumption-failure.txt",
+      "bytes": 514,
+      "sha256": "4018f95166f1abd7ba26226788174dc17247e6fb081a1f89c3a1cfaf37ee2ba0"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/initial-github-pointer-assumption-failure.txt",
+      "bytes": 638,
+      "sha256": "627d20843da0d10183ffb67e344a8f68f13eb0a23e7bc74cd1efa6f6843eed40"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/initial-output-permission-failure.txt",
+      "bytes": 562,
+      "sha256": "0db7a83a56539cb4c882431694b80fc17159e661503511116aed1130668dc7f2"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/diagnostics/original-base-provenance-mismatch.txt",
+      "bytes": 854,
+      "sha256": "0ee0acf96b41053e66ad13654c0420aabc260e52cb34f50b202989e5f5105f16"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/curl-executable.sha256",
+      "bytes": 80,
+      "sha256": "86d6712a122a4ea8a477660248c1cade34d514251f3d40d857e573e8ba578c39"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/curl-version.txt",
+      "bytes": 579,
+      "sha256": "f06be6c70b25ae737afebd2e19407c0b4f16e567bff2fb91f3f705fc38369f1d"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/extract-github-code-02.mjs",
+      "bytes": 4086,
+      "sha256": "648da23fbdb791ad47640b936b43967f9c5cce0f9912ed9793bda31f65aadae7"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/extract-sources-02.mjs",
+      "bytes": 5774,
+      "sha256": "dd47613b0926baa79172ca1525f498fa3ff125854c8e7d5735f11d66a698ef4f"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/parser.mjs",
+      "bytes": 1753,
+      "sha256": "121aeac963a8a5a05069afb8649a3f7886211ae684f25507891425f531b2d66a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/toolchain-adapter.mjs",
+      "bytes": 8266,
+      "sha256": "bffedd27d9101c825f0b430a8bcc6109ac8f159df9ed73d7b72371d8891adff7"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/transport-01.sh",
+      "bytes": 1691,
+      "sha256": "e1706f51ca46ac658cf9953b299abd1d000b285faec2852b33ffd824a40c60bc"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/machinery/verify-archive-installed-02.mjs",
+      "bytes": 3947,
+      "sha256": "4d068fd973cb5f9475894773416436578075de5c41f3a20a8ffe5c0095e5e6d2"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/page-map.json",
+      "bytes": 2772,
+      "sha256": "fab7e37bbaf6e91085c2a23553b0484e9a855ceb25f70abf384f90f5a4384803"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/pdfinfo.txt",
+      "bytes": 671,
+      "sha256": "8d9c6bbf92de0cc34d3db0056ad7172027f152d6543d0a33ab94be578f0f2b76"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-01/source-observation.json",
+      "bytes": 5371,
+      "sha256": "a79d9c69cd81583e471afdeccbe6ae785f03114c408fe5d2dc3bc0fe44fa191f"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/code-extraction-record.json",
+      "bytes": 1329,
+      "sha256": "7344ce7fa9cd3ceb8b2793a75d1e89c088378944592b2d529fb0949f61e0a4fa"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/line-map.json",
+      "bytes": 12493,
+      "sha256": "47321af2fe9033898b1a987258bafbd4edf418f387f217535b52084a80aa41fe"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/sources/SRC-DTH-TOK-04/source-observation.json",
+      "bytes": 7744,
+      "sha256": "0fe7e6b61a9e2884c44e1cafed73dd6c949cb0664658184d08ef0c7871d4de48"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/archive-installed-validation.json",
+      "bytes": 6665,
+      "sha256": "32d8a5872cc6f6520761787b367ddf0eb881f2a04d5d545b49d7a7b2d51469fc"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/base-installed-packages.tsv",
+      "bytes": 4956,
+      "sha256": "9eaaeb47b9fc015768229458a819ef919b8490587da9343cc606d49ec5cb0008"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/installed-file-inventory.json",
+      "bytes": 88860,
+      "sha256": "4f5f713770f4e208d4f99541e027beb6831741601d431c02b524efbcd665ec61"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/installed-packages.tsv",
+      "bytes": 44064,
+      "sha256": "7ab248dbb28d74487030ebfe155e6b3cd6c7809ba6e27024dbe1a22d456dd29a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-entities.txt",
+      "bytes": 1260,
+      "sha256": "cb992345949ccd6e8394b2cd6c465f7b897c864f845937dbf64e8997f389e164"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-inventory.json",
+      "bytes": 5683,
+      "sha256": "54185c08faa5682f3f195e081cb25cc4ebf924bf00a7cd3710b3749a24b976b2"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libbrotli1_amd64.txt",
+      "bytes": 1354,
+      "sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libc6_amd64.txt",
+      "bytes": 25467,
+      "sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libdeflate0_amd64.txt",
+      "bytes": 1483,
+      "sha256": "06b1e73b344fa5ad4c24a79547dd787623f3d118d681d6c9bd3fdc10a7070381"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libexpat1_amd64.txt",
+      "bytes": 1756,
+      "sha256": "60919fe1a156395ff14511bb6ff79756c50ade2fff59ac60c9bae1d8a7fe6292"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libfontconfig1_amd64.txt",
+      "bytes": 1301,
+      "sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libfreetype6_amd64.txt",
+      "bytes": 25069,
+      "sha256": "70a7a0a06e6440777417f6875476cb712b03943010abed1c32297798c8cc8ed8"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libgcc-s1_amd64.txt",
+      "bytes": 68194,
+      "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libjbig0_amd64.txt",
+      "bytes": 1849,
+      "sha256": "89ab20c324a191652e94598f2144a65442faed4f14f77bbd10516130ee20f05a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libjpeg62-turbo_amd64.txt",
+      "bytes": 38846,
+      "sha256": "3821184e23385bf2cdc01f56bd999b34036fc3aa03d5135d41680374eb81bf8a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-liblcms2-2_amd64.txt",
+      "bytes": 5362,
+      "sha256": "420fd2c72204652c08a48548a0d1002edab3d9b180d3c416578c61f74092f460"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-liblerc4_amd64.txt",
+      "bytes": 1242,
+      "sha256": "6c55caa8cb2c87c4f6fbe23c21e887a506455d81b5a8e98a7a62e6c81af39daf"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-liblzma5_amd64.txt",
+      "bytes": 15465,
+      "sha256": "a2dc8fac0f496e1c58aff67018cf0c6b88336316afa5642f9335b71642e28aa8"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libnspr4_amd64.txt",
+      "bytes": 331,
+      "sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libnss3_amd64.txt",
+      "bytes": 4058,
+      "sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libopenjp2-7_amd64.txt",
+      "bytes": 42620,
+      "sha256": "eee37e01db9d8eabac77a49dbacb9ea8962e5cfc98a35b87ee02cc81eef94f40"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libpng16-16_amd64.txt",
+      "bytes": 12976,
+      "sha256": "68bd3997355bc44ccb97ff5e2bb146360e762c7d9c721945a4fabf77d1349e4a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libpoppler126_amd64.txt",
+      "bytes": 12722,
+      "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libstdc++6_amd64.txt",
+      "bytes": 68194,
+      "sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libtiff6_amd64.txt",
+      "bytes": 1935,
+      "sha256": "d73e31b03a0d7a515851601c19fee5792c7db03a312efacae146ddf9c91f86f1"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libwebp7_amd64.txt",
+      "bytes": 2027,
+      "sha256": "01eb328708a9454061dd13931b19135e1c2c6251a7e6a6d0efc4b9bc436109c7"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-libzstd1_amd64.txt",
+      "bytes": 5389,
+      "sha256": "35e85e8e9bbb71492c5f5dddf39ed65b68775a02ad8d710c25d097b497f06c49"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-parse5.txt",
+      "bytes": 1109,
+      "sha256": "8c535800331e1e4439835555b3f9edc7fe9dee2fab0d8bbbd5a982e8b8343d4d"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-poppler-utils.txt",
+      "bytes": 12722,
+      "sha256": "dad79f8e4b904808e65be744e3cd23303f050573c634a697ccb8696ef291eb63"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/license-zlib1g_amd64.txt",
+      "bytes": 2927,
+      "sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/linked-libraries.json",
+      "bytes": 21299,
+      "sha256": "3bed580d6d3a9dbae80f33542e3fa7a5252f454d1c4e50b76c646b336130a970"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/network-none-self-test.json",
+      "bytes": 595,
+      "sha256": "e798d623705f1bf5d06665d41efd438971418eb40765cc919bd169df39a75100"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/npm-parser-graph.json",
+      "bytes": 32730,
+      "sha256": "a55ae936fc15af7a716d7deede96793542b97dfb5667a5fccc7d6b6601e65085"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/observed-toolchain.json",
+      "bytes": 1263,
+      "sha256": "0f30a9a60415cf5b8e109f4dd262ea332de24ca1e368be3248fec6bfe39a226a"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/pdfinfo-ldd.txt",
+      "bytes": 2190,
+      "sha256": "6583e03ef4617ba81f74a1ff60caabf6555e75cca1c9c0a8c007378f87cf1d7b"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/pdftotext-ldd.txt",
+      "bytes": 2190,
+      "sha256": "6084ae01b3de417e537ce675b1f0d708d7f4f33a8ee718ce39e1dfdda85df220"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/poppler-package-graph.json",
+      "bytes": 6111,
+      "sha256": "d83d35c2f48788f4f0e35139f44d61368eca9e7c6d103b349b9590e98fc035ec"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-page-1.txt",
+      "bytes": 12,
+      "sha256": "a9e972315e898d81dcc289f15ac427ac54323bfd5c70b7ce266eabcea0a0b288"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-page-2.txt",
+      "bytes": 13,
+      "sha256": "31f0246a4de0744b1faa5486b542d2d82a6e840438eca32648efbc447c35e9cb"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-pdfinfo.txt",
+      "bytes": 299,
+      "sha256": "636bd49725c14ce86977a22f7adf2ee1e221c30d8e212ce06ad2ea0c0909d630"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/self-test-two-pages.pdf",
+      "bytes": 849,
+      "sha256": "f52c122add590ca4761c86ac23ce9364222ed828e6d8372b0085a0d629836a71"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/site-package-lock.json",
+      "bytes": 308899,
+      "sha256": "e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/toolchain/workspace-debian-archive-evidence.json",
+      "bytes": 212340,
+      "sha256": "1a2590a26999c71ddbf82968f41a40ae609d26b3146e35e89f605566cc37f9a7"
+    },
+    {
+      "path": "artifacts/functional-laptop/chapters/42-scalable-bpe-tokenizer/history/transport-authority-spec.json",
+      "bytes": 6133,
+      "sha256": "f01182af74311145f8bbabe4aea1353cbdbccb7a9d3752b9dbf0cfac880be704"
+    }
+  ],
+  "evidence_inventory_sha256": "4084886422f4df275b5adc337bbf1f529d20cf29b668ab9bddccef2cfdae75c4",
+  "copyright_scope": "Raw paper PDF/full extracted paper and raw GitHub HTML/full extracted code stay in ignored run evidence. Canonical history preserves bounded author-selected excerpts and paraphrases, full metadata bindings and page/line maps. No redistribution grant is inferred from a copyright notice or a historical license pin.",
+  "scope": "Historical source observation and mechanical provenance only; no external tokenizer implementation check, oracle/parity verdict, full-data evidence or independent language publication verdict."
+}

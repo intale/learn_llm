@@ -360,6 +360,7 @@ export async function expectOrderedChapterNavigation(
   locale: ChapterLocale,
   currentChapterId: string,
   chapters: readonly CourseChapterLink[],
+  courseIndexHref = "/" + locale + "/course/",
 ) {
   const currentIndex = chapters.findIndex(
     (chapter) => chapter.chapterId === currentChapterId,
@@ -374,7 +375,7 @@ export async function expectOrderedChapterNavigation(
   await expect(navigation).toBeVisible();
   await expect(navigation).toHaveAttribute('aria-label', /.+/);
   await expect(
-    navigation.locator('a[href="/' + locale + '/course/"]'),
+    navigation.locator('a[href="' + courseIndexHref + '"]'),
   ).toHaveCount(1);
 
   for (const [direction, expected, relation] of [

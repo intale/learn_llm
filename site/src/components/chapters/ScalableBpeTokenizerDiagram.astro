@@ -1,0 +1,110 @@
+---
+import trace from '../../../../artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/scalable-bpe-tokenizer-trace.json';
+import InlineMath from '../InlineMath.astro';
+const contrast = trace.gpt2_policy_contrast;
+---
+<figure class="course-diagram scalable-bpe-diagram" data-diagram-style="course-v1"
+  data-visualization-id="scalable-bpe-tokenizer" tabindex="0"
+  aria-labelledby="scalable-bpe-title" aria-describedby="scalable-bpe-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="scalable-bpe-title">Keep BPE choices; compare boundary policies</h3>
+    <p id="scalable-bpe-description" class="course-diagram__description">
+      Scalar recounting and incremental edge updates learn ab, then ac from separate
+      abab and abac documents, using numeric tie order. Held-out acac supplies no
+      counts. For input a1 in a separate example, course raw-byte BPE emits one
+      content token. The GPT-2 pattern splits a1 into a and 1, blocking that merge
+      and yielding two content tokens. Both reconstruct a1. The tiny GPT-2 example's
+      IDs are illustrative, not pretrained GPT-2 IDs.
+    </p>
+  </figcaption>
+  <div class="course-diagram__grid bpe-layout">
+  <div class="course-diagram__grid bpe-training">
+  <section class="course-diagram__card-stack bpe-input" data-diagram-card data-diagram-box>
+    <div class="course-diagram__card-heading"><h4>Training documents and public IDs</h4></div>
+    <p><code>{trace.training_documents[0].text}</code> and <code>{trace.training_documents[1].text}</code>
+      stay separate. Byte tokens <code>a</code>, <code>b</code>, <code>c</code>
+      use content IDs <code>99</code>, <code>100</code>, <code>101</code>.
+      BOS <code>0</code> and EOS <code>1</code> are structural controls excluded
+      from pair counts.</p>
+    <p>Select the greatest current count. Break ties by the smallest left ID,
+      then the smallest right ID.</p>
+  </section>
+  <div class="course-diagram__grid bpe-ranks">
+    {trace.rounds.map(round => <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <div class="course-diagram__card-heading"><h4>Current pairs before rank <code>{round.rule.rank}</code></h4></div>
+      <table data-diagram-table data-bpe-rank={round.rule.rank}>
+        <caption>Current <code>abab</code>/<code>abac</code> pairs after earlier replacements</caption>
+        <thead><tr><th scope="col">Left content ID</th><th scope="col">Right content ID</th><th scope="col">Adjacent occurrences, overlaps counted</th></tr></thead>
+        <tbody>{round.counts.map(pair => <tr>
+          <td><code>{pair.left}</code></td><td><code>{pair.right}</code></td><td><code>{pair.count}</code></td>
+        </tr>)}</tbody>
+      </table>
+      <p>Selected pair: <code>({round.rule.left},{round.rule.right})</code>.
+        New content ID: <code>{round.rule.token_id}</code>.
+        Nonoverlapping replacements: <code>{round.rule.replacements}</code>.</p>
+      <p>After this rank: <code>abab</code> becomes
+        {' '}<code>{JSON.stringify(round.sequences[0])}</code>;
+        {' '}<code>abac</code> becomes <code>{JSON.stringify(round.sequences[1])}</code>.</p>
+    </section>)}
+  </div>
+  </div>
+  <div class="course-diagram__grid bpe-evidence">
+  <section class="course-diagram__card-stack bpe-payloads" data-diagram-card data-diagram-box>
+    <div class="course-diagram__card-heading"><h4>Two strategies, one learned payload</h4></div>
+    <p>The scalar trainer recounts every current edge; the incremental trainer
+      updates disappearing and new edges. Both produce this canonical tokenizer
+      payload SHA-256:</p>
+    <p class="course-diagram__technical"><code>{trace.payloads.scalar_sha256}</code></p>
+    <p>Each strategy has a separate producer receipt.</p>
+  </section>
+  <section class="course-diagram__card-stack bpe-application" data-diagram-card data-diagram-box>
+    <div class="course-diagram__card-heading"><h4>Frozen application and sequence length</h4></div>
+    <p>Held-out <code>acac</code> uses the frozen rules: content IDs
+      {' '}<code>{JSON.stringify(trace.heldout.content_tokens)}</code>;
+      document IDs <code>{JSON.stringify(trace.heldout.document_tokens)}</code>
+      with BOS <code>0</code> and EOS <code>1</code>. It supplies no learning counts.</p>
+    <p>The two training documents finish with <code>{trace.efficiency.content_tokens}</code>
+      {' '}content tokens over <code>{trace.efficiency.input_bytes}</code> input bytes:
+      {' '}<InlineMath latex={`\\frac{${trace.efficiency.content_tokens}}{${trace.efficiency.input_bytes}}=0.5`} />
+      {' '}content tokens per byte. Their <code>{trace.efficiency.control_tokens}</code>
+      {' '}BOS/EOS controls are excluded.</p>
+    <p>This fixture ratio measures sequence length, not throughput or model quality.</p>
+  </section>
+  <section class="course-diagram__card-stack bpe-boundary" data-diagram-card data-diagram-box>
+    <div class="course-diagram__card-heading"><h4>A separate pretoken boundary example</h4></div>
+    <p>The raw-byte fixture learns <code>a</code> followed by <code>1</code>
+      from <code>a1a1</code>. Both encoders receive <code>{contrast.input}</code>
+      and reuse the course rank engine. The published GPT-2 pattern separates
+      the letter and digit, blocking that merge. Its vocabulary IDs below are
+      illustrative, not pretrained GPT-2 IDs.</p>
+    <table data-diagram-table>
+      <caption>Bounded <code>a1</code> outputs under two boundary policies</caption>
+      <thead><tr><th scope="col">Evidence</th><th scope="col">Course raw bytes</th><th scope="col">GPT-2 pattern, tiny vocabulary</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Input pieces before BPE</th><td>One raw-byte sequence</td><td><code>{JSON.stringify(contrast.gpt2_policy_demo.pretokens)}</code></td></tr>
+        <tr><th scope="row">Content IDs</th><td><code>{JSON.stringify(contrast.course_raw_bytes.content_tokens)}</code></td><td><code>{JSON.stringify(contrast.gpt2_policy_demo.content_tokens)}</code></td></tr>
+        <tr><th scope="row">Per-token bytes, hexadecimal</th><td><code>{contrast.course_raw_bytes.token_byte_fragments_hex.join(', ')}</code></td><td><code>{contrast.gpt2_policy_demo.token_byte_fragments_hex.join(', ')}</code></td></tr>
+        <tr><th scope="row">Reconstructed text</th><td><code>{contrast.course_raw_bytes.decoded}</code></td><td><code>{contrast.gpt2_policy_demo.decoded}</code></td></tr>
+      </tbody>
+    </table>
+    <p>Equal reconstructed bytes do not imply equal segmentation.</p>
+  </section>
+  </div>
+  </div>
+</figure>
+
+<style>
+  .bpe-layout, .bpe-training, .bpe-evidence, .bpe-ranks {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  @container (min-width: 48rem) {
+    .bpe-ranks {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container (min-width: 68rem) {
+    .bpe-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bpe-ranks { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

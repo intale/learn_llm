@@ -1,0 +1,14 @@
+[package]
+name = "practical-ch03-scalable-bpe-tokenizer"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch-practical = { path = "../../crates/llm-from-scratch-practical" }
+serde_json = "1.0"
+fancy-regex = { version = "=0.16.2", default-features = false, features = ["std", "unicode"] }
+
+[lints]
+workspace = true

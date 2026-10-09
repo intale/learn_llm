@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "03-scalable-bpe-tokenizer",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Extend BPE with bounded local updates",
+  "description": "Extend the existing Rust BPE trainer and tokenizer with bounded local updates, preserve their learned decisions and inspect a chapter-local GPT-2 segmentation example.",
+  "objective": "Extend the existing BPE trainer and tokenizer with bounded prepared-document training and ranked application while preserving training-only input, numeric tie order, leftmost replacement and exact byte reconstruction."
+}

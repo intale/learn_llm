@@ -1,0 +1,119 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import {
+  getMessages,
+  localePath,
+  locales,
+  type Locale,
+} from '../../../i18n';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { findPublishableChapterSets } from '../../../lib/functional-course-routes';
+import { findPublishablePracticalChapterSets } from '../../../lib/course-build';
+import { firstCourse, type CourseConfiguration } from '../../../lib/course-configuration';
+import { hasCourseMessages } from '../../../i18n/messages';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale }, props: { locale } }));
+}
+
+interface Props {
+  locale: Locale;
+  course?: CourseConfiguration;
+  courseEntries?: (CollectionEntry<'chapters'> | CollectionEntry<'practicalChapters'>)[];
+}
+const { locale, course = firstCourse, courseEntries } = Astro.props;
+const chapterModules = import.meta.glob(
+  '../../../content/chapters/**/*.{md,mdx}',
+);
+const allChapters =
+  courseEntries ?? (Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters'));
+const chapters = (course.id === firstCourse.id ? findPublishableChapterSets(allChapters) : findPublishablePracticalChapterSets(allChapters))
+  .flatMap((set) => {
+    const localized = set.byLocale[locale];
+    return localized ? [localized] : [];
+  })
+  .sort((left, right) => left.data.order - right.data.order);
+
+const copy = getMessages(locale);
+if (course.id !== firstCourse.id && !hasCourseMessages(copy)) throw new Error('Practical course index requires its reviewed locale message group.');
+const indexTitle = course.id === firstCourse.id ? copy.courseTitle : copy.practicalCourseTitle!;
+const indexDescription = course.id === firstCourse.id ? copy.courseDescription : copy.practicalIndexDescription!;
+const indexEyebrow = course.id === firstCourse.id ? copy.courseEyebrow : copy.practicalCourseEyebrow!;
+---
+
+<BaseLayout
+  locale={locale}
+  routeSuffix={`/${course.route}/`}
+  equivalentLocales={course.activeLocales}
+  fallbackRouteSuffix={course.id === firstCourse.id ? undefined : "/"}
+  fallbackLabelKey="homeLabel"
+  title={indexTitle}
+  description={indexDescription}
+>
+  <section class="hero shell-container course-hero">
+    <p class="eyebrow">{indexEyebrow}</p>
+    <h1>{indexTitle}</h1>
+    <p class="hero-intro">{indexDescription}</p>
+  </section>
+
+  {
+    chapters.length > 0 ? (
+      <ol
+        class="feature-grid shell-container course-list"
+        start={chapters[0]?.data.order ?? 1}
+      >
+        {chapters.map((chapter) => (
+          <li>
+            <article class="feature-card">
+              <span class="feature-number" aria-hidden="true">
+                {String(chapter.data.order).padStart(2, '0')}
+              </span>
+              <h2>
+                <a href={localePath(locale, `/${course.route}/${chapter.data.chapter_id}/`)}>
+                  {chapter.data.title}
+                </a>
+              </h2>
+              <p>{chapter.data.description}</p>
+              <small>{copy.contentRevisionLabel}: {chapter.data.content_revision}</small>
+            </article>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <aside class="course-note shell-container">
+        <span aria-hidden="true">⌁</span>
+        <p>{copy.courseEmpty}</p>
+      </aside>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .course-hero {
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .course-list {
+    margin-top: 0;
+    margin-bottom: 6rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .course-list li {
+    min-width: 0;
+  }
+
+  .course-list h2 a {
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .course-list small {
+    display: block;
+    margin-top: 1.25rem;
+    color: var(--accent-ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+</style>

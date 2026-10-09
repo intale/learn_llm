@@ -1,0 +1,15 @@
+{
+  "chapter_id": "03-scalable-bpe-tokenizer",
+  "locale": "en",
+  "title": "BPE decisions and tokenizer policy",
+  "description": "Terms for current pair counts, learned ranks, byte reconstruction, pretoken boundaries and tokenizer identity.",
+  "terms": [
+    {"term":"Byte coverage","definition":"An initial content token for every possible byte value, so any byte sequence has a fallback encoding. Byte coverage does not imply that each token fragment is valid UTF-8."},
+    {"term":"BPE merge","definition":"A learned rule that joins two adjacent content tokens. Training selects by current frequency; overlapping occurrences count, but replacements proceed left to right without overlap."},
+    {"term":"Merge rank","definition":"A rule's position in the learned order. Encoding prioritizes the earliest learned eligible rule, then the leftmost live occurrence."},
+    {"term":"Pretokenization","definition":"Splitting input into pieces before BPE. Merges stay inside a piece; the chapter's GPT-2 policy example separates a letter from a digit, while the course policy has no internal pretoken boundaries."},
+    {"term":"Special token","definition":"A structural control inserted through an explicit API. The course tokenizer reserves BOS and EOS; ordinary text, including control-looking spellings, cannot insert those IDs."},
+    {"term":"Tokenizer identity","definition":"The exact learned payload and its declared training lineage, including layout, policy and ordered merges. Equal vocabulary sizes or reconstructed text do not identify the same tokenizer."},
+    {"term":"Tokens per byte","definition":"Content-token count divided by input-byte count for nonempty content. The chapter excludes BOS/EOS controls; this sequence-length ratio is not throughput or trained-model quality."}
+  ]
+}

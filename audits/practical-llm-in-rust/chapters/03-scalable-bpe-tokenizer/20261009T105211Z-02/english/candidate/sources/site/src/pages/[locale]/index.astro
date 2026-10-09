@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getMessages, localePath, locales, type Locale } from '../../i18n';
+import { hasCourseHomeMessages } from '../../i18n/messages';
+import { firstCourse, practicalCourse } from '../../lib/course-configuration';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale }, props: { locale } }));
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = getMessages(locale);
+const repositoryUrl = 'https://github.com/intale/learn_llm';
+const features = [
+  [copy.examplesTitle, copy.examplesDescription],
+  [copy.formulasTitle, copy.formulasDescription],
+  [copy.historyTitle, copy.historyDescription],
+];
+---
+
+<BaseLayout locale={locale} description={copy.siteDescription} routeSuffix="/">
+  <section class="hero shell-container">
+    <p class="eyebrow">{copy.eyebrow}</p>
+    <h1>{copy.homeTitle}</h1>
+    <p class="hero-intro">{copy.homeIntro}</p>
+  </section>
+
+  {hasCourseHomeMessages(copy) && (
+    <section class="shell-container" aria-labelledby="course-selection-title" data-course-selection>
+      <h2 id="course-selection-title">{copy.courseSelectionTitle}</h2>
+      <div class="feature-grid course-selection">
+        <article class="feature-card" data-course-id={firstCourse.id}>
+          <h3>{copy.basicsCourseTitle}</h3>
+          <p>{copy.basicsCourseDescription}</p>
+          <a class="course-cta" href={localePath(locale, '/course/00-llm-parts/')}>
+            {copy.basicsCourseStart}
+          </a>
+        </article>
+        <article class="feature-card" data-course-id={practicalCourse.id}>
+          <h3>{copy.practicalCourseTitle}</h3>
+          <p>{copy.practicalCourseDescription}</p>
+          <p>{copy.practicalCoursePrerequisite}</p>
+          <p>{copy.practicalCourseLanguage}</p>
+          <a class="course-cta" href={localePath('en', '/practical-llm-in-rust/00-course-structure/')} hreflang="en">
+            {copy.practicalCourseStart}
+          </a>
+        </article>
+      </div>
+    </section>
+  )}
+
+  <section class="feature-grid shell-container" aria-label={copy.homeTitle}>
+    {
+      features.map(([title, description], index) => (
+        <article class="feature-card">
+          <span class="feature-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <h2>{title}</h2>
+          <p>{description}</p>
+        </article>
+      ))
+    }
+  </section>
+
+  <aside class="course-note shell-container">
+    <span aria-hidden="true">⌁</span>
+    <div class="course-note-content">
+      {!hasCourseHomeMessages(copy) && <p>{copy.courseNote}</p>}
+      <div class="course-actions">
+        {!hasCourseHomeMessages(copy) && (
+          <a class="course-cta" href={localePath(locale, '/course/')}>
+            {copy.courseLinkLabel}
+          </a>
+        )}
+        <a class="repository-cta" href={repositoryUrl} rel="external">
+          {copy.repositoryLinkLabel}
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+</BaseLayout>
+
+<style>
+  .course-selection { padding: 0; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .course-selection h3 { font: inherit; font-size: 1.4rem; font-weight: 700; margin-top: 0; }
+  .course-selection p { overflow-wrap: anywhere; }
+  @media (max-width: 42rem) { .course-selection { grid-template-columns: minmax(0,1fr); } }
+</style>

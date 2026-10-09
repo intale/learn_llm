@@ -1,0 +1,23 @@
+import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync,realpathSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {join} from 'node:path';
+import assert from 'node:assert/strict';
+const hash=b=>createHash('sha256').update(b).digest('hex');
+const evidence='/evidence';
+const archive='/opt/learn-llm/cache/debian/workspace/poppler-utils_22.12.0-2+deb12u2_amd64.deb';
+const provenance=JSON.parse(readFileSync('/opt/learn-llm/provenance/workspace-debian-archive-evidence.json'));
+const historicalBaseActual=hash(readFileSync('/opt/learn-llm/provenance/base-installed-packages.tsv'));
+const historicalBaseExpected=provenance.base_installed_packages_sha256;
+const actualArchiveHash=hash(readFileSync(archive));assert.equal(actualArchiveHash,'237d8ae3012bb0b275b681bb7fbd00ee591215e9dc276231d7e4f7bb64efacea');assert.equal(lstatSync(archive).size,191800);
+const version=execFileSync('dpkg-deb',['-f',archive,'Version'],{encoding:'utf8'}).trim();assert.equal(version,'22.12.0-2+deb12u2');
+const unpack='/tmp/extracted-poppler';mkdirSync(unpack);execFileSync('dpkg-deb',['-x',archive,unpack]);
+const files=[];const symlinks=[];
+function walk(dir){for(const n of readdirSync(dir).sort()){const p=join(dir,n);const relative=p.slice(unpack.length);const stat=lstatSync(p);if(stat.isDirectory())walk(p);else if(stat.isFile()){const sha256=hash(readFileSync(p));const installed=relative;assert.equal(hash(readFileSync(installed)),sha256,'archive-installed drift '+relative);files.push({path:relative,bytes:stat.size,sha256,installed_match:true});}else if(stat.isSymbolicLink()){assert.equal(hash(readFileSync(p)),hash(readFileSync(relative)),'archive-installed symlink target drift '+relative);symlinks.push({path:relative,resolved_installed_path:realpathSync(relative)});}else throw Error('unexpected archive payload');}}
+walk(unpack);
+assert.equal(hash(readFileSync('/usr/bin/pdftotext')),'fc66428c317090606e4bc03e9862d3fb1ae08720fe122c48ed25ef282af383c3');assert.equal(hash(readFileSync('/usr/bin/pdfinfo')),'4aa5fe4f3e1c83f9bddd3d5cf611de4cea65285df8edb8dbba1dd312d1fb0f18');
+const linked=JSON.parse(readFileSync('/collected/linked-libraries.json'));for(const r of linked)assert.equal(hash(readFileSync(r.path)),r.sha256);
+const npm=JSON.parse(readFileSync('/collected/npm-parser-graph.json'));for(const r of npm)for(const f of r.files)assert.equal(hash(readFileSync(f.path)),f.sha256);
+const installed=JSON.parse(readFileSync('/collected/installed-file-inventory.json'));for(const r of installed)assert.equal(hash(readFileSync(r.path)),r.sha256);
+writeFileSync(join(evidence,'archive-installed-validation.json'),JSON.stringify({schema_version:1,scope:'Independent current cached parser image validation; no original foundation completion or base-provenance admission',image:'sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3',archive:{path:archive,sha256:actualArchiveHash,bytes:191800,version,snapshot_url:'https://snapshot.debian.org/archive/debian-security/20260731T202417Z/pool/updates/main/p/poppler/poppler-utils_22.12.0-2+deb12u2_amd64.deb'},historical_provenance:{status:'mismatch-retained-only',admitted:false,base_inventory_expected_sha256:historicalBaseExpected,base_inventory_actual_sha256:historicalBaseActual,base_inventory_match:historicalBaseExpected===historicalBaseActual,original_foundation_completion_claimed:false},all_archive_payload_files_match_installed:true,files,symlinks,linked_library_records_rehashed:linked.length,npm_parser_files_rehashed:npm.reduce((n,r)=>n+r.files.length,0),installed_file_records_rehashed:installed.length},null,2)+'\n',{flag:'wx'});
+process.stdout.write(JSON.stringify({result:'current-only-pass',historical_provenance:'mismatch-retained-only',archive_file_count:files.length,linked_library_records:linked.length,npm_files:npm.reduce((n,r)=>n+r.files.length,0),installed_files:installed.length})+'\n');

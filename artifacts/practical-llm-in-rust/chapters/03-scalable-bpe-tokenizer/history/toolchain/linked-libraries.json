@@ -1,0 +1,524 @@
+[
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib64/ld-linux-x86-64.so.2",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "owner": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "bytes": 210904,
+    "sha256": "7288c75488697bad29619f7ad123b8e467744f500369689d97de13197d282e87"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libbrotlicommon.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.0.9",
+    "owner": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.0.9",
+    "bytes": 137376,
+    "sha256": "d0dd623a89c3cd7c085757e41c940a39916a571a9b22b50bd736accd3f3aec53"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libbrotlidec.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.0.9",
+    "owner": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.0.9",
+    "bytes": 47264,
+    "sha256": "928b2613f2d3d73f78bc05c81d79c04cef7e196564f733c0ffdf893602d83aaa"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libc.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "owner": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "bytes": 1922136,
+    "sha256": "666bb96697d92290e2172a8403040f9e3ebdd06aa4d4769080649c92201a9aad"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "owner": "libdeflate0:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "bytes": 149384,
+    "sha256": "7a20781883ba5f05bdf0a259b026109142b9d9af9169e489af608b51c4e233d5"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libexpat.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.8.10",
+    "owner": "libexpat1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.8.10",
+    "bytes": 174176,
+    "sha256": "5284992cab1e026b8fc254576c89e7fcc37bcf43d5b6dc66a9fb1fb1cd400f88"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libfontconfig.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.0",
+    "owner": "libfontconfig1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.0",
+    "bytes": 306112,
+    "sha256": "eba9fe8895df08cb98d6a294825132a52b65b53f4f1bce26bb3f6ee6ac6b16ec"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libfreetype.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libfreetype.so.6.18.3",
+    "owner": "libfreetype6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreetype.so.6.18.3",
+    "bytes": 821160,
+    "sha256": "385a9c39e8d7f71f895079a4763ce6dee10ce66951e5e2b506d68895d51f5bd5"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "owner": "libgcc-s1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "bytes": 125312,
+    "sha256": "8b7e66a8f391da9240ea76f9a7863fc1beeca38eaf308ab509677ef19d3aaad0"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libjbig.so.0",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libjbig.so.0",
+    "owner": "libjbig0:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjbig.so.0",
+    "bytes": 66240,
+    "sha256": "92f86d0ba0b9c6e342d61abe8edec5810d0d9cedad41e28a61fa1ecdbc040710"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libjpeg.so.62",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libjpeg.so.62.3.0",
+    "owner": "libjpeg62-turbo:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjpeg.so.62.3.0",
+    "bytes": 600128,
+    "sha256": "dad87949ccad2be7e40a02986306087fdcfb35ccaadd59aea923a3f96d290eec"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/liblcms2.so.2",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14",
+    "owner": "liblcms2-2:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14",
+    "bytes": 398304,
+    "sha256": "7826c2951dcb1d74bd6ef42571327ea365d4ab874184a47ca03efb8dc8e6de72"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libLerc.so.4",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libLerc.so.4",
+    "owner": "liblerc4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libLerc.so.4",
+    "bytes": 616464,
+    "sha256": "6b465f547b06f1b3ac7aef08d4f2233f1417417c3e4e5a5f80f8dec806b0e2c7"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/liblzma.so.5",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1",
+    "owner": "liblzma5:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1",
+    "bytes": 190456,
+    "sha256": "ab16801d2741fd99932c08718f0c0411a778bd863192eb5a054de358e2a82849"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libm.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+    "owner": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+    "bytes": 907784,
+    "sha256": "958fd4988943ab6713d04d4c7de8e468e358c5671db2acf9a7b025b465d10910"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libnspr4.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libnspr4.so",
+    "owner": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnspr4.so",
+    "bytes": 254440,
+    "sha256": "d7ddad6e67266e1517ce5f5240ea5057f20038bf98954c255fe628e92e6ca1a9"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libnss3.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libnss3.so",
+    "owner": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnss3.so",
+    "bytes": 1406352,
+    "sha256": "9e5194a16a5674fef6d1f817114597d81c6958fcbfb118d7fdf179b4ed46117d"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libnssutil3.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libnssutil3.so",
+    "owner": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnssutil3.so",
+    "bytes": 203056,
+    "sha256": "0d33ca0c9d4cd138caa8602478bcec10721da95befdaf481d82d55f9dd6d0a81"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libopenjp2.so.7",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0",
+    "owner": "libopenjp2-7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0",
+    "bytes": 408000,
+    "sha256": "36607a63e89882c71eae13027f59cd04341e46f9bf30337b7b700c3b4b36b7d3"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libplc4.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libplc4.so",
+    "owner": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libplc4.so",
+    "bytes": 22632,
+    "sha256": "e1f9c8d573e371179f57c95ff99c5b7a89b4384eaaa6f8f0c231851bfb684eeb"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libplds4.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libplds4.so",
+    "owner": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libplds4.so",
+    "bytes": 14472,
+    "sha256": "74cf29f1ad2c66a5811effb4473d721c97eceae692fa6c8c4b858a610161aab6"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libpng16.so.16",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libpng16.so.16.39.0",
+    "owner": "libpng16-16:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpng16.so.16.39.0",
+    "bytes": 219056,
+    "sha256": "6f34e8ab44889b11e572ca7a3026a005ce846ba97aeb66afb5526fa737fb138d"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libpoppler.so.126",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libpoppler.so.126.0.0",
+    "owner": "libpoppler126:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpoppler.so.126.0.0",
+    "bytes": 3753768,
+    "sha256": "93c009cdc82b938f60396f39c00e7022aa7b94488c7667aa414274b17f119cd6"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libsmime3.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libsmime3.so",
+    "owner": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libsmime3.so",
+    "bytes": 191072,
+    "sha256": "b6d811516e872c957e8192dbcff93cc34c08ce287a6f7308a0905e0ffde66f59"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libstdc++.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30",
+    "owner": "libstdc++6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30",
+    "bytes": 2190440,
+    "sha256": "2b7d4c5c549898f3fff509105d7c5b283f0cfcaa83d38954dc8690bd5aba88ed"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libtiff.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0",
+    "owner": "libtiff6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0",
+    "bytes": 567304,
+    "sha256": "0ab59f14c0e89fb47b9bb1e51b60264fcf62d6f8564c3dbf3c7725ebe844a2ea"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libwebp.so.7",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libwebp.so.7.1.5",
+    "owner": "libwebp7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libwebp.so.7.1.5",
+    "bytes": 453240,
+    "sha256": "4fedb320592cad963eab7f598d3acf3fa9054a2ccffac95bc97085b134ffdc3e"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libz.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libz.so.1.2.13",
+    "owner": "zlib1g:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.2.13",
+    "bytes": 121280,
+    "sha256": "7e2a72b4c4b38c61e6962de6e3f4a5e9ae692e732c68deead10a7ce2135a7f68"
+  },
+  {
+    "executable": "/usr/bin/pdfinfo",
+    "requested_path": "/lib/x86_64-linux-gnu/libzstd.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4",
+    "owner": "libzstd1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4",
+    "bytes": 763816,
+    "sha256": "37412b7ac11063c25a375bdff6f4fdb340362f926cd9c3a55962e8a9c9bc702e"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib64/ld-linux-x86-64.so.2",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "owner": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "bytes": 210904,
+    "sha256": "7288c75488697bad29619f7ad123b8e467744f500369689d97de13197d282e87"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libbrotlicommon.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.0.9",
+    "owner": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.0.9",
+    "bytes": 137376,
+    "sha256": "d0dd623a89c3cd7c085757e41c940a39916a571a9b22b50bd736accd3f3aec53"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libbrotlidec.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.0.9",
+    "owner": "libbrotli1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.0.9",
+    "bytes": 47264,
+    "sha256": "928b2613f2d3d73f78bc05c81d79c04cef7e196564f733c0ffdf893602d83aaa"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libc.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "owner": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "bytes": 1922136,
+    "sha256": "666bb96697d92290e2172a8403040f9e3ebdd06aa4d4769080649c92201a9aad"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "owner": "libdeflate0:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libdeflate.so.0",
+    "bytes": 149384,
+    "sha256": "7a20781883ba5f05bdf0a259b026109142b9d9af9169e489af608b51c4e233d5"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libexpat.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.8.10",
+    "owner": "libexpat1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.8.10",
+    "bytes": 174176,
+    "sha256": "5284992cab1e026b8fc254576c89e7fcc37bcf43d5b6dc66a9fb1fb1cd400f88"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libfontconfig.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.0",
+    "owner": "libfontconfig1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.0",
+    "bytes": 306112,
+    "sha256": "eba9fe8895df08cb98d6a294825132a52b65b53f4f1bce26bb3f6ee6ac6b16ec"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libfreetype.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libfreetype.so.6.18.3",
+    "owner": "libfreetype6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libfreetype.so.6.18.3",
+    "bytes": 821160,
+    "sha256": "385a9c39e8d7f71f895079a4763ce6dee10ce66951e5e2b506d68895d51f5bd5"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "owner": "libgcc-s1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "bytes": 125312,
+    "sha256": "8b7e66a8f391da9240ea76f9a7863fc1beeca38eaf308ab509677ef19d3aaad0"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libjbig.so.0",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libjbig.so.0",
+    "owner": "libjbig0:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjbig.so.0",
+    "bytes": 66240,
+    "sha256": "92f86d0ba0b9c6e342d61abe8edec5810d0d9cedad41e28a61fa1ecdbc040710"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libjpeg.so.62",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libjpeg.so.62.3.0",
+    "owner": "libjpeg62-turbo:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libjpeg.so.62.3.0",
+    "bytes": 600128,
+    "sha256": "dad87949ccad2be7e40a02986306087fdcfb35ccaadd59aea923a3f96d290eec"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/liblcms2.so.2",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14",
+    "owner": "liblcms2-2:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/liblcms2.so.2.0.14",
+    "bytes": 398304,
+    "sha256": "7826c2951dcb1d74bd6ef42571327ea365d4ab874184a47ca03efb8dc8e6de72"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libLerc.so.4",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libLerc.so.4",
+    "owner": "liblerc4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libLerc.so.4",
+    "bytes": 616464,
+    "sha256": "6b465f547b06f1b3ac7aef08d4f2233f1417417c3e4e5a5f80f8dec806b0e2c7"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/liblzma.so.5",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1",
+    "owner": "liblzma5:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.1",
+    "bytes": 190456,
+    "sha256": "ab16801d2741fd99932c08718f0c0411a778bd863192eb5a054de358e2a82849"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libm.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+    "owner": "libc6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+    "bytes": 907784,
+    "sha256": "958fd4988943ab6713d04d4c7de8e468e358c5671db2acf9a7b025b465d10910"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libnspr4.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libnspr4.so",
+    "owner": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnspr4.so",
+    "bytes": 254440,
+    "sha256": "d7ddad6e67266e1517ce5f5240ea5057f20038bf98954c255fe628e92e6ca1a9"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libnss3.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libnss3.so",
+    "owner": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnss3.so",
+    "bytes": 1406352,
+    "sha256": "9e5194a16a5674fef6d1f817114597d81c6958fcbfb118d7fdf179b4ed46117d"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libnssutil3.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libnssutil3.so",
+    "owner": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libnssutil3.so",
+    "bytes": 203056,
+    "sha256": "0d33ca0c9d4cd138caa8602478bcec10721da95befdaf481d82d55f9dd6d0a81"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libopenjp2.so.7",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0",
+    "owner": "libopenjp2-7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libopenjp2.so.2.5.0",
+    "bytes": 408000,
+    "sha256": "36607a63e89882c71eae13027f59cd04341e46f9bf30337b7b700c3b4b36b7d3"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libplc4.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libplc4.so",
+    "owner": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libplc4.so",
+    "bytes": 22632,
+    "sha256": "e1f9c8d573e371179f57c95ff99c5b7a89b4384eaaa6f8f0c231851bfb684eeb"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libplds4.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libplds4.so",
+    "owner": "libnspr4:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libplds4.so",
+    "bytes": 14472,
+    "sha256": "74cf29f1ad2c66a5811effb4473d721c97eceae692fa6c8c4b858a610161aab6"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libpng16.so.16",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libpng16.so.16.39.0",
+    "owner": "libpng16-16:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpng16.so.16.39.0",
+    "bytes": 219056,
+    "sha256": "6f34e8ab44889b11e572ca7a3026a005ce846ba97aeb66afb5526fa737fb138d"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libpoppler.so.126",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libpoppler.so.126.0.0",
+    "owner": "libpoppler126:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libpoppler.so.126.0.0",
+    "bytes": 3753768,
+    "sha256": "93c009cdc82b938f60396f39c00e7022aa7b94488c7667aa414274b17f119cd6"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libsmime3.so",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libsmime3.so",
+    "owner": "libnss3:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libsmime3.so",
+    "bytes": 191072,
+    "sha256": "b6d811516e872c957e8192dbcff93cc34c08ce287a6f7308a0905e0ffde66f59"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libstdc++.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30",
+    "owner": "libstdc++6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30",
+    "bytes": 2190440,
+    "sha256": "2b7d4c5c549898f3fff509105d7c5b283f0cfcaa83d38954dc8690bd5aba88ed"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libtiff.so.6",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0",
+    "owner": "libtiff6:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0",
+    "bytes": 567304,
+    "sha256": "0ab59f14c0e89fb47b9bb1e51b60264fcf62d6f8564c3dbf3c7725ebe844a2ea"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libwebp.so.7",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libwebp.so.7.1.5",
+    "owner": "libwebp7:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libwebp.so.7.1.5",
+    "bytes": 453240,
+    "sha256": "4fedb320592cad963eab7f598d3acf3fa9054a2ccffac95bc97085b134ffdc3e"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libz.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libz.so.1.2.13",
+    "owner": "zlib1g:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.2.13",
+    "bytes": 121280,
+    "sha256": "7e2a72b4c4b38c61e6962de6e3f4a5e9ae692e732c68deead10a7ce2135a7f68"
+  },
+  {
+    "executable": "/usr/bin/pdftotext",
+    "requested_path": "/lib/x86_64-linux-gnu/libzstd.so.1",
+    "resolved_path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4",
+    "owner": "libzstd1:amd64",
+    "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.4",
+    "bytes": 763816,
+    "sha256": "37412b7ac11063c25a375bdff6f4fdb340362f926cd9c3a55962e8a9c9bc702e"
+  }
+]

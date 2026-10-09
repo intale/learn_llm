@@ -1,0 +1,125 @@
+{
+  "source_id": "SRC-DTH-TOK-01",
+  "title": "Neural Machine Translation of Rare Words with Subword Units",
+  "canonical_citation_locator": "https://aclanthology.org/P16-1162/",
+  "requested_url": "https://aclanthology.org/P16-1162.pdf",
+  "original_request_url": "https://aclanthology.org/P16-1162/",
+  "final_url": "https://aclanthology.org/P16-1162.pdf",
+  "status": 200,
+  "redirects": [],
+  "content_type": "application/pdf",
+  "content_encoding": "identity",
+  "request_bytes": 332371,
+  "response_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+  "response_header_sha256": "9792b176dd441b5b5fa0ea00519da719d4c13cf8ac99090b6b880f213ae8d8c9",
+  "decoded_response_bytes": 332371,
+  "decoded_response_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+  "extracted_text_bytes": 46862,
+  "extracted_text_sha256": "399e533f71f6edca20860bdb921678f052502572da32169550c0d0d20a49b720",
+  "extraction": {
+    "method": "pinned-pdf-text-and-page-map-v1",
+    "page_count": 11,
+    "pdfinfo_sha256": "8d9c6bbf92de0cc34d3db0056ad7172027f152d6543d0a33ab94be578f0f2b76",
+    "page_map_sha256": "fab7e37bbaf6e91085c2a23553b0484e9a855ceb25f70abf384f90f5a4384803",
+    "whole_equals_ordered_pages": true,
+    "argv": [
+      "pdftotext",
+      "-enc",
+      "UTF-8",
+      "-eol",
+      "unix",
+      "-nopgbrk",
+      "<input.pdf>",
+      "<output.txt>"
+    ]
+  },
+  "started_at": "2026-10-08T09:35:54Z",
+  "finished_at": "2026-10-08T09:35:54Z",
+  "transport_wall_seconds": 0.731718,
+  "current_request_spec_sha256": "3df947ebcac15a64e167764b23e50bb8446298a38fa73bc2be3461a25f26783a",
+  "transport": {
+    "request_method": "GET",
+    "request_url": "https://aclanthology.org/P16-1162.pdf",
+    "request_headers": {
+      "accept": "text/html,application/xhtml+xml,application/pdf,text/plain,application/json;q=0.9",
+      "accept_encoding": "identity,gzip,br",
+      "authorization": "absent",
+      "cookie": "absent",
+      "caller_headers": "forbidden"
+    },
+    "redirect_limit": 0,
+    "request_limit_bytes": 67108864,
+    "expanded_limit_bytes": 268435456,
+    "attempt_count": 1,
+    "retry_count": 0,
+    "curl_exit_status": 0,
+    "http_status": 200,
+    "http_version": "1.1",
+    "final_url": "https://aclanthology.org/P16-1162.pdf",
+    "redirect_count": 0,
+    "response_headers_bytes": 240,
+    "response_headers_sha256": "9792b176dd441b5b5fa0ea00519da719d4c13cf8ac99090b6b880f213ae8d8c9",
+    "curl_metadata_sha256": "3ebbdfcd03bae422081f7e002462b1e51ed33933422ea80c6c8e114d36b561c1",
+    "raw_body_bytes": 332371,
+    "raw_body_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+    "decoded_body_bytes": 332371,
+    "decoded_body_sha256": "ebf5b38456ca47ca5e8dc194e9df50ba6dda5fa5a841c8b6de18741774ecd9ce",
+    "content_type": "application/pdf",
+    "content_encoding": "identity",
+    "etag": [
+      "\"51253-539038d436604\""
+    ],
+    "last_modified": [
+      "Mon, 01 Aug 2016 14:38:21 GMT"
+    ],
+    "curl_version": "libcurl/8.18.0 OpenSSL/3.5.5 zlib/1.3.1 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.68.0 librtmp/2.3 mit-krb5/1.22.1 OpenLDAP/2.6.10",
+    "tls_verify_result": 0,
+    "started_at": "2026-10-08T09:35:54Z",
+    "finished_at": "2026-10-08T09:35:54Z",
+    "wall_seconds": 0.731718
+  },
+  "author_observation": {
+    "source_id": "SRC-DTH-TOK-01",
+    "paraphrase": "Sennrich and colleagues describe a character-based subword representation, repeatedly count adjacent symbol pairs and merge a frequent pair, and exclude pairs that cross word boundaries. Chapter 42 uses a separate course raw-byte policy; its numeric token IDs, tie order and document framing are not claims about the paper.",
+    "rights_observation": "The paper displays a 2016 Association for Computational Linguistics copyright notice. No redistribution grant was observed in the retrieved paper. Full PDF and full extracted text remain ignored run evidence only.",
+    "spans": [
+      {
+        "id": "character-units",
+        "quote": "we merge characters or\ncharacter sequences.",
+        "decoded_utf8_byte_start": 11877,
+        "decoded_utf8_byte_end": 11920,
+        "pdf_page": 3,
+        "page_byte_start": 3557,
+        "printed_page": 1717,
+        "section": "3.2"
+      },
+      {
+        "id": "pair-counts",
+        "quote": "We iteratively count all symbol pairs",
+        "decoded_utf8_byte_start": 12165,
+        "decoded_utf8_byte_end": 12202,
+        "pdf_page": 3,
+        "page_byte_start": 3845,
+        "printed_page": 1717,
+        "section": "3.2"
+      },
+      {
+        "id": "word-boundary",
+        "quote": "we do not consider pairs that\ncross word boundaries.",
+        "decoded_utf8_byte_start": 12697,
+        "decoded_utf8_byte_end": 12749,
+        "pdf_page": 3,
+        "page_byte_start": 4377,
+        "printed_page": 1717,
+        "section": "3.2"
+      }
+    ]
+  },
+  "publication_scope": {
+    "raw_response_body_retained": false,
+    "full_extracted_source_retained": false,
+    "raw_body_location": "Ignored current run evidence only",
+    "bounded_excerpts_words": 21,
+    "fresh_clone_audit": "Current request/response/extraction/toolchain bindings, hashes, page or line map and author-selected bounded spans are retained; full source replay requires reacquisition from the exact official request URL."
+  }
+}

@@ -231,9 +231,10 @@ test('default and practical contract selectors enumerate their separate current 
   assert.equal(firstResults.results.length, 40);
   assert.equal(firstResults.results.every(result => result.parsed.data.order <= 39), true);
   const practicalResults = runChapterContractCheck(['--course', practical.id, '--structure-only'], root);
-  assert.deepEqual(practicalResults.results.map(result => result.parsed.data.chapter_id), initialIds);
+  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer'];
+  assert.deepEqual(practicalResults.results.map(result => result.parsed.data.chapter_id), currentPracticalIds);
   assert.equal(runFunctionalContractCheck(['--structure-only'], root).length, 40);
-  assert.equal(runFunctionalContractCheck(['--course', practical.id, '--structure-only'], root).length, 3);
+  assert.equal(runFunctionalContractCheck(['--course', practical.id, '--structure-only'], root).length, currentPracticalIds.length);
 });
 
 test('contract integration binds the practical demo package rather than the same-numbered first demo', () => {
@@ -324,7 +325,8 @@ test('practical thin route delegates markup and CSS checks to the sole original 
 });
 
 test('practical delegation rejects presentation changes and extra wrapper trees', () => {
-  const wrapper = readFileSync(join(root, 'site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro'), 'utf8');
+  const wrapper = readFileSync(join(root, 'site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro'), 'utf8')
+    .replace(" chapterLabelByLocale={{ en: 'Chapter' }}", '');
   for (const value of [
     wrapper.replace('<CourseChapter {...Astro.props} />', '<CourseChapter {...Astro.props} class="private" />'),
     wrapper.replace('<CourseChapter {...Astro.props} />', '<CourseChapter {...Astro.props} client:load />'),
@@ -335,6 +337,37 @@ test('practical delegation rejects presentation changes and extra wrapper trees'
     wrapper + '\n<style is:global>article { color: red; }</style>\n',
     wrapper + '\n<script>console.log("extra");</script>\n',
   ]) assert.throws(() => validatePracticalChapterDelegation(value), /practical route|practical presentation/);
+});
+
+test('practical delegation accepts the original spread and authored literal Chapter label', () => {
+  const wrapper = readFileSync(join(root, 'site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro'), 'utf8')
+    .replace(" chapterLabelByLocale={{ en: 'Chapter' }}", '');
+  const expected = { rendererImport: '../course/[...slug].astro', componentCount: 1 };
+  assert.deepEqual(validatePracticalChapterDelegation(wrapper), expected);
+  assert.deepEqual(validatePracticalChapterDelegation(wrapper.replace(
+    '<CourseChapter {...Astro.props} />',
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }} />")), expected);
+});
+
+test('practical Chapter label delegation refuses other maps, expressions and attributes', () => {
+  const wrapper = readFileSync(join(root, 'site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro'), 'utf8')
+    .replace(" chapterLabelByLocale={{ en: 'Chapter' }}", '');
+  for (const presentation of [
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Lesson' }} />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ ru: 'Chapter' }} />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter', ru: 'Chapter' }} />",
+    '<CourseChapter {...Astro.props} chapterLabelByLocale={labels} />',
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ ...labels, en: 'Chapter' }} />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ ['en']: 'Chapter' }} />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: makeLabel() }} />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }} class='private' />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }} client:load />",
+    "<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }} chapterLabelByLocale={{ en: 'Chapter' }} />",
+    "<CourseChapter chapterLabelByLocale={{ en: 'Chapter' }} {...Astro.props} />",
+  ]) {
+    assert.throws(() => validatePracticalChapterDelegation(wrapper.replace(
+      '<CourseChapter {...Astro.props} />', presentation)), /practical presentation/);
+  }
 });
 
 test('practical delegation requires an actual unique runtime import binding', () => {

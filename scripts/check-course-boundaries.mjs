@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Current-course path/hash/receipt orchestration. No semantic approval is inferred.
-import {existsSync,readdirSync} from 'node:fs';
+import {existsSync,lstatSync,readdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {parseArgs} from 'node:util';
@@ -17,44 +17,70 @@ export const PRACTICAL_PRIVATE_SCOPE = 'site/src/i18n/practical-catalogs/private
 export const PRACTICAL_PUBLICATION_RECEIPT = 'artifacts/practical-llm-in-rust/foundation/publication-receipt.json';
 export const PRACTICAL_ENGLISH_AUDIT_ROOT = 'audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english';
 export const FOUNDATION_CHAPTER_IDS = Object.freeze(['00-course-structure','01-reference-core-handoff','02-corpus-preparation']);
+export const PRACTICAL_CURRENT_PUBLICATION_RECEIPT = 'artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json';
+export const PRACTICAL_CURRENT_ENGLISH_AUDIT_ROOT = 'audits/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/20261009T105211Z-02/english';
+export const CURRENT_CHAPTER_IDS = Object.freeze([...FOUNDATION_CHAPTER_IDS,'03-scalable-bpe-tokenizer']);
+const FOUNDATION_PROFILE=Object.freeze({chapterIds:FOUNDATION_CHAPTER_IDS,receiptPath:PRACTICAL_PUBLICATION_RECEIPT,auditRoot:PRACTICAL_ENGLISH_AUDIT_ROOT});
+const CURRENT_PROFILE=Object.freeze({chapterIds:CURRENT_CHAPTER_IDS,receiptPath:PRACTICAL_CURRENT_PUBLICATION_RECEIPT,auditRoot:PRACTICAL_CURRENT_ENGLISH_AUDIT_ROOT});
+const PRACTICAL_PROFILES=Object.freeze([FOUNDATION_PROFILE,CURRENT_PROFILE]);
+
+function hasRepositoryEntry(root,path) {
+  try { lstatSync(resolve(root,path));return true; }
+  catch(error) { if (error.code==='ENOENT') return false;throw error; }
+}
+function matchingProfile(chapters) {
+  return Array.isArray(chapters) && PRACTICAL_PROFILES.find(profile=>
+    chapters.length===profile.chapterIds.length && chapters.every((chapter,index)=>chapter?.chapterId===profile.chapterIds[index]));
+}
+function validatePracticalChapterSource(root,course,chapter,index,digest,label) {
+  const path=course.contentDirectory+'/en/'+chapter.chapterId+'.mdx';
+  const bytes=readRegularFile(root,path);
+  if (hash(bytes)!==digest) throw new Error(label+' source drift');
+  const actual=parseJsonFrontmatter(bytes.toString('utf8'),path).data;
+  validateCourseChapterIdentity(course,actual);
+  if (actual.chapter_id!==chapter.chapterId || actual.content_revision!==chapter.contentRevision ||
+      actual.order!==index || actual.locale!=='en' ||
+      (index===0?actual.chapter_kind!=='orientation':actual.chapter_kind!==undefined && actual.chapter_kind!=='lesson'))
+    throw new Error(label+' metadata drift');
+  return path;
+}
 
 export function readPracticalBuildScope(root,{buildRole=process.env.COURSE_BUILD_ROLE}={}) {
-  if (!existsSync(resolve(root,PRACTICAL_PRIVATE_SCOPE))) return null;
+  if (!hasRepositoryEntry(root,PRACTICAL_PRIVATE_SCOPE)) return null;
   if (buildRole !== 'private-review') throw new Error('production forbids practical private-review scope');
   const scope=jsonFile(root,PRACTICAL_PRIVATE_SCOPE,32768,true);
   closed(scope,['schemaVersion','courseId','scopeId','candidates'],'practical scope');
   if (scope.schemaVersion!==1 || scope.courseId!==PRACTICAL_COURSE_ID ||
       typeof scope.scopeId!=='string' || !/^[a-z][a-z0-9._-]{0,127}$/.test(scope.scopeId) ||
-      !Array.isArray(scope.candidates) || scope.candidates.length!==FOUNDATION_CHAPTER_IDS.length)
+      !matchingProfile(scope.candidates))
     throw new Error('invalid practical scope');
   const course=courseById(readCourseConfiguration(root),PRACTICAL_COURSE_ID);
   for (const [index,candidate] of scope.candidates.entries()) {
     closed(candidate,['chapterId','contentRevision','sourceHashes'],'practical candidate');
     closed(candidate.sourceHashes,['en'],'practical source hashes');
-    if (candidate.chapterId!==FOUNDATION_CHAPTER_IDS[index] || !Number.isSafeInteger(candidate.contentRevision) || candidate.contentRevision<1 ||
+    if (!Number.isSafeInteger(candidate.contentRevision) || candidate.contentRevision<1 ||
         !/^[0-9a-f]{64}$/.test(candidate.sourceHashes.en)) throw new Error('practical candidate revision/hash');
     validateCourseChapterIdentity(course,{chapter_id:candidate.chapterId,order:index,locale:'en',chapter_kind:index===0?'orientation':'lesson'});
-    const path=course.contentDirectory+'/en/'+candidate.chapterId+'.mdx';
-    const bytes=readRegularFile(root,path);
-    if (hash(bytes)!==candidate.sourceHashes.en) throw new Error('private practical source drift');
-    const actual=parseJsonFrontmatter(bytes.toString('utf8'),path).data;
-    validateCourseChapterIdentity(course,actual);
-    if (actual.chapter_id!==candidate.chapterId || actual.content_revision!==candidate.contentRevision) throw new Error('private practical metadata drift');
+    validatePracticalChapterSource(root,course,candidate,index,candidate.sourceHashes.en,'private practical');
   }
   return scope;
 }
 
 export function readPracticalPublication(root) {
-  if (!existsSync(resolve(root,PRACTICAL_PUBLICATION_RECEIPT))) return null;
-  const receipt=jsonFile(root,PRACTICAL_PUBLICATION_RECEIPT,65536,true);
+  // A present current head is authoritative, including malformed/nonregular
+  // entries. An invalid current candidate never falls back to historical proof.
+  const profile=hasRepositoryEntry(root,PRACTICAL_CURRENT_PUBLICATION_RECEIPT)?CURRENT_PROFILE:
+    hasRepositoryEntry(root,PRACTICAL_PUBLICATION_RECEIPT)?FOUNDATION_PROFILE:null;
+  if (!profile) return null;
+  const receipt=jsonFile(root,profile.receiptPath,65536,true);
   closed(receipt,['schemaVersion','courseId','chapters','sourceHashes','english'],'practical publication');
   if (receipt.schemaVersion!==1 || receipt.courseId!==PRACTICAL_COURSE_ID ||
-      !Array.isArray(receipt.chapters) || receipt.chapters.length!==FOUNDATION_CHAPTER_IDS.length)
+      matchingProfile(receipt.chapters)!==profile)
     throw new Error('invalid practical publication');
   const course=courseById(readCourseConfiguration(root),PRACTICAL_COURSE_ID);
   for (const [index,chapter] of receipt.chapters.entries()) {
     closed(chapter,['chapterId','contentRevision'],'practical published chapter');
-    if (chapter.chapterId!==FOUNDATION_CHAPTER_IDS[index] || !Number.isSafeInteger(chapter.contentRevision) || chapter.contentRevision<1) throw new Error('published revision');
+    if (!Number.isSafeInteger(chapter.contentRevision) || chapter.contentRevision<1) throw new Error('published revision');
     validateCourseChapterIdentity(course,{chapter_id:chapter.chapterId,order:index,locale:'en',chapter_kind:index===0?'orientation':'lesson'});
   }
   if (!receipt.sourceHashes || typeof receipt.sourceHashes!=='object' || Array.isArray(receipt.sourceHashes) ||
@@ -68,16 +94,25 @@ export function readPracticalPublication(root) {
     if (!Object.hasOwn(receipt.sourceHashes,path)) throw new Error('published lesson missing source binding');
   }
   closed(receipt.english,['specPath','bundleDir','reviewRoutingPath','reviewSealsDir','adjudicationBundleDir','adjudicationRoutingPath','adjudicationSealsDir'],'practical English chain');
-  if (receipt.english.specPath!==PRACTICAL_ENGLISH_AUDIT_ROOT+'/spec.json' ||
-      Object.values(receipt.english).some(path=>typeof path!=='string'||!path.startsWith(PRACTICAL_ENGLISH_AUDIT_ROOT+'/')))
-    throw new Error('original historical reviews cannot admit this practical foundation');
+  if (receipt.english.specPath!==profile.auditRoot+'/spec.json' ||
+      Object.values(receipt.english).some(path=>typeof path!=='string'||!path.startsWith(profile.auditRoot+'/')))
+    throw new Error('historical or foreign audit namespace cannot admit this practical profile');
   const spec=jsonFile(root,receipt.english.specPath);
-  for (const chapter of receipt.chapters) {
-    const path=course.contentDirectory+'/en/'+chapter.chapterId+'.mdx';
-    const actual=parseJsonFrontmatter(readRegularFile(root,path).toString('utf8'),path).data;
-    validateCourseChapterIdentity(course,actual);
-    if (actual.content_revision!==chapter.contentRevision || !spec.sourceDocuments?.some(document=>document.publicationPath===path && document.file?.sha256===receipt.sourceHashes[path]))
+  for (const [index,chapter] of receipt.chapters.entries()) {
+    const path=validatePracticalChapterSource(root,course,chapter,index,receipt.sourceHashes[course.contentDirectory+'/en/'+chapter.chapterId+'.mdx'],'published practical');
+    if (!Array.isArray(spec.sourceDocuments) || !spec.sourceDocuments.some(document=>document?.publicationPath===path && document.file?.sha256===receipt.sourceHashes[path]))
       throw new Error('published practical lesson absent from matching English source binding');
+  }
+  if (profile===CURRENT_PROFILE) {
+    if (spec.candidateId!=='practical.ch03.en.20261009.02' || spec.scopeId!=='practical.ch03.en')
+      throw new Error('current practical English candidate/scope drift');
+    const routes=['/en/','/en/practical-llm-in-rust/',...profile.chapterIds.map(id=>'/en/practical-llm-in-rust/'+id+'/')];
+    for (const route of routes) {
+      const documents=Array.isArray(spec.builtDocuments)?spec.builtDocuments.filter(document=>document?.route===route):[];
+      if (documents.length!==1 || !Object.hasOwn(receipt.sourceHashes,documents[0].publicationPath) ||
+          documents[0].file?.sha256!==receipt.sourceHashes[documents[0].publicationPath])
+        throw new Error('current practical route absent from matching English built binding: '+route);
+    }
   }
   // Full maintained exact-byte verification is mandatory. A receipt status field
   // or a renamed old review cannot admit this current course.

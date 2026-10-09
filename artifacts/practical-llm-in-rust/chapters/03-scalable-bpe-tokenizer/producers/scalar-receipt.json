@@ -1,0 +1,71 @@
+{
+  "actualStdout": {
+    "bytes": 5481,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/stdout.txt",
+    "sha256": "7487c46bbcb12287e850b946cb09c25d7ac57d5fd4e1745c07a7edcfb819e38c"
+  },
+  "algorithmSources": [
+    {
+      "bytes": 17339,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs",
+      "sha256": "8b5437341ad7ef573b1792b1338a4f800a46abc7244fa673d825850850859f7a"
+    },
+    {
+      "bytes": 41612,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/rust/crates/llm-from-scratch-practical/src/tokenizer/bpe.rs",
+      "sha256": "e6cec2b838f914e76ce78550a9dbb7c0a8bf438deefcc2a66edaa25d48e98ed0"
+    },
+    {
+      "bytes": 11375,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs",
+      "sha256": "f8ef4b8ab34c66a902d9784fc6bb2a21c1dd08cebd85dcb253b239b70460be13"
+    }
+  ],
+  "executionEvidence": [
+    {
+      "bytes": 72,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/image.txt",
+      "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+    },
+    {
+      "bytes": 70,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/argv.nul",
+      "sha256": "6cfaf6081b3bb83a89fec3a9bbcbc54485b86a01c811df1339bd207c8ce90dce"
+    },
+    {
+      "bytes": 5481,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/stdout.txt",
+      "sha256": "7487c46bbcb12287e850b946cb09c25d7ac57d5fd4e1745c07a7edcfb819e38c"
+    },
+    {
+      "bytes": 254,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/stderr.txt",
+      "sha256": "a2152750abf9509237af9832df9705f3cf4c51109a2608a88fee8a9516b227bf"
+    },
+    {
+      "bytes": 46205,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/input-hashes.txt",
+      "sha256": "6d4ab06f927bb085aaa52884b0685f792bad5637909d303ee6c3b5110b513d8f"
+    },
+    {
+      "bytes": 2,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/cargo-exit-status.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 2,
+      "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/execution/demo-02/launcher-exit-status.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  ],
+  "foreignTokenizerVerdict": null,
+  "invocationRelation": "Both course strategy producers execute inside this same observed demo invocation; these receipts do not claim two process runs.",
+  "payload": {
+    "bytes": 781,
+    "path": ".build/runs/20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01/publish/artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/payloads/scalar-tokenizer.json",
+    "sha256": "8b1534b8711b1b55c97466fcdd94c6059395acf553e25ba66a6e4911604014b9"
+  },
+  "runId": "20261009T105211Z-implement-practical-ch03-scalable-bpe-tokenizer-01",
+  "schemaVersion": 1,
+  "strategy": "scalar"
+}

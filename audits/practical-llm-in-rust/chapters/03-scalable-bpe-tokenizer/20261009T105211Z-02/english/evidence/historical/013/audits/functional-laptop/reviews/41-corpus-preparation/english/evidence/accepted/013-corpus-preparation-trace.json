@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "scope": "bounded-supplied-jsonl-preparation",
+  "documents": {
+    "after_quality": 4,
+    "input": 6,
+    "prepared": 3
+  },
+  "splits": {
+    "test": {
+      "bytes": 100,
+      "decoded_text_utf8_bytes": 17,
+      "documents": 1,
+      "file": "test.jsonl",
+      "sha256": "69e5902a6908a946f62e6a861b202ef6365b48d4c69c9a30579cfee0bff1dc8f"
+    },
+    "train": {
+      "bytes": 95,
+      "decoded_text_utf8_bytes": 11,
+      "documents": 1,
+      "file": "train.jsonl",
+      "sha256": "aee8661ced42478c82f00ce11cb21ff7b8d5f3d686f6cf5f85fd00ff7f7174a6"
+    },
+    "validation": {
+      "bytes": 100,
+      "decoded_text_utf8_bytes": 11,
+      "documents": 1,
+      "file": "validation.jsonl",
+      "sha256": "bd89c5fdc1243d728b92ad974ddf23614dbb7580d8271f2c40d5c9d01489b110"
+    }
+  },
+  "loading": {
+    "all_roles": {
+      "documents": 3,
+      "text_utf8_bytes": 39
+    },
+    "training_only": {
+      "documents": 1,
+      "text_utf8_bytes": 11
+    }
+  },
+  "producer": {
+    "nemo_report": {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8/report.json",
+      "bytes": 2445,
+      "sha256": "920c6252b43e86ad74f6a15494baf4caa4194faf647d2d2158352c4872453bb9"
+    },
+    "recipe": {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/publish/tools/nemo-curator/prepare_corpus.py",
+      "bytes": 15299,
+      "sha256": "1a88fdd9925f7baf8e9099fcc98806ddb6f67d9d6a688828a0b475dfcedde732"
+    },
+    "all_roles_rust_stdout": {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/validation/nemo-all-loader-02/stdout.txt",
+      "bytes": 576,
+      "sha256": "2a3a278270f320b47830f38a5ee327f793c9656d2ca9985cfe8d41ab20673eaf"
+    },
+    "training_only_rust_stdout": {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/validation/nemo-train-loader-01/stdout.txt",
+      "bytes": 252,
+      "sha256": "c879a046cffc594f9019146d1f079a367f280a0d48654eef8ab58823a97cbbe0"
+    },
+    "runtime": {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-runtime-observation-02.json",
+      "bytes": 5203,
+      "sha256": "fc836849dbba710be4c7c3e789e64520b74e67dd67668569fd354f8d3f738088"
+    },
+    "gpu_smoke": {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02-evidence.json",
+      "bytes": 4745,
+      "sha256": "2e3a7b082ab227ae5102267bd75815fc96f3e0a186bd5a4cf62df11f9441ebeb"
+    }
+  }
+}

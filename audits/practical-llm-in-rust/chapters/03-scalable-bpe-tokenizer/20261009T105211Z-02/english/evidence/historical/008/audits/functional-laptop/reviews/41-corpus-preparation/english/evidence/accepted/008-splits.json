@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "group_field": "source_group",
+  "assignments": [
+    {"group": "family-a", "role": "train"},
+    {"group": "family-b", "role": "validation"},
+    {"group": "family-c", "role": "test"},
+    {"group": "family-e", "role": "train"},
+    {"group": "family-f", "role": "train"}
+  ]
+}

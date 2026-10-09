@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "page_count": 11,
+  "span_unit": "UTF-8 bytes, zero-based half-open [start,end)",
+  "pages": [
+    {
+      "page": 1,
+      "decoded_utf8_byte_start": 0,
+      "decoded_utf8_byte_end": 3923,
+      "text_sha256": "18d4cda21d8aca5909ddbdbf16054ddca6b95889fb4696bdde9e66febeb75857",
+      "path": "SRC-DTH-TOK-01/page-001.txt"
+    },
+    {
+      "page": 2,
+      "decoded_utf8_byte_start": 3923,
+      "decoded_utf8_byte_end": 8320,
+      "text_sha256": "cb00ee4feece17c82f3d32f39fe60bb9fd65795b0f36b3b924708ea83099f6cf",
+      "path": "SRC-DTH-TOK-01/page-002.txt"
+    },
+    {
+      "page": 3,
+      "decoded_utf8_byte_start": 8320,
+      "decoded_utf8_byte_end": 12924,
+      "text_sha256": "bf12c674410fb247168608c2ff2b609a12406aef394f59f5a27d5740f7101893",
+      "path": "SRC-DTH-TOK-01/page-003.txt"
+    },
+    {
+      "page": 4,
+      "decoded_utf8_byte_start": 12924,
+      "decoded_utf8_byte_end": 17315,
+      "text_sha256": "ca25541af667da2802dc37db3527ee4a3b2549d8e57767f9e78b09f4f3b49b1e",
+      "path": "SRC-DTH-TOK-01/page-004.txt"
+    },
+    {
+      "page": 5,
+      "decoded_utf8_byte_start": 17315,
+      "decoded_utf8_byte_end": 22095,
+      "text_sha256": "1d37ca3229c24c50d8c5d2cb1840758a6cb4638cd61318f637a6750328cbd0f9",
+      "path": "SRC-DTH-TOK-01/page-005.txt"
+    },
+    {
+      "page": 6,
+      "decoded_utf8_byte_start": 22095,
+      "decoded_utf8_byte_end": 26371,
+      "text_sha256": "78cd11a5fcd730db356f2805b98e393e0b186ec3ccd97cae290dfda722bc7a61",
+      "path": "SRC-DTH-TOK-01/page-006.txt"
+    },
+    {
+      "page": 7,
+      "decoded_utf8_byte_start": 26371,
+      "decoded_utf8_byte_end": 30836,
+      "text_sha256": "b0a0d27216ffe4dbef23bd09ce7c4a650818fbbd29e0009f3c8d20aa5d373640",
+      "path": "SRC-DTH-TOK-01/page-007.txt"
+    },
+    {
+      "page": 8,
+      "decoded_utf8_byte_start": 30836,
+      "decoded_utf8_byte_end": 34055,
+      "text_sha256": "25870d1c24a754a55868fb487254a6d6578a3a4278521de90ea71605ed5ad654",
+      "path": "SRC-DTH-TOK-01/page-008.txt"
+    },
+    {
+      "page": 9,
+      "decoded_utf8_byte_start": 34055,
+      "decoded_utf8_byte_end": 38425,
+      "text_sha256": "01a26592279b408e50e4963954b3962671936fbbeb7d5baf3203201997228778",
+      "path": "SRC-DTH-TOK-01/page-009.txt"
+    },
+    {
+      "page": 10,
+      "decoded_utf8_byte_start": 38425,
+      "decoded_utf8_byte_end": 43428,
+      "text_sha256": "6d19f13b9900f4c17e195fadcf8c9ab6d1c8085fd26e8062251e29a80dae27bf",
+      "path": "SRC-DTH-TOK-01/page-010.txt"
+    },
+    {
+      "page": 11,
+      "decoded_utf8_byte_start": 43428,
+      "decoded_utf8_byte_end": 46862,
+      "text_sha256": "c3bbbcc40a796c769c624d44ba5c6997b183257cacda39ec2a8c2c68fb8cfec8",
+      "path": "SRC-DTH-TOK-01/page-011.txt"
+    }
+  ]
+}
