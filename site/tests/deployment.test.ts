@@ -1,11 +1,13 @@
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
+// @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
+import { createRequire } from 'node:module';
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
 import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+// @ts-ignore This plain ESM helper has no TypeScript declaration file.
 import { validateDeploymentWorkflow } from '../../scripts/check-deployment-workflow.mjs';
 
 declare const process: { cwd(): string };
@@ -22,6 +24,19 @@ function replaceOnce(source: string, search: string, replacement: string): strin
 }
 
 describe('GitHub Pages deployment workflow', () => {
+  it('resolves root validator dependencies from the site installation', () => {
+    const requireFromChecker = createRequire(
+      resolve(process.cwd(), '../scripts/check-site-content.mjs'),
+    );
+    const requireFromSite = createRequire(resolve(process.cwd(), 'package.json'));
+
+    for (const moduleId of ['@astrojs/compiler/sync', 'typescript']) {
+      expect(realpathSync(requireFromChecker.resolve(moduleId))).toBe(
+        realpathSync(requireFromSite.resolve(moduleId)),
+      );
+    }
+  });
+
   it('rejects enabling or omitting corpus acquisition in the cloud build',()=>{
     expect(()=>validateDeploymentWorkflow(workflowSource.replace('--build-arg COURSE_CORPUS=false','--build-arg COURSE_CORPUS=true'))).toThrow(/COURSE_CORPUS=false/);
     expect(()=>validateDeploymentWorkflow(workflowSource.replace('--build-arg COURSE_CORPUS=false',''))).toThrow(/COURSE_CORPUS=false/);

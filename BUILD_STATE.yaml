@@ -68487,3 +68487,138 @@ builds:
               compatibility/parity or golden gate. Literal wrapper provisioning unrun, exact cached learner Cargo
               argv selected1 each. No deploy,push or next chapter claim.
             finished_at: '2026-10-09T18:09:46.751277+00:00'
+
+      - id: repair-gh-actions-site-dependency-layout
+        objective: Restore clean GitHub Actions Docker workspace checks by exposing the one locked site dependency installation
+          to root validators.
+        depends_on:
+        - implement-practical-ch03-scalable-bpe-tokenizer
+        status: completed
+        inputs:
+        - Dockerfile
+        - .dockerignore
+        - site/tests/deployment.test.ts
+        - AGENTS.md
+        - BUILD_STATE.yaml
+        - DECISIONS.md
+        - site/package.json
+        - site/package-lock.json
+        - scripts/check-site-content.mjs
+        - .github/workflows/deploy-pages.yml
+        - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json
+        - .agents/skills/author-llm-course-english/scripts/english-review.mjs
+        - .agents/skills/localize-llm-course/scripts/localization-review.mjs
+        - scripts/localization-routing.mjs
+        - User-reported ERR_MODULE_NOT_FOUND GitHub Actions log
+        - Cached pinned image sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23
+        - Owner-approved Docker-only dependency-layout repair and existing deployment resolver regression
+        outputs:
+        - Dockerfile
+        - .dockerignore
+        - site/tests/deployment.test.ts
+        - BUILD_STATE.yaml
+        - DECISIONS.md
+        acceptance:
+        - Reproduce the reported root checker ESM import failure in a clean layout containing only locked site/node_modules,
+          then pass with the Docker-owned relative root link.
+        - Root checker and site anchors resolve both @astrojs/compiler/sync and TypeScript to the same installed real
+          paths; selected deployment regression has nonzero test count.
+        - Execute the exact reported fmt, Astro check, content+functional, parity, production build and static links commands
+          offline in a clean-equivalent cached environment.
+        - Current full English review/adjudication and retained Russian review/routing verifiers pass; all reviewed source/publication
+          bytes and 174 production artifacts remain exact.
+        - No new dependency, package graph, workflow, learner-facing or sealed validator change; exclude host node_modules
+          from Docker context.
+        - Truthful canonical checkpoint and own scoped local completed-step commit; no push or remote deployment.
+        validate:
+        - Clean-layout node scripts/check-site-content.mjs before and after the Docker-owned dependency link
+        - cargo fmt --all -- --check
+        - npm --prefix site run check
+        - npm --prefix site run check:content
+        - npm --prefix site run check:parity
+        - npm --prefix site run build
+        - npm --prefix site run test:links
+        - npm --prefix site run test -- --run tests/deployment.test.ts
+        - Maintained current English verifyEvidence/verifyAdjudication and retained RU verifyEvidence/verifyRouting with
+          unchanged canonical paths
+        - Exact reviewed source/publication and 174-file production inventory checks
+        - git diff --check; scoped completed-step local commit and clean worktree check
+        cost:
+          class: small
+          notes: cpu=C1;gpu=G0;network=N0;paid=none;cached pinned product execution; no new downloads/image provisioning/remote
+            GitHub execution/screenshots/language review
+        runs:
+        - run_id: 20261009T183658Z-repair-gh-actions-site-dependency-layout-01
+          started_at: '2026-10-09T18:39:01.770831+00:00'
+          status: succeeded
+          input_fingerprint:
+            git: a02a6d2a13142f28a3ab15a721a1abba1e96e777
+            files:
+              Dockerfile: sha256:5f433985dd91ed56b0a6b4f84f3e737966ff8c34b65fd8b423296e80df5cee1a
+              .dockerignore: sha256:90ed327c60d2373a9820eefa50c697055fa22da41db8da61306b58a80d2a0b82
+              site/tests/deployment.test.ts: sha256:967d40860b194fb977d3b68b01d8bb0927e0713bbd008c7725247c5087b407d7
+              AGENTS.md: sha256:f10a6c9e72b2efe1383232756425a0dfc638917c6675150d92256a993857553d
+              BUILD_STATE.yaml: sha256:d3fc016a7f7c01dda1874cb38a933690e603915dbdc0ccd1e8176431ff3e0da1
+              DECISIONS.md: sha256:1076d263cfe3f4d382dd7293ea0a28ce7eabccb8df4fafb668806286ab9802d5
+              site/package.json: sha256:3e99c073ae7dd8ba6a942986c1b9c0f47845b28580fa6fb5b06b01f65403b6b6
+              site/package-lock.json: sha256:e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed
+              scripts/check-site-content.mjs: sha256:65dc857ceb26722db2316696f25faeedce3612042f523a81b3acef862d11bd72
+              .github/workflows/deploy-pages.yml: sha256:2ceeb343676733f6c80a488960ab6174aca143a7793508919e8cee59a95c5854
+              artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json: sha256:4acdeebfcb0f4f84effeb7d6bef558f5273f0d71b7b6748e7af777e460e07030
+              .agents/skills/author-llm-course-english/scripts/english-review.mjs: sha256:e8d163edf2540f0f999662216e64550ad41c997303fe3c10452be5043a710ba3
+              .agents/skills/localize-llm-course/scripts/localization-review.mjs: sha256:ffeaa2ae47ddf319b2b43344e93f4e17641f93d6add4d398cc48c66446ffe5d6
+              scripts/localization-routing.mjs: sha256:b68f4d011621f7ccdb6a2a7d0aecd4bc416582690bb783ab6083f2b7e246363a
+            tools:
+              image: sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23
+              node: 22.12.0
+              npm: 10.9.0
+              rustc: 1.93.1
+              cargo: 1.93.1
+            routing: Inherited user-selected machinery model and effort; no override
+            actual_machinery_context:
+              nativeId: 01a121ee-3407-7d11-b9d2-517e5020f39d
+              model: gpt-6.1-sol
+              effort: max
+              modelOverride: false
+          staging_dir: .build/runs/20261009T183658Z-repair-gh-actions-site-dependency-layout-01
+          commands:
+          - Startup Git/status, full YAML parse and current source/publication binding inspection
+          - Cached pinned image inspection with --network none --pull never
+          - bash .build/runs/20261009T183658Z-repair-gh-actions-site-dependency-layout-01/operations/run-staged-clean-layout-01.sh
+          - bash .build/runs/20261009T183658Z-repair-gh-actions-site-dependency-layout-01/operations/run-staged-bindings-01.sh
+          - Atomic exact three-file canonical promotion and host orchestration byte/scope/YAML/whitespace verification
+          artifacts:
+          - path: .build/runs/20261009T183658Z-repair-gh-actions-site-dependency-layout-01/operations/preflight-01/declaration.json
+            sha256: e581c4af797d79ad236b05c8a1e49f07408c2195598983273ec7bf70c4ea69c3
+          - path: .build/runs/20261009T183658Z-repair-gh-actions-site-dependency-layout-01/operations/staged-validation-checkpoint-01/receipt.json
+            sha256: aa9033eb7311864820ed48f3229569484e5bef597d9a9fe381643cc26eedf35c
+          - path: .build/runs/20261009T183658Z-repair-gh-actions-site-dependency-layout-01/operations/canonical-promotion-01/receipt.json
+            sha256: d9f80bdee476a0f1ce4654a293d81d93d9ca439f45a44fba965686ba59ec1025
+          validation:
+          - name: clean-checker-esm-failure-reproduced
+            expected_exit_status: 1
+            result: reproduced
+          - name: exact-workspace-chain-and-deployment-regression
+            result: passed
+            selected_tests: 6
+            passed_tests: 6
+          - name: current-english-and-retained-russian-whole-verifiers
+            result: passed
+          - name: reviewed-publication-and-174-output-byte-fit
+            result: passed
+            changed_bytes: 0
+          - name: canonical-equals-tested-stage-and-retained-bindings
+            result: passed
+            outside_scope_changes: 0
+            changed_reviewed_or_production_bytes: 0
+          notes: Completed the bounded Docker dependency-layout correction. Actual clean-layout checker ESM failure reproduced;
+            Docker-owned relative root link passes the exact reported seven commands and six selected deployment tests.
+            Maintained current English review/adjudication and retained RU review/routing pass with 80 sources/148 publication
+            hashes/32 complete sources/6 English pages/174 outputs/90 HTML/40 direct+12 whole RU records exact. Canonical
+            three product files equal tested stage; all other tracked product bytes and current canonical174 output bytes
+            remain unchanged. Preserve the read-only observation locator failure and original clean-layout compiler error.
+            Full upstream Docker provisioning/npm-ci and remote GitHub execution were not run; cached dependencies match
+            the exact current site lockfile, all containers use network-none/pull-never. No package graph, workflow, learner
+            copy, parser/validator or old audit mutation. Mandatory scoped local completed-step commit is next; no push
+            or deployment claim.
+          finished_at: '2026-10-09T18:53:26.474003+00:00'

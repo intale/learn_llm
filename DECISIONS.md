@@ -33420,3 +33420,79 @@ Literal ./course provisioning remains unrun; cached exact learner Cargo argv
 selected and executed one test each. The local completed-step-only commit is
 required next; no commit, deployment, push or following-step claim occurs in
 this checkpoint. Affected step: implement-practical-ch03-scalable-bpe-tokenizer.
+
+
+### 2026-10-09T18:39:01.770831+00:00 — Restore clean Docker root-script dependency visibility
+
+The user reports GitHub Actions failing when root scripts/check-site-content.mjs
+loads @astrojs/compiler/sync. The canonical Dockerfile installs only the locked
+site/node_modules tree, while root ESM imports also need an ancestor node_modules.
+Prior practical-course tmpfs validation explicitly supplied a root node_modules
+link; preserve those successful results as their measured environment, without
+claiming they covered the clean canonical Docker dependency layout.
+
+The corrective step creates node_modules -> site/node_modules in the existing
+locked npm-ci layer and excludes host node_modules from the Docker context. The
+existing deployment test gains a real resolver comparison for compiler/sync and
+TypeScript from root-script and site-package anchors. No parser, package, package
+graph, workflow, learner copy or sealed validator is changed. Current review and
+Russian provenance retain their exact bytes; fresh maintained verifiers and a
+174-artifact static comparison must demonstrate their continued identity.
+
+Execution is C1/G0/N0 with the already cached pinned image and its exact matching
+site lockfile. No network provisioning, download, remote deployment or push is
+authorized. Full Docker provisioning may remain unrun if its layers are not
+cached; report the exact clean-equivalent command execution honestly.
+Affected step: repair-gh-actions-site-dependency-layout.
+
+
+### 2026-10-09T18:50:44.600818+00:00 — Clean-layout dependency repair staged validation passes
+
+An empty /ci checkout with only the cached, exact-lockfile site installation
+reproduces the reported compiler ERR_MODULE_NOT_FOUND on the actual checker ESM
+import. Applying the declared Docker-owned relative root link makes all seven
+reported workspace commands pass, including six selected deployment tests.
+Current maintained English review/adjudication and retained Russian review/routing
+verifiers pass. Exact-byte checks preserve80 current sources,148 publication
+hashes,32 complete sources,6 English pages,174 production artifacts/90 HTML and
+40 direct+12 complete Russian provenance records. No reviewed, publication or
+production bytes change. Actual inherited machinery model/effort is gpt-6.1-sol/max.
+
+The first read-only retained-observation locator failed before verifier execution;
+its failure is preserved and the correct recorded0f0b36aa input is verified.
+Original cached-run artifacts are unchanged. Full upstream Docker provisioning
+and npm-ci were not executed; the existing dependency installation has the exact
+current e83bc7b6 lockfile. Every product container is network-none/pull-never.
+Canonical promotion/verification and the scoped local commit remain pending.
+Affected step: repair-gh-actions-site-dependency-layout.
+
+
+### 2026-10-09T18:53:26.474003+00:00 — Dependency-layout correction completed and canonical verified
+
+Promote only Dockerfile, .dockerignore and the existing deployment test. Their
+canonical bytes equal the tested stage; every other tracked product path is
+unchanged. Current80 source records,148 publication hashes,32 complete English
+sources and seven durable reviewed HTML documents are exact. All174 current
+production artifacts and40 direct+12 complete Russian records remain exact.
+Reuse the successful current English/Russian verification and seven-command/six-
+test execution through identical canonical bytes; no repeated full run is needed.
+Strict Git whitespace and complete YAML history checks pass.
+
+The corrective step/run is completed for the measured cached execution. The
+reported clean-layout ESM failure and failed read-only old-observation locator
+remain preserved. Original full Docker provisioning/npm-ci and remote GitHub
+Actions execution remain unrun; no network/download/install or deployment is
+claimed. The mandatory commit is limited to the three operational files plus
+BUILD_STATE.yaml and DECISIONS.md, parent a02a6d2, and excludes .build/runs.
+Affected step: repair-gh-actions-site-dependency-layout.
+
+
+### 2026-10-09T18:55:11.645592+00:00 — Clarify the dependency-repair command count
+
+The validation ran all six workspace checks shown in the user report: formatting,
+Astro diagnostics, content/functional checks, parity, production build and static
+links. One additional deployment-regression command selected and passed six tests.
+Earlier seven-command shorthand combines these six reported checks with the
+additional regression; it does not describe seven commands in the user log.
+Frozen intermediate artifacts and completed-run records remain unchanged.
+Affected step: repair-gh-actions-site-dependency-layout.

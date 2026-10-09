@@ -32,7 +32,9 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 COPY Cargo.toml Cargo.lock ./
 COPY rust/ rust/
 COPY site/package.json site/package-lock.json site/
-RUN npm --prefix site ci --ignore-scripts
+# Root validation scripts share the site's locked dependency installation.
+RUN npm --prefix site ci --ignore-scripts \
+ && ln -s site/node_modules node_modules
 RUN cd site && ./node_modules/.bin/playwright install --with-deps firefox
 ARG SITE_BASE=/
 ARG SITE_URL=https://intale.github.io/learn_llm/
