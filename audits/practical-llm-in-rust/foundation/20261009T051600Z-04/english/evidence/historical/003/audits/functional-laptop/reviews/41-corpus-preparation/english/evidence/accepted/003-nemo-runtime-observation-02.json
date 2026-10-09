@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "kind": "observed-installed-tool-runtime",
+  "observation_note": "Recorded from tool session 46202 terminal output at 2026-10-07 09:53 UTC; structured field transcription, not retained raw subprocess bytes. The first probe returned no selected sources because root-with-dropped-capabilities could not traverse owner1000/group1000 mode750; it is not accepted as a source-matching gate. Probe02 uses --user0:1000 plus explicit expected list/nonempty/all-equal checks.",
+  "exit_code": 0,
+  "image": "sha256:96d814b03d02a134cdc3f7702c8a11471f8940fa638ef7895e2054cadd7fb196",
+  "probe_path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-runtime-probe-02.py",
+  "python": "3.13.14 (main, Jun 11 2026, 12:30:59) [GCC 13.3.0]",
+  "package_root": "/opt/Curator/nemo_curator",
+  "versions": {
+    "nemo-curator": "1.3.0",
+    "ray": "2.55.1",
+    "cudf-cu12": "25.10.0",
+    "cuml-cu12": "25.10.0",
+    "pandas": "2.3.3",
+    "cupy-cuda12x": "13.6.0"
+  },
+  "cuda_runtime_version": 12090,
+  "cuda_driver_version": 13000,
+  "device_count": 1,
+  "selected_sources": [
+    {
+      "path": "nemo_curator/core/client.py",
+      "expected_sha256": "9ad57c35199b216d6cfb1866edde08d1210b31a92d9075a21be5b7dd830e40d1",
+      "actual_sha256": "9ad57c35199b216d6cfb1866edde08d1210b31a92d9075a21be5b7dd830e40d1",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/pipeline/workflow.py",
+      "expected_sha256": "a597656cbd52ab8fb4c2a4ea4859d9ecd2646b123689150c722f3bad0056f815",
+      "actual_sha256": "a597656cbd52ab8fb4c2a4ea4859d9ecd2646b123689150c722f3bad0056f815",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/deduplication/exact/identification.py",
+      "expected_sha256": "c9bac5230ec87925f0da9446e76e548a71c3fc6b3f04170c5706f5b2adcff17d",
+      "actual_sha256": "c9bac5230ec87925f0da9446e76e548a71c3fc6b3f04170c5706f5b2adcff17d",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/deduplication/exact/workflow.py",
+      "expected_sha256": "f228fb8e9b4bcac1889a29d29bf385c352e41182bfd5c7a8ba5b427765396b59",
+      "actual_sha256": "f228fb8e9b4bcac1889a29d29bf385c352e41182bfd5c7a8ba5b427765396b59",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/deduplication/fuzzy/workflow.py",
+      "expected_sha256": "8cb235c3aef5901914f4262381350184629bc32b7fc41a51a972799b8870598c",
+      "actual_sha256": "8cb235c3aef5901914f4262381350184629bc32b7fc41a51a972799b8870598c",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/deduplication/removal_workflow.py",
+      "expected_sha256": "ed87aeaad70a0ada0d189d0c485640a416b7c010e26936dfee8c73f0c52569de",
+      "actual_sha256": "ed87aeaad70a0ada0d189d0c485640a416b7c010e26936dfee8c73f0c52569de",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/deduplication/removal.py",
+      "expected_sha256": "4586793305ea2f5496845d4508416595316d006c4a8a72ab2c49192957dfa8d6",
+      "actual_sha256": "4586793305ea2f5496845d4508416595316d006c4a8a72ab2c49192957dfa8d6",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/filters/heuristic/string.py",
+      "expected_sha256": "ebc8ad21eb8b3eb07932fc57a88661fa778f8dcd3d7ab99ac94836522813e291",
+      "actual_sha256": "ebc8ad21eb8b3eb07932fc57a88661fa778f8dcd3d7ab99ac94836522813e291",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/filters/score_filter.py",
+      "expected_sha256": "48481465b003682e788aaa81f6a2f3be8c45f133ff65c707545cef1fc7bde2ab",
+      "actual_sha256": "48481465b003682e788aaa81f6a2f3be8c45f133ff65c707545cef1fc7bde2ab",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/io/reader/base.py",
+      "expected_sha256": "6b919aec981fa785b745da4be43480f476cc5500523d23ebc2a944dbc9e29c85",
+      "actual_sha256": "6b919aec981fa785b745da4be43480f476cc5500523d23ebc2a944dbc9e29c85",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/io/reader/jsonl.py",
+      "expected_sha256": "98a29dd84e39475f32d713a22caec3456c977451e873f0548ece1c55ffed89e9",
+      "actual_sha256": "98a29dd84e39475f32d713a22caec3456c977451e873f0548ece1c55ffed89e9",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/io/writer/base.py",
+      "expected_sha256": "dcd1a3a0fe0282578008a9fdb64023b386a83bedee12f8387155ee69b61e2a2f",
+      "actual_sha256": "dcd1a3a0fe0282578008a9fdb64023b386a83bedee12f8387155ee69b61e2a2f",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/io/writer/jsonl.py",
+      "expected_sha256": "c4412058f59f5e9f4844882a2b7ce2a36f76bacbbbeaa0d33a149450985b9aa5",
+      "actual_sha256": "c4412058f59f5e9f4844882a2b7ce2a36f76bacbbbeaa0d33a149450985b9aa5",
+      "exact": true
+    },
+    {
+      "path": "nemo_curator/stages/text/utils/text_utils.py",
+      "expected_sha256": "20ecefb4e59d1c36bca78580feb54718e8e81a2f194fdef63395d1fadf08e088",
+      "actual_sha256": "20ecefb4e59d1c36bca78580feb54718e8e81a2f194fdef63395d1fadf08e088",
+      "exact": true
+    }
+  ],
+  "limits": "Read-only package/API/CUDA availability observation. No NeMo pipeline, data curation, GPU benchmark, full corpus or laptop acceptance claim."
+}

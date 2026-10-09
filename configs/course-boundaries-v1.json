@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "courses": [
+    {
+      "id": "llm-from-scratch",
+      "route": "course",
+      "collection": "chapters",
+      "sheetCollection": "cheatSheets",
+      "contentDirectory": "site/src/content/chapters",
+      "sheetDirectory": "site/src/content/cheat-sheets",
+      "contractDirectory": "curriculum/chapters",
+      "crateDirectory": "rust/crates/llm-from-scratch",
+      "orientationChapterId": "00-llm-parts",
+      "firstOrder": 0,
+      "lastOrder": 39,
+      "referenceLocale": "en",
+      "activeLocales": ["en", "ru"]
+    },
+    {
+      "id": "practical-llm-in-rust",
+      "route": "practical-llm-in-rust",
+      "collection": "practicalChapters",
+      "sheetCollection": "practicalCheatSheets",
+      "contentDirectory": "site/src/content/practical-chapters",
+      "sheetDirectory": "site/src/content/practical-cheat-sheets",
+      "contractDirectory": "curriculum/practical/chapters",
+      "crateDirectory": "rust/crates/llm-from-scratch-practical",
+      "orientationChapterId": "00-course-structure",
+      "firstOrder": 0,
+      "lastOrder": 44,
+      "referenceLocale": "en",
+      "activeLocales": ["en"]
+    }
+  ],
+  "firstCrateBaseline": {
+    "revision": "9f38a060903c472c4d571efd8e52da1f17e553ff",
+    "inventory": "artifacts/practical-llm-in-rust/foundation/first-core-inventory.json",
+    "sha256": "6bd9c5d4634f9850c3b53f8768afd270433ea89cc77160db65563ce39be60fb1"
+  }
+}

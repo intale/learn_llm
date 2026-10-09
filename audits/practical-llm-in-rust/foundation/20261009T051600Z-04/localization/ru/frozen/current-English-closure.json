@@ -1,0 +1,2905 @@
+{
+  "EnglishSourceMutation": false,
+  "EnglishSpec": {
+    "bytes": 142242,
+    "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/spec.json",
+    "sha256": "2b80bc61b9a7dee3410bdb680eeccb21538d4b4615f33bd1e2ec16d3a7cab615"
+  },
+  "EnglishSurfaceFit": "Exact unchanged sources/HTML and original inventory bytes; no new semantic verdict.",
+  "RussianPracticalRoutes": [],
+  "actualBuiltFiles": 173,
+  "actualExecutor": {
+    "configuredReasoning": "max",
+    "contextEvidence": {
+      "bytes": 3036,
+      "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/context-settings-01/receipt.json",
+      "sha256": "bf8a60551fca9e9d025fc9045c3ff0fd8896dc4e08aecd77032916627920cc25"
+    },
+    "model": "gpt-6.1-sol",
+    "nativeContextId": "01a11aba-4ba5-7aa3-b107-850653940cd4"
+  },
+  "actualHTMLFiles": 89,
+  "actualLocalizedBuildInventory": {
+    "bytes": 30854,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/localized-built-inventory.json",
+    "sha256": "ca6e8ef91663ee4fb82e0af3fec74b094be1589da3d00f845901aa742635d5e8"
+  },
+  "adapter": {
+    "bytes": 12463,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/close-localized-build-fit-01.py",
+    "sha256": "129a6279e09fccdc824ec070d619c530b4fd4e4eeeca355eb3a3afd72f792533"
+  },
+  "approvedEnglishInventory": {
+    "bytes": 115113,
+    "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/review-bundles/inventory.json",
+    "sha256": "c934e0fcd3e9954a58062a7aebf2c099286293d7f0733a96678c38df97f0efb3"
+  },
+  "boundAssetCount": 83,
+  "boundAssets": [
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 11367,
+        "path": "_astro/AdamwEvidenceDiagram.uKm82yGi.css",
+        "sha256": "da5b290e94a43712e9f21f87aeff52faf6a3145a8f718074f46c0535114b5015"
+      },
+      "localizedBuild": {
+        "bytes": 11367,
+        "path": "_astro/AdamwEvidenceDiagram.uKm82yGi.css",
+        "sha256": "da5b290e94a43712e9f21f87aeff52faf6a3145a8f718074f46c0535114b5015"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7334,
+        "path": "_astro/ApplyBpeTokenizerDiagram.C4ZwSkNA.css",
+        "sha256": "60d935451ad4d48e9e67eb4d841823fcd39fbd1b6e28fd55df426ed08656ad13"
+      },
+      "localizedBuild": {
+        "bytes": 7334,
+        "path": "_astro/ApplyBpeTokenizerDiagram.C4ZwSkNA.css",
+        "sha256": "60d935451ad4d48e9e67eb4d841823fcd39fbd1b6e28fd55df426ed08656ad13"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12070,
+        "path": "_astro/AutoregressiveExamplesDiagram.CZsliNO2.css",
+        "sha256": "0394a2b45ab246b17a7cf57f26e974c6ea8f5e49cf9fab284cd31433c170135f"
+      },
+      "localizedBuild": {
+        "bytes": 12070,
+        "path": "_astro/AutoregressiveExamplesDiagram.CZsliNO2.css",
+        "sha256": "0394a2b45ab246b17a7cf57f26e974c6ea8f5e49cf9fab284cd31433c170135f"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 44939,
+        "path": "_astro/BaseLayout.C5sfo4nj.css",
+        "sha256": "3981e501fddda1f11c139f7692919e8be78347a92ef056da82b24be9df86dc92"
+      },
+      "localizedBuild": {
+        "bytes": 44939,
+        "path": "_astro/BaseLayout.C5sfo4nj.css",
+        "sha256": "3981e501fddda1f11c139f7692919e8be78347a92ef056da82b24be9df86dc92"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 5835,
+        "path": "_astro/BroadcastingReductionsDiagram.BtgEaEjl.css",
+        "sha256": "b902dc9d9e69fb62588d0d1f4e3e55467f86d5aac9e511183b3027212bc55122"
+      },
+      "localizedBuild": {
+        "bytes": 5835,
+        "path": "_astro/BroadcastingReductionsDiagram.BtgEaEjl.css",
+        "sha256": "b902dc9d9e69fb62588d0d1f4e3e55467f86d5aac9e511183b3027212bc55122"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4619,
+        "path": "_astro/CausalMaskingDiagram.BM3HiWj7.css",
+        "sha256": "2b49fb4e1ff0cb4c5363a060f7644b59c7f63052831d2f9df87bb26c0f56b7e8"
+      },
+      "localizedBuild": {
+        "bytes": 4619,
+        "path": "_astro/CausalMaskingDiagram.BM3HiWj7.css",
+        "sha256": "2b49fb4e1ff0cb4c5363a060f7644b59c7f63052831d2f9df87bb26c0f56b7e8"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4830,
+        "path": "_astro/CorpusPartitionsDiagram.BWG64ufH.css",
+        "sha256": "9a8cc31daf4e2075a00e7df855cbe7db10810a5be49d9464e266092f01e34d68"
+      },
+      "localizedBuild": {
+        "bytes": 4830,
+        "path": "_astro/CorpusPartitionsDiagram.BWG64ufH.css",
+        "sha256": "9a8cc31daf4e2075a00e7df855cbe7db10810a5be49d9464e266092f01e34d68"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 5713,
+        "path": "_astro/DecoderBlockDiagram.DX3bZ7R9.css",
+        "sha256": "5306122e80aa59bd7caab32fba108d37a4bc9f3ab23eb6d576feea5a75914dab"
+      },
+      "localizedBuild": {
+        "bytes": 5713,
+        "path": "_astro/DecoderBlockDiagram.DX3bZ7R9.css",
+        "sha256": "5306122e80aa59bd7caab32fba108d37a4bc9f3ab23eb6d576feea5a75914dab"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 5587,
+        "path": "_astro/EndToEndLlmDiagram.BUjf_cYJ.css",
+        "sha256": "85a814ae86b00c162aa0dfca0a77cd060bbcaf0c5ff59646c7d06421797ab9f7"
+      },
+      "localizedBuild": {
+        "bytes": 5587,
+        "path": "_astro/EndToEndLlmDiagram.BUjf_cYJ.css",
+        "sha256": "85a814ae86b00c162aa0dfca0a77cd060bbcaf0c5ff59646c7d06421797ab9f7"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6514,
+        "path": "_astro/GradientCheckingDiagram.CuSWYgMK.css",
+        "sha256": "766b58b29b335bcfae537b0e65fc1fe947c45256de81c9a52c2e7ff099560f52"
+      },
+      "localizedBuild": {
+        "bytes": 6514,
+        "path": "_astro/GradientCheckingDiagram.CuSWYgMK.css",
+        "sha256": "766b58b29b335bcfae537b0e65fc1fe947c45256de81c9a52c2e7ff099560f52"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 28076,
+        "path": "_astro/KaTeX_AMS-Regular.BQhdFMY1.woff2",
+        "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308"
+      },
+      "localizedBuild": {
+        "bytes": 28076,
+        "path": "_astro/KaTeX_AMS-Regular.BQhdFMY1.woff2",
+        "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 33516,
+        "path": "_astro/KaTeX_AMS-Regular.DMm9YOAa.woff",
+        "sha256": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251"
+      },
+      "localizedBuild": {
+        "bytes": 33516,
+        "path": "_astro/KaTeX_AMS-Regular.DMm9YOAa.woff",
+        "sha256": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 63632,
+        "path": "_astro/KaTeX_AMS-Regular.DRggAlZN.ttf",
+        "sha256": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13"
+      },
+      "localizedBuild": {
+        "bytes": 63632,
+        "path": "_astro/KaTeX_AMS-Regular.DRggAlZN.ttf",
+        "sha256": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12368,
+        "path": "_astro/KaTeX_Caligraphic-Bold.ATXxdsX0.ttf",
+        "sha256": "07d8e303ce4fc12b4bb54f1004170dd190a1f3db45d400fe68060df3e0897268"
+      },
+      "localizedBuild": {
+        "bytes": 12368,
+        "path": "_astro/KaTeX_Caligraphic-Bold.ATXxdsX0.ttf",
+        "sha256": "07d8e303ce4fc12b4bb54f1004170dd190a1f3db45d400fe68060df3e0897268"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7716,
+        "path": "_astro/KaTeX_Caligraphic-Bold.BEiXGLvX.woff",
+        "sha256": "1ae6bd7475590e97e7f145a89e09ccde322f7a6bc0b91607b1c8b8ee28290fed"
+      },
+      "localizedBuild": {
+        "bytes": 7716,
+        "path": "_astro/KaTeX_Caligraphic-Bold.BEiXGLvX.woff",
+        "sha256": "1ae6bd7475590e97e7f145a89e09ccde322f7a6bc0b91607b1c8b8ee28290fed"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6912,
+        "path": "_astro/KaTeX_Caligraphic-Bold.Dq_IR9rO.woff2",
+        "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c"
+      },
+      "localizedBuild": {
+        "bytes": 6912,
+        "path": "_astro/KaTeX_Caligraphic-Bold.Dq_IR9rO.woff2",
+        "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7656,
+        "path": "_astro/KaTeX_Caligraphic-Regular.CTRA-rTL.woff",
+        "sha256": "3398dd02302557a793f2863f88e02d96ce10df2abffa07c8e9fa90775116e65c"
+      },
+      "localizedBuild": {
+        "bytes": 7656,
+        "path": "_astro/KaTeX_Caligraphic-Regular.CTRA-rTL.woff",
+        "sha256": "3398dd02302557a793f2863f88e02d96ce10df2abffa07c8e9fa90775116e65c"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6908,
+        "path": "_astro/KaTeX_Caligraphic-Regular.Di6jR-x-.woff2",
+        "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b"
+      },
+      "localizedBuild": {
+        "bytes": 6908,
+        "path": "_astro/KaTeX_Caligraphic-Regular.Di6jR-x-.woff2",
+        "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12344,
+        "path": "_astro/KaTeX_Caligraphic-Regular.wX97UBjC.ttf",
+        "sha256": "ed0b74372feefcbb9c0666b2e210da37b7e49fa7fbbf3eeb11db5f693dacfbb7"
+      },
+      "localizedBuild": {
+        "bytes": 12344,
+        "path": "_astro/KaTeX_Caligraphic-Regular.wX97UBjC.ttf",
+        "sha256": "ed0b74372feefcbb9c0666b2e210da37b7e49fa7fbbf3eeb11db5f693dacfbb7"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 19584,
+        "path": "_astro/KaTeX_Fraktur-Bold.BdnERNNW.ttf",
+        "sha256": "9163df9c7122432e6495b4229fa9071cf9ae86a758ae5efc4924ec2e1a6dbce1"
+      },
+      "localizedBuild": {
+        "bytes": 19584,
+        "path": "_astro/KaTeX_Fraktur-Bold.BdnERNNW.ttf",
+        "sha256": "9163df9c7122432e6495b4229fa9071cf9ae86a758ae5efc4924ec2e1a6dbce1"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 13296,
+        "path": "_astro/KaTeX_Fraktur-Bold.BsDP51OF.woff",
+        "sha256": "9be7ceb88004ab8ad124082246fbfcca4091e36385d4ec6ed1df67375dad50fb"
+      },
+      "localizedBuild": {
+        "bytes": 13296,
+        "path": "_astro/KaTeX_Fraktur-Bold.BsDP51OF.woff",
+        "sha256": "9be7ceb88004ab8ad124082246fbfcca4091e36385d4ec6ed1df67375dad50fb"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 11348,
+        "path": "_astro/KaTeX_Fraktur-Bold.CL6g_b3V.woff2",
+        "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f"
+      },
+      "localizedBuild": {
+        "bytes": 11348,
+        "path": "_astro/KaTeX_Fraktur-Bold.CL6g_b3V.woff2",
+        "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 19572,
+        "path": "_astro/KaTeX_Fraktur-Regular.CB_wures.ttf",
+        "sha256": "1e6f9579e90e2cac37f8f60a597c436e075c114385652b7cbeb0dec0421291b3"
+      },
+      "localizedBuild": {
+        "bytes": 19572,
+        "path": "_astro/KaTeX_Fraktur-Regular.CB_wures.ttf",
+        "sha256": "1e6f9579e90e2cac37f8f60a597c436e075c114385652b7cbeb0dec0421291b3"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 11316,
+        "path": "_astro/KaTeX_Fraktur-Regular.CTYiF6lA.woff2",
+        "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc"
+      },
+      "localizedBuild": {
+        "bytes": 11316,
+        "path": "_astro/KaTeX_Fraktur-Regular.CTYiF6lA.woff2",
+        "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 13208,
+        "path": "_astro/KaTeX_Fraktur-Regular.Dxdc4cR9.woff",
+        "sha256": "5e28753be717dac97f559f49bc10be9cf3c124ddcabda6659d11cb68febc6463"
+      },
+      "localizedBuild": {
+        "bytes": 13208,
+        "path": "_astro/KaTeX_Fraktur-Regular.Dxdc4cR9.woff",
+        "sha256": "5e28753be717dac97f559f49bc10be9cf3c124ddcabda6659d11cb68febc6463"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 25324,
+        "path": "_astro/KaTeX_Main-Bold.Cx986IdX.woff2",
+        "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021"
+      },
+      "localizedBuild": {
+        "bytes": 25324,
+        "path": "_astro/KaTeX_Main-Bold.Cx986IdX.woff2",
+        "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 29912,
+        "path": "_astro/KaTeX_Main-Bold.Jm3AIy58.woff",
+        "sha256": "c76c5d696297d51b9cb1639c7da4334f0e7dec81b42b11213b5e25ef671bb822"
+      },
+      "localizedBuild": {
+        "bytes": 29912,
+        "path": "_astro/KaTeX_Main-Bold.Jm3AIy58.woff",
+        "sha256": "c76c5d696297d51b9cb1639c7da4334f0e7dec81b42b11213b5e25ef671bb822"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 51336,
+        "path": "_astro/KaTeX_Main-Bold.waoOVXN0.ttf",
+        "sha256": "138ac28d1663b3037e9c5f52371fa5c63d8324f4a38d22cd573e6ea3a3fd0cf8"
+      },
+      "localizedBuild": {
+        "bytes": 51336,
+        "path": "_astro/KaTeX_Main-Bold.waoOVXN0.ttf",
+        "sha256": "138ac28d1663b3037e9c5f52371fa5c63d8324f4a38d22cd573e6ea3a3fd0cf8"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 16780,
+        "path": "_astro/KaTeX_Main-BoldItalic.DxDJ3AOS.woff2",
+        "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b"
+      },
+      "localizedBuild": {
+        "bytes": 16780,
+        "path": "_astro/KaTeX_Main-BoldItalic.DxDJ3AOS.woff2",
+        "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 32968,
+        "path": "_astro/KaTeX_Main-BoldItalic.DzxPMmG6.ttf",
+        "sha256": "70ee1f64a20f2048c21940ef46d0144fd215baa953ca69afd1e31e98544f708f"
+      },
+      "localizedBuild": {
+        "bytes": 32968,
+        "path": "_astro/KaTeX_Main-BoldItalic.DzxPMmG6.ttf",
+        "sha256": "70ee1f64a20f2048c21940ef46d0144fd215baa953ca69afd1e31e98544f708f"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 19412,
+        "path": "_astro/KaTeX_Main-BoldItalic.SpSLRI95.woff",
+        "sha256": "a6f7ec0d846ac7ad975adb8959c37ed49b94acbc4ae436db9ce9e20287e4a64c"
+      },
+      "localizedBuild": {
+        "bytes": 19412,
+        "path": "_astro/KaTeX_Main-BoldItalic.SpSLRI95.woff",
+        "sha256": "a6f7ec0d846ac7ad975adb8959c37ed49b94acbc4ae436db9ce9e20287e4a64c"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 33580,
+        "path": "_astro/KaTeX_Main-Italic.3WenGoN9.ttf",
+        "sha256": "0d85ae7cc30f23790a7f1a58c4a112fdca8aae769b6ba11429af1d98b1b6cb3a"
+      },
+      "localizedBuild": {
+        "bytes": 33580,
+        "path": "_astro/KaTeX_Main-Italic.3WenGoN9.ttf",
+        "sha256": "0d85ae7cc30f23790a7f1a58c4a112fdca8aae769b6ba11429af1d98b1b6cb3a"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 19676,
+        "path": "_astro/KaTeX_Main-Italic.BMLOBm91.woff",
+        "sha256": "f1d6ef86f3b11a528bd5185199bd2443ecb2b0dead96d88674b5a2c12be24bdf"
+      },
+      "localizedBuild": {
+        "bytes": 19676,
+        "path": "_astro/KaTeX_Main-Italic.BMLOBm91.woff",
+        "sha256": "f1d6ef86f3b11a528bd5185199bd2443ecb2b0dead96d88674b5a2c12be24bdf"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 16988,
+        "path": "_astro/KaTeX_Main-Italic.NWA7e6Wa.woff2",
+        "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267"
+      },
+      "localizedBuild": {
+        "bytes": 16988,
+        "path": "_astro/KaTeX_Main-Italic.NWA7e6Wa.woff2",
+        "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 26272,
+        "path": "_astro/KaTeX_Main-Regular.B22Nviop.woff2",
+        "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866"
+      },
+      "localizedBuild": {
+        "bytes": 26272,
+        "path": "_astro/KaTeX_Main-Regular.B22Nviop.woff2",
+        "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 30772,
+        "path": "_astro/KaTeX_Main-Regular.Dr94JaBh.woff",
+        "sha256": "c6368d87e8a1a3a5d337623d83d8dc4b868f242a9ad476237d6f8d1e0f168cdc"
+      },
+      "localizedBuild": {
+        "bytes": 30772,
+        "path": "_astro/KaTeX_Main-Regular.Dr94JaBh.woff",
+        "sha256": "c6368d87e8a1a3a5d337623d83d8dc4b868f242a9ad476237d6f8d1e0f168cdc"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 53580,
+        "path": "_astro/KaTeX_Main-Regular.ypZvNtVU.ttf",
+        "sha256": "d0332f52868370fd83ae7fa46470f90c8f2eab2fcf12bc4f88080b340c95a830"
+      },
+      "localizedBuild": {
+        "bytes": 53580,
+        "path": "_astro/KaTeX_Main-Regular.ypZvNtVU.ttf",
+        "sha256": "d0332f52868370fd83ae7fa46470f90c8f2eab2fcf12bc4f88080b340c95a830"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 31196,
+        "path": "_astro/KaTeX_Math-BoldItalic.B3XSjfu4.ttf",
+        "sha256": "f9377ab0271cda59af24bcffbd46a4d0c8a3572ffafdbb38de2ad5ea7b0d5ee5"
+      },
+      "localizedBuild": {
+        "bytes": 31196,
+        "path": "_astro/KaTeX_Math-BoldItalic.B3XSjfu4.ttf",
+        "sha256": "f9377ab0271cda59af24bcffbd46a4d0c8a3572ffafdbb38de2ad5ea7b0d5ee5"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 16400,
+        "path": "_astro/KaTeX_Math-BoldItalic.CZnvNsCZ.woff2",
+        "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1"
+      },
+      "localizedBuild": {
+        "bytes": 16400,
+        "path": "_astro/KaTeX_Math-BoldItalic.CZnvNsCZ.woff2",
+        "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 18668,
+        "path": "_astro/KaTeX_Math-BoldItalic.iY-2wyZ7.woff",
+        "sha256": "850c0af5c2238497febaf5e461d880bf458c341f42f4f330f1b1ab5698b1998e"
+      },
+      "localizedBuild": {
+        "bytes": 18668,
+        "path": "_astro/KaTeX_Math-BoldItalic.iY-2wyZ7.woff",
+        "sha256": "850c0af5c2238497febaf5e461d880bf458c341f42f4f330f1b1ab5698b1998e"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 18748,
+        "path": "_astro/KaTeX_Math-Italic.DA0__PXp.woff",
+        "sha256": "8a8d244581371912b8f3f5a23e2437cb2a59cd9bcaebb0346e722c05737a2571"
+      },
+      "localizedBuild": {
+        "bytes": 18748,
+        "path": "_astro/KaTeX_Math-Italic.DA0__PXp.woff",
+        "sha256": "8a8d244581371912b8f3f5a23e2437cb2a59cd9bcaebb0346e722c05737a2571"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 31308,
+        "path": "_astro/KaTeX_Math-Italic.flOr_0UB.ttf",
+        "sha256": "08ce98e51b04d58945a301e639e02b6998af29fdfd61a7b8afdd07bbfc479d4a"
+      },
+      "localizedBuild": {
+        "bytes": 31308,
+        "path": "_astro/KaTeX_Math-Italic.flOr_0UB.ttf",
+        "sha256": "08ce98e51b04d58945a301e639e02b6998af29fdfd61a7b8afdd07bbfc479d4a"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 16440,
+        "path": "_astro/KaTeX_Math-Italic.t53AETM-.woff2",
+        "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264"
+      },
+      "localizedBuild": {
+        "bytes": 16440,
+        "path": "_astro/KaTeX_Math-Italic.t53AETM-.woff2",
+        "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 24504,
+        "path": "_astro/KaTeX_SansSerif-Bold.CFMepnvq.ttf",
+        "sha256": "1ece03f79f95277d57dc7f6b435a74e1379b0d46104a8530286b60ff49369ea0"
+      },
+      "localizedBuild": {
+        "bytes": 24504,
+        "path": "_astro/KaTeX_SansSerif-Bold.CFMepnvq.ttf",
+        "sha256": "1ece03f79f95277d57dc7f6b435a74e1379b0d46104a8530286b60ff49369ea0"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12216,
+        "path": "_astro/KaTeX_SansSerif-Bold.D1sUS0GD.woff2",
+        "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62"
+      },
+      "localizedBuild": {
+        "bytes": 12216,
+        "path": "_astro/KaTeX_SansSerif-Bold.D1sUS0GD.woff2",
+        "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 14408,
+        "path": "_astro/KaTeX_SansSerif-Bold.DbIhKOiC.woff",
+        "sha256": "ece03cfd83e22c212cdef66feb8442d25a083beb988db3f1883f3f9738d750ba"
+      },
+      "localizedBuild": {
+        "bytes": 14408,
+        "path": "_astro/KaTeX_SansSerif-Bold.DbIhKOiC.woff",
+        "sha256": "ece03cfd83e22c212cdef66feb8442d25a083beb988db3f1883f3f9738d750ba"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12028,
+        "path": "_astro/KaTeX_SansSerif-Italic.C3H0VqGB.woff2",
+        "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a"
+      },
+      "localizedBuild": {
+        "bytes": 12028,
+        "path": "_astro/KaTeX_SansSerif-Italic.C3H0VqGB.woff2",
+        "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 14112,
+        "path": "_astro/KaTeX_SansSerif-Italic.DN2j7dab.woff",
+        "sha256": "91ee67500cc0129aa0ace3ac5c61ff1692102f0f31d02b69347fba35dcb75bf2"
+      },
+      "localizedBuild": {
+        "bytes": 14112,
+        "path": "_astro/KaTeX_SansSerif-Italic.DN2j7dab.woff",
+        "sha256": "91ee67500cc0129aa0ace3ac5c61ff1692102f0f31d02b69347fba35dcb75bf2"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 22364,
+        "path": "_astro/KaTeX_SansSerif-Italic.YYjJ1zSn.ttf",
+        "sha256": "3931dd81faed86ba021bb2bbdc36f5bed9a38d6b4f4077aca59b265aa1b02083"
+      },
+      "localizedBuild": {
+        "bytes": 22364,
+        "path": "_astro/KaTeX_SansSerif-Italic.YYjJ1zSn.ttf",
+        "sha256": "3931dd81faed86ba021bb2bbdc36f5bed9a38d6b4f4077aca59b265aa1b02083"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 19436,
+        "path": "_astro/KaTeX_SansSerif-Regular.BNo7hRIc.ttf",
+        "sha256": "f36ea897e19f4a2e571d1e900e4e3710e438deb05a842486045ba0a3e616a4ad"
+      },
+      "localizedBuild": {
+        "bytes": 19436,
+        "path": "_astro/KaTeX_SansSerif-Regular.BNo7hRIc.ttf",
+        "sha256": "f36ea897e19f4a2e571d1e900e4e3710e438deb05a842486045ba0a3e616a4ad"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12316,
+        "path": "_astro/KaTeX_SansSerif-Regular.CS6fqUqJ.woff",
+        "sha256": "11e4dc8a6471ff6d6ee561d53d10fde8f7489e798257ff449c5d37c197435605"
+      },
+      "localizedBuild": {
+        "bytes": 12316,
+        "path": "_astro/KaTeX_SansSerif-Regular.CS6fqUqJ.woff",
+        "sha256": "11e4dc8a6471ff6d6ee561d53d10fde8f7489e798257ff449c5d37c197435605"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 10344,
+        "path": "_astro/KaTeX_SansSerif-Regular.DDBCnlJ7.woff2",
+        "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342"
+      },
+      "localizedBuild": {
+        "bytes": 10344,
+        "path": "_astro/KaTeX_SansSerif-Regular.DDBCnlJ7.woff2",
+        "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 16648,
+        "path": "_astro/KaTeX_Script-Regular.C5JkGWo-.ttf",
+        "sha256": "1c67f068fea8bb09bf099c088b1cf64bd27516a6e07f4684344873564bb66a67"
+      },
+      "localizedBuild": {
+        "bytes": 16648,
+        "path": "_astro/KaTeX_Script-Regular.C5JkGWo-.ttf",
+        "sha256": "1c67f068fea8bb09bf099c088b1cf64bd27516a6e07f4684344873564bb66a67"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 9644,
+        "path": "_astro/KaTeX_Script-Regular.D3wIWfF6.woff2",
+        "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b"
+      },
+      "localizedBuild": {
+        "bytes": 9644,
+        "path": "_astro/KaTeX_Script-Regular.D3wIWfF6.woff2",
+        "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 10588,
+        "path": "_astro/KaTeX_Script-Regular.D5yQViql.woff",
+        "sha256": "d96cdf2b3bdd4d64a8fd5f74a4c467f123a8a73931cd435889f08ffaf9bf947a"
+      },
+      "localizedBuild": {
+        "bytes": 10588,
+        "path": "_astro/KaTeX_Script-Regular.D5yQViql.woff",
+        "sha256": "d96cdf2b3bdd4d64a8fd5f74a4c467f123a8a73931cd435889f08ffaf9bf947a"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6496,
+        "path": "_astro/KaTeX_Size1-Regular.C195tn64.woff",
+        "sha256": "c943cc986384f59e86bea5fd7dc50a9c4dfe567a7c05eb40d6790720dead97c9"
+      },
+      "localizedBuild": {
+        "bytes": 6496,
+        "path": "_astro/KaTeX_Size1-Regular.C195tn64.woff",
+        "sha256": "c943cc986384f59e86bea5fd7dc50a9c4dfe567a7c05eb40d6790720dead97c9"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 12228,
+        "path": "_astro/KaTeX_Size1-Regular.Dbsnue_I.ttf",
+        "sha256": "95b6d2f1a50173bfedb8c63e1d1c99b10427d0a4df4201cb44513b226951a22b"
+      },
+      "localizedBuild": {
+        "bytes": 12228,
+        "path": "_astro/KaTeX_Size1-Regular.Dbsnue_I.ttf",
+        "sha256": "95b6d2f1a50173bfedb8c63e1d1c99b10427d0a4df4201cb44513b226951a22b"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 5468,
+        "path": "_astro/KaTeX_Size1-Regular.mCD8mA8B.woff2",
+        "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe"
+      },
+      "localizedBuild": {
+        "bytes": 5468,
+        "path": "_astro/KaTeX_Size1-Regular.mCD8mA8B.woff2",
+        "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 11508,
+        "path": "_astro/KaTeX_Size2-Regular.B7gKUWhC.ttf",
+        "sha256": "a6b2099fb555c60e3a0db3a08842ebf1d732c6eb4e4bf44913613bed4fc4e39b"
+      },
+      "localizedBuild": {
+        "bytes": 11508,
+        "path": "_astro/KaTeX_Size2-Regular.B7gKUWhC.ttf",
+        "sha256": "a6b2099fb555c60e3a0db3a08842ebf1d732c6eb4e4bf44913613bed4fc4e39b"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 5208,
+        "path": "_astro/KaTeX_Size2-Regular.Dy4dx90m.woff2",
+        "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd"
+      },
+      "localizedBuild": {
+        "bytes": 5208,
+        "path": "_astro/KaTeX_Size2-Regular.Dy4dx90m.woff2",
+        "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6188,
+        "path": "_astro/KaTeX_Size2-Regular.oD1tc_U0.woff",
+        "sha256": "2014c523c3210bcc166648c4d4cc57f05b747df07a24277bf71c51e67dc79e3d"
+      },
+      "localizedBuild": {
+        "bytes": 6188,
+        "path": "_astro/KaTeX_Size2-Regular.oD1tc_U0.woff",
+        "sha256": "2014c523c3210bcc166648c4d4cc57f05b747df07a24277bf71c51e67dc79e3d"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4420,
+        "path": "_astro/KaTeX_Size3-Regular.CTq5MqoE.woff",
+        "sha256": "6ab6b62e9b62dae2c00dd90f791bd10950be0ecc3490d7d6045f51c2e8fe0949"
+      },
+      "localizedBuild": {
+        "bytes": 4420,
+        "path": "_astro/KaTeX_Size3-Regular.CTq5MqoE.woff",
+        "sha256": "6ab6b62e9b62dae2c00dd90f791bd10950be0ecc3490d7d6045f51c2e8fe0949"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7588,
+        "path": "_astro/KaTeX_Size3-Regular.DgpXs0kz.ttf",
+        "sha256": "500e04d54f0d51666332c9d2089aa803be22aa878eca539e59fa53c6e522b082"
+      },
+      "localizedBuild": {
+        "bytes": 7588,
+        "path": "_astro/KaTeX_Size3-Regular.DgpXs0kz.ttf",
+        "sha256": "500e04d54f0d51666332c9d2089aa803be22aa878eca539e59fa53c6e522b082"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 5980,
+        "path": "_astro/KaTeX_Size4-Regular.BF-4gkZK.woff",
+        "sha256": "99f9c6750b489c9462bf04900bd3f939df9b829339daaaaa99ef5495cdddea58"
+      },
+      "localizedBuild": {
+        "bytes": 5980,
+        "path": "_astro/KaTeX_Size4-Regular.BF-4gkZK.woff",
+        "sha256": "99f9c6750b489c9462bf04900bd3f939df9b829339daaaaa99ef5495cdddea58"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 10364,
+        "path": "_astro/KaTeX_Size4-Regular.DWFBv043.ttf",
+        "sha256": "c647367d1dd4e162468717d020e1fc0f1dc5c26ebfdffbe55261713bf88c5877"
+      },
+      "localizedBuild": {
+        "bytes": 10364,
+        "path": "_astro/KaTeX_Size4-Regular.DWFBv043.ttf",
+        "sha256": "c647367d1dd4e162468717d020e1fc0f1dc5c26ebfdffbe55261713bf88c5877"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4928,
+        "path": "_astro/KaTeX_Size4-Regular.Dl5lxZxV.woff2",
+        "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0"
+      },
+      "localizedBuild": {
+        "bytes": 4928,
+        "path": "_astro/KaTeX_Size4-Regular.Dl5lxZxV.woff2",
+        "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 16028,
+        "path": "_astro/KaTeX_Typewriter-Regular.C0xS9mPB.woff",
+        "sha256": "e14fed02b1aba7ce9f5afd5844b5d0321b22351febc720e0de8b8723527609f7"
+      },
+      "localizedBuild": {
+        "bytes": 16028,
+        "path": "_astro/KaTeX_Typewriter-Regular.C0xS9mPB.woff",
+        "sha256": "e14fed02b1aba7ce9f5afd5844b5d0321b22351febc720e0de8b8723527609f7"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 13568,
+        "path": "_astro/KaTeX_Typewriter-Regular.CO6r4hn1.woff2",
+        "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b"
+      },
+      "localizedBuild": {
+        "bytes": 13568,
+        "path": "_astro/KaTeX_Typewriter-Regular.CO6r4hn1.woff2",
+        "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 27556,
+        "path": "_astro/KaTeX_Typewriter-Regular.D3Ib7_Hf.ttf",
+        "sha256": "f01f3e87d9c6a61c0c081ceb577abd864eb00a612f7ac1620dd6915fad2ef5aa"
+      },
+      "localizedBuild": {
+        "bytes": 27556,
+        "path": "_astro/KaTeX_Typewriter-Regular.D3Ib7_Hf.ttf",
+        "sha256": "f01f3e87d9c6a61c0c081ceb577abd864eb00a612f7ac1620dd6915fad2ef5aa"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 9933,
+        "path": "_astro/LanguageModelMetricsDiagram.B6YE_08U.css",
+        "sha256": "e2aeba4af1cafb40f20aabccb0317a52ff589a1e428c9d11a6042be7900620c7"
+      },
+      "localizedBuild": {
+        "bytes": 9933,
+        "path": "_astro/LanguageModelMetricsDiagram.B6YE_08U.css",
+        "sha256": "e2aeba4af1cafb40f20aabccb0317a52ff589a1e428c9d11a6042be7900620c7"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7424,
+        "path": "_astro/LearnBpeMergesDiagram.Bt0n4XPB.css",
+        "sha256": "b95f162fa2202fb3d179ed72a616583d4ca5fc8e0f30d4e366efc8a6810c1667"
+      },
+      "localizedBuild": {
+        "bytes": 7424,
+        "path": "_astro/LearnBpeMergesDiagram.Bt0n4XPB.css",
+        "sha256": "b95f162fa2202fb3d179ed72a616583d4ca5fc8e0f30d4e366efc8a6810c1667"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7057,
+        "path": "_astro/LinearLayersDiagram.D8jmSs_5.css",
+        "sha256": "61b92ebf206efcd23b9a757b595ffb0ac6bd3dc9919cd8436ca42d324255b019"
+      },
+      "localizedBuild": {
+        "bytes": 7057,
+        "path": "_astro/LinearLayersDiagram.D8jmSs_5.css",
+        "sha256": "61b92ebf206efcd23b9a757b595ffb0ac6bd3dc9919cd8436ca42d324255b019"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7300,
+        "path": "_astro/LlmSystemDiagram.CfCuT2cf.css",
+        "sha256": "b9197ce66838205d469bb5698398ff6d08c305928c512b37fea381dbcece0d7f"
+      },
+      "localizedBuild": {
+        "bytes": 7300,
+        "path": "_astro/LlmSystemDiagram.CfCuT2cf.css",
+        "sha256": "b9197ce66838205d469bb5698398ff6d08c305928c512b37fea381dbcece0d7f"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 8728,
+        "path": "_astro/MiniBatchesDiagram.CetWUoRy.css",
+        "sha256": "56c62be8a6481722089ff8cbf867f6cc54d52b81cc2ec19aa5a2748430f854a1"
+      },
+      "localizedBuild": {
+        "bytes": 8728,
+        "path": "_astro/MiniBatchesDiagram.CetWUoRy.css",
+        "sha256": "56c62be8a6481722089ff8cbf867f6cc54d52b81cc2ec19aa5a2748430f854a1"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4441,
+        "path": "_astro/MultiHeadAttentionDiagram.nRpMLXUM.css",
+        "sha256": "4b70c48ed587401b26494f7c3c0ff33617d120333821baed7808604c0caabc05"
+      },
+      "localizedBuild": {
+        "bytes": 4441,
+        "path": "_astro/MultiHeadAttentionDiagram.nRpMLXUM.css",
+        "sha256": "4b70c48ed587401b26494f7c3c0ff33617d120333821baed7808604c0caabc05"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6896,
+        "path": "_astro/ParameterInitializationDiagram.9qZZwbz1.css",
+        "sha256": "5252f552a4fc0067556f331be938ee4e01cd260990871e363e5b34e0debb902c"
+      },
+      "localizedBuild": {
+        "bytes": 6896,
+        "path": "_astro/ParameterInitializationDiagram.9qZZwbz1.css",
+        "sha256": "5252f552a4fc0067556f331be938ee4e01cd260990871e363e5b34e0debb902c"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4261,
+        "path": "_astro/RmsnormDiagram.Ck2BezJ2.css",
+        "sha256": "2bf2bd6c4bdc24e276bdc774ddff30390fb9b4ad9b325e3b125e16e48107e7ac"
+      },
+      "localizedBuild": {
+        "bytes": 4261,
+        "path": "_astro/RmsnormDiagram.Ck2BezJ2.css",
+        "sha256": "2bf2bd6c4bdc24e276bdc774ddff30390fb9b4ad9b325e3b125e16e48107e7ac"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4438,
+        "path": "_astro/StableSoftmaxDiagram.DL9T01Nr.css",
+        "sha256": "f8c96e7c30e0734c8f30919b90b73eda90aa6b351153e0d8f95a63dc1fca6503"
+      },
+      "localizedBuild": {
+        "bytes": 4438,
+        "path": "_astro/StableSoftmaxDiagram.DL9T01Nr.css",
+        "sha256": "f8c96e7c30e0734c8f30919b90b73eda90aa6b351153e0d8f95a63dc1fca6503"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 6414,
+        "path": "_astro/SwigluFeedForwardDiagram.1IRVfBu4.css",
+        "sha256": "0e1d1eadf5ad087c71f8f030ed81851520dac34d6f0b43f79c2c09b9f4822722"
+      },
+      "localizedBuild": {
+        "bytes": 6414,
+        "path": "_astro/SwigluFeedForwardDiagram.1IRVfBu4.css",
+        "sha256": "0e1d1eadf5ad087c71f8f030ed81851520dac34d6f0b43f79c2c09b9f4822722"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7342,
+        "path": "_astro/TensorAutodiffOutcomesDiagram.3tiDST7O.css",
+        "sha256": "bfd7a56bdc38b4dcdaed888d264490ed36bb7ef1b77ce16ea1bb4c8bd8513e37"
+      },
+      "localizedBuild": {
+        "bytes": 7342,
+        "path": "_astro/TensorAutodiffOutcomesDiagram.3tiDST7O.css",
+        "sha256": "bfd7a56bdc38b4dcdaed888d264490ed36bb7ef1b77ce16ea1bb4c8bd8513e37"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 4333,
+        "path": "_astro/TokenEmbeddingsDiagram.CdnuuhlZ.css",
+        "sha256": "de203baca91bde763003fe65e39ec404fd32ac42ab373b64af5341bfd75fbea1"
+      },
+      "localizedBuild": {
+        "bytes": 4333,
+        "path": "_astro/TokenEmbeddingsDiagram.CdnuuhlZ.css",
+        "sha256": "de203baca91bde763003fe65e39ec404fd32ac42ab373b64af5341bfd75fbea1"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 9752,
+        "path": "_astro/_...B4STNUs8.css",
+        "sha256": "9e56e04d519e0f4dc26651163f5b166788cdba394c1dead49dd7af177e30e17e"
+      },
+      "localizedBuild": {
+        "bytes": 9752,
+        "path": "_astro/_...B4STNUs8.css",
+        "sha256": "9e56e04d519e0f4dc26651163f5b166788cdba394c1dead49dd7af177e30e17e"
+      }
+    },
+    {
+      "exactFit": true,
+      "expected": {
+        "bytes": 7475,
+        "path": "_astro/theme.BpA4-oYh.css",
+        "sha256": "525606295e0dca9a30e39f3916a45dec82252bec117de4ee4ae8371edbacb2fb"
+      },
+      "localizedBuild": {
+        "bytes": 7475,
+        "path": "_astro/theme.BpA4-oYh.css",
+        "sha256": "525606295e0dca9a30e39f3916a45dec82252bec117de4ee4ae8371edbacb2fb"
+      }
+    }
+  ],
+  "builtDeltas": [
+    {
+      "before": {
+        "bytes": 11085,
+        "path": "ru/index.html",
+        "sha256": "7c6a61af0ba9cfcbce1426d294255d4b7adeb478e4fd6c48b5dc379239957b7c"
+      },
+      "localized": {
+        "bytes": 12519,
+        "path": "ru/index.html",
+        "sha256": "678a76a0389e1ade7e95c71f70e7cb614e77adf10aade65919738d65bfe2150a"
+      },
+      "path": "ru/index.html"
+    }
+  ],
+  "catalogFieldFit": {
+    "bytes": 18177,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/russian-catalog-field-fit.json",
+    "sha256": "46bcfdd5d02957e065968b7f060cc405ec6a5844a7d6190e17947c3eda3717a7"
+  },
+  "completeSourcePublications": 18,
+  "currentEnglishCandidateId": "practical.foundation.en.20261009.04",
+  "englishHTMLCount": 5,
+  "firefoxExecuted": false,
+  "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+  "inheritedHelpers": {
+    "bytes": 5047,
+    "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/operations/close-build-fit-01.py",
+    "sha256": "41a40825281d9bc50e0646e3b9d7d05e5192be22a85bb6954097aeca157a885b"
+  },
+  "issues": [],
+  "kind": "actual-localized-build-current-English-byte-fit",
+  "localeCandidateId": "practical.foundation.home.ru.20261009.01",
+  "localizationJudgment": null,
+  "network": "none",
+  "oldManifestRelabeled": false,
+  "operations": [
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "node",
+        "scripts/check-site-content.mjs",
+        "--course",
+        "llm-from-scratch"
+      ],
+      "artifacts": [
+        {
+          "bytes": 62,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-first-02/argv.nul",
+          "sha256": "fad91ab1d05937404a5d184327d401993e1696e61da0c805e2786ee3068baf81"
+        },
+        {
+          "bytes": 709062,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-first-02/input-hashes.txt",
+          "sha256": "8053e362d848dd2f767c9fb8ea7626581a7cbf0a1242b704d8dcfdb390f0cd94"
+        },
+        {
+          "bytes": 137,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-first-02/stdout.txt",
+          "sha256": "0457d705866dc3f489ba26a84f6184a99eda63f52a926a3fc9ff766da9c656cd"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-first-02/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-first-02/command-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-first-02/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "operation": "course-content-first-02"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "node",
+        "scripts/check-site-content.mjs",
+        "--course",
+        "practical-llm-in-rust"
+      ],
+      "artifacts": [
+        {
+          "bytes": 67,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-practical-01/argv.nul",
+          "sha256": "311012907cf77a7c5d7dd6749246aa7248b190559aa4aa6f7ec7693292bdaf56"
+        },
+        {
+          "bytes": 709062,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-practical-01/input-hashes.txt",
+          "sha256": "8053e362d848dd2f767c9fb8ea7626581a7cbf0a1242b704d8dcfdb390f0cd94"
+        },
+        {
+          "bytes": 135,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-practical-01/stdout.txt",
+          "sha256": "6098438bb3a1de9e799b748d51115669df2bab1d7540708c5040a35029799244"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-practical-01/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-practical-01/command-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-content-practical-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "operation": "course-content-practical-01"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "node",
+        "scripts/check-course-boundaries.mjs"
+      ],
+      "artifacts": [
+        {
+          "bytes": 41,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-boundaries-01/argv.nul",
+          "sha256": "9eb065ac9d6a144b290f002db48ecd1a0bd983981aaff513009112e429ab6123"
+        },
+        {
+          "bytes": 709062,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-boundaries-01/input-hashes.txt",
+          "sha256": "8053e362d848dd2f767c9fb8ea7626581a7cbf0a1242b704d8dcfdb390f0cd94"
+        },
+        {
+          "bytes": 383,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-boundaries-01/stdout.txt",
+          "sha256": "58a5f8b8467ffd7e3881ec49465c2622170b1ee2d0c68f05d1b535f7b3d3bd27"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-boundaries-01/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-boundaries-01/command-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/course-boundaries-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "operation": "course-boundaries-01"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "npm",
+        "--prefix",
+        "site",
+        "run",
+        "build"
+      ],
+      "artifacts": [
+        {
+          "bytes": 28,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/argv.nul",
+          "sha256": "8b04dffeba148a9f0586ae49b1c8c635ede7af8a92d689a557fb0b2c46aed122"
+        },
+        {
+          "bytes": 709062,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/input-hashes.txt",
+          "sha256": "8053e362d848dd2f767c9fb8ea7626581a7cbf0a1242b704d8dcfdb390f0cd94"
+        },
+        {
+          "bytes": 6774,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/stdout.txt",
+          "sha256": "cd07528f33362ef797c290004910c2c0469d53c798731d73ac7014e3dc6f92e3"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/command-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "operation": "astro-build-01"
+    }
+  ],
+  "originalBuildManifest": {
+    "bytes": 24587,
+    "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/evidence/current-built-inventory.json",
+    "sha256": "816b1341c671c51007bab96d7a7e59ae38820a966accf89142cd8a07d0b9e2a7"
+  },
+  "originalEnglishBindings": {
+    "bytes": 22590,
+    "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/review-bundles/bindings.json",
+    "sha256": "02ae4fff6e717847e1ef11e22b279f399611519545f01cfb6780e18a9e24834a"
+  },
+  "published": false,
+  "reviewedEnglishSources": [
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 5386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/curriculum/practical/chapters/00-course-structure.md",
+        "sha256": "f7e952ac60b6d1af69344355d23a7ebed5bfa312d7be13222ca5ab1d40c53920"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 5386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/curriculum/practical/chapters/00-course-structure.md",
+        "sha256": "f7e952ac60b6d1af69344355d23a7ebed5bfa312d7be13222ca5ab1d40c53920"
+      },
+      "id": "source.007",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "f7e952ac60b6d1af69344355d23a7ebed5bfa312d7be13222ca5ab1d40c53920",
+      "localizedEffectiveSource": {
+        "bytes": 5386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/curriculum/practical/chapters/00-course-structure.md",
+        "sha256": "f7e952ac60b6d1af69344355d23a7ebed5bfa312d7be13222ca5ab1d40c53920"
+      },
+      "logicalPath": "curriculum/practical/chapters/00-course-structure.md"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 12574,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/curriculum/practical/chapters/01-reference-core-handoff.md",
+        "sha256": "caae844f877f4995f2e4f1b4a38c57e0aa4044bd3be7b98c7b603c949e9c4652"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 12574,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/curriculum/practical/chapters/01-reference-core-handoff.md",
+        "sha256": "caae844f877f4995f2e4f1b4a38c57e0aa4044bd3be7b98c7b603c949e9c4652"
+      },
+      "id": "source.008",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "caae844f877f4995f2e4f1b4a38c57e0aa4044bd3be7b98c7b603c949e9c4652",
+      "localizedEffectiveSource": {
+        "bytes": 12574,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/curriculum/practical/chapters/01-reference-core-handoff.md",
+        "sha256": "caae844f877f4995f2e4f1b4a38c57e0aa4044bd3be7b98c7b603c949e9c4652"
+      },
+      "logicalPath": "curriculum/practical/chapters/01-reference-core-handoff.md"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 16867,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/curriculum/practical/chapters/02-corpus-preparation.md",
+        "sha256": "e5e491611487535044558b7b770b2fa02f955be2911a083f654e24b9c9434702"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 16867,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/curriculum/practical/chapters/02-corpus-preparation.md",
+        "sha256": "e5e491611487535044558b7b770b2fa02f955be2911a083f654e24b9c9434702"
+      },
+      "id": "source.009",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "e5e491611487535044558b7b770b2fa02f955be2911a083f654e24b9c9434702",
+      "localizedEffectiveSource": {
+        "bytes": 16867,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/curriculum/practical/chapters/02-corpus-preparation.md",
+        "sha256": "e5e491611487535044558b7b770b2fa02f955be2911a083f654e24b9c9434702"
+      },
+      "logicalPath": "curriculum/practical/chapters/02-corpus-preparation.md"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 16949,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs",
+        "sha256": "7f9be0d6925d3030aa0819eef6986145b435769bed69cc1b45c657563a0c23ab"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 16949,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs",
+        "sha256": "7f9be0d6925d3030aa0819eef6986145b435769bed69cc1b45c657563a0c23ab"
+      },
+      "id": "source.012",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "7f9be0d6925d3030aa0819eef6986145b435769bed69cc1b45c657563a0c23ab",
+      "localizedEffectiveSource": {
+        "bytes": 16949,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs",
+        "sha256": "7f9be0d6925d3030aa0819eef6986145b435769bed69cc1b45c657563a0c23ab"
+      },
+      "logicalPath": "rust/crates/llm-from-scratch-practical/src/data/prepared_corpus.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 12233,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+        "sha256": "d0b3fedf20b517054282a2136c9caed2d743e48e3ac3f4e1752b7b6264051af8"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 12233,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+        "sha256": "d0b3fedf20b517054282a2136c9caed2d743e48e3ac3f4e1752b7b6264051af8"
+      },
+      "id": "source.020",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "d0b3fedf20b517054282a2136c9caed2d743e48e3ac3f4e1752b7b6264051af8",
+      "localizedEffectiveSource": {
+        "bytes": 12233,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+        "sha256": "d0b3fedf20b517054282a2136c9caed2d743e48e3ac3f4e1752b7b6264051af8"
+      },
+      "logicalPath": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1484,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+        "sha256": "c765134e6e11b5413e36d0c32553c212a98f1b64ffb04eef738c855f7cd8ca32"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1484,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+        "sha256": "c765134e6e11b5413e36d0c32553c212a98f1b64ffb04eef738c855f7cd8ca32"
+      },
+      "id": "source.021",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "c765134e6e11b5413e36d0c32553c212a98f1b64ffb04eef738c855f7cd8ca32",
+      "localizedEffectiveSource": {
+        "bytes": 1484,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+        "sha256": "c765134e6e11b5413e36d0c32553c212a98f1b64ffb04eef738c855f7cd8ca32"
+      },
+      "logicalPath": "rust/demos/practical-ch01-reference-core-handoff/src/main.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3669,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/src/lib.rs",
+        "sha256": "5558d3660d896f09ca6d55290e0090b7d400ad659f277c20c8a856ab3ec0386f"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3669,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch02-corpus-preparation/src/lib.rs",
+        "sha256": "5558d3660d896f09ca6d55290e0090b7d400ad659f277c20c8a856ab3ec0386f"
+      },
+      "id": "source.027",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "5558d3660d896f09ca6d55290e0090b7d400ad659f277c20c8a856ab3ec0386f",
+      "localizedEffectiveSource": {
+        "bytes": 3669,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/src/lib.rs",
+        "sha256": "5558d3660d896f09ca6d55290e0090b7d400ad659f277c20c8a856ab3ec0386f"
+      },
+      "logicalPath": "rust/demos/practical-ch02-corpus-preparation/src/lib.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 493,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/src/main.rs",
+        "sha256": "633436fcb4b8c585a954d44685148a85f8f19eccd52838ca5fbc7851dfab53b1"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 493,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch02-corpus-preparation/src/main.rs",
+        "sha256": "633436fcb4b8c585a954d44685148a85f8f19eccd52838ca5fbc7851dfab53b1"
+      },
+      "id": "source.028",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "633436fcb4b8c585a954d44685148a85f8f19eccd52838ca5fbc7851dfab53b1",
+      "localizedEffectiveSource": {
+        "bytes": 493,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/src/main.rs",
+        "sha256": "633436fcb4b8c585a954d44685148a85f8f19eccd52838ca5fbc7851dfab53b1"
+      },
+      "logicalPath": "rust/demos/practical-ch02-corpus-preparation/src/main.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 4795,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/chapters/CorpusPreparationDiagram.astro",
+        "sha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 4795,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/components/chapters/CorpusPreparationDiagram.astro",
+        "sha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a"
+      },
+      "id": "source.034",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a",
+      "localizedEffectiveSource": {
+        "bytes": 4795,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/chapters/CorpusPreparationDiagram.astro",
+        "sha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a"
+      },
+      "logicalPath": "site/src/components/chapters/CorpusPreparationDiagram.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3050,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+        "sha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3050,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+        "sha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a"
+      },
+      "id": "source.036",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a",
+      "localizedEffectiveSource": {
+        "bytes": 3050,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+        "sha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a"
+      },
+      "logicalPath": "site/src/components/chapters/ReferenceCoreHandoffDiagram.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 5605,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-chapters/en/00-course-structure.mdx",
+        "sha256": "44e128cd09c65bb2bdd20fabd904a178ea16fad3967de8ee7e04ae86936eec6d"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 5605,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/content/practical-chapters/en/00-course-structure.mdx",
+        "sha256": "44e128cd09c65bb2bdd20fabd904a178ea16fad3967de8ee7e04ae86936eec6d"
+      },
+      "id": "source.043",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "44e128cd09c65bb2bdd20fabd904a178ea16fad3967de8ee7e04ae86936eec6d",
+      "localizedEffectiveSource": {
+        "bytes": 5605,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-chapters/en/00-course-structure.mdx",
+        "sha256": "44e128cd09c65bb2bdd20fabd904a178ea16fad3967de8ee7e04ae86936eec6d"
+      },
+      "logicalPath": "site/src/content/practical-chapters/en/00-course-structure.mdx"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 19785,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-chapters/en/01-reference-core-handoff.mdx",
+        "sha256": "34b1bd585a9644610f7244598255c75da5859e546482ac0248aa453a0745b5b0"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 19785,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/content/practical-chapters/en/01-reference-core-handoff.mdx",
+        "sha256": "34b1bd585a9644610f7244598255c75da5859e546482ac0248aa453a0745b5b0"
+      },
+      "id": "source.044",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "34b1bd585a9644610f7244598255c75da5859e546482ac0248aa453a0745b5b0",
+      "localizedEffectiveSource": {
+        "bytes": 19785,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-chapters/en/01-reference-core-handoff.mdx",
+        "sha256": "34b1bd585a9644610f7244598255c75da5859e546482ac0248aa453a0745b5b0"
+      },
+      "logicalPath": "site/src/content/practical-chapters/en/01-reference-core-handoff.mdx"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 29489,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-chapters/en/02-corpus-preparation.mdx",
+        "sha256": "d62c7841dac5db0da532c93e21defdc650af7ffaef187a7442d409a8c9c12811"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 29489,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/content/practical-chapters/en/02-corpus-preparation.mdx",
+        "sha256": "d62c7841dac5db0da532c93e21defdc650af7ffaef187a7442d409a8c9c12811"
+      },
+      "id": "source.045",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "d62c7841dac5db0da532c93e21defdc650af7ffaef187a7442d409a8c9c12811",
+      "localizedEffectiveSource": {
+        "bytes": 29489,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-chapters/en/02-corpus-preparation.mdx",
+        "sha256": "d62c7841dac5db0da532c93e21defdc650af7ffaef187a7442d409a8c9c12811"
+      },
+      "logicalPath": "site/src/content/practical-chapters/en/02-corpus-preparation.mdx"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 2021,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json",
+        "sha256": "b604cfd85223a044abe6c3f2a881d8e829f66469939b178d3ff9684d56c7c470"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 2021,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json",
+        "sha256": "b604cfd85223a044abe6c3f2a881d8e829f66469939b178d3ff9684d56c7c470"
+      },
+      "id": "source.046",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "b604cfd85223a044abe6c3f2a881d8e829f66469939b178d3ff9684d56c7c470",
+      "localizedEffectiveSource": {
+        "bytes": 2021,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json",
+        "sha256": "b604cfd85223a044abe6c3f2a881d8e829f66469939b178d3ff9684d56c7c470"
+      },
+      "logicalPath": "site/src/content/practical-cheat-sheets/en/01-reference-core-handoff.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 2241,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json",
+        "sha256": "d6511e0dccecf7ba8e2e8260df64b2ca431fcb13c376dfb36595a09115738787"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 2241,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json",
+        "sha256": "d6511e0dccecf7ba8e2e8260df64b2ca431fcb13c376dfb36595a09115738787"
+      },
+      "id": "source.047",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "d6511e0dccecf7ba8e2e8260df64b2ca431fcb13c376dfb36595a09115738787",
+      "localizedEffectiveSource": {
+        "bytes": 2241,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json",
+        "sha256": "d6511e0dccecf7ba8e2e8260df64b2ca431fcb13c376dfb36595a09115738787"
+      },
+      "logicalPath": "site/src/content/practical-cheat-sheets/en/02-corpus-preparation.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3185,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/catalogs/en.json",
+        "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3185,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/i18n/catalogs/en.json",
+        "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca"
+      },
+      "id": "source.048",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca",
+      "localizedEffectiveSource": {
+        "bytes": 3185,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/catalogs/en.json",
+        "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca"
+      },
+      "logicalPath": "site/src/i18n/catalogs/en.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 587,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json",
+        "sha256": "8caa84cf34ed6337fc9d742bbe9e6a35e813eb1415bede2b86500321f70e59c2"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 587,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json",
+        "sha256": "8caa84cf34ed6337fc9d742bbe9e6a35e813eb1415bede2b86500321f70e59c2"
+      },
+      "id": "source.052",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "8caa84cf34ed6337fc9d742bbe9e6a35e813eb1415bede2b86500321f70e59c2",
+      "localizedEffectiveSource": {
+        "bytes": 587,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json",
+        "sha256": "8caa84cf34ed6337fc9d742bbe9e6a35e813eb1415bede2b86500321f70e59c2"
+      },
+      "logicalPath": "site/src/i18n/practical-catalogs/en/01-reference-core-handoff.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 567,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/practical-catalogs/en/02-corpus-preparation.json",
+        "sha256": "da2e0c3232b868f3c69cc7adb02bb796a7062874a8a90e1590a9863c49de2fb3"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 567,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/i18n/practical-catalogs/en/02-corpus-preparation.json",
+        "sha256": "da2e0c3232b868f3c69cc7adb02bb796a7062874a8a90e1590a9863c49de2fb3"
+      },
+      "id": "source.053",
+      "kind": "complete-source-publication",
+      "localizedBuildInputSha256": "da2e0c3232b868f3c69cc7adb02bb796a7062874a8a90e1590a9863c49de2fb3",
+      "localizedEffectiveSource": {
+        "bytes": 567,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/practical-catalogs/en/02-corpus-preparation.json",
+        "sha256": "da2e0c3232b868f3c69cc7adb02bb796a7062874a8a90e1590a9863c49de2fb3"
+      },
+      "logicalPath": "site/src/i18n/practical-catalogs/en/02-corpus-preparation.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1422,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/configs/course-boundaries-v1.json",
+        "sha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1422,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/configs/course-boundaries-v1.json",
+        "sha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7"
+      },
+      "id": "evidence.source.001",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7",
+      "localizedEffectiveSource": {
+        "bytes": 1422,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/configs/course-boundaries-v1.json",
+        "sha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7"
+      },
+      "logicalPath": "configs/course-boundaries-v1.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 4932,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/configs/practical-reference-source-v1.json",
+        "sha256": "16fcf0149a9ce487d2cd2d531a81199acd84ec66fcd86874c5e2e09ae2f1a986"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 4932,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/configs/practical-reference-source-v1.json",
+        "sha256": "16fcf0149a9ce487d2cd2d531a81199acd84ec66fcd86874c5e2e09ae2f1a986"
+      },
+      "id": "evidence.source.002",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "16fcf0149a9ce487d2cd2d531a81199acd84ec66fcd86874c5e2e09ae2f1a986",
+      "localizedEffectiveSource": {
+        "bytes": 4932,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/configs/practical-reference-source-v1.json",
+        "sha256": "16fcf0149a9ce487d2cd2d531a81199acd84ec66fcd86874c5e2e09ae2f1a986"
+      },
+      "logicalPath": "configs/practical-reference-source-v1.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 4453,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/build.rs",
+        "sha256": "387ad4c662b621d44ca21dffb30a0bfe279673d0d4a5e6847d8107c224806f1e"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 4453,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/crates/llm-from-scratch-practical/build.rs",
+        "sha256": "387ad4c662b621d44ca21dffb30a0bfe279673d0d4a5e6847d8107c224806f1e"
+      },
+      "id": "evidence.source.010",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "387ad4c662b621d44ca21dffb30a0bfe279673d0d4a5e6847d8107c224806f1e",
+      "localizedEffectiveSource": {
+        "bytes": 4453,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/build.rs",
+        "sha256": "387ad4c662b621d44ca21dffb30a0bfe279673d0d4a5e6847d8107c224806f1e"
+      },
+      "logicalPath": "rust/crates/llm-from-scratch-practical/build.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 7368,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/src/artifact_identity.rs",
+        "sha256": "b6a801ab9a6357f8e21c7e5d15c144a91aa2eb9603a4713df94982c3a27cfbe1"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 7368,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/crates/llm-from-scratch-practical/src/artifact_identity.rs",
+        "sha256": "b6a801ab9a6357f8e21c7e5d15c144a91aa2eb9603a4713df94982c3a27cfbe1"
+      },
+      "id": "evidence.source.011",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "b6a801ab9a6357f8e21c7e5d15c144a91aa2eb9603a4713df94982c3a27cfbe1",
+      "localizedEffectiveSource": {
+        "bytes": 7368,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/src/artifact_identity.rs",
+        "sha256": "b6a801ab9a6357f8e21c7e5d15c144a91aa2eb9603a4713df94982c3a27cfbe1"
+      },
+      "logicalPath": "rust/crates/llm-from-scratch-practical/src/artifact_identity.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 8295,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs",
+        "sha256": "a604f54ac19a6d887aa53f7941368e2741c1ff74b6156de02650368a05dccb35"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 8295,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs",
+        "sha256": "a604f54ac19a6d887aa53f7941368e2741c1ff74b6156de02650368a05dccb35"
+      },
+      "id": "evidence.source.013",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "a604f54ac19a6d887aa53f7941368e2741c1ff74b6156de02650368a05dccb35",
+      "localizedEffectiveSource": {
+        "bytes": 8295,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs",
+        "sha256": "a604f54ac19a6d887aa53f7941368e2741c1ff74b6156de02650368a05dccb35"
+      },
+      "logicalPath": "rust/crates/llm-from-scratch-practical/src/reference_source_identity.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 5273,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs",
+        "sha256": "f581e32645d90bd9478e70cca41cc00ce4283dd638333637f72f26dc710a2a6a"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 5273,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs",
+        "sha256": "f581e32645d90bd9478e70cca41cc00ce4283dd638333637f72f26dc710a2a6a"
+      },
+      "id": "evidence.source.014",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "f581e32645d90bd9478e70cca41cc00ce4283dd638333637f72f26dc710a2a6a",
+      "localizedEffectiveSource": {
+        "bytes": 5273,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs",
+        "sha256": "f581e32645d90bd9478e70cca41cc00ce4283dd638333637f72f26dc710a2a6a"
+      },
+      "logicalPath": "rust/crates/llm-from-scratch-practical/tests/reference_source_identity.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 42359,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch/src/pipeline.rs",
+        "sha256": "38792f1ec24b6f3e388ddf544db4c9404979d71da3544e6655a9fbcead03bd3f"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 42359,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/crates/llm-from-scratch/src/pipeline.rs",
+        "sha256": "38792f1ec24b6f3e388ddf544db4c9404979d71da3544e6655a9fbcead03bd3f"
+      },
+      "id": "evidence.source.015",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "38792f1ec24b6f3e388ddf544db4c9404979d71da3544e6655a9fbcead03bd3f",
+      "localizedEffectiveSource": {
+        "bytes": 42359,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/crates/llm-from-scratch/src/pipeline.rs",
+        "sha256": "38792f1ec24b6f3e388ddf544db4c9404979d71da3544e6655a9fbcead03bd3f"
+      },
+      "logicalPath": "rust/crates/llm-from-scratch/src/pipeline.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 2807,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/ch39-end-to-end-llm/expected.txt",
+        "sha256": "11273044c0fed87c9e49ca4f31d5585e9df1cf76e2b77184d6ca01b7ffbd45a3"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 2807,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/ch39-end-to-end-llm/expected.txt",
+        "sha256": "11273044c0fed87c9e49ca4f31d5585e9df1cf76e2b77184d6ca01b7ffbd45a3"
+      },
+      "id": "evidence.source.016",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "11273044c0fed87c9e49ca4f31d5585e9df1cf76e2b77184d6ca01b7ffbd45a3",
+      "localizedEffectiveSource": {
+        "bytes": 2807,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/ch39-end-to-end-llm/expected.txt",
+        "sha256": "11273044c0fed87c9e49ca4f31d5585e9df1cf76e2b77184d6ca01b7ffbd45a3"
+      },
+      "logicalPath": "rust/demos/ch39-end-to-end-llm/expected.txt"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 29384,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/ch39-end-to-end-llm/src/lib.rs",
+        "sha256": "f272407b852e9e97986e7148831a7b49e630f743ba3d185189e059039fbd06fc"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 29384,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/ch39-end-to-end-llm/src/lib.rs",
+        "sha256": "f272407b852e9e97986e7148831a7b49e630f743ba3d185189e059039fbd06fc"
+      },
+      "id": "evidence.source.017",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "f272407b852e9e97986e7148831a7b49e630f743ba3d185189e059039fbd06fc",
+      "localizedEffectiveSource": {
+        "bytes": 29384,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/ch39-end-to-end-llm/src/lib.rs",
+        "sha256": "f272407b852e9e97986e7148831a7b49e630f743ba3d185189e059039fbd06fc"
+      },
+      "logicalPath": "rust/demos/ch39-end-to-end-llm/src/lib.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 351,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/Cargo.toml",
+        "sha256": "e7e2d02333346f31638619250a2a928fcb132797e75bf232b3c99241ce322c93"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 351,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch01-reference-core-handoff/Cargo.toml",
+        "sha256": "e7e2d02333346f31638619250a2a928fcb132797e75bf232b3c99241ce322c93"
+      },
+      "id": "evidence.source.018",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "e7e2d02333346f31638619250a2a928fcb132797e75bf232b3c99241ce322c93",
+      "localizedEffectiveSource": {
+        "bytes": 351,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/Cargo.toml",
+        "sha256": "e7e2d02333346f31638619250a2a928fcb132797e75bf232b3c99241ce322c93"
+      },
+      "logicalPath": "rust/demos/practical-ch01-reference-core-handoff/Cargo.toml"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1895,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/expected.txt",
+        "sha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1895,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch01-reference-core-handoff/expected.txt",
+        "sha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5"
+      },
+      "id": "evidence.source.019",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5",
+      "localizedEffectiveSource": {
+        "bytes": 1895,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/expected.txt",
+        "sha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5"
+      },
+      "logicalPath": "rust/demos/practical-ch01-reference-core-handoff/expected.txt"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 6571,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs",
+        "sha256": "885ad089acbec1da10c5e86613567f1085346d83a6738af9f37c63a3bd4d31c3"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 6571,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs",
+        "sha256": "885ad089acbec1da10c5e86613567f1085346d83a6738af9f37c63a3bd4d31c3"
+      },
+      "id": "evidence.source.022",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "885ad089acbec1da10c5e86613567f1085346d83a6738af9f37c63a3bd4d31c3",
+      "localizedEffectiveSource": {
+        "bytes": 6571,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs",
+        "sha256": "885ad089acbec1da10c5e86613567f1085346d83a6738af9f37c63a3bd4d31c3"
+      },
+      "logicalPath": "rust/demos/practical-ch01-reference-core-handoff/tests/reference_handoff.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/Cargo.toml",
+        "sha256": "ae7d237e5bbb09855cab267675263a59f1403e32b8bd41132b7b463a4b869636"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch02-corpus-preparation/Cargo.toml",
+        "sha256": "ae7d237e5bbb09855cab267675263a59f1403e32b8bd41132b7b463a4b869636"
+      },
+      "id": "evidence.source.023",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "ae7d237e5bbb09855cab267675263a59f1403e32b8bd41132b7b463a4b869636",
+      "localizedEffectiveSource": {
+        "bytes": 386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/Cargo.toml",
+        "sha256": "ae7d237e5bbb09855cab267675263a59f1403e32b8bd41132b7b463a4b869636"
+      },
+      "logicalPath": "rust/demos/practical-ch02-corpus-preparation/Cargo.toml"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 459,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/expected.txt",
+        "sha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 459,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch02-corpus-preparation/expected.txt",
+        "sha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac"
+      },
+      "id": "evidence.source.024",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac",
+      "localizedEffectiveSource": {
+        "bytes": 459,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/expected.txt",
+        "sha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac"
+      },
+      "logicalPath": "rust/demos/practical-ch02-corpus-preparation/expected.txt"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 584,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/fixtures/README.md",
+        "sha256": "56637c3961a82a0b073b882fa5a24fdad1a48656871e8b155f37840b7551c7ee"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 584,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch02-corpus-preparation/fixtures/README.md",
+        "sha256": "56637c3961a82a0b073b882fa5a24fdad1a48656871e8b155f37840b7551c7ee"
+      },
+      "id": "evidence.source.025",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "56637c3961a82a0b073b882fa5a24fdad1a48656871e8b155f37840b7551c7ee",
+      "localizedEffectiveSource": {
+        "bytes": 584,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/fixtures/README.md",
+        "sha256": "56637c3961a82a0b073b882fa5a24fdad1a48656871e8b155f37840b7551c7ee"
+      },
+      "logicalPath": "rust/demos/practical-ch02-corpus-preparation/fixtures/README.md"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 198,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl",
+        "sha256": "70ae1ef0720da70fc0bab3848bbc5605b38c1253ad9a182168a5489adf994f69"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 198,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl",
+        "sha256": "70ae1ef0720da70fc0bab3848bbc5605b38c1253ad9a182168a5489adf994f69"
+      },
+      "id": "evidence.source.026",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "70ae1ef0720da70fc0bab3848bbc5605b38c1253ad9a182168a5489adf994f69",
+      "localizedEffectiveSource": {
+        "bytes": 198,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl",
+        "sha256": "70ae1ef0720da70fc0bab3848bbc5605b38c1253ad9a182168a5489adf994f69"
+      },
+      "logicalPath": "rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 68978,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/scripts/check-site-content.mjs",
+        "sha256": "a8ab756be1965685e90a7a247408fd4b080332775983cdd0f8438fcfc00b6cbd"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 68978,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/scripts/check-site-content.mjs",
+        "sha256": "a8ab756be1965685e90a7a247408fd4b080332775983cdd0f8438fcfc00b6cbd"
+      },
+      "id": "evidence.source.029",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "a8ab756be1965685e90a7a247408fd4b080332775983cdd0f8438fcfc00b6cbd",
+      "localizedEffectiveSource": {
+        "bytes": 68978,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/scripts/check-site-content.mjs",
+        "sha256": "a8ab756be1965685e90a7a247408fd4b080332775983cdd0f8438fcfc00b6cbd"
+      },
+      "logicalPath": "scripts/check-site-content.mjs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3319,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/ChapterNavigation.astro",
+        "sha256": "254567583419929767fd1d029b93861ed768095310208fac0dc8c75fe8943468"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3319,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/components/ChapterNavigation.astro",
+        "sha256": "254567583419929767fd1d029b93861ed768095310208fac0dc8c75fe8943468"
+      },
+      "id": "evidence.source.030",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "254567583419929767fd1d029b93861ed768095310208fac0dc8c75fe8943468",
+      "localizedEffectiveSource": {
+        "bytes": 3319,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/ChapterNavigation.astro",
+        "sha256": "254567583419929767fd1d029b93861ed768095310208fac0dc8c75fe8943468"
+      },
+      "logicalPath": "site/src/components/ChapterNavigation.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 13024,
+        "path": "site/src/components/CheatSheet.astro",
+        "sha256": "72c47c61384d84984600ab47f1107d330611a60ab4e39789041b11cd5b5e8598"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 13024,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/components/CheatSheet.astro",
+        "sha256": "72c47c61384d84984600ab47f1107d330611a60ab4e39789041b11cd5b5e8598"
+      },
+      "id": "evidence.source.031",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "72c47c61384d84984600ab47f1107d330611a60ab4e39789041b11cd5b5e8598",
+      "localizedEffectiveSource": {
+        "bytes": 13024,
+        "path": "site/src/components/CheatSheet.astro",
+        "sha256": "72c47c61384d84984600ab47f1107d330611a60ab4e39789041b11cd5b5e8598"
+      },
+      "logicalPath": "site/src/components/CheatSheet.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 844,
+        "path": "site/src/components/InlineMath.astro",
+        "sha256": "f63b6aac6bb2920a7dffb7bf2dd913f8cbe36a7b03206eceac416cb8ba18c564"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 844,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/components/InlineMath.astro",
+        "sha256": "f63b6aac6bb2920a7dffb7bf2dd913f8cbe36a7b03206eceac416cb8ba18c564"
+      },
+      "id": "evidence.source.032",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "f63b6aac6bb2920a7dffb7bf2dd913f8cbe36a7b03206eceac416cb8ba18c564",
+      "localizedEffectiveSource": {
+        "bytes": 844,
+        "path": "site/src/components/InlineMath.astro",
+        "sha256": "f63b6aac6bb2920a7dffb7bf2dd913f8cbe36a7b03206eceac416cb8ba18c564"
+      },
+      "logicalPath": "site/src/components/InlineMath.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3994,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/RustSource.astro",
+        "sha256": "19b628e9be0a6abae4987afb789c8a4834364d8e152fe38b802699d66f739201"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3994,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/components/RustSource.astro",
+        "sha256": "19b628e9be0a6abae4987afb789c8a4834364d8e152fe38b802699d66f739201"
+      },
+      "id": "evidence.source.033",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "19b628e9be0a6abae4987afb789c8a4834364d8e152fe38b802699d66f739201",
+      "localizedEffectiveSource": {
+        "bytes": 3994,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/components/RustSource.astro",
+        "sha256": "19b628e9be0a6abae4987afb789c8a4834364d8e152fe38b802699d66f739201"
+      },
+      "logicalPath": "site/src/components/RustSource.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 12247,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content.config.ts",
+        "sha256": "e9b7c6a175a07a6298081bf634d32c8200e336500f2d3aee674533e110813ac5"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 12247,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/content.config.ts",
+        "sha256": "e9b7c6a175a07a6298081bf634d32c8200e336500f2d3aee674533e110813ac5"
+      },
+      "id": "evidence.source.037",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "e9b7c6a175a07a6298081bf634d32c8200e336500f2d3aee674533e110813ac5",
+      "localizedEffectiveSource": {
+        "bytes": 12247,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/content.config.ts",
+        "sha256": "e9b7c6a175a07a6298081bf634d32c8200e336500f2d3aee674533e110813ac5"
+      },
+      "logicalPath": "site/src/content.config.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 6348,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/index.ts",
+        "sha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 6348,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/i18n/index.ts",
+        "sha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb"
+      },
+      "id": "evidence.source.049",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb",
+      "localizedEffectiveSource": {
+        "bytes": 6348,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/index.ts",
+        "sha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb"
+      },
+      "logicalPath": "site/src/i18n/index.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 258,
+        "path": "site/src/i18n/locales.json",
+        "sha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 258,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/i18n/locales.json",
+        "sha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+      },
+      "id": "evidence.source.050",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad",
+      "localizedEffectiveSource": {
+        "bytes": 258,
+        "path": "site/src/i18n/locales.json",
+        "sha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+      },
+      "logicalPath": "site/src/i18n/locales.json"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 2319,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/messages.ts",
+        "sha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 2319,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/i18n/messages.ts",
+        "sha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f"
+      },
+      "id": "evidence.source.051",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f",
+      "localizedEffectiveSource": {
+        "bytes": 2319,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/i18n/messages.ts",
+        "sha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f"
+      },
+      "logicalPath": "site/src/i18n/messages.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 5024,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/layouts/BaseLayout.astro",
+        "sha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 5024,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/layouts/BaseLayout.astro",
+        "sha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340"
+      },
+      "id": "evidence.source.054",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340",
+      "localizedEffectiveSource": {
+        "bytes": 5024,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/layouts/BaseLayout.astro",
+        "sha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340"
+      },
+      "logicalPath": "site/src/layouts/BaseLayout.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 2018,
+        "path": "site/src/lib/chapter-navigation.ts",
+        "sha256": "1140a2b7435fec59678baef8f6b55fbd17c2c01eb70475ba7717d4104febf277"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 2018,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/chapter-navigation.ts",
+        "sha256": "1140a2b7435fec59678baef8f6b55fbd17c2c01eb70475ba7717d4104febf277"
+      },
+      "id": "evidence.source.055",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "1140a2b7435fec59678baef8f6b55fbd17c2c01eb70475ba7717d4104febf277",
+      "localizedEffectiveSource": {
+        "bytes": 2018,
+        "path": "site/src/lib/chapter-navigation.ts",
+        "sha256": "1140a2b7435fec59678baef8f6b55fbd17c2c01eb70475ba7717d4104febf277"
+      },
+      "logicalPath": "site/src/lib/chapter-navigation.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 5595,
+        "path": "site/src/lib/chapter-publication.ts",
+        "sha256": "5dd03f987651ed8a83b26d36387bc11d547688e9e8c69e89f77a064ddbbbb2a5"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 5595,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/chapter-publication.ts",
+        "sha256": "5dd03f987651ed8a83b26d36387bc11d547688e9e8c69e89f77a064ddbbbb2a5"
+      },
+      "id": "evidence.source.056",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "5dd03f987651ed8a83b26d36387bc11d547688e9e8c69e89f77a064ddbbbb2a5",
+      "localizedEffectiveSource": {
+        "bytes": 5595,
+        "path": "site/src/lib/chapter-publication.ts",
+        "sha256": "5dd03f987651ed8a83b26d36387bc11d547688e9e8c69e89f77a064ddbbbb2a5"
+      },
+      "logicalPath": "site/src/lib/chapter-publication.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 4648,
+        "path": "site/src/lib/cheat-sheets.ts",
+        "sha256": "156b9efa4e098b5373b293fc42fe491870b69a334cbd978922b81fba62f7f629"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 4648,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/cheat-sheets.ts",
+        "sha256": "156b9efa4e098b5373b293fc42fe491870b69a334cbd978922b81fba62f7f629"
+      },
+      "id": "evidence.source.057",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "156b9efa4e098b5373b293fc42fe491870b69a334cbd978922b81fba62f7f629",
+      "localizedEffectiveSource": {
+        "bytes": 4648,
+        "path": "site/src/lib/cheat-sheets.ts",
+        "sha256": "156b9efa4e098b5373b293fc42fe491870b69a334cbd978922b81fba62f7f629"
+      },
+      "logicalPath": "site/src/lib/cheat-sheets.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 4439,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-boundaries.mjs",
+        "sha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 4439,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/course-boundaries.mjs",
+        "sha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1"
+      },
+      "id": "evidence.source.058",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1",
+      "localizedEffectiveSource": {
+        "bytes": 4439,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-boundaries.mjs",
+        "sha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1"
+      },
+      "logicalPath": "site/src/lib/course-boundaries.mjs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 959,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-build.ts",
+        "sha256": "f99652d0d15a9f6396be866b5fdc2113fa41a2d26080ec7abfc1db7e8ffe88ff"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 959,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/course-build.ts",
+        "sha256": "f99652d0d15a9f6396be866b5fdc2113fa41a2d26080ec7abfc1db7e8ffe88ff"
+      },
+      "id": "evidence.source.059",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "f99652d0d15a9f6396be866b5fdc2113fa41a2d26080ec7abfc1db7e8ffe88ff",
+      "localizedEffectiveSource": {
+        "bytes": 959,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-build.ts",
+        "sha256": "f99652d0d15a9f6396be866b5fdc2113fa41a2d26080ec7abfc1db7e8ffe88ff"
+      },
+      "logicalPath": "site/src/lib/course-build.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1046,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-configuration.ts",
+        "sha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1046,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/course-configuration.ts",
+        "sha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100"
+      },
+      "id": "evidence.source.060",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100",
+      "localizedEffectiveSource": {
+        "bytes": 1046,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-configuration.ts",
+        "sha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100"
+      },
+      "logicalPath": "site/src/lib/course-configuration.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1838,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-page-paths.ts",
+        "sha256": "dbe0602f53b307e43c8ae652a6d1152c66b9baa664f11d515ba5f207f39f49e3"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1838,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/course-page-paths.ts",
+        "sha256": "dbe0602f53b307e43c8ae652a6d1152c66b9baa664f11d515ba5f207f39f49e3"
+      },
+      "id": "evidence.source.061",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "dbe0602f53b307e43c8ae652a6d1152c66b9baa664f11d515ba5f207f39f49e3",
+      "localizedEffectiveSource": {
+        "bytes": 1838,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/course-page-paths.ts",
+        "sha256": "dbe0602f53b307e43c8ae652a6d1152c66b9baa664f11d515ba5f207f39f49e3"
+      },
+      "logicalPath": "site/src/lib/course-page-paths.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1989,
+        "path": "site/src/lib/functional-chapter-catalogs.ts",
+        "sha256": "817e7ada818d775055e4545bcb3938503c12542890c46f5b9af63488ac832b58"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1989,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/functional-chapter-catalogs.ts",
+        "sha256": "817e7ada818d775055e4545bcb3938503c12542890c46f5b9af63488ac832b58"
+      },
+      "id": "evidence.source.062",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "817e7ada818d775055e4545bcb3938503c12542890c46f5b9af63488ac832b58",
+      "localizedEffectiveSource": {
+        "bytes": 1989,
+        "path": "site/src/lib/functional-chapter-catalogs.ts",
+        "sha256": "817e7ada818d775055e4545bcb3938503c12542890c46f5b9af63488ac832b58"
+      },
+      "logicalPath": "site/src/lib/functional-chapter-catalogs.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1043,
+        "path": "site/src/lib/functional-chapter-locales.ts",
+        "sha256": "509dbfe7aaa21383812b015a8f487ffeb25f49d4ab85d3046b40d205e80e13b3"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1043,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/functional-chapter-locales.ts",
+        "sha256": "509dbfe7aaa21383812b015a8f487ffeb25f49d4ab85d3046b40d205e80e13b3"
+      },
+      "id": "evidence.source.063",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "509dbfe7aaa21383812b015a8f487ffeb25f49d4ab85d3046b40d205e80e13b3",
+      "localizedEffectiveSource": {
+        "bytes": 1043,
+        "path": "site/src/lib/functional-chapter-locales.ts",
+        "sha256": "509dbfe7aaa21383812b015a8f487ffeb25f49d4ab85d3046b40d205e80e13b3"
+      },
+      "logicalPath": "site/src/lib/functional-chapter-locales.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 403,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/functional-course-routes.ts",
+        "sha256": "64b0ecf87ec1c53a57195d9eec26be20693af33323ff802bf4c839d6ac80e661"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 403,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/lib/functional-course-routes.ts",
+        "sha256": "64b0ecf87ec1c53a57195d9eec26be20693af33323ff802bf4c839d6ac80e661"
+      },
+      "id": "evidence.source.064",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "64b0ecf87ec1c53a57195d9eec26be20693af33323ff802bf4c839d6ac80e661",
+      "localizedEffectiveSource": {
+        "bytes": 403,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/lib/functional-course-routes.ts",
+        "sha256": "64b0ecf87ec1c53a57195d9eec26be20693af33323ff802bf4c839d6ac80e661"
+      },
+      "logicalPath": "site/src/lib/functional-course-routes.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 7612,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/course/[...slug].astro",
+        "sha256": "934794929b248b7e1accd12a6c2d6c2fc2b06569d244fe37c017994e9773c038"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 7612,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/pages/[locale]/course/[...slug].astro",
+        "sha256": "934794929b248b7e1accd12a6c2d6c2fc2b06569d244fe37c017994e9773c038"
+      },
+      "id": "evidence.source.065",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "934794929b248b7e1accd12a6c2d6c2fc2b06569d244fe37c017994e9773c038",
+      "localizedEffectiveSource": {
+        "bytes": 7612,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/course/[...slug].astro",
+        "sha256": "934794929b248b7e1accd12a6c2d6c2fc2b06569d244fe37c017994e9773c038"
+      },
+      "logicalPath": "site/src/pages/[locale]/course/[...slug].astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3831,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/course/index.astro",
+        "sha256": "5b85f29ba942e63d98ef1d95b66d5b542cc4fea371e35676156850b6c2937523"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3831,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/pages/[locale]/course/index.astro",
+        "sha256": "5b85f29ba942e63d98ef1d95b66d5b542cc4fea371e35676156850b6c2937523"
+      },
+      "id": "evidence.source.066",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "5b85f29ba942e63d98ef1d95b66d5b542cc4fea371e35676156850b6c2937523",
+      "localizedEffectiveSource": {
+        "bytes": 3831,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/course/index.astro",
+        "sha256": "5b85f29ba942e63d98ef1d95b66d5b542cc4fea371e35676156850b6c2937523"
+      },
+      "logicalPath": "site/src/pages/[locale]/course/index.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 3386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/index.astro",
+        "sha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 3386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/pages/[locale]/index.astro",
+        "sha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49"
+      },
+      "id": "evidence.source.067",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49",
+      "localizedEffectiveSource": {
+        "bytes": 3386,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/index.astro",
+        "sha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49"
+      },
+      "logicalPath": "site/src/pages/[locale]/index.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 646,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro",
+        "sha256": "b1b6311fe1453180f95e99aa6391a5be98af0c46a5d800a3bbeff37d0e3fbbbe"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 646,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro",
+        "sha256": "b1b6311fe1453180f95e99aa6391a5be98af0c46a5d800a3bbeff37d0e3fbbbe"
+      },
+      "id": "evidence.source.068",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "b1b6311fe1453180f95e99aa6391a5be98af0c46a5d800a3bbeff37d0e3fbbbe",
+      "localizedEffectiveSource": {
+        "bytes": 646,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro",
+        "sha256": "b1b6311fe1453180f95e99aa6391a5be98af0c46a5d800a3bbeff37d0e3fbbbe"
+      },
+      "logicalPath": "site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 448,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/practical-llm-in-rust/index.astro",
+        "sha256": "74fb0fad272702a1b553c6b11db91219802f7e0c5b23e366d3822a9a6f15b2e4"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 448,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/pages/[locale]/practical-llm-in-rust/index.astro",
+        "sha256": "74fb0fad272702a1b553c6b11db91219802f7e0c5b23e366d3822a9a6f15b2e4"
+      },
+      "id": "evidence.source.069",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "74fb0fad272702a1b553c6b11db91219802f7e0c5b23e366d3822a9a6f15b2e4",
+      "localizedEffectiveSource": {
+        "bytes": 448,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/[locale]/practical-llm-in-rust/index.astro",
+        "sha256": "74fb0fad272702a1b553c6b11db91219802f7e0c5b23e366d3822a9a6f15b2e4"
+      },
+      "logicalPath": "site/src/pages/[locale]/practical-llm-in-rust/index.astro"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 1589,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/sitemap.xml.ts",
+        "sha256": "fb8c8e50aa6795f1faf1da52818a8edb292b95ea31bf8dcde963d538c4a7f7ac"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 1589,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/site/src/pages/sitemap.xml.ts",
+        "sha256": "fb8c8e50aa6795f1faf1da52818a8edb292b95ea31bf8dcde963d538c4a7f7ac"
+      },
+      "id": "evidence.source.070",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "fb8c8e50aa6795f1faf1da52818a8edb292b95ea31bf8dcde963d538c4a7f7ac",
+      "localizedEffectiveSource": {
+        "bytes": 1589,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/site/src/pages/sitemap.xml.ts",
+        "sha256": "fb8c8e50aa6795f1faf1da52818a8edb292b95ea31bf8dcde963d538c4a7f7ac"
+      },
+      "logicalPath": "site/src/pages/sitemap.xml.ts"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 125,
+        "path": "rust/demos/ch39-end-to-end-llm/src/main.rs",
+        "sha256": "e2fb1157c144fb159c79acb33b02ad99c0302a3841d0b14199be59afb94301e2"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 125,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/rust/demos/ch39-end-to-end-llm/src/main.rs",
+        "sha256": "e2fb1157c144fb159c79acb33b02ad99c0302a3841d0b14199be59afb94301e2"
+      },
+      "id": "evidence.source.073",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "e2fb1157c144fb159c79acb33b02ad99c0302a3841d0b14199be59afb94301e2",
+      "localizedEffectiveSource": {
+        "bytes": 125,
+        "path": "rust/demos/ch39-end-to-end-llm/src/main.rs",
+        "sha256": "e2fb1157c144fb159c79acb33b02ad99c0302a3841d0b14199be59afb94301e2"
+      },
+      "logicalPath": "rust/demos/ch39-end-to-end-llm/src/main.rs"
+    },
+    {
+      "actualBuildSourceFit": true,
+      "current": {
+        "bytes": 11520,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/scripts/check-course-boundaries.mjs",
+        "sha256": "80ba893d5c85d90be510e227b4aa1b56d44da86600484836adaa36e4aa8b13df"
+      },
+      "exactFrozenSourceFit": true,
+      "frozen": {
+        "bytes": 11520,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/candidate/sources/scripts/check-course-boundaries.mjs",
+        "sha256": "80ba893d5c85d90be510e227b4aa1b56d44da86600484836adaa36e4aa8b13df"
+      },
+      "id": "evidence.source.077",
+      "kind": "admitted-source-evidence",
+      "localizedBuildInputSha256": "80ba893d5c85d90be510e227b4aa1b56d44da86600484836adaa36e4aa8b13df",
+      "localizedEffectiveSource": {
+        "bytes": 11520,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/publish/scripts/check-course-boundaries.mjs",
+        "sha256": "80ba893d5c85d90be510e227b4aa1b56d44da86600484836adaa36e4aa8b13df"
+      },
+      "logicalPath": "scripts/check-course-boundaries.mjs"
+    }
+  ],
+  "schemaVersion": 1,
+  "scopedEnglishDocuments": [
+    {
+      "buildRelativePath": "en/index.html",
+      "currentBuild": {
+        "bytes": 11226,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/validation/astro-build-01/dist/en/index.html",
+        "sha256": "f02ed0b8057bd370cf6bdda61bf4ad9c629e41a77a29db93e4c001e6e9e71f86"
+      },
+      "exactFrozenHTMLFit": true,
+      "frozen": {
+        "bytes": 11226,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/built/en/index.html",
+        "sha256": "f02ed0b8057bd370cf6bdda61bf4ad9c629e41a77a29db93e4c001e6e9e71f86"
+      },
+      "id": "home.complete-built-document",
+      "localizedBuild": {
+        "bytes": 11226,
+        "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/dist/en/index.html",
+        "sha256": "f02ed0b8057bd370cf6bdda61bf4ad9c629e41a77a29db93e4c001e6e9e71f86"
+      },
+      "publication": {
+        "bytes": 11226,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/artifacts/practical-llm-in-rust/foundation/english-html/en/index.html",
+        "sha256": "f02ed0b8057bd370cf6bdda61bf4ad9c629e41a77a29db93e4c001e6e9e71f86"
+      },
+      "publicationPath": "artifacts/practical-llm-in-rust/foundation/english-html/en/index.html",
+      "route": "/en/"
+    },
+    {
+      "buildRelativePath": "en/practical-llm-in-rust/00-course-structure/index.html",
+      "currentBuild": {
+        "bytes": 64728,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/validation/astro-build-01/dist/en/practical-llm-in-rust/00-course-structure/index.html",
+        "sha256": "ce29fca08e03c60a22762621a62796fdc0491731964300b7ec55e7343e1a115a"
+      },
+      "exactFrozenHTMLFit": true,
+      "frozen": {
+        "bytes": 64728,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/built/en/practical-llm-in-rust/00-course-structure/index.html",
+        "sha256": "ce29fca08e03c60a22762621a62796fdc0491731964300b7ec55e7343e1a115a"
+      },
+      "id": "practical-00.complete-built-document",
+      "localizedBuild": {
+        "bytes": 64728,
+        "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/dist/en/practical-llm-in-rust/00-course-structure/index.html",
+        "sha256": "ce29fca08e03c60a22762621a62796fdc0491731964300b7ec55e7343e1a115a"
+      },
+      "publication": {
+        "bytes": 64728,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/00-course-structure/index.html",
+        "sha256": "ce29fca08e03c60a22762621a62796fdc0491731964300b7ec55e7343e1a115a"
+      },
+      "publicationPath": "artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/00-course-structure/index.html",
+      "route": "/en/practical-llm-in-rust/00-course-structure/"
+    },
+    {
+      "buildRelativePath": "en/practical-llm-in-rust/01-reference-core-handoff/index.html",
+      "currentBuild": {
+        "bytes": 161194,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/validation/astro-build-01/dist/en/practical-llm-in-rust/01-reference-core-handoff/index.html",
+        "sha256": "2f6413c0aa95bdf326dad1f179a36f7e7ad914786d87421ea1baad4ff723381e"
+      },
+      "exactFrozenHTMLFit": true,
+      "frozen": {
+        "bytes": 161194,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/built/en/practical-llm-in-rust/01-reference-core-handoff/index.html",
+        "sha256": "2f6413c0aa95bdf326dad1f179a36f7e7ad914786d87421ea1baad4ff723381e"
+      },
+      "id": "practical-01.complete-built-document",
+      "localizedBuild": {
+        "bytes": 161194,
+        "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/dist/en/practical-llm-in-rust/01-reference-core-handoff/index.html",
+        "sha256": "2f6413c0aa95bdf326dad1f179a36f7e7ad914786d87421ea1baad4ff723381e"
+      },
+      "publication": {
+        "bytes": 161194,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/01-reference-core-handoff/index.html",
+        "sha256": "2f6413c0aa95bdf326dad1f179a36f7e7ad914786d87421ea1baad4ff723381e"
+      },
+      "publicationPath": "artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/01-reference-core-handoff/index.html",
+      "route": "/en/practical-llm-in-rust/01-reference-core-handoff/"
+    },
+    {
+      "buildRelativePath": "en/practical-llm-in-rust/02-corpus-preparation/index.html",
+      "currentBuild": {
+        "bytes": 151835,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/validation/astro-build-01/dist/en/practical-llm-in-rust/02-corpus-preparation/index.html",
+        "sha256": "012f9b497a7dd31cbd5a5a4e76ae306e67dcc345c2171d4e10ab1af807f5f6ae"
+      },
+      "exactFrozenHTMLFit": true,
+      "frozen": {
+        "bytes": 151835,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/built/en/practical-llm-in-rust/02-corpus-preparation/index.html",
+        "sha256": "012f9b497a7dd31cbd5a5a4e76ae306e67dcc345c2171d4e10ab1af807f5f6ae"
+      },
+      "id": "practical-02.complete-built-document",
+      "localizedBuild": {
+        "bytes": 151835,
+        "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/dist/en/practical-llm-in-rust/02-corpus-preparation/index.html",
+        "sha256": "012f9b497a7dd31cbd5a5a4e76ae306e67dcc345c2171d4e10ab1af807f5f6ae"
+      },
+      "publication": {
+        "bytes": 151835,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/02-corpus-preparation/index.html",
+        "sha256": "012f9b497a7dd31cbd5a5a4e76ae306e67dcc345c2171d4e10ab1af807f5f6ae"
+      },
+      "publicationPath": "artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/02-corpus-preparation/index.html",
+      "route": "/en/practical-llm-in-rust/02-corpus-preparation/"
+    },
+    {
+      "buildRelativePath": "en/practical-llm-in-rust/index.html",
+      "currentBuild": {
+        "bytes": 62099,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/validation/astro-build-01/dist/en/practical-llm-in-rust/index.html",
+        "sha256": "b8272135e7a264c63ef9f693277cbbfffb92b70ca91180bdf6a2114064b1ac45"
+      },
+      "exactFrozenHTMLFit": true,
+      "frozen": {
+        "bytes": 62099,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english/built/en/practical-llm-in-rust/index.html",
+        "sha256": "b8272135e7a264c63ef9f693277cbbfffb92b70ca91180bdf6a2114064b1ac45"
+      },
+      "id": "practical-index.complete-built-document",
+      "localizedBuild": {
+        "bytes": 62099,
+        "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/astro-build-01/dist/en/practical-llm-in-rust/index.html",
+        "sha256": "b8272135e7a264c63ef9f693277cbbfffb92b70ca91180bdf6a2114064b1ac45"
+      },
+      "publication": {
+        "bytes": 62099,
+        "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/frozen-workspace-01/artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/index.html",
+        "sha256": "b8272135e7a264c63ef9f693277cbbfffb92b70ca91180bdf6a2114064b1ac45"
+      },
+      "publicationPath": "artifacts/practical-llm-in-rust/foundation/english-html/en/practical-llm-in-rust/index.html",
+      "route": "/en/practical-llm-in-rust/"
+    }
+  ],
+  "sourceCount": 62,
+  "status": "pass",
+  "timestamp": "2026-10-09T07:33:33Z",
+  "unchangedBuiltFiles": 172
+}

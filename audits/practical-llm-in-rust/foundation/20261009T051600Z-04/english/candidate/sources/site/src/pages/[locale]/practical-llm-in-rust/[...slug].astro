@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+import CourseChapter from '../course/[...slug].astro';
+import { practicalCourse } from '../../../lib/course-configuration';
+import { buildCourseChapterPaths } from '../../../lib/course-page-paths';
+import { findPublishablePracticalChapterSets } from '../../../lib/course-build';
+
+export async function getStaticPaths() {
+  const chapters=await getCollection('practicalChapters');
+  const sheets=await getCollection('practicalCheatSheets');
+  return buildCourseChapterPaths(chapters,sheets,findPublishablePracticalChapterSets(chapters),practicalCourse);
+}
+---
+
+<CourseChapter {...Astro.props} />

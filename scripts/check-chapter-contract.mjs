@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 
 import {
   ContentValidationError,
@@ -21,6 +22,13 @@ import {
   activeLocalesForChapter,
   readChapterLocaleConfiguration,
 } from './chapter-locale-config.mjs';
+import {
+  FIRST_COURSE_ID,
+  PRACTICAL_COURSE_ID,
+  courseById,
+  validateCourseChapterIdentity,
+} from './lib/course-boundaries.mjs';
+import { readCourseConfiguration } from './check-course-boundaries.mjs';
 
 export const REQUIRED_CONTRACT_SECTIONS = Object.freeze([
   'scope',
@@ -41,6 +49,17 @@ export const ORIENTATION_CONTRACT_SECTIONS = Object.freeze([
   'history',
   'visualization',
   'course-path',
+  'decoder-connection',
+  'localization',
+  'acceptance',
+]);
+
+export const PRACTICAL_ORIENTATION_CONTRACT_SECTIONS = Object.freeze([
+  'scope',
+  'overview',
+  'history',
+  'course-path',
+  'visualization',
   'decoder-connection',
   'localization',
   'acceptance',
@@ -74,6 +93,10 @@ function hasText(value) {
 
 function isOrientationChapter(data) {
   return data?.chapter_kind === 'orientation';
+}
+
+function isPracticalCourse(course) {
+  return course?.id === PRACTICAL_COURSE_ID;
 }
 
 function requireText(issues, value, field, sourceName) {
@@ -178,10 +201,11 @@ function canonicalSourceUrl(value) {
   return parsed.href;
 }
 
-function requiresLlmEvolution(order, contentRevision) {
+function requiresLlmEvolution(order, contentRevision, course) {
   return (
     Number.isInteger(order) &&
-    (order >= LLM_EVOLUTION_REQUIRED_FROM_ORDER ||
+    ((isPracticalCourse(course) && order >= 1) ||
+      order >= LLM_EVOLUTION_REQUIRED_FROM_ORDER ||
       (LLM_EVOLUTION_CORRECTIVE_ORDERS.has(order) && contentRevision >= 2))
   );
 }
@@ -202,13 +226,16 @@ function validateLlmEvolution(
   sourceName,
   supportedLocales,
   required,
+  course,
 ) {
   if (evolution === undefined) {
     if (required) {
       issues.push(
-        sourceName +
-          ': history.llm_evolution is required for revised Chapters 8-9 and from chapter order ' +
-          LLM_EVOLUTION_REQUIRED_FROM_ORDER,
+        isPracticalCourse(course)
+          ? sourceName + ': history.llm_evolution is required for every practical lesson'
+          : sourceName +
+            ': history.llm_evolution is required for revised Chapters 8-9 and from chapter order ' +
+            LLM_EVOLUTION_REQUIRED_FROM_ORDER,
       );
     }
     return;
@@ -301,6 +328,7 @@ function validateHistory(
   chapterOrder,
   contentRevision,
   allowNullRustContrast = false,
+  course,
 ) {
   if (!isObject(history)) {
     issues.push(sourceName + ': history must be an object');
@@ -311,7 +339,8 @@ function validateHistory(
     history.llm_evolution,
     sourceName,
     supportedLocales,
-    requiresLlmEvolution(chapterOrder, contentRevision),
+    requiresLlmEvolution(chapterOrder, contentRevision, course),
+    course,
   );
   requireLocalizedText(
     issues,
@@ -332,7 +361,7 @@ function validateHistory(
   }
 }
 
-function validateRustPlan(issues, rust, sourceName) {
+function validateRustPlan(issues, rust, sourceName, course) {
   if (!isObject(rust)) {
     issues.push(sourceName + ': rust must be an object');
     return;
@@ -345,7 +374,7 @@ function validateRustPlan(issues, rust, sourceName) {
   } else {
     const unique = new Set();
     rust.sources.forEach((source, index) => {
-      if (!isAllowedRustSourcePath(source)) {
+      if (!isAllowedRustSourcePath(source, course)) {
         issues.push(
           sourceName +
             ': rust.sources[' +
@@ -549,11 +578,20 @@ export function validateChapterContractText(
     sourceName = 'chapter contract',
     filePath,
     supportedLocales = SUPPORTED_LOCALES,
+    course,
   } = {},
 ) {
   const parsed = parseJsonFrontmatter(source, sourceName);
   const data = parsed.data;
   const issues = [];
+  if (course) {
+    supportedLocales = course.activeLocales;
+    try {
+      validateCourseChapterIdentity(course, { ...data, locale: course.referenceLocale });
+    } catch (error) {
+      issues.push(sourceName + ': ' + error.message);
+    }
+  }
 
   if (!hasText(data.chapter_id) || !CHAPTER_ID_PATTERN.test(data.chapter_id)) {
     issues.push(sourceName + ': chapter_id must match NN-lowercase-kebab-case');
@@ -569,8 +607,9 @@ export function validateChapterContractText(
   }
 
   const orientation = isOrientationChapter(data);
-  if (orientation && (data.chapter_id !== '00-llm-parts' || data.order !== 0)) {
-    issues.push(sourceName + ': only 00-llm-parts at order zero may be an orientation');
+  const orientationId = course?.orientationChapterId ?? '00-llm-parts';
+  if (orientation && (data.chapter_id !== orientationId || data.order !== 0)) {
+    issues.push(sourceName + ': only ' + orientationId + ' at order zero may be an orientation');
   }
   if (data.chapter_kind !== undefined && !['lesson', 'orientation'].includes(data.chapter_kind)) {
     issues.push(sourceName + ': chapter_kind must be lesson or orientation when present');
@@ -605,6 +644,7 @@ export function validateChapterContractText(
     data.order,
     data.content_revision,
     orientation,
+    course,
   );
   if (orientation) {
     if (data.rust !== null) {
@@ -614,7 +654,7 @@ export function validateChapterContractText(
       issues.push(sourceName + ': orientation history.rust_contrast must be null');
     }
   } else {
-    validateRustPlan(issues, data.rust, sourceName);
+    validateRustPlan(issues, data.rust, sourceName, course);
   }
   validateVisualization(
     issues,
@@ -622,7 +662,13 @@ export function validateChapterContractText(
     sourceName,
     supportedLocales,
   );
-  if (orientation) {
+  if (orientation && isPracticalCourse(course)) {
+    if (data.visualization?.decision !== 'not-useful' ||
+        data.visualization.id !== null || data.visualization.component !== undefined ||
+        (data.visualization.supplementary?.length ?? 0) !== 0) {
+      issues.push(sourceName + ': practical orientation must have no diagram');
+    }
+  } else if (orientation) {
     if (
       data.visualization?.decision !== 'useful' ||
       data.visualization.id !== 'llm-system-map' ||
@@ -644,13 +690,22 @@ export function validateChapterContractText(
     sourceName,
     supportedLocales,
   );
-  validateTerminology(issues, data.terminology, sourceName, supportedLocales);
+  if (orientation && isPracticalCourse(course) &&
+      data.chapter_id === '00-course-structure' && data.order === 0) {
+    if (!Array.isArray(data.terminology) || data.terminology.length !== 0) {
+      issues.push(sourceName + ': practical orientation terminology must be an empty array');
+    }
+  } else {
+    validateTerminology(issues, data.terminology, sourceName, supportedLocales);
+  }
   validateStringArray(issues, data.translation_notes, 'translation_notes', sourceName);
   validateAcceptanceExamples(issues, data.acceptance_examples, sourceName);
 
   const markers = extractContractSectionMarkers(parsed.body);
   const requiredSections = orientation
-    ? ORIENTATION_CONTRACT_SECTIONS
+    ? isPracticalCourse(course)
+      ? PRACTICAL_ORIENTATION_CONTRACT_SECTIONS
+      : ORIENTATION_CONTRACT_SECTIONS
     : REQUIRED_CONTRACT_SECTIONS;
   if (JSON.stringify(markers) !== JSON.stringify(requiredSections)) {
     issues.push(
@@ -662,13 +717,16 @@ export function validateChapterContractText(
 
   if (filePath) {
     const normalized = filePath.replaceAll('\\', '/');
-    if (normalized.includes('/curriculum/chapters/')) {
+    const directory = course?.contractDirectory ?? 'curriculum/chapters';
+    if (normalized.includes('/' + directory + '/') || normalized.startsWith(directory + '/')) {
       const filename = nodePath.basename(normalized, nodePath.extname(normalized));
       if (filename !== data.chapter_id) {
         issues.push(
           sourceName + ': filename must equal chapter_id "' + data.chapter_id + '"',
         );
       }
+    } else if (course && !(course.id === FIRST_COURSE_ID && normalized.endsWith('/curriculum/chapter-template.md'))) {
+      issues.push(sourceName + ': contract file is outside the selected course directory');
     }
   }
 
@@ -941,7 +999,7 @@ export function validateExpectedOutput(
 
 /**
  * @param {*} parsed
- * @param {{repositoryRoot: string, sourceName?: string, localeConfiguration?: *, chapterLocaleConfiguration?: *}} options
+ * @param {{repositoryRoot: string, sourceName?: string, localeConfiguration?: *, chapterLocaleConfiguration?: *, course?: *}} options
  */
 export function validateChapterContractIntegration(
   parsed,
@@ -950,20 +1008,20 @@ export function validateChapterContractIntegration(
     sourceName = 'chapter contract',
     localeConfiguration = readLocaleConfiguration(repositoryRoot),
     chapterLocaleConfiguration = undefined,
+    course,
   },
 ) {
   const contract = parsed.data;
-  const chapterLocales =
-    chapterLocaleConfiguration ??
-    readChapterLocaleConfiguration(repositoryRoot, localeConfiguration);
-  const requiredLocales = activeLocalesForChapter(
-    chapterLocales,
-    contract.chapter_id,
-  );
+  const requiredLocales = course
+    ? course.activeLocales
+    : activeLocalesForChapter(
+        chapterLocaleConfiguration ?? readChapterLocaleConfiguration(repositoryRoot, localeConfiguration),
+        contract.chapter_id,
+      );
   const issues = [];
   let expectedPath = null;
   if (!isOrientationChapter(contract)) {
-    const expectedPackage = 'ch' + contract.chapter_id;
+    const expectedPackage = (isPracticalCourse(course) ? 'practical-ch' : 'ch') + contract.chapter_id;
     if (contract.rust.package !== expectedPackage) {
       issues.push(
         sourceName + ': rust.package must equal "' + expectedPackage + '"',
@@ -1013,10 +1071,20 @@ export function validateChapterContractIntegration(
 
   const lessons = {};
   const diagrams = {};
+  const contentDirectory = course?.contentDirectory ?? 'site/src/content/chapters';
+  if (course && existsSync(nodePath.join(repositoryRoot, contentDirectory))) {
+    for (const entry of readdirSync(nodePath.join(repositoryRoot, contentDirectory), { withFileTypes: true })) {
+      if (entry.isDirectory() && !requiredLocales.includes(entry.name) &&
+          ['.mdx', '.md'].some(extension => existsSync(nodePath.join(repositoryRoot, contentDirectory, entry.name, contract.chapter_id + extension)))) {
+        issues.push(sourceName + ': lesson exists in inactive course locale ' + entry.name);
+      }
+    }
+    if (issues.length > 0) throw new ContentValidationError(issues, 'Chapter integration validation failed');
+  }
   for (const locale of requiredLocales) {
     const lessonPath = nodePath.join(
       repositoryRoot,
-      'site/src/content/chapters',
+      contentDirectory,
       locale,
       contract.chapter_id + '.mdx',
     );
@@ -1031,6 +1099,7 @@ export function validateChapterContractIntegration(
       repositoryRoot,
       checkSourceFiles: true,
       supportedLocales: localeConfiguration.locales,
+      course,
     });
     lessons[locale] = lesson;
     diagrams[locale] = validateContractLesson(
@@ -1070,8 +1139,8 @@ export function validateChapterContractIntegration(
   };
 }
 
-function defaultContractPaths(repositoryRoot) {
-  const directory = nodePath.join(repositoryRoot, 'curriculum/chapters');
+function defaultContractPaths(repositoryRoot, course) {
+  const directory = nodePath.join(repositoryRoot, course?.contractDirectory ?? 'curriculum/chapters');
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
@@ -1085,22 +1154,21 @@ export function runChapterContractCheck(
 ) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
   const localeConfiguration = readLocaleConfiguration(repositoryRoot);
-  const chapterLocaleConfiguration = readChapterLocaleConfiguration(
-    repositoryRoot,
-    localeConfiguration,
-  );
-  const structureOnly = args.includes('--structure-only');
-  const unknownOptions = args.filter(
-    (argument) => argument.startsWith('--') && argument !== '--structure-only',
-  );
-  if (unknownOptions.length > 0) {
-    throw new ContentValidationError(['unknown option(s): ' + unknownOptions.join(', ')]);
-  }
-  const requested = args.filter((argument) => argument !== '--structure-only');
+  const { values, positionals: requested } = parseArgs({
+    args,
+    options: {
+      course: { type: 'string', default: FIRST_COURSE_ID },
+      'structure-only': { type: 'boolean', default: false },
+    },
+    strict: true,
+    allowPositionals: true,
+  });
+  const course = courseById(readCourseConfiguration(repositoryRoot), values.course);
+  const structureOnly = values['structure-only'];
   const paths =
     requested.length > 0
       ? requested.map((value) => nodePath.resolve(cwd, value))
-      : defaultContractPaths(repositoryRoot);
+      : defaultContractPaths(repositoryRoot, course);
 
   const results = paths.map((filePath) => {
     if (!existsSync(filePath)) {
@@ -1114,16 +1182,18 @@ export function runChapterContractCheck(
     const isCanonicalTemplate =
       nodePath.relative(repositoryRoot, filePath).replaceAll('\\', '/') ===
       'curriculum/chapter-template.md';
-    const requiredLocales = isCanonicalTemplate
-      ? Object.keys(frontmatter.objective ?? {})
-      : activeLocalesForChapter(
-          chapterLocaleConfiguration,
-          frontmatter.chapter_id,
-        );
+    if (!isCanonicalTemplate && !filePath.startsWith(nodePath.join(repositoryRoot, course.contractDirectory) + nodePath.sep)) {
+      throw new ContentValidationError(['chapter contract is outside the selected course directory']);
+    }
+    if (isCanonicalTemplate && course.id !== FIRST_COURSE_ID) {
+      throw new ContentValidationError(['the first-course template is outside the selected course']);
+    }
+    const requiredLocales = isCanonicalTemplate ? Object.keys(frontmatter.objective ?? {}) : course.activeLocales;
     const parsed = validateChapterContractText(source, {
       sourceName: nodePath.relative(repositoryRoot, filePath),
       filePath,
       supportedLocales: requiredLocales,
+      ...(isCanonicalTemplate ? {} : { course }),
     });
     const integration = structureOnly || isCanonicalTemplate
       ? null
@@ -1131,7 +1201,7 @@ export function runChapterContractCheck(
           repositoryRoot,
           sourceName: nodePath.relative(repositoryRoot, filePath),
           localeConfiguration,
-          chapterLocaleConfiguration,
+          course,
         });
     return { parsed, integration };
   });

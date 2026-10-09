@@ -32,9 +32,9 @@ const russianPolicyChapterIds = new Set(
 
 const chapterCopy = {
   en: {
-    title: "A map of the scalar reference decoder",
+    title: "A map of a modern LLM",
     description:
-      "In the tiny CPU reference, tokenization gives IDs, embeddings give features, and decoder blocks plus a vocabulary head produce logits. Sampling selects tokens, caching reuses attention state, and training updates the same weights. This architectural map does not establish measured laptop-scale capability.",
+      "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.",
     revisionLabel: "Content revision",
     headings: [
       "See the system before its mechanisms",
@@ -43,7 +43,7 @@ const chapterCopy = {
       "Use the map as a table of contents",
       "Start with the model’s input boundary",
     ],
-    systemSection: "How the scalar reference connects",
+    systemSection: "How the complete system connects",
     forward: "Shared forward path",
     generation: "Generation branch",
     learning: "Learning branch",
@@ -78,9 +78,9 @@ const chapterCopy = {
     chapterLong: "Chapter",
   },
   ru: {
-    title: "Карта эталонного декодера со скалярными вычислениями",
+    title: "Карта устройства современной LLM",
     description:
-      "В небольшой эталонной реализации со скалярными вычислениями на CPU токенизация даёт ID, эмбеддинги — признаки, а блоки декодера и проекция на словарь — логиты. При генерации выбираются токены, кэш позволяет повторно использовать состояние внимания, а обучение обновляет те же веса. Эта карта устройства не служит измерением возможностей более крупной LLM на ноутбуке.",
+      "Посмотрите, как токенизация, эмбеддинги, блоки декодера, внимание, ветви прямого распространения, обучение, выбор токена и KV-кэш соединяются в LLM только с декодером.",
     revisionLabel: "Версия материала",
     headings: [
       "Сначала взгляните на систему целиком",
@@ -89,7 +89,7 @@ const chapterCopy = {
       "Используйте карту как оглавление",
       "Начните с входной границы модели",
     ],
-    systemSection: "Связи внутри эталонной реализации со скалярными вычислениями",
+    systemSection: "Как связана вся система",
     forward: "Общий путь прямого распространения",
     generation: "Генерация",
     learning: "Обучение",
@@ -419,7 +419,7 @@ async function expectChapter(page: Page, locale: ChapterLocale) {
     chapterId,
     locale,
     order: 0,
-    revision: 6,
+    revision: 5,
     revisionLabel: copy.revisionLabel,
     title: copy.title,
     equivalentLocales: ["en", "ru"],

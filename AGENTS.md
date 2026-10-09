@@ -21,6 +21,38 @@ Build a learning tool that teaches how the parts of modern large language models
    LLM in Rust.
 8. The tool should support localization. For now, it should support only Russian and English
 
+### Reuse existing course functionality
+
+Do not duplicate existing functionality. Reuse the existing course implementation
+and extend its APIs when a chapter needs additional behavior.
+
+Whenever a chapter requires reimplementing something already implemented, or
+duplicates existing functionality, explain the current implementation and the
+chapter's requested behavior, then stop the affected work until the user resolves
+the conflict. Permission to extend existing functionality does not authorize
+silently resolving an actual reimplementation conflict. Preserve the existing
+implementation and staged evidence while awaiting that resolution.
+
+### Separate reference and practical courses
+
+The first course ends at Chapter 39. Preserve its implementation and lesson
+wording, restoring the pre-extension baseline where necessary while retaining
+accepted repairs. Present the two course entry points at `/en/` and `/ru/`; do
+not add second-course explanations inside first-course lessons.
+
+The user authorizes one initial base copy of `rust/crates/llm-from-scratch` into
+the sibling `rust/crates/llm-from-scratch-practical` for the separate course
+"Practical LLM in Rust". Rename the copied crate and evolve it independently.
+This exception permits only that founding copy; within each course, reuse and
+extend existing functionality and stop on an unresolved reimplementation
+conflict under the rule above.
+
+The practical course starts with Chapter 0 explaining its structure; Chapter 1
+and later chapters contain the actual material. Deliver its learner-facing
+content in English only for now, preserving localization support for future
+locales. Record current mappings separately; never renumber or rewrite frozen
+historical plans, runs or reviews.
+
 ### NVIDIA prerequisite and external corpus preparation
 
 Completing the course's GPU-backed practical path requires a compatible NVIDIA

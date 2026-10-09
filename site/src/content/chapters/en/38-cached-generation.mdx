@@ -2,7 +2,7 @@
 {
   "chapter_id": "38-cached-generation",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 6,
   "order": 38,
   "concept_id": "cached-generation",
   "title": "Prefill once, then advance one token",
@@ -108,7 +108,7 @@
     "id": "cached-generation",
     "rationale": "A prompt-to-decode timeline across two distinct layer caches makes the coherently managed model-wide state, length changes, newest-position matches, and the attention-score comparison visible together."
   },
-  "decoder_connection": "The scalar reference decoder can now bind compatible graph-free K/V state across all blocks for one session, prefill a prompt, and decode selected tokens without receiving the model again. The session keeps using the exact decoder it bound and retains read-only access to its parameter values. After the session ends, a weight update makes the old cache stale, so the updated model needs a newly constructed cache. Chapter 39 will connect this inference path to the bounded CPU reference pipeline, not demonstrate laptop-scale performance; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence."
+  "decoder_connection": "The complete decoder can now bind compatible graph-free K/V state across all blocks for one session, prefill a prompt, and decode selected tokens without receiving the model again. The session keeps using the exact decoder it bound and retains read-only access to its parameter values. After the session ends, a weight update makes the old cache stale, so the updated model needs a newly constructed cache. Chapter 39 will connect this inference path to the full pipeline; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence."
 }
 ---
 
@@ -527,21 +527,20 @@ records its own block's attention parameters, geometry, and RoPE configuration.
 
 {/* chapter-section:decoder-connection */}
 
-## Connect inference to the scalar reference pipeline
+## Connect inference to the whole pipeline
 
-The scalar reference decoder can now bind compatible graph-free K/V state across all
+The complete decoder can now bind compatible graph-free K/V state across all
 blocks for one session, prefill a prompt, and decode selected tokens without
 receiving the model again. The session keeps using the exact decoder it bound and
 retains read-only access to its parameter values. After the session ends, a
 weight update makes the old cache stale, so the updated model needs a newly
 constructed cache. The exact fixture still matches the complete-prefix
-generation decisions. Chapter 39 will connect this inference path to the bounded
-CPU reference pipeline, not demonstrate laptop-scale performance; inside that
-execution test cannot affect the selected state, while
+generation decisions. Chapter 39 will connect this inference path to the full
+pipeline; inside that execution test cannot affect the selected state, while
 Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only
 as fixed-fixture regression evidence.
 
-That reference-core capstone will connect the stages in one program: partition data,
+That final chapter will exercise the whole road in one program: partition data,
 learn and apply BPE, train and select the decoder, run a locally isolated test
 evaluation, save and reload the checkpoint, prefill the prompt, generate through
 the model-wide cache, and decode the resulting token IDs back to text. That

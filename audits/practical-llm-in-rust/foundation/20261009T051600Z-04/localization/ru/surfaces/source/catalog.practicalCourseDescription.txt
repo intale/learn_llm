@@ -1,0 +1,1 @@
+Extend the completed model with corpus preparation, efficient execution, and measured training and inference. Start with the course structure in Chapter 0.

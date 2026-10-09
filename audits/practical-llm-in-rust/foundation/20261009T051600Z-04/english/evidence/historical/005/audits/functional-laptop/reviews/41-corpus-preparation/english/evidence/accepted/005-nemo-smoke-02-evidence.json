@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "kind": "actual-bounded-nemo-gpu-smoke",
+  "exit_code": 0,
+  "image": "sha256:96d814b03d02a134cdc3f7702c8a11471f8940fa638ef7895e2054cadd7fb196",
+  "output_directory": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8",
+  "report": {
+    "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8/report.json",
+    "bytes": 2445,
+    "sha256": "920c6252b43e86ad74f6a15494baf4caa4194faf647d2d2158352c4872453bb9"
+  },
+  "exports": [
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8/prepared.jsonl",
+      "bytes": 295,
+      "sha256": "9e8131f640a0c638e5b96d76166d463d7ce014f830ee1a54a52e16933066d015"
+    },
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8/test.jsonl",
+      "bytes": 100,
+      "sha256": "69e5902a6908a946f62e6a861b202ef6365b48d4c69c9a30579cfee0bff1dc8f"
+    },
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8/train.jsonl",
+      "bytes": 95,
+      "sha256": "aee8661ced42478c82f00ce11cb21ff7b8d5f3d686f6cf5f85fd00ff7f7174a6"
+    },
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8/validation.jsonl",
+      "bytes": 100,
+      "sha256": "bd89c5fdc1243d728b92ad974ddf23614dbb7580d8271f2c40d5c9d01489b110"
+    }
+  ],
+  "inputs": [
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/publish/tools/nemo-curator/prepare_corpus.py",
+      "bytes": 15299,
+      "sha256": "1a88fdd9925f7baf8e9099fcc98806ddb6f67d9d6a688828a0b475dfcedde732"
+    },
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/publish/tools/nemo-curator/fixtures/raw.jsonl",
+      "bytes": 373,
+      "sha256": "a1296cd7f53d659485f4ac41200072832ba8d6f6ec8668296dc92d6ab2ec897d"
+    },
+    {
+      "path": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/publish/tools/nemo-curator/fixtures/splits.json",
+      "bytes": 306,
+      "sha256": "126c3605d2d5ff78b7bb1727206ada9532fb80aaf98105934a3f5abb15171025"
+    }
+  ],
+  "documents": {
+    "after_quality": 4,
+    "input": 6,
+    "prepared": 3
+  },
+  "decoded_text_utf8_bytes": 39,
+  "splits": {
+    "test": {
+      "bytes": 100,
+      "decoded_text_utf8_bytes": 17,
+      "documents": 1,
+      "file": "test.jsonl",
+      "sha256": "69e5902a6908a946f62e6a861b202ef6365b48d4c69c9a30579cfee0bff1dc8f"
+    },
+    "train": {
+      "bytes": 95,
+      "decoded_text_utf8_bytes": 11,
+      "documents": 1,
+      "file": "train.jsonl",
+      "sha256": "aee8661ced42478c82f00ce11cb21ff7b8d5f3d686f6cf5f85fd00ff7f7174a6"
+    },
+    "validation": {
+      "bytes": 100,
+      "decoded_text_utf8_bytes": 11,
+      "documents": 1,
+      "file": "validation.jsonl",
+      "sha256": "bd89c5fdc1243d728b92ad974ddf23614dbb7580d8271f2c40d5c9d01489b110"
+    }
+  },
+  "not_established": [
+    "rights or redistribution permission",
+    "privacy clearance",
+    "near-duplicate removal",
+    "completeness or correctness of supplied related-source groups",
+    "protected evaluation decontamination",
+    "trained-model quality",
+    "bulk-corpus resource feasibility"
+  ],
+  "log_limit": "Session6512 terminal log was truncated by tool output; actual report/export bytes and successful exit are bound. No claim of full raw log preservation.",
+  "limits": {
+    "host_hard_bytes": 8589934592,
+    "cpus": 2,
+    "shared_memory_bytes": 1073741824,
+    "tmpfs_max_bytes": 4294967296
+  },
+  "gpu_resource_limit_scope": "Recipe supplies512MiBRMMpool/256MiBspill, not a GPU hard process cap or measured laptop acceptance.",
+  "network": "none",
+  "hostname": "course-nemo",
+  "local_hostname_mapping": "course-nemo:127.0.0.1",
+  "command": "docker run --rm --pull=never --network none --hostname course-nemo --add-host course-nemo:127.0.0.1 --gpus all --user 0:1000 --read-only --cap-drop ALL --security-opt no-new-privileges --memory 8589934592 --cpus 2 --shm-size 1073741824 --env PYTHONDONTWRITEBYTECODE=1 --env NUMEXPR_MAX_THREADS=2 --tmpfs /tmp:rw,exec,nosuid,nodev,size=4294967296 --mount type=bind,source=/home/int/rust/learn_llm/.build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/publish/tools/nemo-curator,target=/course,readonly --mount type=bind,source=/home/int/rust/learn_llm/.build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/nemo-smoke-02.KRWEr8,target=/output sha256:96d814b03d02a134cdc3f7702c8a11471f8940fa638ef7895e2054cadd7fb196 /course/prepare_corpus.py --input /course/fixtures/raw.jsonl --output /output --split-policy /course/fixtures/splits.json"
+}

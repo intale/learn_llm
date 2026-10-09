@@ -13,8 +13,9 @@ import {
 import { LOCALE_CONFIGURATION } from './locale-config.mjs';
 import {
   activeLocalesForChapter,
-  readFunctionalChapterLocaleConfiguration as readChapterLocaleConfiguration,
-} from './functional-chapter-locale-config.mjs';
+  readChapterLocaleConfiguration,
+} from './chapter-locale-config.mjs';
+import {readCourseConfiguration,readPracticalBuildScope,practicalPublicationChapterIds} from './check-course-boundaries.mjs';
 import {
   DEFAULT_SITE_URL,
   renderSitemapXml,
@@ -51,6 +52,14 @@ function attributes(tag) {
     result[match[1].toLowerCase()] = match[2];
   }
   return result;
+}
+
+function parseStaticDocument(source) {
+  const requireFromSite = createRequire(
+    nodePath.join(repositoryRootFromCwd(), 'site/package.json'),
+  );
+  const { parse } = requireFromSite('parse5');
+  return parse(source, { sourceCodeLocationInfo: true });
 }
 
 function hasBooleanAttribute(tag, name) {
@@ -474,15 +483,36 @@ export function deriveSeoExpectations(
     repositoryRoot,
     localeConfiguration,
   ),
+  {courseConfiguration = undefined, practicalChapterIds = []} = {},
 ) {
   const issues = [];
   const expectations = new Map();
   const catalogs = new Map();
-  const privateScope = readPrivateBuildScope(repositoryRoot);
+  // Frozen historical fixtures may explicitly supply their old configuration.
+  // Current builds use the separate course boundary and its exact admission.
+  const privateScope = courseConfiguration ? null : readPrivateBuildScope(repositoryRoot);
 
   for (const locale of localeConfiguration.locales ?? []) {
     const catalog = readSeoCatalog(repositoryRoot, locale, issues);
     if (catalog) catalogs.set(locale, catalog);
+  }
+
+  if (courseConfiguration) {
+    const practical = courseConfiguration.courses.find(course => course.id === 'practical-llm-in-rust');
+    for (const locale of practical.activeLocales) {
+      const catalog = catalogs.get(locale);
+      if (catalog) addSeoExpectation(expectations, '/' + locale + '/' + practical.route + '/',
+        catalog.value.practicalIndexDescription, catalog.path + '.practicalIndexDescription', issues);
+      for (const chapterId of practicalChapterIds) {
+        const path = practical.contentDirectory + '/' + locale + '/' + chapterId + '.mdx';
+        try {
+          const {data} = parseJsonFrontmatter(readFileSync(nodePath.join(repositoryRoot,path),'utf8'),path);
+          if (data.chapter_id !== chapterId || data.locale !== locale) throw new Error('practical source identity drift');
+          addSeoExpectation(expectations, '/' + locale + '/' + practical.route + '/' + chapterId + '/',
+            data.description, path + '.description', issues);
+        } catch (error) { issues.push(path + ': ' + error.message); }
+      }
+    }
   }
 
   const defaultCatalog = catalogs.get(localeConfiguration.defaultLocale);
@@ -614,11 +644,7 @@ export function validateSeoDescription(relativePath, source, expected, issues) {
   // Resolve the existing locked parser from its owning dependency graph.
   // Source offsets preserve our raw-source head-placement assertion even when
   // the HTML parser repairs malformed element placement.
-  const requireFromSite = createRequire(
-    nodePath.join(repositoryRootFromCwd(), 'site/package.json'),
-  );
-  const { parse } = requireFromSite('parse5');
-  const document = parse(source, { sourceCodeLocationInfo: true });
+  const document = parseStaticDocument(source);
   const descriptionMetas = [];
   const visit = (node) => {
     if (node.tagName === 'meta') {
@@ -877,6 +903,7 @@ function validateHreflang(
   localeConfiguration,
   siteBase,
   chapterLocaleConfiguration,
+  courseConfiguration,
 ) {
   const route = htmlRoute(relativePath);
   const htmlTag = source.match(/<html\b[^>]*>/);
@@ -892,6 +919,9 @@ function validateHreflang(
     /^\/([^/]+)\/course\/(\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*)\/$/,
   );
   let activeChapterLocales = null;
+  const practical = courseConfiguration?.courses.find(course => course.id === 'practical-llm-in-rust');
+  const practicalRoute = practical && routeMatch?.[2].startsWith('/' + practical.route + '/');
+  if (practicalRoute) activeChapterLocales = practical.activeLocales;
   if (chapterRoute && chapterLocaleConfiguration) {
     try {
       activeChapterLocales = activeLocalesForChapter(
@@ -1030,7 +1060,7 @@ function validateHreflang(
       !activeChapterLocales || activeChapterLocales.includes(alternate.code);
     const expected = equivalent
       ? siteReference('/' + alternate.code + suffix, siteBase)
-      : siteReference('/' + alternate.code + '/course/', siteBase);
+      : siteReference('/' + alternate.code + (practicalRoute ? '/' : '/course/'), siteBase);
     if (equivalent) {
       if (!anchorHrefs.includes(expected)) {
         issues.push(
@@ -1058,12 +1088,13 @@ function validateHreflang(
             expected,
         );
       }
-      if (fallback?.['data-locale-fallback'] !== 'course-index') {
+      const fallbackKind = practicalRoute ? 'locale-home' : 'course-index';
+      if (fallback?.['data-locale-fallback'] !== fallbackKind) {
         issues.push(
           relativePath +
             ': fallback link for ' +
             alternate.code +
-            ' must set data-locale-fallback="course-index"',
+            ' must set data-locale-fallback="' + fallbackKind + '"',
         );
       }
       if (
@@ -1105,29 +1136,80 @@ function validateHreflang(
   }
 }
 
-function validateLocalizedCourseEntry(
+export function validateLocalizedCourseEntry(
   relativePath,
   source,
   issues,
   localeConfiguration,
   siteBase,
+  courseConfiguration = undefined,
 ) {
   const route = htmlRoute(relativePath);
   const localeMatch = route.match(/^\/([^/]+)\/$/);
   if (!localeMatch) return;
   if (!localeConfiguration.locales.includes(localeMatch[1])) return;
 
-  const expected = siteReference('/' + localeMatch[1] + '/course/', siteBase);
-  const anchorHrefs = [...source.matchAll(/<a\b[^>]*>/g)]
-    .map((match) => attributes(match[0]).href)
-    .filter(Boolean);
+  const locale = localeMatch[1];
+  const elements = [];
+  const visit = (node) => {
+    if (node.tagName) elements.push(node);
+    for (const child of node.childNodes ?? []) visit(child);
+  };
+  visit(parseStaticDocument(source));
+  const values = (node) => Object.fromEntries(node.attrs.map(({ name, value }) => [name, value]));
+  const anchors = elements.filter((node) => node.tagName === 'a');
+  const choosers = elements.filter((node) => Object.hasOwn(values(node), 'data-course-selection'));
+  const isDescendant = (node, ancestor) => {
+    for (let current = node.parentNode; current; current = current.parentNode) {
+      if (current === ancestor) return true;
+    }
+    return false;
+  };
+  const isStart = (node) => (values(node).class ?? '').split(/\s+/).includes('course-cta');
 
-  if (!anchorHrefs.includes(expected)) {
-    issues.push(
-      relativePath +
-        ': localized home must include an ordinary link to ' +
-        expected,
-    );
+  // The renderer emits this landmark only for a complete home message group.
+  if (choosers.length === 0) {
+    const expected = siteReference('/' + locale + '/course/', siteBase);
+    if (!anchors.some((node) => values(node).href === expected)) {
+      issues.push(relativePath + ': localized home must include an ordinary link to ' + expected);
+    }
+    return;
+  }
+  if (choosers.length !== 1) {
+    issues.push(relativePath + ': localized home must have exactly one course chooser');
+    return;
+  }
+  const first = courseConfiguration?.courses.find((course) => course.id === 'llm-from-scratch');
+  const practical = courseConfiguration?.courses.find((course) => course.id === 'practical-llm-in-rust');
+  if (!first || !practical) {
+    issues.push(relativePath + ': course chooser requires both declared course boundaries');
+    return;
+  }
+  const chooser = choosers[0];
+  const cards = elements.filter((node) => isDescendant(node, chooser) && Object.hasOwn(values(node), 'data-course-id'));
+  const starts = anchors.filter(isStart);
+  if (cards.length !== 2 || starts.length !== 2) {
+    issues.push(relativePath + ': course chooser must have exactly two named cards and two start actions');
+  }
+  for (const [course, destinationLocale] of [[first, locale], [practical, practical.referenceLocale]]) {
+    const matches = cards.filter((node) => values(node)['data-course-id'] === course.id);
+    const expected = siteReference('/' + destinationLocale + '/' + course.route + '/' + course.orientationChapterId + '/', siteBase);
+    const actions = starts.filter((node) => matches.some((card) => isDescendant(node, card)));
+    if (matches.length !== 1 || actions.length !== 1 || values(actions[0]).href !== expected) {
+      issues.push(relativePath + ': named ' + course.id + ' start must be one ordinary link to ' + expected);
+      continue;
+    }
+    if (course.id === practical.id) {
+      const destination = localeConfiguration.definitions.find((definition) => definition.code === destinationLocale);
+      const home = localeConfiguration.definitions.find((definition) => definition.code === locale);
+      const attributes = values(actions[0]);
+      if (attributes.hreflang !== destination.languageTag) {
+        issues.push(relativePath + ': practical start hreflang must identify its destination locale');
+      }
+      if (attributes.lang && attributes.lang !== home.languageTag) {
+        issues.push(relativePath + ': practical start label language must belong to the home locale');
+      }
+    }
   }
 }
 
@@ -1152,6 +1234,8 @@ export function auditStaticSite(
     sitemapUrl = DEFAULT_SITE_URL,
     googleAnalyticsMeasurementId = undefined,
     privateScope = null,
+    practicalPrivateScope = null,
+    courseConfiguration = undefined,
   } = {},
 ) {
   if (!existsSync(distDirectory)) {
@@ -1161,7 +1245,7 @@ export function auditStaticSite(
   }
 
   const absoluteDist = nodePath.resolve(distDirectory);
-  if (privateScope && process.env.COURSE_BUILD_ROLE !== 'private-review') {
+  if ((privateScope || practicalPrivateScope) && process.env.COURSE_BUILD_ROLE !== 'private-review') {
     throw new Error('Production static audit refuses private scope');
   }
   const siteBase = normalizeSiteBase(basePath);
@@ -1207,6 +1291,7 @@ export function auditStaticSite(
         localeConfiguration,
         siteBase,
         chapterLocaleConfiguration,
+        courseConfiguration,
       );
       validateLocalizedCourseEntry(
         relative,
@@ -1214,6 +1299,7 @@ export function auditStaticSite(
         issues,
         localeConfiguration,
         siteBase,
+        courseConfiguration,
       );
       if (analyticsMeasurementIdIsValid) {
         validateGoogleAnalytics(
@@ -1293,10 +1379,14 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
     repositoryRoot,
     LOCALE_CONFIGURATION,
   );
+  const courseConfiguration = readCourseConfiguration(repositoryRoot);
+  const practicalPrivateScope = readPracticalBuildScope(repositoryRoot);
+  const practicalChapterIds = practicalPublicationChapterIds(repositoryRoot);
   const seoExpectations = deriveSeoExpectations(
     repositoryRoot,
     LOCALE_CONFIGURATION,
     chapterLocaleConfiguration,
+    {courseConfiguration, practicalChapterIds},
   );
   return auditStaticSite(
     nodePath.join(repositoryRoot, 'site/dist'),
@@ -1307,7 +1397,8 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
       seoExpectations,
       sitemapUrl: process.env.SITE_URL ?? DEFAULT_SITE_URL,
       googleAnalyticsMeasurementId: GOOGLE_ANALYTICS_MEASUREMENT_ID,
-      privateScope: readPrivateBuildScope(repositoryRoot),
+      courseConfiguration,
+      practicalPrivateScope,
     },
   );
 }

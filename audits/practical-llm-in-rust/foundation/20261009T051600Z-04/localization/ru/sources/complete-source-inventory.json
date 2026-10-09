@@ -1,0 +1,1164 @@
+{
+  "completeFilesAreByteIdenticalToActualBuildOrMeasuredCatalog": true,
+  "currentEnglishFit": {
+    "bytes": 136118,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/current-English-source-build-fit.json",
+    "sha256": "ea9978c995cae3e29820cbb9725c42935df24577d594444d9a74794b797d0354"
+  },
+  "kind": "whole-file-and-source-value-inventory-provenance",
+  "languageVerdict": null,
+  "prospectiveCatalogPublicationPath": "site/src/i18n/catalogs/ru.json",
+  "prospectiveHomePublicationPath": "site/dist/ru/index.html",
+  "roleRequirementsAssignedByMachinery": false,
+  "schemaVersion": 1,
+  "sourceCatalog": {
+    "bytes": 3185,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/home-discovery-01/discovery/sources/site/src/i18n/catalogs/en.json",
+    "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca"
+  },
+  "sourceHomeHTML": {
+    "bytes": 11226,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/home-discovery-01/discovery/built/en/index.html",
+    "sha256": "f02ed0b8057bd370cf6bdda61bf4ad9c629e41a77a29db93e4c001e6e9e71f86"
+  },
+  "sourceSnapshots": [
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 3185,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/i18n/catalogs/en.json",
+      "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca",
+      "snapshotPath": "sources/site/src/i18n/catalogs/en.json",
+      "values": [
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/allChaptersLabel",
+          "roleRequirement": null,
+          "value": "All chapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/basicsCourseDescription",
+          "roleRequirement": null,
+          "value": "Build the parts of a small language model in Rust, from tokenization to training and generation. Chapters 0–39.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/basicsCourseStart",
+          "roleRequirement": null,
+          "value": "Start LLM from scratch",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/basicsCourseTitle",
+          "roleRequirement": null,
+          "value": "LLM from scratch",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/chapterNavigationLabel",
+          "roleRequirement": null,
+          "value": "Chapter navigation",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/chapterObjectiveLabel",
+          "roleRequirement": null,
+          "value": "In this chapter",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/contentRevisionLabel",
+          "roleRequirement": null,
+          "value": "Content revision",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseDescription",
+          "roleRequirement": null,
+          "value": "Each localized chapter adds one tested idea to the same Rust implementation.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseEmpty",
+          "roleRequirement": null,
+          "value": "The chapter contract is ready. Lessons appear only after every configured translation passes together.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseEyebrow",
+          "roleRequirement": null,
+          "value": "The course",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseLinkLabel",
+          "roleRequirement": null,
+          "value": "Start the course",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseNote",
+          "roleRequirement": null,
+          "value": "Start with Chapter 0: see how the whole LLM fits together, then follow the course into each Rust implementation.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseSelectionTitle",
+          "roleRequirement": null,
+          "value": "Choose a course",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseTitle",
+          "roleRequirement": null,
+          "value": "From text to a tiny language model",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/darkThemeLabel",
+          "roleRequirement": null,
+          "value": "Dark theme",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/diagramFullViewCloseLabel",
+          "roleRequirement": null,
+          "value": "Exit full screen",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/diagramFullViewOpenLabel",
+          "roleRequirement": null,
+          "value": "View diagram full screen",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/examplesDescription",
+          "roleRequirement": null,
+          "value": "Every concept begins with a tiny Rust example and deterministic output.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/examplesTitle",
+          "roleRequirement": null,
+          "value": "Learn by running code",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/eyebrow",
+          "roleRequirement": null,
+          "value": "From text to a working model",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/footerNote",
+          "roleRequirement": null,
+          "value": "A static, localized course for understanding language models from the inside.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/formulasDescription",
+          "roleRequirement": null,
+          "value": "Symbols are introduced only when they explain the behavior you can observe.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/formulasTitle",
+          "roleRequirement": null,
+          "value": "Connect code to the formula",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/historyDescription",
+          "roleRequirement": null,
+          "value": "Each chapter contrasts the modern component with the historical approach it replaced.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/historyTitle",
+          "roleRequirement": null,
+          "value": "See what came before",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/homeIntro",
+          "roleRequirement": null,
+          "value": "Follow small, executable examples until tensors, attention, training, and generation fit together as one Rust program.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/homeLabel",
+          "roleRequirement": null,
+          "value": "Home",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/homeTitle",
+          "roleRequirement": null,
+          "value": "Build an LLM from first principles",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/languagePickerIntro",
+          "roleRequirement": null,
+          "value": "Build a language model from first principles in Rust.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/languagePickerTitle",
+          "roleRequirement": null,
+          "value": "Choose a language",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/languageSwitchLabel",
+          "roleRequirement": null,
+          "value": "Language",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/nextChapterLabel",
+          "roleRequirement": null,
+          "value": "Next chapter",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseDescription",
+          "roleRequirement": null,
+          "value": "Extend the completed model with corpus preparation, efficient execution, and measured training and inference. Start with the course structure in Chapter 0.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseEyebrow",
+          "roleRequirement": null,
+          "value": "The practical course",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseLanguage",
+          "roleRequirement": null,
+          "value": "Available in English",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCoursePrerequisite",
+          "roleRequirement": null,
+          "value": "Requires the basics from LLM from scratch or equivalent Rust and LLM experience.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseStart",
+          "roleRequirement": null,
+          "value": "Start Practical LLM in Rust",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseTitle",
+          "roleRequirement": null,
+          "value": "Practical LLM in Rust",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalIndexDescription",
+          "roleRequirement": null,
+          "value": "Extend a separate copy of the completed Rust language model. Chapter 0 explains the structure; Chapter 1 onward introduces practical mechanisms with runnable examples. The index lists available lessons; later chapters remain part of the roadmap.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/previousChapterLabel",
+          "roleRequirement": null,
+          "value": "Previous chapter",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/repositoryLinkLabel",
+          "roleRequirement": null,
+          "value": "Browse all examples on GitHub",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/siteDescription",
+          "roleRequirement": null,
+          "value": "Learn how modern language models work by implementing each part in Rust.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/siteTitle",
+          "roleRequirement": null,
+          "value": "LLM, piece by piece",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/skipToContent",
+          "roleRequirement": null,
+          "value": "Skip to content",
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 4502,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/i18n/catalogs/ru.json",
+      "sha256": "8354679d67d2486f8b50a1b5535533d8b09fb093e9e789be6b137a45faebfc76",
+      "snapshotPath": "sources/site/src/i18n/catalogs/ru.json",
+      "values": [
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/allChaptersLabel",
+          "roleRequirement": null,
+          "value": "Все главы",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/basicsCourseDescription",
+          "roleRequirement": null,
+          "value": "Реализуйте компоненты небольшой языковой модели на Rust: от токенизации до обучения и генерации. Главы 0–39.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/basicsCourseStart",
+          "roleRequirement": null,
+          "value": "Начать курс «LLM с нуля»",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/basicsCourseTitle",
+          "roleRequirement": null,
+          "value": "LLM с нуля",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/chapterNavigationLabel",
+          "roleRequirement": null,
+          "value": "Навигация по главам",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/chapterObjectiveLabel",
+          "roleRequirement": null,
+          "value": "В этой главе",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/contentRevisionLabel",
+          "roleRequirement": null,
+          "value": "Версия материала",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseDescription",
+          "roleRequirement": null,
+          "value": "В каждой переведённой главе общая реализация на Rust дополняется одной проверенной идеей.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseEmpty",
+          "roleRequirement": null,
+          "value": "План главы готов. Сам урок появится после того, как будут проверены все языковые версии.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseEyebrow",
+          "roleRequirement": null,
+          "value": "Курс",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseLinkLabel",
+          "roleRequirement": null,
+          "value": "Начать курс",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseNote",
+          "roleRequirement": null,
+          "value": "Начните с главы 0: рассмотрите устройство LLM целиком, а затем переходите к реализации каждой части на Rust.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseSelectionTitle",
+          "roleRequirement": null,
+          "value": "Выберите курс",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courseTitle",
+          "roleRequirement": null,
+          "value": "От текста к небольшой языковой модели",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/darkThemeLabel",
+          "roleRequirement": null,
+          "value": "Тёмная тема",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/diagramFullViewCloseLabel",
+          "roleRequirement": null,
+          "value": "Выйти из полноэкранного режима",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/diagramFullViewOpenLabel",
+          "roleRequirement": null,
+          "value": "Развернуть схему на весь экран",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/examplesDescription",
+          "roleRequirement": null,
+          "value": "Каждая тема начинается с небольшого примера на Rust, который можно запустить и получить воспроизводимый результат.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/examplesTitle",
+          "roleRequirement": null,
+          "value": "Учитесь, запуская код",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/eyebrow",
+          "roleRequirement": null,
+          "value": "От текста к работающей модели",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/footerNote",
+          "roleRequirement": null,
+          "value": "Статический курс о внутреннем устройстве языковых моделей, доступный на нескольких языках.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/formulasDescription",
+          "roleRequirement": null,
+          "value": "Обозначения вводятся только тогда, когда помогают объяснить результат, который можно увидеть в программе.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/formulasTitle",
+          "roleRequirement": null,
+          "value": "Сопоставляйте код с формулами",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/historyDescription",
+          "roleRequirement": null,
+          "value": "В каждой главе современный компонент сравнивается с предшествовавшим ему подходом.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/historyTitle",
+          "roleRequirement": null,
+          "value": "Узнайте, как задачу решали раньше",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/homeIntro",
+          "roleRequirement": null,
+          "value": "Начните с небольших запускаемых примеров и постепенно объедините тензоры, внимание, обучение и генерацию в одной программе на Rust.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/homeLabel",
+          "roleRequirement": null,
+          "value": "Главная",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/homeTitle",
+          "roleRequirement": null,
+          "value": "Создайте LLM с нуля",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/languagePickerIntro",
+          "roleRequirement": null,
+          "value": "Соберите языковую модель с нуля на Rust.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/languagePickerTitle",
+          "roleRequirement": null,
+          "value": "Выберите язык",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/languageSwitchLabel",
+          "roleRequirement": null,
+          "value": "Язык",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/nextChapterLabel",
+          "roleRequirement": null,
+          "value": "Следующая глава",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseDescription",
+          "roleRequirement": null,
+          "value": "Расширьте готовую модель: добавьте подготовку корпуса и эффективное выполнение вычислений, измеряйте результаты обучения и инференса. Начните с главы 0 об устройстве курса.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseLanguage",
+          "roleRequirement": null,
+          "value": "Курс доступен на английском языке",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCoursePrerequisite",
+          "roleRequirement": null,
+          "value": "Нужно знать основы из курса «LLM с нуля» либо иметь сопоставимый опыт работы с Rust и LLM.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseStart",
+          "roleRequirement": null,
+          "value": "Начать курс Practical LLM in Rust",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/practicalCourseTitle",
+          "roleRequirement": null,
+          "value": "Practical LLM in Rust",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/previousChapterLabel",
+          "roleRequirement": null,
+          "value": "Предыдущая глава",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/repositoryLinkLabel",
+          "roleRequirement": null,
+          "value": "Посмотреть все примеры на GitHub",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/siteDescription",
+          "roleRequirement": null,
+          "value": "Разберитесь, как устроены современные языковые модели, реализовав каждый компонент на Rust.",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/siteTitle",
+          "roleRequirement": null,
+          "value": "LLM по частям",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/skipToContent",
+          "roleRequirement": null,
+          "value": "Перейти к содержимому",
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 2319,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/i18n/messages.ts",
+      "sha256": "0b20fc42826a5dca4142a3fecc78d152a8d8bc329eafb8c60e10fcdfca67ad1f",
+      "snapshotPath": "sources/site/src/i18n/messages.ts",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 6348,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/i18n/index.ts",
+      "sha256": "452d8f641ee7a21c594919e7dbad35b4b9de09bf274cd57b9b3a9c3c64b765bb",
+      "snapshotPath": "sources/site/src/i18n/index.ts",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 258,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/i18n/locales.json",
+      "sha256": "9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad",
+      "snapshotPath": "sources/site/src/i18n/locales.json",
+      "values": [
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/defaultLocale",
+          "roleRequirement": null,
+          "value": "en",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/locales/en/direction",
+          "roleRequirement": null,
+          "value": "ltr",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/locales/en/languageTag",
+          "roleRequirement": null,
+          "value": "en",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/locales/en/nativeName",
+          "roleRequirement": null,
+          "value": "English",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/locales/ru/direction",
+          "roleRequirement": null,
+          "value": "ltr",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/locales/ru/languageTag",
+          "roleRequirement": null,
+          "value": "ru",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/locales/ru/nativeName",
+          "roleRequirement": null,
+          "value": "Русский",
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 3386,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/pages/[locale]/index.astro",
+      "sha256": "5d0dd54b29b74774d898f48d5379a123fb22a9c34687d548756a5c179cbace49",
+      "snapshotPath": "sources/site/src/pages/[locale]/index.astro",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 5024,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/layouts/BaseLayout.astro",
+      "sha256": "237ede5ede1a64e97cd94669c6e623e4d60ff8b5cf0e6c4db3d5564193e5c340",
+      "snapshotPath": "sources/site/src/layouts/BaseLayout.astro",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 2206,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/components/ThemeToggle.astro",
+      "sha256": "bb5e09bada5f8b78a01ced0522526766d8171d0bebdc735815b3338cc5385ab2",
+      "snapshotPath": "sources/site/src/components/ThemeToggle.astro",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 543,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/components/ThemeBootstrap.astro",
+      "sha256": "cd58c6b82aa4599f37a0596549c49bb79f7ed028869b01e5df196a6de9020bf3",
+      "snapshotPath": "sources/site/src/components/ThemeBootstrap.astro",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 1046,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/lib/course-configuration.ts",
+      "sha256": "aaad1e76a28eef5fa5ed3819063df970e8560d00de98a46e8e8dcb319027c100",
+      "snapshotPath": "sources/site/src/lib/course-configuration.ts",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 4439,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "site/src/lib/course-boundaries.mjs",
+      "sha256": "00ae29e07d63771cff74d2f9433483610e2df2a2307b79074ca3fecef2af9df1",
+      "snapshotPath": "sources/site/src/lib/course-boundaries.mjs",
+      "values": []
+    },
+    {
+      "authorSourceClassification": null,
+      "bodyPath": null,
+      "bytes": 1422,
+      "completeSourceBytesRetained": true,
+      "evidenceScope": "current-build-bound-source-snapshot-not-semantic-acceptance",
+      "publicationPath": "configs/course-boundaries-v1.json",
+      "sha256": "a3f781f7f56559af8d573466caed0f6a4da2c42ae02fd60d7b589eb627ff28e7",
+      "snapshotPath": "sources/configs/course-boundaries-v1.json",
+      "values": [
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/activeLocales/0",
+          "roleRequirement": null,
+          "value": "en",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/activeLocales/1",
+          "roleRequirement": null,
+          "value": "ru",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/collection",
+          "roleRequirement": null,
+          "value": "chapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/contentDirectory",
+          "roleRequirement": null,
+          "value": "site/src/content/chapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/contractDirectory",
+          "roleRequirement": null,
+          "value": "curriculum/chapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/crateDirectory",
+          "roleRequirement": null,
+          "value": "rust/crates/llm-from-scratch",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/firstOrder",
+          "roleRequirement": null,
+          "value": 0,
+          "valueType": "number"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/id",
+          "roleRequirement": null,
+          "value": "llm-from-scratch",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/lastOrder",
+          "roleRequirement": null,
+          "value": 39,
+          "valueType": "number"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/orientationChapterId",
+          "roleRequirement": null,
+          "value": "00-llm-parts",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/referenceLocale",
+          "roleRequirement": null,
+          "value": "en",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/route",
+          "roleRequirement": null,
+          "value": "course",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/sheetCollection",
+          "roleRequirement": null,
+          "value": "cheatSheets",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/0/sheetDirectory",
+          "roleRequirement": null,
+          "value": "site/src/content/cheat-sheets",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/activeLocales/0",
+          "roleRequirement": null,
+          "value": "en",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/collection",
+          "roleRequirement": null,
+          "value": "practicalChapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/contentDirectory",
+          "roleRequirement": null,
+          "value": "site/src/content/practical-chapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/contractDirectory",
+          "roleRequirement": null,
+          "value": "curriculum/practical/chapters",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/crateDirectory",
+          "roleRequirement": null,
+          "value": "rust/crates/llm-from-scratch-practical",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/firstOrder",
+          "roleRequirement": null,
+          "value": 0,
+          "valueType": "number"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/id",
+          "roleRequirement": null,
+          "value": "practical-llm-in-rust",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/lastOrder",
+          "roleRequirement": null,
+          "value": 44,
+          "valueType": "number"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/orientationChapterId",
+          "roleRequirement": null,
+          "value": "00-course-structure",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/referenceLocale",
+          "roleRequirement": null,
+          "value": "en",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/route",
+          "roleRequirement": null,
+          "value": "practical-llm-in-rust",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/sheetCollection",
+          "roleRequirement": null,
+          "value": "practicalCheatSheets",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/courses/1/sheetDirectory",
+          "roleRequirement": null,
+          "value": "site/src/content/practical-cheat-sheets",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/firstCrateBaseline/inventory",
+          "roleRequirement": null,
+          "value": "artifacts/practical-llm-in-rust/foundation/first-core-inventory.json",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/firstCrateBaseline/revision",
+          "roleRequirement": null,
+          "value": "9f38a060903c472c4d571efd8e52da1f17e553ff",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/firstCrateBaseline/sha256",
+          "roleRequirement": null,
+          "value": "6bd9c5d4634f9850c3b53f8768afd270433ea89cc77160db65563ce39be60fb1",
+          "valueType": "string"
+        },
+        {
+          "authorClassification": null,
+          "isolationGroup": null,
+          "jsonPointer": "/schemaVersion",
+          "roleRequirement": null,
+          "value": 1,
+          "valueType": "number"
+        }
+      ]
+    }
+  ],
+  "targetCatalog": {
+    "bytes": 4502,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/home-discovery-01/discovery/sources/site/src/i18n/catalogs/ru.json",
+    "sha256": "8354679d67d2486f8b50a1b5535533d8b09fb093e9e789be6b137a45faebfc76"
+  },
+  "targetHomeHTML": {
+    "bytes": 12519,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/validation/home-discovery-01/discovery/built/ru/index.html",
+    "sha256": "678a76a0389e1ade7e95c71f70e7cb614e77adf10aade65919738d65bfe2150a"
+  }
+}

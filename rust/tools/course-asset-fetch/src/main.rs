@@ -6,7 +6,7 @@ use functional_artifact_cache::artifact::{
     lineage::{AcquisitionError, DatasetPolicy},
 };
 use functional_artifact_cache::filesystem::{CacheLayout, FileLayout, FileSource, FileStore};
-use llm_from_scratch::artifact_identity::sha256;
+use llm_from_scratch_practical::artifact_identity::sha256;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{

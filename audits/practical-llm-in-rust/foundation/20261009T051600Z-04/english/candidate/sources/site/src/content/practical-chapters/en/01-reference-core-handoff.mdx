@@ -1,0 +1,367 @@
+---
+{
+  "chapter_id": "01-reference-core-handoff",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 1,
+  "concept_id": "reference-core-handoff",
+  "title": "Keep a fixed reference before extending the decoder",
+  "description": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+  "objective": "Bind the 1,188-parameter scalar reference to its configuration, fixture and verified source identity, and distinguish its checked regression behavior from unmeasured future capabilities.",
+  "worked_inputs": "Use the unchanged split of eight training documents, two validation documents and two test documents, with the tiny scalar configuration. One pipeline invocation runs two 32-update schedules, each with 2,048 training targets. Interpret 1,744 overlapping test-window target slots, 442 within-document transition occurrences, exact reload and generated token IDs [260,34,34].",
+  "formula": {
+    "latex": "R_{\\mathrm{ref}}=\\operatorname{SHA256}(\\mathrm{config}_{1188}\\Vert\\mathrm{fixture}\\Vert\\mathrm{source\\_revision})",
+    "symbols": [
+      {
+        "symbol": "R_{\\mathrm{ref}}",
+        "meaning": "the 256-bit identity of this fixed reference input record"
+      },
+      {
+        "symbol": "\\mathrm{config}_{1188}",
+        "meaning": "the canonical record of eighteen tiny-run settings and its 1,188-parameter invariant"
+      },
+      {
+        "symbol": "\\mathrm{fixture}",
+        "meaning": "the canonical record containing SHA-256 digests of the exact corpus and split-manifest bytes"
+      },
+      {
+        "symbol": "\\mathrm{source\\_revision}",
+        "meaning": "the verified source identity binding the original first-course baseline revision and all forty Rust source files of that restored crate, including lib.rs"
+      },
+      {
+        "symbol": "\\Vert",
+        "meaning": "composition as named fields in the shared canonical identity format, not unframed byte concatenation"
+      },
+      {
+        "symbol": "\\operatorname{SHA256}",
+        "meaning": "the supporting library's SHA-256 hash of the complete canonical identity record"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "evaluation-method",
+      "limitation": "A language-model score without its input conditions and scope does not identify what was evaluated or establish which capabilities were checked.",
+      "later_advance": "Model Cards describe evaluation conditions and intended uses; later fine-tuning experiments study variation across initializations and data orders. Reporting scope and measuring variation answer different questions.",
+      "modern_llm_role": "Keep a fixed regression reference when changing an LLM pipeline, while recording separately the evidence needed for quality, seed sensitivity and hardware claims.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2019,
+          "name": "Model Cards for Model Reporting",
+          "source_url": "https://arxiv.org/abs/1810.03993v2",
+          "claim": "Mitchell and colleagues propose model documentation that includes intended uses and evaluation conditions; a model card is not itself proof of quality."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders, and Early Stopping",
+          "source_url": "https://arxiv.org/abs/2002.06305v1",
+          "claim": "Dodge and colleagues study fine-tuning variability associated with initialization and data order for pretrained language models. This does not measure variability in the course's tiny decoder."
+        }
+      ]
+    },
+    "approach": "Contrast a decoder loss read from one CapstoneRun with the same observation's scope-bearing report; no additional model is trained for the reporting contrast.",
+    "summary": "Attach conditions and limits to an LLM result. Same-seed replay checks repeatability in this execution, not variability across seeds or useful language quality.",
+    "rust_source": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+      "region": "reference-input-identity",
+      "purpose": "Construct the fixed input identity from configuration, exact fixture bytes and verified reference source identity."
+    },
+    {
+      "path": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+      "region": "reference-handoff",
+      "purpose": "Reject changed fixtures before running the unchanged scalar pipeline and check its bounded observation."
+    },
+    {
+      "path": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+      "region": "scope-bearing-report",
+      "purpose": "Report the existing observation with explicit metric units, replay accounting and capability limits."
+    },
+    {
+      "path": "rust/demos/practical-ch01-reference-core-handoff/src/main.rs",
+      "region": "reference-example",
+      "purpose": "Verify compiled reference source, run the example with an owned checkpoint path and print its report."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "reference-core-handoff",
+    "rationale": "Separate the input identity from checked reference behavior and unmeasured successor capabilities, so the digest is not mistaken for a capability certificate."
+  },
+  "decoder_connection": "The completed first-course scalar decoder remains a fixed comparison point while the practical copy evolves. Chapter 2 prepares supplied text with an external tool and loads it through the practical crate's Rust reader. A changed corpus needs a new input identity and its own evidence; it does not enlarge this reference's claims."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import ReferenceCoreHandoffDiagram from "../../../components/chapters/ReferenceCoreHandoffDiagram.astro";
+
+export const diagramLabels = {
+  title: "A reference identity is not a capability certificate",
+  description: "The configuration, exact corpus and split bytes, and verified scalar-reference source determine the input identity. Separate checks observe replay, fixed-window evaluation, reload and cached generation. Neither the identity nor those checks establishes useful language quality, complete job resumption or laptop throughput.",
+  inputs: "Identify the fixed inputs",
+  checks: "Read the checked reference behavior",
+  future: "Keep unmeasured capabilities separate",
+  digest: "SHA-256 identity of the fixed input record",
+  parameters: "Learned scalar parameters",
+  slots: "Overlapping test-window target slots",
+  transitions: "Within-document transition occurrences",
+  generation: "Generated token IDs",
+  limits: "Not established: useful language quality, complete job resumption or laptop throughput.",
+};
+
+{/* chapter-section:worked-example */}
+
+## The problem: changes need a fixed comparison point
+
+The final chapter of *LLM from scratch* joined the tokenizer, decoder, training,
+evaluation, checkpoint and generation code. This practical course starts from a
+separate copy of that implementation. If the
+data, configuration and code change together, a changed result no longer tells
+you which version you observed. You need a fixed reference that identifies its
+inputs and states exactly what its checks establish.
+
+This chapter runs the completed first-course pipeline without modifying it. The
+practical copy can then evolve while this comparison point stays fixed. The example gives that reference
+an input identity and a report whose claims stay attached to their evidence.
+The identity identifies the fixed inputs. The checks establish which behavior
+this execution reproduced. Neither establishes useful laptop-scale capability.
+
+### What the reference actually does
+
+The fixture assigns $8$ documents to training, $2$ to validation and $2$ to test.
+The decoder has $1188$ learned scalar parameters and context capacity $4$ tokens.
+Its primary training schedule and separately executed replay each perform $32$ updates
+on full batches of $16$ windows, with $4$ valid targets per window. Therefore,
+each schedule consumes
+
+$$
+32\cdot16\cdot4=2048
+$$
+
+valid training targets. One pipeline invocation includes both schedules: $4096$
+targets altogether. These counts are derived from the frozen full-batch
+schedule, not from a new runtime token counter. Evaluation targets and generated
+tokens are separate quantities.
+
+The report's `independent_schedules` field counts two separately executed copies
+of the same schedule from training seed $39$, not statistically independent
+seed samples.
+
+The replay agrees bit for bit with the primary training result in this
+execution. The selected decoder and frozen bigram then score the same $1744$
+overlapping test-window target slots. Their mean negative log-likelihoods are
+approximately $3.866087547$ and $3.981342714$ nats per slot, respectively.
+This known comparison is a regression check: rerunning it can expose changes
+in the checked behavior. It is not an independent estimate of generalization.
+
+There are only $442$ within-document transition occurrences in those test
+documents. Overlapping windows repeat occurrences, so $1744$ is not a count
+of distinct transitions. A separate policy would score each occurrence once,
+using the longest available causal prefix capped at four tokens and only its
+newest-position distribution. This run does not report numeric mean NLL or
+perplexity under that policy.
+
+The checkpoint round trip preserves its encoded bytes, model and optimizer
+bits, and tokenizer. The restored decoder reproduces logits for the fixed
+`At` probe, encoded as token IDs `[67,118]`. Cached and complete-prefix generation
+agree on token IDs `[260,34,34]`: Cyrillic `т` followed by two spaces. Agreement
+checks the two generation paths; those three tokens do not demonstrate useful
+language quality.
+
+{/* chapter-section:formula */}
+
+## The solution: identify inputs, then interpret evidence
+
+$$
+R_{\mathrm{ref}}=\operatorname{SHA256}(\mathrm{config}_{1188}\Vert\mathrm{fixture}\Vert\mathrm{source\_revision})
+$$
+
+{/* chapter-section:symbol-glossary */}
+
+## The identity's symbols and fixed settings
+
+$R_{\mathrm{ref}}$ is a $256$-bit digest, displayed as $64$ lowercase hexadecimal
+characters. Its three named inputs are:
+
+- $\mathrm{config}_{1188}$: a canonical record of eighteen tiny-run settings,
+  together with the invariant that the decoder has $1188$ parameters.
+- $\mathrm{fixture}$: a canonical record of SHA-256 digests of the exact corpus
+  bytes and exact split-manifest bytes. Even a byte change that leaves parsed
+  JSON meaning unchanged creates a different input identity.
+- $\mathrm{source\_revision}$: a verified source identity combining a baseline
+  revision with the exact forty Rust source files of the completed first-course
+  crate, including its module declarations in `lib.rs`.
+
+Here $\Vert$ means composition into the shared identity format's named,
+canonical fields, not writing three unframed strings beside one another.
+That distinction matters: without field boundaries, different input sequences
+can have the same concatenated bytes. The helper orders fields, serializes one
+unambiguous record and hashes its complete bytes.
+
+The settings fix eight BPE merges; decoder width, feed-forward width and context
+capacity of four; one attention head and one block; stride one; training and
+evaluation batch sizes of sixteen and one hundred twenty-eight; thirty-two
+updates; learning rate $0.04$; gradient-norm cap $1$; training seed $39$;
+generation seed $38$; bigram smoothing $1$; generation temperature $0.8$;
+top-k four; and three generated tokens. The identity records floating-point
+settings by their exact bit patterns rather than rounded display text.
+
+<RustSource path="rust/demos/practical-ch01-reference-core-handoff/src/lib.rs" region="reference-input-identity" caption="Bind configuration, exact fixture bytes and verified scalar-reference source to one input identity." label="Rust source: canonical scalar-reference input identity" />
+
+The example verifies its compiled reference-source evidence first. It then
+rejects changed corpus or split bytes before training or checkpoint work.
+Only accepted fixed inputs reach the existing pipeline. The wrapper calls that
+pipeline once; the pipeline itself performs primary training and replay.
+
+<RustSource path="rust/demos/practical-ch01-reference-core-handoff/src/lib.rs" region="reference-handoff" caption="Reject changed fixtures, run the unchanged scalar pipeline and retain only its checked observation." label="Rust source: fixed-fixture admission and scalar-reference execution" />
+
+### What matching identities do not prove
+
+A matching digest identifies the same canonical input record, subject to the
+hash's collision-resistance assumption. It does not prove that the algorithm
+is correct or that a new machine will reproduce every floating-point bit.
+
+The source identity deliberately covers the forty first-course source files,
+not the evolving practical crate, this chapter's reporting wrapper or interface. Toolchain, locked
+dependencies and arithmetic environment are recorded separately. A matching
+source digest is therefore not evidence that two execution environments match.
+The temporary checkpoint path is also outside the input identity; changing
+that path does not change the model's fixed inputs.
+
+Likewise, exact checkpoint reload is narrower than complete job resumption.
+This check does not restore every data cursor, in-flight operation or whole-job
+continuation state. No laptop throughput is measured here.
+
+{/* chapter-section:history */}
+
+## History: reporting conditions and measuring variation
+
+A language-model score without its input conditions and scope does not identify
+what was evaluated or establish which capabilities were checked.
+
+[Model Cards for Model Reporting](https://arxiv.org/abs/1810.03993v2) was
+presented in 2019. Mitchell and colleagues propose model documentation that
+includes intended uses and evaluation conditions; a model card is not itself
+proof of quality.
+
+Model Cards describe evaluation conditions and intended uses; later fine-tuning
+experiments study variation across initializations and data orders. Reporting
+scope and measuring variation answer different questions.
+
+In [Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders, and Early Stopping](https://arxiv.org/abs/2002.06305v1),
+published in 2020, Dodge and colleagues study fine-tuning variability associated
+with initialization and data order for pretrained language models. This does
+not measure variability in the course's tiny decoder.
+
+Keep a fixed regression reference when changing an LLM pipeline, while recording
+separately the evidence needed for quality, seed sensitivity and hardware claims.
+
+The Rust reporting contrast uses the same observation. Reading only the mean
+NLL with this expression gives a number:
+
+```rust
+trace
+    .observation()
+    .final_evaluation()
+    .decoder()
+    .mean_nll()
+```
+
+`trace.report()` also states the evaluation unit, input identity, replay
+accounting and limits. It does not retrain a historical model or execute a seed
+sweep.
+
+<RustSource path="rust/demos/practical-ch01-reference-core-handoff/src/lib.rs" region="scope-bearing-report" caption="Report the same scalar observation with its metric unit, input identity and explicit capability limits." label="Rust source: scope-bearing scalar-reference report" />
+
+Repeating seed $39$ checks repeatability under fixed conditions. It does not
+estimate variability across seeds. Those are complementary checks, not
+interchangeable evidence.
+
+{/* chapter-section:rust-implementation */}
+
+## Run the reference without changing its inputs
+
+The example obtains verified source evidence and owns its temporary checkpoint
+location. Its report comes directly from the checked scalar observation, not
+from parsing a previous human-readable report.
+
+<RustSource path="rust/demos/practical-ch01-reference-core-handoff/src/main.rs" region="reference-example" caption="Verify the reference source, use an owned temporary checkpoint and print the scope-bearing report." label="Rust source: executable fixed scalar-reference example" />
+
+{/* chapter-section:visualization */}
+
+## Keep the three evidence layers separate
+
+The digest identifies the fixed inputs. The counts and generated token IDs
+describe checked behavior on those inputs. The final card keeps future quality,
+job-resumption and hardware claims outside the reference's evidence boundary.
+
+<ReferenceCoreHandoffDiagram labels={diagramLabels} />
+
+{/* chapter-section:exercises */}
+
+## Optional practice: inspect the boundary
+
+From the repository root, with Docker and the Rust/site course image available,
+run the example and inspect its JSON report:
+
+```sh
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch01-reference-core-handoff
+```
+
+The output contains the fixed input identity and the checked scalar-reference
+observations described in this chapter.
+
+1. In the JSON report printed by the Chapter 1 reference example, find the input
+   identity, target-count basis and metric unit. Explain why a digest alone would
+   not replace the replay and reload checks.
+2. Run the pure identity-input mutation test. Identify its changes to configuration,
+   corpus, split bytes and source identity without training. Explain why constructing
+   an identity for changed inputs does not admit them to the fixed reference run.
+
+   From the repository root, with Docker and the Rust/site course image available,
+   run:
+
+   ```sh
+   COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch01-reference-core-handoff --test reference_handoff every_identity_input_is_bound_without_training -- --exact
+   ```
+
+   Expected result: one selected test passes. A zero-test result does not
+   reproduce this check.
+
+3. Explain why a successful checkpoint round trip cannot justify the statement
+   “the complete training job can resume,” and why $1744$ must not be labeled
+   “distinct test transitions.”
+
+<details>
+<summary>Answers: input identity, evidence scope and repeated target slots</summary>
+
+1. The digest binds inputs; replay and reload compare actual behavior. Neither
+   kind of evidence substitutes for the other. The target-count basis explicitly
+   derives $2048$ targets per schedule and $4096$ for primary plus replay.
+   The reported mean NLL uses nats per overlapping window-target slot.
+2. The pure mutation test constructs different identities without calling the
+   pipeline. The runner separately requires the exact accepted corpus and split
+   bytes, so an identity is not an admission permit.
+3. The checkpoint check covers persisted model, optimizer and tokenizer state
+   plus a fixed logit probe, not every whole-job continuation dependency. The
+   $1744$ denominator counts overlapping window-target slots; the underlying
+   documents contain $442$ transition occurrences.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## What the next extension must preserve
+
+You now have an identified scalar reference and a precisely bounded report.
+A later change can be compared with that reference, while carrying its own
+input identity and evidence. Chapter 2 uses NVIDIA NeMo Curator to prepare
+supplied text, then loads the prepared documents through the practical crate's
+Rust reader.
+New data, larger models, accelerator execution, quality evaluation and complete
+job resumption each require their own checks; none is already established by
+this handoff.

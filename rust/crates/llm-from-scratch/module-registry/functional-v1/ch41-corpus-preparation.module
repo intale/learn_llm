@@ -1,3 +1,0 @@
-version=1
-module=functional::data::prepared_corpus
-source=src/data/prepared_corpus.rs

@@ -31533,3 +31533,1552 @@ and execute the already checked04bounded flow under the user's local580path
 commit approval; retain every exact index/byte/deletion/exception/whitespace
 and final parent/contents/status guard. No push or next-step claim/start.
 Affected step: merge-ch41-nemo-corpus-preparation-20261007.
+
+## 2026-10-08 09:06 UTC — user-authorized Chapter42 fixture implementation
+
+The user requests Chapter42 and explicitly selects "Implement with fixtures now;
+retain full-data gates" after the missing bulk preparation prerequisite is
+reported. Select only the current revision2 build after migration commit3f42ab2;
+claim implement-ch42-scalable-bpe-tokenizer as running under
+20261008T090138Z-implement-ch42-scalable-bpe-tokenizer-01. Original plans,
+historical runs and sealed evidence remain unchanged. This implementation uses
+the completed mergedChapter41 reader/publication as its predecessor; actual
+tokenizer/split execution additionally retains the pending fullNeMo predecessor
+and exact prepared-corpus-v1 receipt. The bounded fixtures never certify that
+bulk prerequisite, release or full-data execution.
+
+The content owner freezes incremental live-token in-memory training with
+caller-declared node/pair/heap/allocation budgets and streamed/dropped prepared
+strings. Capacity failure must refuse rather than shorten input. No
+external-memory spill, full-corpus RAM, workload-time or throughput result is
+claimed; those resource projections remain unclosed downstream. This is an
+explicit current acceptance reconciliation, not a relabeling of an unimplemented
+historical packet requirement.
+
+Root owns the five taught tokenizer modules, demo, algorithms, contract, lesson,
+figure, catalog, sheet and neutral language-review requirements. The distinct
+inherited machinery worker owns staged deterministic checker/tests/docs,
+run adapters, execution, exact evidence and the two operational ledgers.
+Twenty initial canonical inputs and actual distinct native contexts are frozen
+in preflight-input-fingerprint-01.json(ed8cf901); raw native observations hash
+69f5131e. Actual author/machinery selection is gpt-6.1-sol/max with no override,
+recorded as current run provenance, not a permanent repository pin.
+
+Cached image590b is read-only probed with pull-never/network-none: pinned
+Rust/Cargo1.93.1, rustfmt/clippy, Node22.12.0/npm10.9.0, Playwright1.61.1,
+Firefox1532 and existing serde/serde_json/sha2 caches are present. No image build,
+install or payload acquisition occurs. The initial Docker socket sandbox refusal
+precedes the approved read-only retry. Historical .build runs are absent and are
+not reused. Source runner/extractor receipt is also absent; no host parser
+substitution is approved. Exact historical-source transport/extraction remains
+unresolved pending actual admitted offline parser inspection. English2+2review,
+static/formula/sole-Firefox gates remain mandatory; Russian40+, screenshot,
+repair, GPU, paid and remote work remain excluded.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 09:22 UTC — historical tokenizer contrast stays in the Rust demo
+
+The user's subsequent instruction supersedes the separate-image proposal:
+"No need to setup gtp-2 as separate docker image." The comparison belongs inside
+the Chapter42 Rust demonstration, while the reusable LLM remains clean and
+course-owned. The external-example worker stops before any filesystem mutation,
+image build, source/package download or runtime. No external image/tool output
+is added to the current claim. Earlier proposals are historical decisions, not
+current authorization or evidence of execution.
+
+Root owns rust/demos/ch42-scalable-bpe-tokenizer/src/gpt2_contrast.rs: a bounded
+historical slice with supplied tiny vocabulary, the published pretokenization
+pattern, byte-to-Unicode mapping and ranked merges, showing selected results
+beside a separate course raw-byte example. It admits no complete pretrained
+vocabulary and supplies no external-tokenizer assertion, parity test, imported
+model input or completion gate. Remove compatibility.rs from the current shared
+source/registry expectations; the reusable library owns exactly four Chapter42
+modules. Frozen historical plans and original owners are preserved, with an
+explicit effective current policy projection to be inspected before activation.
+
+Root selects mature fancy-regex=0.16.2 only in the demo, with default features
+disabled and std/unicode enabled. Its published manifest is inspected from
+docs.rs. The supporting engine executes the root-owned exact pattern; it does
+not choose the policy, learned merge counts/ranks/application, byte mapping,
+token IDs or controls. No regex dependency enters llm-from-scratch. Resolve,
+record, lock and allowlist the complete minimally enabled graph through a
+narrow network-enabled official Docker image construction before offline use;
+all actual container runs remain network-none. Preserve the existing graph
+exactly except this required demo closure. No host install, hand-written regex
+parser, model/corpus or official learned-tokenizer vocabulary acquisition is
+authorized. Current network cost is C3/G0/N1 exact history plus bounded N2
+supporting-crate provisioning; no paid/remote execution.
+
+Cached foundation image1e23 contains the exact already provisioned
+Poppler22.12.0-2+deb12u2 archive(hash237d8ae3) and installed parser/library graph.
+Root authorizes current Chapter42/history-toolchain-receipt.json only after
+fresh exact hash/graph/selftest checks. Do not invent completion of the absent
+original foundation/extractor receipt, install another parser or substitute a
+host executable. Cache-copy01 fails on /root traversal as uid1000 and remains
+raw evidence; read-only cap-dropALL root tar export plus host no-same-owner
+extraction succeeds in cache-copy02 without network or capability expansion.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 09:10 UTC — external tokenizer checks excluded by new user steering
+
+After the fixture claim, the user explicitly instructs: "Do not mix any
+assertions or checks with ANY tokenizer, including GPT-2" and specifies that a
+comparison, if used, belongs in a separateDocker image showing its result beside
+the current course examples. The content owner confirms that course-owned
+artifact integrity and scalar/incremental correctness remain, while external
+tokenizer admission, compatibility and parity gates must leave the course
+implementation and its completion dependencies. No such external check,
+acquisition or run has occurred in the current Chapter42 attempt.
+
+This instruction supersedes inherited GPT2-related course acceptance and
+downstream oracle clauses. Preserve the frozen plans, original source contracts,
+historical runs and artifacts as history; prepare a closed current policy
+amendment and reconcile every live output/acceptance/selector before another
+execution. The already claimed fixture implementation remains current; pending
+fullNeMo preparation and full-data lineage/resource gates remain required.
+An independent side-by-side comparison may provision only its separately pinned
+tokenizer/source/regex environment and use bounded examples; all actual runs
+remain network-none, with no weights/corpus/model import or parity verdict.
+That optional example cannot become a prerequisite or certify the course LLM.
+The live inherited GPT2 fields are not execution authority while reconciliation
+is pending. Deterministic machinery prepares the exact consumer/output delta for
+root inspection; no historical record or course algorithm is changed by it.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 09:34 UTC — activate the closed current tokenizer scope
+
+Root accepts course-tokenizer-history-only-v1 and its precise consumer/test
+paths before product validation. Its canonical config is a closed user-scope
+marker; the effective current plan excludes only named foreign tokenizer
+targets, receipts, oracle object and compatibility source. Original revision2
+document bytes, embedded historical plan and original audit history stay intact.
+Current Chapter42 implementation, pending tokenizer/splits execution and the
+later current from-scratch prerequisite no longer require an external tokenizer.
+The original CAP-DTH-TOK-02 external-oracle portion is superseded, not reported
+fully closed. Full prepared-corpus, own lineage/artifact and resource conditions
+survive exactly. The fixture amendment is closed and its downstream dual
+dependencies remain mandatory; checker tests must refuse restored foreign gates
+and weakened full-data gates.
+
+Declare the demo supporting-crate build before execution: reuse exact cached
+image590b, never pull another base, copy regular current workspace files and
+the approved demo manifest, then let Cargo fetch only its required new
+fancy-regex0.16.2/defaults-off/std+unicode closure from official crates.io.
+Capture old/resolved lock bytes and offline locked metadata/features; refuse any
+existing package/version/checksum graph change or an unrelated new dependency.
+Record and allowlist the actual closure before offline product checks. This
+small N2 image-construction operation adds no host package, learned tokenizer,
+model or corpus. All actual Docker runs use network-none. The maintained retry
+wrapper records a single build attempt; an integrity/semantic failure is not
+retried. Run-specific build adapters and evidence remain in this run.
+
+Root approves the maintained overlay's regular-file enumeration fix and its
+focused regression: empty historical canonical package directories stay intact
+but are not copied into a Cargo workspace. Earlier check01/check02 failures
+occur before compilation and remain unmodified evidence. Mechanical rustfmt of
+current staged Rust is authorized; semantic diagnostics go to the content owner.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 09:40 UTC — exact demo supporting graph provisioned
+
+The single official Cargo image-construction attempt succeeds; resulting
+image15a6cf79 is exported only through a pull-never, network-none, read-only,
+cap-dropALL runtime. Locked offline Cargo metadata and the closed exact-byte
+delta check verify all170 prior package records and prior metadata unchanged.
+The only seven added lock records are the local Chapter42 demo and six required
+supporting packages: fancy-regex0.16.2, regex-automata0.4.18,
+regex-syntax0.8.11, bit-set0.8.0, bit-vec0.8.0 and aho-corasick1.1.5.
+Their six exact checksum-verified archives total1,313,160bytes. Fancy-regex
+enables exactly std/unicode; regex-automata's upstream required engines,
+regex-syntax's Unicode syntax tables, bit-set/bit-vec's internal sets and
+aho-corasick's upstream search plumbing implement only the supporting regex
+execution engine. Current taught policy, fixed pattern, byte mapping, ranks,
+merges, token IDs and controls remain course-owned Rust. Allowlist this complete
+closure only; llm-from-scratch's dependency list remains unchanged.
+
+supporting-dependency-receipt.json binds both exact lock hashes, actual image,
+features, archive bytes/checksums and graph. Private cached prior archives match
+before the authorized run-cache extension. No downloaded payload is a learned
+tokenizer, model or corpus, no new base is pulled, and no host compiler/package
+executes. This graph identity receipt supplies no algorithm or language verdict.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 10:00 UTC — measured bounded Chapter42 implementation evidence
+
+The corrected regular-file overlay reaches actual compilation. Its first Rust
+diagnostic rejects inner module doc comments under generated include expansion;
+root corrects only current headers, and the next library check passes. Pinned
+rustfmt records the exact mechanical changes. Fourteen meaningful own-course
+tests select and execute: the first run has13passes and one configured queue
+capacity refusal. Root corrects that fixture to one entry per measured live
+pair, requires compaction and unchanged learned trace/artifact, and all14pass.
+Both seeded differential suites pass100corpora and10,000byte strings; these
+measure bounded own scalar/incremental behavior, not an external oracle. The
+three root-authored Chapter42 demo tests pass. Affected library/demo Clippy
+with all targets and denied warnings also passes.
+
+One actual demo invocation emits5,203stdout bytes(hash2b95a3f5), exact rank/tie,
+byte/control counts and distinct historical policy results with tiny supplied
+vocabulary. Its scalar/incremental canonical payload strings are produced by
+Rust and extracted unchanged; both hash0e3fceed. Separate producer receipts
+bind each implementation's actual source to that SAME invocation and stdout;
+they do not imply two process runs. Exact stdout populates the expected file,
+trace and contract field. Main-fixture metrics are8arena positions,4peak live
+pair types,11peak heap entries,18local edge updates and0rebuilds. No full-corpus
+resource, spill, throughput or pretrained-ID claim follows.
+
+Policy/queue/overlay regressions cover27cases after retained diagnostic
+attempts:14queue cases,9overlay cases and4policy cases pass. Early tooling
+failures expose only test expectations for named superseded subrecords and
+private-tmpfs executable fixtures; corrected evidence is separate. The first
+static attempt passes current plan, fmt, allowlist, ownership and exact demo
+replay, then refuses the later history claim's metadata/visible-prose binding.
+Root owns the prose reconciliation; no failed gate is waived or overwritten.
+
+The distinct history worker's independent current closure is frozen: source
+receipt637afe87/toolchain85d05474, exactly two official200GETs without redirect
+or retry, original foundation inventory mismatch explicitly unadmitted, exact
+cached Poppler/parse5 actual graph and selftests retained. Full source bodies
+remain ignored run-only; bounded canonical metadata supports replay/claim
+inspection without pretending a fresh clone has the original full bodies.
+Only current Chapter42 receipts supply this closure, not an invented historical
+foundation completion. All actual container runs are network-none; no screenshots,
+GPU, learned tokenizer/model/corpus acquisition, paid or remote execution occurs.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 10:18 UTC — reuse existing functionality; Chapter42 stopped
+
+The user explicitly instructs: "Do not reimplement what was already implemented.
+If you require to extend the existing tokenizer functional - goahead. Record as
+a rule: do not duplicate existing functional. Whenever you see that a chapter
+requires to reimplement anything - you provide me with the context and stop until
+I resolve the conflict."
+
+AGENTS.md now requires reuse of existing course functionality and extension of
+existing APIs for new behavior. An actual reimplementation or duplication
+conflict must be explained and the affected work stopped until the user resolves
+it; permission to extend does not silently resolve that conflict. This narrowly
+requested rule is a newly declared Chapter42 output. Earlier tooling-only reuse
+rules did not cover this course-functionality stop condition.
+
+Root identifies the current conflict: Chapter3's canonical bpe_trainer.rs already
+owns deterministic pair counting, tie selection, non-overlapping replacement,
+merge learning and byte vocabulary. Chapter4's canonical bpe.rs already owns
+frozen ranks, content/control layout, vocabulary construction and validation,
+ranked encoding, document framing and exact byte/UTF-8 decoding. Staged Chapter42
+adds new bounded prepared-reader ingestion and incremental live-edge/heap
+strategies, but also creates parallel trainer/result, vocabulary/artifact,
+encoding, framing and decoding APIs. Those parallel responsibilities conflict
+with the new explicit reuse rule. No automatic refactor or decision to replace
+existing APIs is authorized. The user must resolve the overlap first.
+
+All Chapter42 implementation and validation stops. The only in-flight command,
+static-05, reaches a safe end with exit0: Astro check has0errors/0warnings,
+six focused source/diagram tests pass, the current static build succeeds, and
+links/SEO/sitemap validation passes88HTML routes. Earlier current contract,
+content and locale-parity checks pass; revised demo tests select3and pass,
+affected all-target Clippy and workspace fmt pass. No Firefox execution, review
+freeze/routing, adjudication, publication, completion or commit occurs. These
+results remain evidence for this unaccepted staged candidate only.
+
+Before the stop, exact5404-byte Rust stdout(hash8601f8f6) binds actual retained
+main and boundary fixture receipts; both own scalar/incremental emitted payloads
+hash8b1534b8. The earlier5203-byte candidate is retained unchanged. The revised
+bounded history source receipt1564f9ac replaces only the root-approved paper
+paraphrase; original package637afe87 remains preserved, toolchain85d05474 is
+unchanged, and no source transport/extraction repeats. Current English-only
+planned learner-context accounting is5(one author plus four fresh judgments),
+not the inherited bilingual8; no pending judgment is reported achieved.
+
+The current step is blocked awaiting user resolution, its run interrupted, and
+the active queue returned to pending without claiming or executing another step.
+All staged course files, exact outputs, historical packages and command evidence
+are preserved. Canonical product files remain unpromoted; the only canonical
+changes are AGENTS.md, BUILD_STATE.yaml and this decision ledger. No separate
+GPT2 image, tokenizer/model/corpus payload, GPU, cloud, paid work or screenshot
+was executed. A new scope decision and coherent acceptance must precede any
+future Chapter42 work.
+Affected step: implement-ch42-scalable-bpe-tokenizer.
+
+## 2026-10-08 10:52 UTC — independent practical course; bounded foundation claim
+
+The user resolves the stopped tokenizer overlap by separating the courses. The
+first course ends at Chapter39 and keeps its existing implementation and lesson
+wording, with the pre-extension baseline restored while retaining accepted
+repairs. The second course is "Practical LLM in Rust" and its sibling crate is
+llm-from-scratch-practical. The user explicitly authorizes exactly one founding
+copy of the restored first crate; subsequent practical work must reuse and
+extend that copy's existing functionality. This scoped base-copy exception does
+not waive the rule requiring explanation and a stop on an unresolved actual
+reimplementation conflict.
+
+Root approves first-crate revision9f38a060903c472c4d571efd8e52da1f17e553ff
+(41files) and the17affected first-course learner/demo files at
+a4252dea7232e1e3f16666cb1dde95692cb78887. Restore only the six recorded catalog
+fields perlocale, preserving later unrelated framework strings. Existing
+prepared-reader and artifact/provenance plumbing moves to the practical crate;
+the first crate receives no functional hooks or sha2 dependency. Every exact
+restoration, founding copy and existing-implementation transfer must have a
+closed byte/hash inventory before later changes.
+
+The current mapping is practical00-course-structure, original40→practical01,
+original41→practical02, original42→practical03 and original43..83→practical04..44.
+This is a new live mapping, never a relabeling of historical plans, runs,
+reviews or receipts. Original Chapter42 remains interrupted and immutable; its
+objective continues as a later practical03 extension of the copied tokenizer.
+First-course routes remain /{locale}/course/ through39. New practical routes are
+/{locale}/practical-llm-in-rust/ with only English active. Root locale pages
+will provide both entry points; Russian chooser wording follows the passing
+exact English review/adjudication chain, with an explicit English practical
+destination and no Russian practical placeholders or routes.
+
+Practical01 uses the restored original scalar capstone read-only as its stable
+comparison point, and the moved practical supporting identity/report helpers.
+Its fixed reference census must bind actual original source bytes and the
+truthful9f38a06revision, rather than mutable practical algorithm source. Root
+owns the scope and teaching claims. Practical02/03 own taught implementations
+through existing copied data/tokenizer modules; shared site renderers and UI
+are extended with course configuration rather than duplicated.
+
+Build practical-llm-in-rust-20261008 now owns the bounded foundation step
+establish-independent-practical-course-20261008. Run
+20261008T105206Z-establish-independent-practical-course-01 stages chapters0–2,
+the exact baseline/copy, current routing/framework/tooling and fresh evidence.
+Its cost is C3/G0/N0, no paid service or acquisition; only already cached pinned
+containers may execute product checks, always network-none. Actual machinery
+model gpt-6.1-sol and reasoning max are inherited, not a repository model pin.
+Full NeMo preparation, full prepared-corpus lineage and measured tokenizer,
+training and hardware resource gates remain unclosed downstream. No old review
+verdict certifies renamed practical content. Publication and commit require the
+declared exact Rust/static/sole-Firefox checks and fresh language judgments.
+Affected steps: establish-independent-practical-course-20261008;
+implement-practical-ch03-scalable-bpe-tokenizer.
+
+## 2026-10-08 13:33 UTC — practical foundation deterministic checkpoint; current candidate remains staged
+
+The first41-file baseline and one founding practical copy remain separately
+bound. The practical reference census selects all40original Rust sources at
+9f38a06including the whole lib.rs; mutable practical algorithms are outside that
+fixed identity. Seven operational tool references relocate only their existing
+artifact_identity dependency/imports to the practical crate. The125external
+locked package records remain unchanged, with no acquisition.
+
+Actual original validation selects459library tests and5compile-fail doctests and
+passes. Practical validation selects472library tests(459copied plus13reader),
+5reference-proof tests,3corpus-demo tests and5compile-fail doctests and passes.
+Affected checks, all-target Clippy with warnings denied and formatting pass.
+Current Rust-produced reference1895-byte and corpus-loader459-byte outputs match
+exact staged expected bytes. This is CPU fixture/reference evidence, not a NeMo,
+GPU or full-data execution.
+
+The practical thin-route guard uses the already locked/cached Astro2.13.1 parser
+for its presentation AST and TypeScript6.0.3 parser for its runtime import binding.
+These mature supporting parsers do not perform learner algorithms; there is no
+provisioning or graph change. Peer checks select28focused tests and3actual
+practical sources successfully. Current boundary/admission/catalog/sheet checks
+select10tests and pass. Astro-check04covers246files with0errors/0warnings/0hints.
+
+The original course Astro pages remain the shared renderers. Unrealized duplicate
+CourseChapter/CourseIndex output promises are removed from the current step.
+Three nonexistent utility/test placeholders map to maintained course-scoped
+content/auxiliary validators and Node/Vitest tests, with exact passed selectors
+in operations/output-fit-reconciliation-02/receipt.json; no locale, sheet or
+boundary coverage is waived. The initial checkpoint preflight read the wrong
+Rust status filename and stopped before mutation; its native diagnostic remains
+preserved, and the corrected attempt binds actual cargo-exit-status evidence.
+Historical ledger bytes remain unchanged before this new live build.
+
+Root changes the English home to exactly two named course starts, omitting the
+old generic course-start aside when the complete nine-key chooser exists. Locales
+without that group retain the historical fallback until separate localization.
+Browser expectations bind actual40first cards0–39 and3practical cards0–2, use
+the named first-card chapter0start or existing fallback, and preserve first
+teaching prose and punctuation repairs. Only exact historical40/41extension
+specs are ignored in the sole-Firefox configuration. No browser is launched.
+
+Foundation admission binds only audits/practical-llm-in-rust/foundation/
+20261008T105206Z-01/english. Earlier build02/discovery01 and raw56-node
+progressive diagnostic remain immutable. Root approved a separate53-node
+consumer projection rejecting three decorative home numbers. All17first39
+term pairs already have nonempty values and original hidden/pagination state;
+no equivalent extraction is repeated. Actual build03 now binds the changed
+homepage/checker; fresh source/render bindings are required before English freeze.
+The operational ledger amendment is separately retained, not an imported learner
+source change or an assertion that the in-flight build read later ledger bytes.
+
+Machinery settings remain inherited gpt-6.1-sol/max. Fresh technical review context
+01a11b93-f293-7a22-bdee-ae6bf00726cf replied READY only, without candidate reading
+or judgment. The failed thread-limit spawn, archive of only the completed
+reference worker and successful retry remain native orchestration evidence. No
+review/adjudication, localization, publication, completion or commit is claimed.
+Foundation remains running; original42interrupted/immutable; practical03private
+and unexecuted. Every actual container is network-none; no paid/cloud/GPU,
+model/corpus acquisition, Russian practical content or screenshot occurs.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-08 14:31 UTC — Exact foundation English preparation and native routing checkpoint
+
+Root approved the final 379-unit inventory, 32 neutral role requirements and
+1,374 source dispositions, then separately supplied the audit-only view's exact
+neutral requirement. The maintained tool prepared 405 technical assessments
+(25 complete source records, seven actual HTML documents, one audit-only HTML
+view, 71 reading units and 301 isolated units) and 301 isolated assessments.
+The schema-fit projection preserves every approved value, role, group and order.
+Operational literal objects remain exact technical provenance; no out-of-unit
+context is injected into isolated English values. Root explicitly directs the
+full scope to proceed; unknown native output capacity is not an evidenced
+blocker and no requirement or unit is dropped. Packet/response-sizing arithmetic
+is operational evidence, without generated findings, severities or verdicts.
+
+Actual build03 passes with 173 files and 89 HTML documents. Final byte closure
+rehashes every build file, all 41 restored original-core files, 17 restored
+learner surfaces and six catalog fields per locale. Static04 passes 3,070 local
+references and 89 SEO, sitemap and analytics routes; its focused tests select
+and pass 20. This non-imported validator delta binds current tool bytes
+separately and does not falsely relabel build03's earlier tool inputs. No
+equivalent learner build or extraction is repeated.
+
+The seed preserves the earlier author commitment map c06d1cc9 as historical
+preparation provenance and binds current 5c1a334a. Its only authored delta is the
+three-line two-named-starts/no-generic-CTA commitment. Failed seed01 retains
+151 partial files unchanged; seed02 passes. Maintained prepare01 and prepare02
+refuse incomplete publication-path ancestry and relative API output paths before
+producing role bundles; prepare03 uses exact private publication snapshots and
+absolute output paths and passes. These failures are tooling evidence, not
+candidate or review verdicts. Canonical prompt bytes are untouched maintained
+output; no custom review instruction is substituted.
+
+Root routed the canonical technical and isolated tasks unchanged, including the
+final LF. Actual native post-READY turns are 01a11be9-0d58-7250-b2b4-9d8491a9fd3f
+and 01a11be9-47ed-7062-8416-3260c9feb494; contexts are
+01a11b93-f293-7a22-bdee-ae6bf00726cf and 01a11bca-5a37-7753-8dc4-bf14897fb204.
+Both retain the user-selected gpt-6.1-sol/max. The actual native context-window
+field is 258,400; no output-capacity value is exposed. Exact encrypted delivery
+records and canonical plaintext artifacts are bound separately without claiming
+decryption or independently verified plaintext equivalence. Capture excludes
+READY and accepts only the bound routed turn's single native final output_text;
+its UTF-8 bytes receive no appended LF, normalization or semantic repair.
+
+Evidence: operations/final-freeze-01/final-prepared-fit-01.json SHA-256
+2521e3884ef07aec87f3be00d81d83e5907965448a2f113a45406590ed16f6de;
+delivery-01/receipt.json SHA-256
+f6de62d8f1bdcd753f57e615531ca2d28a71a96a775087c8208235164d279c9e.
+Foundation remains running; no semantic response/verdict, adjudication,
+localization, Firefox execution, publication or commit is yet claimed. Original
+Chapter42 and all prior completed evidence remain immutable; practical03 stays
+private and unexecuted. Every actual runtime container is network-none.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 14:54 UTC — foundation review records frozen; same-role adjudications routed
+
+The unchanged foundation candidate now has two structurally valid exact native
+review records and maintained external seals. Technical review captures175840B,
+SHAa52bf8e9b40b224b7a2889e7d2fa14ddd638f9e59031a43aa9ac5d071327b7bf,
+with405assessments and a reported fail verdict/one blocking finding. Isolated
+review captures115175B,
+SHA76593e1bd21cef1f9a0351ad40c04f0076e86445e59b590477f952a942c6ab40,
+with301assessments and a reported fail verdict/five blocking and one advisory
+finding. All raw bytes, finalLFs, requirements, assessments and findings are
+retained without normalization. Sealed records equal their native captures.
+Technical receipt42acae40d0e3d62d5255f9035c5485d59882037d3606a4cfc831611d1d66d84b
+and isolated receipt930e3409c456baa0d93a0220f48f033a2dff469f4cae171bea58069d355ae3e3
+bind original four-artifact routing and exact candidate provenance. These are
+reported review judgments, not machinery endorsement of their substance.
+
+Only completed safely captured reviewer contexts were archived. The two fresh
+same-role adjudicators are actual native contexts
+01a11bfe-01d0-7b13-9c53-7da940165cdf(technical) and
+01a11bf8-ac70-7e60-b6b9-c1268845bc79(isolated), each provisioned fork-none with
+the inheritedgpt-6.1-sol/max selection, READY-only and zero tools beforeREADY.
+Maintained role-private bundles retain405surface/1finding and301surface/6finding
+judgments respectively and the fixed supported/rejected workflow semantics.
+Both exact canonical adjudication prompts were routed unchanged including
+their finalLF; routingSHA34468ebe73709e3642cbe51271403fda2beca1776e935290bdffcd2164f8187c.
+Actual post-READY turns/settings/deliveries are frozen in delivery receipt
+890a60614c7d4a1b267d2856c98bdbb07ef9bcbe96938b438ab608d9b3d2efde.
+Native persisted message bodies are opaque/encrypted and bound separately from
+frozen plaintext; no decryption or independent plaintext-equivalence is claimed.
+
+Preliminary byte-check01 failed on a routing-field assumption; corrected02
+passed. Readiness adapters01/02 stopped before outputs on opaque-message and
+agent-path/native-ID assumptions; truthful03 passed. Exact diagnostics remain
+preserved and no semantic response was repaired. Full paired maintained sealing
+passes for both records. The candidate remains frozen and the foundation remains
+running, with adjudication outcomes pending. There is no Russian authoring,
+Firefox launch, publication, commit, practical03 execution or completion claim.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 15:06 UTC — exact foundation adjudication chain recorded; publication gate refuses
+
+Both actual post-READY adjudication turns completed and were captured without
+addingLF or transforming their semantic records. Technical96266B
+SHA8c19615f5e731ab6c752be381c3ad975e6cd2fea857090b2e231a91e76863de9
+and isolated78487B
+SHA362cbd3c32d2b5bd762b108a246e55dd1923bdd14518887c73afea377a73f7f8
+retain exact native final, completion and actualgpt-6.1-sol/max settings evidence.
+The unchanged maintained paired sealer validates canonical JSON, complete405/301
+surface coverage, exact severity echoes,1/6review-finding judgments, links and
+same-role upstream receipts; sealed records are byte-identical to those captures.
+Technical receipt4d82dfa34c432f50bf22ad89453b556b21825e4c45cf75f8985af9c343fcabd3
+and isolated receipta4172c02b63852f0a97289d3ea17269af75a0f57ecddc7f8fe89859600f1f196
+remain bound to the frozen original review receipts and five distinct contexts.
+
+The technical adjudicator reports fail with one review-defect finding, supports
+the originalF001, and supports399/rejects6review surface assessments. The
+isolated adjudicator reports pass with zero review defects and supports all301
+surface assessments and six original review findings. Its pass approves review
+soundness, never changes an original candidate blocking severity to pass. These
+are recorded model judgments, not machinery substitute judgments.
+
+The whole maintained verifier rechecks records, receipts, routing, upstream
+links, context separation and exact current source/publication bytes before
+refusing with exit1/code unresolved-blocker: one or more reviews or adjudications
+did not pass without blockers. Exact failed evidence is retained under
+validation/foundation-adjudication-verify-01; no semantic normalization or retry
+was used. The current candidate remains ineligible for localization/publication.
+
+Root reports that automatic wording repairs conflict with protected exact-byte
+first-course restoration. Every learner product remains unchanged; no unit or
+requirement is dropped. Only a newly assigned bounded read-only provenance
+inventory of previously accepted baseline evidence may proceed while root
+resolves that scope. There is no language correction, Russian authoring,
+Firefox launch, publication, commit or practical03 execution/completion.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 15:31 UTC — protected baseline retained by explicit user scope reply; failed foundation attempt frozen
+
+Root relays the user's exact reply, "keep it", to the required scope question.
+Keep the first course's exact restored wording frozen and retain its pre-existing
+findings as held work; fresh language reviews cover the new practical course and
+chooser. This resolves the unanswered decision. It does not relabel a historical
+review as current certification, alter an old finding or waive the failed first
+candidate. Root now declares the successor semantic boundary and specification
+in run20261008T152502Z-02/author/foundation-language-scope-02.md,
+SHA-256 e179936637dc18c85e65641d390126fcf63bcb885f94375d46230350b76bba2e. Its five complete English documents are home,
+practical index and practical0–2; protected first-course wording is outside its
+language inventory. The separate bounded successor claim must precede edits;
+final actual inventory requires author approval before any routing.
+
+The bounded read-only provenance inquiry is complete. All 17 restored files
+match their receipt and a4252de; the unchanged Chapter39 diagram and English
+sheet also match that Git baseline. Seventeen of these 19 protected files match
+the older theory-closure input 0b2cda; the two differing EN/RU39 lessons have the
+separately accepted exact command-markup repair. Its three retained command/build
+artifacts match recorded hashes, while no whole-chapter review was added by that
+repair. Legacy original-finding and final-browser bodies are absent and remain
+explicit gaps, not reconstructed evidence.
+
+All four retained reframe English receipts and their referenced descriptors
+match their current bytes and record historical pass verdicts. They bind nine
+overlapping complete learner-source files and two demo evidence files whose
+bytes differ from the restored baseline. The unchanged first-index description
+has exact field identity in its old complete catalog and built index, but no
+dedicated exact-value isolated unit in the old bundle. These bounded historical
+fits cannot certify the current failed foundation or authorize a new scope.
+Inquiry receipt SHA-256 e70012c6ee2fb7d8ddb54c070a6af891767f8c26ba3f387178a4840e414eb789;
+report SHA-256 290a1a82910651186ec28fda6cd66cffcd4441e490b4b3a1eb2d2c07bd78eb92.
+Its pre-reply pending status is preserved as a true historical observation; the
+new user authority is recorded separately in user-scope-resolution-01.
+
+The first foundation attempt is finished as failed with its actual retained
+exit1/unresolved-blocker; foundation remains running for a separately declared
+successor. Current exact review/adjudication outcomes remain fail/fail/fail/pass,
+all semantic bytes and blocking severities unchanged. The author-only proposal
+author/foundation-index-description-revision-02.md, SHA-256
+4970ee174f2ca0cf37813e49959859c1e73cbe98ce01933deb358d55e5ffeb56,
+has not been transferred. Private practical03 preparation stays unexecuted.
+The mechanical successor output mapping is a proposal, not a new claim: preserve
+41original-core/17restored learner files and first catalog fields; bind a new
+root-declared audit namespace and fresh author-defined inventory and chain.
+
+No product, source/build snapshot, old inventory, requirement, review or
+adjudication is edited. There is no localization, Firefox launch, publication,
+commit or practical03 execution/completion. Machinery retains actual
+gpt-6.1-sol/max and performs only metadata/hash/Git inquiry and bookkeeping.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 15:38 UTC — bounded practical foundation successor declared under resolved language scope
+
+New run 20261008T152502Z-establish-independent-practical-course-02 is declared before any candidate product change.
+Candidate practical.foundation.en.20261008.02 uses audit namespace
+audits/practical-llm-in-rust/foundation/20261008T152502Z-02/english.
+Root scope SHA-256 e179936637dc18c85e65641d390126fcf63bcb885f94375d46230350b76bba2e and judgment-safe policy SHA-256
+575dea5d3377160906c15589d1037eae6ebdcea8beaaa8b7baa889043a00fb9e implement the explicit user "keep it" reply. Five complete
+English documents are home, practical index and practical0–2; every actual
+shared/progressive surface remains in scope. Protected first-course wording
+stays exact provenance outside this new language inventory, with its earlier
+findings held. No historical review certifies restored or new publication bytes.
+
+The closed predecessor stage has183regular files/4,276,271B. Candidate adoption
+is a byte-preserving run snapshot, not another founding implementation copy.
+Declared mechanical edits are only the author literal practicalIndexDescription,
+the current English admission namespace constant, and the focused prior-prefix
+rejection case. Supporting dependency graph, Rust algorithms, original41core,
+restored17learner/demo bytes and first catalog values remain exact. Cached
+validated runners and discovery/progressive adapters are reused after their
+hash/provenance/input-fit checks; unchanged reached Rust inputs may reuse exact
+executed evidence, without claiming a new execution or baseline certification.
+
+The broader orchestration scope, prior diagnostic proposal, predecessor
+findings/verdicts/receipts and full ledger history are excluded from judgment
+bundles. Use only the current neutral policy, applicable course-selection and
+practical commitments, and mathematical/executable/historical evidence.
+Return the full actual scoped inventory/dispositions/requirements for author
+approval before judgment preparation or routing. Four fresh role contexts and
+untouched canonical prompt/response/seal requirements remain mandatory.
+RUhome9, sole-Firefox and publication follow passing English gates; no Russian
+practical material or Chapter3 execution is authorized at this checkpoint.
+Resource authority remains cached offline C3/G0/N0, no paid acquisition,
+install, GPU or screenshots. Every runtime Docker invocation is network-none.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 16:10 UTC — current practical foundation validation and five-document inventory checkpoint
+
+Successor 20261008T152502Z-establish-independent-practical-course-02 remains running. Its 183-file candidate preserves 180
+predecessor files and all 58 protected baseline files exactly. Only the declared
+practical index literal, English admission namespace and rejection case changed.
+The current build and static checks pass: 173 files, 89 HTML routes, 3,070 checked
+references and 89 SEO, sitemap and analytics routes. Only the practical-index
+HTML differs; the other 172 built files retain exact prior bytes. Ten focused
+course-boundary tests and the three actual content/contract integrations pass.
+The first missing validation-directory launch failed before Docker and remains
+separate evidence; no historical failed evidence is removed.
+
+Six retained Rust executions fit all 383 actual current source/config/lock
+inputs, their exact command, cached image and untouched observed outputs.
+They are reused executions, not new runs. Original tests selected 459 library
+tests and five doctests. Practical tests selected 472 library tests, five proof
+tests, three corpus-demo tests and five doctests. Current-input formatting fit
+is retained separately. The only fresh Rust selector closes the four required
+reference-demo integration tests: selected four, passed four, failed zero and
+filtered zero, locked/offline on image 15a6 with networking disabled. The new
+run's private cache verifies all 131 retained crate archives and 9,214 copied
+files; the historical cache and target are not changed.
+
+Changed catalog/admission source bytes and practical-index HTML use the exact
+previous maintained extraction adapter. Its inherited static context fields
+are adapter-template metadata; the separate current receipt binds the genuine
+machinery context 01a11aba-4ba5-7aa3-b107-850653940cd4, gpt-6.1-sol/max.
+Four byte-identical scoped pages and ten exact progressive-node subtrees reuse
+their verified observations. No new parser, equivalent extractor or language
+judgment is introduced.
+
+Inventory draft02 returns five complete documents, 231 units, 31 neutral
+requirements, 78 whole source/authority records and 1,374 unique explicit source
+field dispositions for author exact-byte approval. Its compact inspection lists
+every unit identity/order/role/group/progressive origin, all 44 catalog keys,
+per-source/disposition totals and zero unclassified fields. Draft01 remains
+immutable; draft02 adds 38 previously extracted protected first39 sheet fields
+as outside-scope provenance. The 148 protected-first units are excluded only
+under the explicit user/author five-document boundary. Exactly three current
+practical-index value units change; roles, groups and relative reading order
+stay exact. Catalog scope is 36 actually presented new/shared values, with six
+protected first-course values and two unused values explicitly outside scope.
+
+Current source/build fit receipt: 29cba0350bd13565da1063686092d60af522f8e821abef00182f26fbb1243a2a.
+Rust reuse/fresh-four-test receipt: 11f0c466b224b4c2acaefdc1189faf7f111cf72bb89a2a579deb56e3b194a545.
+Inventory draft02 receipt: 2a9220fc32be8bff3c099c5881652de98f91cbbf382a84ea92d78ca15c6b9175.
+Compact inspection receipt: 5623fa9d2428da632ba19e2a79735d1b48c4dbe0555439f6173bb5475ef51b9d.
+These prove their recorded mechanical properties, not English quality or first
+baseline certification. Judgment preparation will use only current neutral
+policy, applicable chooser/practical commitments and mathematical, executable
+and historical evidence. Historical/diagnostic author snapshots and predecessor
+judgments remain excluded. Exact inventory approval, four fresh English roles,
+RUhome9 localization, sole-Firefox and publication remain pending. No practical3
+claim, product execution, localization, browser launch, publication or commit.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 16:33 UTC — scoped foundation inventory approval and maintained bundle preparation
+
+Successor 20261008T152502Z-establish-independent-practical-course-02 remains running. Exact author inventory03 approval
+binds230 units,31 neutral requirements,78 source records,1,374 field dispositions
+and44 catalog keys. Its only further authored grouping combines Practical1's
+identity expression with its adjacent required definitions. Every original
+value/root and relative reading order remains exact; other229 unit records
+change only contiguous ordering metadata. Earlier drafts/approvals remain
+immutable provenance, never expected judgment inputs.
+
+Current neutral policy575dea5d and fresh applicable commitment mapc1974d2f are
+judgment inputs. Outer scope/approval/reading authority, historical author
+snapshots, full ledgers and predecessor findings/verdicts remain outside the
+four-artifact boundary. Protected first language remains exact provenance;
+read-only original Rust execution can substantiate Practical1 without a new
+first-course wording assessment or certification.
+
+The reused closed seed mechanics and maintained English API e8d163ed prepare
+18 complete sources,5 scoped real HTML documents and1 audit-only view,51 reading
+units and174 isolated units. All230 approved value strings, roles, genuine
+groups and relative order fit exactly. Operational metadata references exact
+hashes and byte lengths rather than duplicating scalar values. Maintained
+prepareEvidence passes249 technical and174 isolated assessments. Candidate
+binding:5f4556da34b844d082657be0d4e0246cdf9689ae6a4684c42a12767e62a2e229.
+Spec:eb1ea292c1c877a23ec5725eb0aa221c3e1dc7013a7e73fa3e71b8343eaab7f3.
+Technical bundle43bda6713bef158df84beda4e420b5d89d00d223929df566092b4616c18f3db4
+is4,796,163B; isolated7aebb2d13fb87bd8b950f0c1f5071f0e5bb2ca8570492ec4dc59bf0d201164bd
+is85,787B. Capacity arithmetic is metadata only and predicts no findings or
+verdicts. Native output capacity is not asserted as a passed gate or blocker.
+
+Preparation receipt897b36ec3e8b9b6e6c0f794069af75cd833135b9fd6e9761e030ee58d97f46fe
+rehashes183 candidate files,41 exact original-core files,17 restored learner/demo
+files and173 actual build files/89 HTML, plus all seed, evidence, packet and
+private publication snapshots. Earlier383-input Rust fits and the actual fresh
+four-test reference result are unchanged; no broad Rust or build rerun occurs.
+
+Actual metadata capture01 failed before judgment packaging because the worker's
+rollout contains an inherited parent session_meta as well as its own. Preserve
+its partial files and diagnostic. Capture02 selects the genuine exact native
+IDs and records inherited metadata explicitly: author01a11ab9-04cf-7a92-b066-c5e296f19bbc
+and machinery01a11aba-4ba5-7aa3-b107-850653940cd4, bothgpt-6.1-sol/max.
+Fresh reviewer native identities/settings and routing still wait READY
+provisioning; no canonical semantic task has been delivered. Both reviewers and
+both fresh same-role adjudicators, RUhome9, sole-Firefox and publication remain
+pending. No localization, browser launch, product promotion, commit or practical3
+execution. Original failed chain and protected first bytes remain unchanged.
+Affected step:establish-independent-practical-course-20261008.
+
+## 2026-10-08 16:42 UTC — actual fresh reviewer readiness and exact routing preparation
+
+The unchanged successor candidate has two actual fresh READY contexts:
+technical reviewer 01a11c60-3b3b-7963-8dd6-7eb9cb48db78 and isolated reviewer
+01a11c60-58ad-7c90-9bc9-e3496b9e5278. Both inherit gpt-6.1-sol/max, with
+fork_turns none, no overrides, exact five-byte READY and zero tool calls.
+Their genuine session, initial turn, task, final/completion and parent spawn
+records are retained. Persisted task payloads remain opaque; frozen plaintext
+provisioning and native records are separately bound without claiming decoded
+plaintext equivalence. Pairwise separation covers the author, machinery and
+all four prior foundation judgment contexts.
+
+Maintained prepareRouting passes on cached image 15a6 with networking disabled.
+Routing manifest 39cb8747415fc74be459334faac651799ee6412f1f80e3b584b7acbd2c478905
+binds actual context manifests, canonical prompts, role bundles and schema.
+The candidate binding remains 5f4556da34b844d082657be0d4e0246cdf9689ae6a4684c42a12767e62a2e229;
+all 249 technical and 174 isolated assessments remain exact. Technical prompt
+7c856b30a0eb10c2e4683054594c25730ad2a47ece93c105aa20bf6577add7db
+is 2,821 bytes; isolated prompt
+3446b07cf8acdfa4c1b7fee323637d57cfd561d9f70cc4081b1e16b96bf531ba
+is 3,007 bytes. Both exactly equal the maintained executable canonical output,
+including final LF, with no appended guidance.
+
+Routing-fit receipt 344d9be6ccfd963aee93f8bce07bf7ac5d17c712b64c57e50cd963a5f2539f18
+rehashes all 172 previously frozen files unchanged and all current readiness
+and four-artifact bindings. No actual command failure occurred in this routing
+phase. The ready-to-deliver handoff is returned to root; post-READY native
+semantic delivery and final judgments are not yet captured at this checkpoint.
+The foundation remains running, the failed predecessor and protected first
+baseline remain immutable, and practical Chapter 3 remains pending. No product
+edit, localization, Firefox launch, publication or commit.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 16:56 UTC — genuine delivery and untouched isolated review capture
+
+Both canonical tasks were delivered after READY with no additional judgment
+instruction, as reported by root. Native delivery and parent followup records
+are frozen separately from canonical plaintext under the recorded opaque-body
+limitation. Technical routed turn is 01a11c64-bbab-71b2-9102-54660a0ef0e1;
+isolated is 01a11c64-e7f4-7d82-adae-9b09134252ef. Actual settings remain
+gpt-6.1-sol/max, native context window 258400; output capacity remains unknown.
+Delivery receipt: ce49fb27e39f1ac54dfd7dc86bd00d8a5a5038b548a34f95f69484382745fc57.
+
+The completed isolated final is 72,873 bytes, SHA-256
+aa92ded25623637341694715290f5dc6abd67f4057fea78ce50f6c1cbe8e1402,
+ending in its native LF. Exact final/completion/turn records and four tool-call
+wrappers are frozen. File-read commands target the four declared artifacts;
+clock calls supply operational timestamps, not another source artifact.
+No semantic bytes are reordered, repaired, injected, deleted or normalized.
+
+The first preliminary check reused the obsolete historical adapter01 and
+raised a machinery TypeError for routing.roles after canonical-byte checks.
+Preserve that failure without calling it a response-contract failure. Existing
+corrected adapter02 is provenance/input-fitted and passes current canonical
+JSON/LF and native/routing context identity. Actual record: 174 assessments,
+reported verdict fail, one blocking IS-001. Full maintained structural
+validation and paired sealing still wait the technical completed final.
+No adjudication or candidate eligibility is inferred.
+
+The bounded read-only next-step admission fit records the current API's exact
+0–2/foundation-audit restriction and proposes extending that same API, keeping
+its shared renderer and immutable foundation seals. Changed current index and
+Practical2 navigation need their complete pages in fresh current proof. Its
+receipt is a04355827201e7c7dbeb027f2a748f9f919106244f212bb82c379ef51febc732.
+The initial missing-test filename inquiry failed before proposal output and is
+preserved. This is preparation only: root must declare the exact future head
+schema/path and current English closure after the accepted foundation checkpoint.
+
+Root's author-only retention-description proposal remains outside all frozen
+candidate and judgment inputs. The current failure/severity stays untouched;
+no repair transfer or new review certification occurs. Foundation remains
+running, practical Chapter3 pending. No localization, Firefox, publication,
+commit or Chapter3 execution. The prior failed chain and protected first bytes
+remain immutable.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 17:10 UTC — paired exact reviews and actual same-role adjudication delivery
+
+Technical completed native final captured untouched: 104057 B SHA ba1249aaf7971dae6c8afa4e594dda9499c5fadcc431698c60ecff7c07231eb3, native LF; 249 assessments, reported pass, zero findings. Actual completed-turn 22 tool-call wrappers retained. Corrected preliminary adapter02 passes canonical bytes/context checks. Root safely archived both completed reviewers after exact capture.
+
+Maintained sealReviews cached/offline passes full structural validation for both untouched records. Technical receipt 86b461717e7b04bca8daa2db713c47dd41c6c01a07feefbda7089e048bd6f96d; isolated 6f2d6051017204f368725e5d9817ac43ae75a3d9de2e3037df8bf3f3f72aa53c. Record bytes equal native captures. Isolated reported fail and blocking IS-001 remain unchanged; sealing grants no semantic approval.
+
+Maintained prepareAdjudication passes same-role-only bundles: technical 249 surface/zero finding adjudications; isolated 174 surface/one finding. All five fixed semantics and same-role upstream record/receipt preserved. Host fit01 SyntaxError before execution/output statements retained; corrected fit02 rehashes all172 frozen inputs and exact seals/bundles.
+
+Fresh fork-none adjudicators: technical 01a11c76-4fb8-7e01-87ee-2e2f14c84228, isolated 01a11c76-7324-7262-b622-6354f8cbea89. Both actual gpt-6.1-sol/max, no overrides, READY5 B/zero tools. Actual spawn/task/settings/READY evidence separately binds opaque native storage and exact plaintext plans. Pairwise separation includes author, machinery, current reviewers, prior foundation judges and retained same-workspace native metadata.
+
+Maintained prepareRouting(stage=adjudication) passes. External manifest a572d21d211321cdba30b0dac1216af57a1cef3a9d1463e023b02804d672187f. Canonical prompt hashes technical 328ba25abc094aebe0573e4f40c2440643f48d7c68fd51f7ff6c2370569b8017; isolated 1eb6b75e802bfa0f7ef5f3aaeeffdb3453c19a467bf121367c424755e9a1bb83, both final LF. Routing fit c20826b9 rehashes unchanged candidate/172 original files/seals/bundles and exact five semantics.
+
+Root delivered both exact canonical prompts unchanged, including final LF and no extra instruction. Actual routed turns technical 01a11c7b-9cd0-7ea0-bcab-efaf7f1ba892 and isolated 01a11c7b-c528-76c3-b135-ccdcbc7ca3d7, actual gpt-6.1-sol/max, native context window258400; output capacity unknown. Delivery collector01 failed at a mistaken manifest basename after12 actual native wrapper copies; preserve partial attempt. Versioned collector02 corrects only basename/output namespace and succeeds with receipt b4aa48d9. Opaque payload limitation remains explicit.
+
+Initial checkpoint script generation had a host nested-quote SyntaxError before execution/output statements; diagnostic preserved, no ledger or candidate mutation from that attempt. Current paired review fail outcome remains; required same-role adjudication finals/structural seals/whole verification pending. No retention-proposal transfer, localization, Firefox, publication, commit or Chapter3 execution.
+
+A sound adjudication may approve a correctly failing review; publication still requires both reviews and both adjudications to pass. Current blocking severity remains intact. Native opacity is not decoded equivalence. The approved candidate, protected first baseline, failed predecessor and learner products remain unchanged. Foundation running; practical Chapter3 pending. Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 17:24 UTC — foundation run02 closed failed after exact whole-chain verification
+
+Both actual post-READY adjudication finals captured untouched with native LF. Technical66345 B SHA47dea1a770df2118b88a7ed5b60a5f8880131b8e10d954d5ad13cb3892e935b0; isolated48694 B SHAa4cd1386303ddad2377b876365df5fa3c012aeff79ce010cddc67b26995255b0. Actual completed-turn tool wrappers retained: technical16, isolated10; inspected reads remain within each role four artifacts/own bundle evidence and operational timestamps. Root safely archived completed contexts after exact capture checks.
+
+Maintained sealAdjudications cached/offline passes complete structural validation, all exact severity echoes, schema order, actual context/routing and same-role upstream receipts. Technical pass249supported/zero review findings/zero adjudicator findings; isolated pass174supported/one supported IS-001/zero adjudicator findings. Sealed records byte-identical to native captures. Technical receipt6870d45849395cc4bb2063e1afbf25c21b0c641a8f173a278472e74868c51fd5; isolateda3817b54ec6a3307626754a6f4ceb283c61b46ece5a659b32a80651be16275c4.
+
+Full maintained verifyAdjudication rechecks source/publication identity, every review/adjudication record, receipt, routing, context separation, upstream links and drift before actual exit1/unresolved-blocker. Technical reviewpass, isolated reviewfail with original blocking IS-001, both adjudicationspass. Exact refusal/stdout/stderr/exits retained, no response repair/retry/normalization or publication.
+
+Final chain-fit11cd2704 rehashes183 candidate source files,173 build files/89HTML,172 original frozen files and58 protected exact files, plus both exact raw/sealed/upstream chains. All candidate/source/build bytes unchanged. Retention-description proposal stays outer/untransferred. Root explicitly closes run02 failed while foundation step/build remain running; next successor requires a separately declared boundary before paragraph transfer. No unchanged Rust rerun, localization, Firefox, publication, commit or Chapter3 execution.
+
+Adjudication pass approves the soundness of its same-role review and preserves its echoed severity; it does not clear a supported candidate blocker. Current candidate remains ineligible for localization/publication. All previous history, protected first implementation and learner wording stay exact. Current new-course repair is authorized in principle by root but belongs only to a separately declared successor; no product or frozen-candidate transfer is performed by this checkpoint. Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 17:29 UTC — bounded foundation successor03 claimed after failed02 closure
+
+Root accepted candidate practical.foundation.en.20261008.03, scope practical.foundation.en, audit audits/practical-llm-in-rust/foundation/20261008T172459Z-03/english. Exact outer scope ebf18310c246a5ec82a35b063df15be3bef96d6052189f78711af6c28c7d050a and bounded declaration73e7a6bca8d626a2e002f790ca6e3440003c20b89a4362f2301665071fcfd037 fix the three-file delta: author literal preparation-card paragraph sourced from existing trace.documents.input; current admission audit constant; explicit prior02 rejection case. No other learner meaning, first source/core or Rust input change is authorized. This running claim precedes product transfer.
+
+Reuse maintained shared renderer, existing source/build/extraction/progressive/review APIs and exact Rust383 evidence after current fit; no equivalent tool regeneration or unchanged broad Rust execution. Current neutral policy/map and approved genuine relationships remain applicable. Root approves actual new card/source fields and complete five-document inventory before fresh judgment preparation. Outer proposal/scope/predecessor judgments/diagnosis remain outside model packets. Required fresh selected-model contexts and exact canonical byte chain remain, followed by RUhome9 localization and soleFirefox/static/publication gates. C3/G0/N0 cached offline only, no downloads/provisioning/paid/GPU/screenshots.
+
+Both failed prior run blocks and original historical prefix remain byte-exact. Foundation step/build running; practical03 pending. Its separately authored cumulative0–3/six-doc admission spec remains future-only, not implemented or executed. Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 17:46 UTC — bounded foundation03 transfer and current source/build evidence
+
+The accepted three-file delta is now staged privately. The existing preparation
+card receives the exact authored paragraph with its original input count from
+trace.documents.input; the unchanged trace supplies six documents. Only that
+component, the current audit namespace and the prior02 rejection case changed.
+The 183-file candidate preserves 180 source files, every protected58 file and
+all prior staging bytes exactly. No first-course wording or algorithm changed.
+
+Focused10 tests, practical content3 and contract3 pass. Actual cached offline
+build/static checks pass173 files,89 HTML,3070 references and89 SEO/sitemap/
+analytics routes. Only Practical2 HTML differs; the other172 built files are
+byte-identical. Source/build fit:befdce842d799265c7551e84981d81ee5f6398a41339122ace1c999e1a29fa18.
+
+All383 current Rust/config/lock inputs fit six prior operations, prior original
+459 library+5doctests, practical472 library+5proof+3corpus-demo+5doctests,
+Clippy/check, actual reference/corpus captures, four reference-demo integration
+tests and retained formatting evidence. These are reused prior executions;
+zero Rust operations ran in successor03. Reuse receipt:0d09eb00aa7955a24f183c6a4a1c5ab7ba59adc96dfd1c8514ab41e28b8eca5e.
+
+The existing maintained extractor observes only the changed Practical2 page
+and diagram/admission sources. Five current documents,71 current source
+records,78 source-classification origins and43 primary historical identities
+are closed against actual source/build bytes. Discovery-fit01 stopped before
+output creation on two explicitly excluded historical author snapshots whose
+original locator paths had later revisions. Its separate fit02 preserves the
+exact frozen snapshots and records later locator hashes without claiming
+current equality. Both remain judgmentBundleAdmission:false and supply no
+current role, requirement or verdict. Current discovery receipt:
+ade220523ab88d9f5666c07e1feb85067d2ac8c632a45cbeb71d17e77c11f77a.
+The inherited extractor's static identity describes its template; the current
+receipt binds actual machinery01a11aba-4ba5-7aa3-b107-850653940cd4/gpt-6.1-sol/max.
+
+Disjoint metadata worker01a11c95-3a70-75f2-b78f-fb5e8270cae8 inherits
+gpt-6.1-sol/max with fork none and no overrides. It owns only the run03
+inventory refresh adapter/inspection and draft01. Existing230 units/31roles
+are its input, with all1374 JSON/frontmatter scalar dispositions preserved.
+The Astro paragraph/expression receives exact source-span provenance within
+existing card coverage, without inventing a scalar leaf or English role.
+Root approves the actual inventory before any judgment preparation. Current
+neutral policy/applicable map only enter judgments; excluded historical author
+snapshots, outer scope/proposals and previous judgments remain operational only.
+
+Foundation remains running; failed01/02 exact chains and first baseline stay
+immutable. RUhome9, four fresh English judgments, sole-Firefox/static/publication
+gates remain pending. Future cumulative0–3 admission is author-only preparation;
+no Practical3 claim/execution. No network, downloads, GPU, screenshots,
+localization, browser launch, publication, product promotion or commit.
+Affected step:establish-independent-practical-course-20261008.
+
+## 2026-10-08 18:21 UTC — approved successor03 inventory, evidence preparation and genuine review routing
+
+Author approval02 binds exact draft 0669c64e and corrected inspection
+048b865a: 230 stable units, 31 neutral requirements, 78 source classifications,
+1,374 field dispositions and 44 catalog keys. Maintained preparation passes on
+cached image15a6 with networking disabled: 18 complete sources, five scoped
+HTML pages plus one audit-only view, 51 reading units and 174 isolated units;
+249 technical and 174 isolated assessments. Candidate binding remains
+2d0f08dd065cfc91235dca162c109cad4d95a62e7deae6111aa12e81d38ac87b.
+Technical evidence includes only current neutral policy575dea5d/applicable
+mapc1974d2f and admitted current evidence. Russian source/publication bindings
+are zero; fifteen false-admission historical source texts and outer diagnostic
+or approval records are omitted from judgments.
+
+Preparation-fit01's operational KeyError for mismatched source/evidence
+path descriptors is retained; accessor-only fit02c11bdb60 passes without a
+candidate edit or product rerun. The completed inventory worker's exact final,
+metadata and 135 owned outputs were captured before root safely archived it.
+No current Rust operation is executed; the exact383-input prior fit remains.
+
+Actual fresh reviewer contexts are technical01a11cb5-77e6-7c42-b1b3-dcee69c2dd71
+and isolated01a11cb5-99b6-7c73-afa2-12c458dccb19. Both inherit gpt-6.1-sol/max,
+with fork none, no overrides, exact five-byte READY and zero pre-READY tools.
+They are pairwise distinct from the author, machinery, completed inventory
+worker and eight prior judgment contexts. Native persisted task storage is
+opaque; actual records and frozen plaintext are separately bound without
+claiming decoded equivalence.
+
+Maintained prepareRouting exits0. Routing manifest
+f4f6a7c3af593e3bbb2518d2e991bb1c051056bbf49e4f44baf75f9f61617fff
+binds the genuine contexts and four declared artifacts. Exact canonical
+technical prompt7c856b30 is2,821 bytes; isolated3446b07c is3,007 bytes; both
+include the required final LF. Routing-fit receipt
+2127888e8aa05dd263f8b8955be30aac48a9cb64d9b191b403532b15733519d9
+rehashes all173 previously frozen files,183 candidate files and173 built
+files/89 HTML unchanged. Ready-to-deliver handoff is returned to root. Actual
+post-READY delivery/final records are not yet captured at this checkpoint;
+no semantic outcome or publication eligibility is inferred.
+
+The foundation stays running, prior failed attempts and protected first bytes
+stay immutable, and practical Chapter3 remains pending. No learner-source edit,
+localization, Firefox launch, publication, product promotion or commit.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 18:28 UTC — actual successor03 canonical delivery and exact capture readiness
+
+Root delivered both frozen canonical JSON prompts unchanged, including final
+LF and no extra judgment instruction. Native delivery receipt
+41995e141ceac8a1537f86a0737f3c762d231724771650196e3cfef2ec61cfb0
+binds technical routed turn01a11cbe-f0b0-7703-bf72-4c77eb6ba3ed and isolated
+turn01a11cbf-1b05-7882-99c6-63b0d1a5a9c9, both actual gpt-6.1-sol/max with
+native context window258400. Output capacity is unknown. Opaque native task
+storage and exact frozen canonical plaintext remain separately bound; no
+independently decoded plaintext-equivalence claim is made.
+
+The delivery setup01 provenance lookup failed before writing an adapter or
+native output. Collector02 verifies the correct prior recorded hash and captures
+actual session, task, turn and parent followup records. Response-adapter
+setup01/02 failures are preserved separately: an access collector has no audit
+literal, and retained records contain no prior seal-wrapper script hash.
+Preparation03 reuses recorded-hash fitted exact response/access/byte collectors;
+sealing will invoke the already hash-bound maintained runCli seal-reviews
+interface directly, with the cached parser root. No equivalent general utility
+or replacement historical hash is invented.
+
+At this checkpoint both bound turns are active and neither final has been
+observed. Capture selects only each bound post-READY assistant final_answer
+with exactly one output_text, encodes its unmodified text as UTF-8 and retains
+its actual final byte. It never trims, reorders, reserializes, repairs or adds
+LF. Completed-turn tool-call wrappers are retained separately; full structural
+validation and paired seals follow only untouched completed outputs. No review
+verdict, substantive approval or publication eligibility is inferred.
+
+Candidate, roles, source/build/frozen bytes and every prior chain remain
+unchanged. Foundation stays running, practical Chapter3 pending; localization,
+Firefox, publication, product promotion and commit remain unexecuted.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 18:41 UTC — untouched isolated03 failure capture and deferred localization plan
+
+The completed isolated native final is retained unchanged:68,151 bytes,
+SHAa27b8d144eb237f316c3bcec181c799220f9026d8d53b3f25971bc4f4bd4e6e2,
+with its original final LF. It reports fail,174 assessments and one blocking
+isolated-F01. Cached preliminary02 validates exact canonical bytes and actual
+routing/context; it is not full structural sealing or substantive approval.
+Access collector01 retains five actual call wrappers before a paths versus
+artifactPaths provisioning-interface KeyError. Accessor/output-only collector02
+passes with receipt5e8a9baa; all failed/partial01 bytes remain exact. Root safely
+archived the completed isolated context after capture confirmation.
+
+The technical bound turn is still active with no completed final observed.
+Paired maintained review seals, both fresh same-role adjudications and actual
+full verification remain required. Root's reference-count description proposal
+is outer author preparation only, excluded from judgment inputs and not
+transferred. The frozen candidate, finding and severity remain unchanged; this
+checkpoint confers no publication or localization eligibility.
+
+A bounded future Russian home9 operational plan is complete with plan320c27c6
+and closureef489eb3. It fits the existing locale tool/schema/routing/docs and
+prior84-surface structure to recorded effective build inputs; a plan-only
+canonical/staged README mismatch is preserved. No Russian translation, review
+requirement, prompt, bundle, product command or Docker run is produced. The
+maintained complete-document interface requires whole-file publication equality;
+a nine-key projection may not impersonate full ru.json. Root supplies exact
+neutral catalog/complete-home scope, translation and the actual eligible
+namespace only after the accepted English four-verdict chain passes. Existing33
+Russian fields stay protected; the two practical-index keys and all Russian
+practical routes stay absent. Current English hashes/roles/values must rehash
+unchanged after later Russian work, or affected reviews become invalid.
+
+Foundation remains running; practical Chapter3 remains pending. No candidate
+edit, localization, Firefox, publication, promotion or commit occurs.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-08 19:01 UTC — user-requested immediate checkpoint and stop
+
+The user explicitly requests checkpoint now and stop. This authorizes only
+bounded ledger/status/provenance work and stopping any run-owned workload.
+Run20261008T172459Z-establish-independent-practical-course-03 is interrupted;
+establish-independent-practical-course-20261008 returns to pending under the
+AGENTS interruption convention. The objective is incomplete; Practical3 stays
+pending, unclaimed and unexecuted. All prior failed/interrupted runs are exact.
+
+Both completed native review finals are structurally sealed untouched.
+Technical9d42a94e reports pass,249 assessments and0 findings; isolateda27b8d14
+reports fail,174 assessments and blocking isolated-F01. Seal receipts97521cbb
+and42f43290 bind those exact bytes. Maintained seal-reviews-01 exited0. Last
+completed maintained command prepare-adjudication-01 exited0 and prepared
+same-role bundles with binding2d0f08dd. No fresh adjudicator was provisioned
+or routed. English four-verdict acceptance and full verification are unfinished.
+The following host closing fit failed before a receipt on a not-yet-created
+adjudication-prompt-inputs path; diagnostic7b7cfe3b remains unchanged. The
+permission-only inspection diagnostic563812c6 and completed mode adjustment
+are preserved. No semantic response or candidate byte changed.
+
+Outer author/reference-count-description-proposal-01.md stays untransferred
+(SHAd40f8f9664c48e70e25d8c4b703429b83c2411bd516a8a2978f239a57e5e8a6a).
+Russian home9 remains an operational plan only (plan320c27c6/closureef489eb3),
+with no Russian text, judgments or localization execution. The protected first
+baseline remains at the prior passed source/build equality boundary. This
+checkpoint reuses those receipts and runs no fresh source/build scan.
+
+Critical operation/ledger/proposal/plan hashes and owned process/container
+observations are under .build/runs/20261008T172459Z-establish-independent-practical-course-03/operations/user-stop-checkpoint-01/.
+Checkpoint metadata guard01 failed before ledger writes; targeted correction02
+reuses its completed critical inventory without a repeated scan. No run-owned
+workload/container remains and no termination was necessary. Canonical Git
+changes are only AGENTS.md, BUILD_STATE.yaml and DECISIONS.md; learner
+products remain private staging. No implementation, review/adjudication
+advancement, localization, browser run, publication, promotion or commit.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-09 04:51 UTC — authorized same-candidate adjudication resumption
+
+The user resumes authorized work. The new bounded execution run
+20261009T044803Z-resume-practical-foundation03-adjudications-01 claims foundation adjudication continuation; the foundation
+step is running. Original03 remains interrupted and its entire summary and
+existing artifacts remain immutable. Declarationed841c46 and preflight08746734
+bind the stop90f60621/critical0b3d47e3 receipts, all38 critical artifacts and
+3252 existing03 files/542655928 bytes. Current183 source/173 built/89 HTML,
+173 original frozen files and383 Rust inputs match. Prior executions are reused
+truthfully; no Rust/build/browser command is repeated.
+
+Actual machinery01a11aba-4ba5-7aa3-b107-850653940cd4 and author01a11ab9
+turns use gpt-6.1-sol/max. The machinery file's inherited parent metadata is
+not its identity. No surviving run-owned workload exists; unrelated persistent
+infrastructure containers are outside ownership. Root explicitly authorizes
+only previously absent current03 adjudication-routing, raw-response, seals and
+dedicated verification outputs, with all orchestration/execution/provenance
+under the new run. All existing03 bytes remain read-only.
+
+Both fresh fork-none/no-override adjudicators have replied READY at root.
+Capture their actual path-free bootstrap/native/settings/readiness; archived
+provisioning text is not evidence of these new contexts. Pairwise separation
+and zero tool access precede routing. Maintained prepareRouting generates
+canonical adjudication prompt files directly; the prior nonexistent
+adjudication-prompt-inputs assumption is removed, retaining its old diagnostic.
+No semantic instruction, expected finding or proposal enters either packet.
+
+Current technical pass249/0 findings and isolated fail174/blocking isolated-F01
+remain exact. No four-verdict acceptance, localization or publication is
+inferred. Count-description proposal and future repair authority04 are outer,
+untransferred/excluded. No Russian text, browser, promotion, commit or
+Practical3 claim/execution is authorized by this resumption.
+Affected step: establish-independent-practical-course-20261008.
+
+## 2026-10-09 05:00 UTC — append-only current03 adjudication routing ready
+
+Genuine fresh native contexts are technical01a11ef9-2e9b-7b50-87c5-45e9dc9cd93f
+and isolated01a11ef9-3d31-7223-afdb-7cc742d1dd81. Both inherit gpt-6.1-sol/max,
+fork none/no overrides, exact5-byte READY and0 tools. Readiness24457c23 and
+8144206e bind actual path-free bootstraps, not old provisioning files. Native
+opaque payload and visible settings/plaintext remain separately bound without
+claiming decoded equivalence. Pairwise context separation is verified.
+
+Routing04 exits0 through the maintained API. Routing5f275dfb binds the
+actual four artifacts. Canonical technical prompt328ba25a is2716 bytes;
+isolated1eb6b75e is2701 bytes; both exactly match the executable canonical
+function including final LF/five semantics. Actual same-role adjudication
+counts are249 surfaces/0 review findings and174 surfaces/1 review finding.
+Existing technical pass and isolated fail/blocking isolated-F01 are unchanged.
+Handoff7b2bcace supplies each role's four absolute paths and a neutral
+location-only message before root's canonical task. No fifth artifact or
+extra judgment instruction, expected verdict, proposal or sibling record.
+
+Launch01 failed before Docker on absent validation parent;02 rejected absolute
+CLI --out;03 used temporary cwd because the CLI ignores options.root. Each
+failure is preserved; corrected04 uses frozen cwd/root-relative output. Only
+five previously absent routing files are added. All3252 pre-existing03 files
+are rehashed unchanged, including spec/source/build/seals/interrupted summary.
+No new inventory/preparation/Rust/build/browser execution. All further raw
+final capture/sealing waits actual canonical delivery/completed turns.
+Outer repair authorities/proposals remain excluded and untransferred. No
+localization, publication, product promotion, commit or Practical3 execution.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T05:18:27Z — Current03 same-role adjudication resumption closes with supported blocker
+
+User-resumed run `20261009T044803Z-resume-practical-foundation03-adjudications-01` closes as failed after its authorized append-only same-candidate chain. The original `20261008T172459Z-establish-independent-practical-course-03` interrupted summary and all 3,252 existing files (542,655,928 bytes) remain exact. Only 12 previously absent declared routing, raw-response, seal and verification files were added. The foundation step remains running; Practical Chapter 3 remains pending and unexecuted.
+
+Both actual fresh adjudicator contexts inherited gpt-6.1-sol/max with fork none/no overrides and pairwise separation. Their initial path-free READY and later location-only READY are preserved. Location-only turns completed with zero tools before canonical delivery; the corrected capture took place after delivery and excludes later active tools. The first collector's message-envelope error is preserved. Frozen plaintext and actual opaque native delivery envelopes are bound separately, without claiming decoded equivalence. Root routed exact static canonical JSON including its final LF, with only the four neutral locations supplied separately.
+
+Untouched native finals retain their actual final LF: technical 71,390 bytes (eb6014553346623254061798b8e4f81e0a673803603a684362b9216ef74985fb) and isolated 50,120 bytes (fc79884ac385e9f8dbfda96e6febbd977d196265f93e39bbd9b43b058f7c7be7). Exact native access wrappers are retained (17 technical, 10 isolated). Preliminary byte/context validation and maintained paired sealing pass; sealed records match raw bytes exactly. Technical adjudication supports all 249 assessments; isolated supports all 174 assessments and isolated-F01. Both adjudicator verdicts are pass with no review-defect findings. The isolated finding on practical-01.figure-card-element.0203 retains blocking severity.
+
+The candidate outcomes remain technical review pass (249 assessments, no findings) and isolated review fail (174 assessments, blocking isolated-F01). Both maintained verifyEvidence and verifyAdjudication reject unresolved-blocker; actual command and launcher exit 1. This closes the authorized chain without making the candidate eligible for localization or publication. Root safely archived the completed contexts after native capture. No owned workload remains; the two unrelated local infrastructure containers were excluded from ownership.
+
+Critical closure fit: `.build/runs/20261009T044803Z-resume-practical-foundation03-adjudications-01/operations/closure-fit-01/receipt.json` SHA-256 98c0bd6d675f692de1544483e55ea45f532e3b942298b19f68ac5a2399c1de74. Actual maintained adjudication receipts: technical eac1e9b52adec74b2487a258728d71e0a1962e0eb17a591b27da1ada35d34442; isolated a60a8c9517fc525242a19a7a675ab3e2a42e43db37f479475219b76eb480cf4e. Existing source183/build173/HTML89/Rust383 evidence remains fitted; no unchanged product validation was rerun.
+
+Protected first-course baseline, staged products, all prior failures and judgments remain unchanged. The preserved reference-count paragraph proposal and future authority04 remain outer preparation only, untransferred and excluded from all current judgment bundles. Russian-home-nine planning has no Russian text or locale execution. No browser, publication, promotion, commit or Practical3 execution occurred. A successor needs a separate literal scope and running claim before paragraph or admission-prefix transfer.
+
+
+### 2026-10-09T05:26:44Z — Candidate04 bounded foundation successor running claim
+
+Root approval `foundation04-claim-approval.md` accepts declaration b6b3dda2a268dd32ccab67dc68e8550288382651ed988d9f083ce047cc036d56 and exact literal scope04. Claim `20261009T051600Z-establish-independent-practical-course-04` under the still-running foundation step, candidate practical.foundation.en.20261009.04, scope practical.foundation.en, audit audits/practical-llm-in-rust/foundation/20261009T051600Z-04/english. Prior candidate03 interrupted run and its separately failed resumed chain retain exact statuses/artifacts; the supported blocker and actual failed wholeverification are historical evidence, never judgment inputs for04.
+
+Before product copy, freeze all 183 predecessor staging inputs and the closed three-file delta: exact root-authored paragraph after the checked-behavior card definition list in ReferenceCoreHandoffDiagram.astro; only the maintained current audit constant03→04; retain all older/02 rejection cases and add03 rejection. Preserve every other180 staged product, 41 original core/17 learner-demo files, catalog fields, trace/stdout and383 Rust inputs. The literal paragraph is byte-identical in authority04/scope04/preserved proposal; no other learner wording, role or grouping change is authorized.
+
+Use cached image15a6 with every Docker run/create network-none and pull-never, C3/G0/N0, no paid/download/GPU/remote activity. Retain current Rust execution only after exact input/provenance fit; do not rerun unchanged Rust. Reuse maintained succession, source/build/discovery/inventory/inspection and English APIs with necessary current input bindings only. Actual fresh changed Practical1 HTML/source/progressive/root/value evidence and full five-document inventory/dispositions require author approval before any language preparation or routing. Freeze actual inherited gpt-6.1-sol/max context/settings; inherited adapter fields are not a new executor identity.
+
+Outer authority, diagnosis, proposal, old judgments, failed receipts and protected first language findings remain outside fresh judgment bundles. Only fitted current neutral policy/map and current scoped evidence enter technical inputs. Four fresh context-separated English judgments and wholeverification precede Russian-home-nine authoring, affected Firefox, exact publication/checkpoint/commit. No Practical3 execution is authorized.
+
+
+### 2026-10-09T05:48:23Z — Candidate04 current build and exact inventory approved
+
+The accepted three-file successor delta is staged privately. Exactly 183 current
+products preserve 180 unaffected files, all 58 protected original core and learner
+files, and the 383 Rust/config/lock inputs. Focused 10 tests, scoped content and
+three integrated contracts pass in cached network-none/pull-never containers.
+Actual build/static checks pass 173 files, 89 HTML pages, 3,070 references and
+89 SEO/sitemap/analytics routes. Only Practical Chapter 1 HTML changes;
+the other 172 built files are byte-identical. Source/build receipt cb94f65d378a2ff0bf98123a0bf72fdb1ceb33987d2e1da30bb8d7795fcb733d.
+
+Rust receipt 965f62bf84056b5af4d6539fb8ad5356c8b3dbaa12ecfc622987b16d361f2d9d
+fits all 383 inputs to the retained executions, required four reference-demo
+integration tests and formatting evidence. Zero Rust commands ran in successor04.
+The existing extractor observes the two changed source records and Practical1
+HTML; current reuse closure binds five documents, 71 source snapshots, 78 source
+origins and 43 primary historical identities. Its template context label does not
+describe the actual current executor; genuine machinery native01a11aba uses
+inherited gpt-6.1-sol/max, with no model or effort override.
+
+Current draft 69322550db56925ca73282cc90d94504115cfcaf7cd2031ea8557a46ac151dd8
+and compact inspection 76a35cb59e7b6b2c910f3af36943e2287a5790689cac7c2131885e8a2e9ec66b
+retain 230 units, 31 neutral requirements, 78 source classifications, 1,374 field
+dispositions and all 44 catalog keys. Four existing Practical1 value sequences
+include the exact added paragraph; the other 226 remain exact. Paragraph0212
+belongs to existing card0203. Nineteen incidental member lists remap without
+changing stable IDs, roles, order, grouping or requirements. Astro has zero
+JSON/frontmatter leaves; 1,336 measured leaves and 38 exact protected dispositions
+retain their distinct provenance. No unclassified, duplicated or omitted fields.
+
+Root approval d2dce8c14e786458d5678b1ca5ccaae278640507825ccaa9e56550795f29e468
+authorizes maintained final evidence preparation from this exact inventory, not
+a language or publication verdict. Neutral current policy and applicable
+commitments only enter technical judgment inputs. This approval, outer authority,
+diagnosis, all prior judgments and false-admission historical author texts remain
+operational provenance outside those bundles. Preserved execution-fit01,
+refresh01 and inspection01 tooling failures have separate fitted corrections;
+they did not change candidate semantics or justify new product executions.
+
+Foundation and candidate04 remain running. Final freeze, four fresh judgments,
+whole verification, nine-key Russian-home localization and affected sole-Firefox
+checks, exact publication/checkpoint/commit are unfinished. Protected first
+wording and prior interrupted/failed runs stay unchanged. No new Russian text,
+browser launch, promotion, commit or Practical3 claim/execution occurred.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T06:21:56Z — Candidate04 frozen preparation and actual canonical review delivery
+
+Maintained seed, prepareEvidence and prepareRouting exit0 in the cached image15a6,
+network-none/pull-never. Spec2b80bc61 and candidate bindingea73d989 retain the exact
+author-approved230 units,18 complete sources,51 reading and174 isolated units;
+actual assessment counts are249 technical and174 isolated. Current neutral
+policy575dea5d and commitmentsc1974d2f are admitted;0 Russian source/publication
+records and0 excluded historical-author texts enter the current bindings.
+Current183 source/58 protected/173 build/89 HTML and383 reused Rust fit remain
+unchanged. No equivalent source extraction, build or Rust command is repeated.
+
+Fresh technical native01a11f39-c808-7e31-b61e-fea9f7c443ee and isolated native
+01a11f39-d779-7ba2-bb2d-f93f327e8936 inherit gpt-6.1-sol/max, fork none/no overrides.
+Pairwise separation is verified, including separately recorded archived native
+headers. Both initial and later location-only turns finish with exact5-byte READY
+and0 tools. Root supplies exactly the four neutral absolute artifact locations,
+then each unchanged maintained canonical JSON including its final LF, with no
+additional judgment guidance. Delivery53aeee24 binds the genuine third turn and
+its actual settings. Encrypted native task envelopes and frozen plaintext are
+bound separately; decoded/native-plaintext equivalence is not claimed.
+
+Fitted response declaration2888985f reuses exact native final selection and
+corrected prior access tooling. The sole current interface adjustment reads the
+actual four-location readiness receipt rather than a nonexistent old path file.
+Untouched post-route output_text bytes and completed access wrappers will be
+captured; invalid bytes stay failed evidence and are never normalized, repaired,
+reordered or given a host-added LF. Preliminary byte/context checks precede full
+paired maintained sealing. No current review verdict is inferred here.
+
+Foundation and candidate04 remain running. Both original review records, two
+fresh same-role adjudications, whole verification, nine-key Russian-home work,
+sole-Firefox validation and publication/checkpoint/commit are unfinished.
+Protected first bytes and every earlier failed/interrupted run remain exact.
+No learner mutation, new Rust, Russian text, browser, promotion, commit or
+Practical3 claim/execution occurs in this checkpoint.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T06:44:34Z — Current04 exact reviews sealed; same-role adjudications routed
+
+Both actual native reviewer outputs preserve their final LF and remain byte-identical
+in the maintained seal. Technical115814B/fdb13502 reports pass249 with advisoryT01;
+isolated65918B/9da7b287 reports pass174 with advisoryisolated.caption-reference-observation.
+Preliminary exact-byte/context checks and full paired sealReviews pass. Technical
+receipt057cde52 and isolatedfa6f21f7 bind unchanged routing/input/raw/sealed bytes.
+No advisory is repaired, omitted or promoted to a different severity.
+
+Maintained prepareAdjudication and prepareRouting pass for only same-role evidence.
+The host permission error before declaration is preserved; the existing readonly
+helper makes only newly created seal/packet trees readable without byte changes.
+Each packet carries its own249/174 assessments and1review finding. All five
+adjudication semantics remain exact; no sibling private evidence or author
+diagnostic/proposal enters either context.
+
+Fresh technical01a11f56-083b-7a92-a7cb-4e85aee13500 and isolated
+01a11f56-a7ba-7382-b98b-35045528c28d inherit gpt-6.1-sol/max with fork none/no
+overrides. Their initial and location-only turns finish exact5B READY/0tools.
+Separation from20 excluded author/machinery/reviewer/prior IDs passes. Root
+supplies the exact no-LF four-location messages, waits for both secondREADY
+captures, then delivers only unchanged canonical JSON+oneLF. Actual third-turn
+receiptb3ae3f50 binds native settings/opaque delivery separately from plaintext;
+decoded equivalence is never claimed.
+
+Completed isolated adjudication raw47465B/751a8f7a and8 exact access wrappers
+are captured; preliminary byte/context validation passes. Its actual role verdict
+is pass with174supported assessments, exact173pass+1advisory echoes and the one
+supported same-role finding, with0adjudicator findings. Paired complete validation
+and both maintained whole verifiers await the technical final. Candidate04 and
+the foundation step remain running; all-four acceptance remains unfinished.
+No localization, browser, publication, product promotion, commit or Practical3
+execution occurs. Protected first bytes and every prior failed/interrupted run
+remain exact. Current source/build/Rust receipts are reused, not rerun.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T07:09:35Z — Candidate04 complete English chain verified; RUhome9 declaration pending
+
+Both unchanged original reviews report pass (249 technical and174 isolated), with
+one advisory each. Both fresh same-role adjudications report pass, supporting all
+249/174 assessments and the respective review finding without defects. Technical
+245pass+4advisory and isolated173pass+1advisory severity echoes remain exact.
+Untouched technical67358B/8566dd5a and isolated47465B/751a8f7a finals retain their
+actual LF and match their sealed records. Exact16/8 access wrappers are retained;
+opaque delivery/plaintext limitations remain unchanged. Safe capture is confirmed.
+
+Full paired maintained sealing passes; receipts technical29161272 and isolated
+14d821ec bind their actual upstream review receipts. Both verifyEvidence and
+verifyAdjudication pass with command/launcher exit0; observation8ef42e2a is the
+actual four-verdict acceptance. No advisory is repaired or reclassified. This
+permits the planned target authoring; it does not complete the foundation step.
+
+Metadata plan fit0c935fff verifies the retained RUhome9 plan/tools,62 current
+English source files (18complete publications+44source evidence),five actualEN
+documents and83 assets. Russian baseline33 and nine acceptedEnglish values fit.
+ru.json is outside English source/publication bindings. The later localized build
+must rehash all those bytes, inventory roles/values/groups/order/provenance and
+assets. Actual drift must be reported before promotion; frozen hashes cannot be
+rewritten. The original173-file manifest remains original-build evidence.
+
+Proposed localef4a83681 binds six root author inputs unchanged. Only exactlynine
+supplied Russian chooser entries and the scoped existing Firefox RU containment/
+active-chooser test delta are proposed. Preserve33, result42, omit practical-index2
+and everyRU practical route. Closed locale schema permits copy/translate only;
+root-owned rubrics carry exact approved requirements/dispositions. Machinery
+authors no Russian prose or semantic exclusions. Root concrete approval precedes
+actual locale claim/transfer; extracted inventory approval precedes judgment freeze.
+
+Foundation/current04 remain running. RUhome9 localization,affected sole-Firefox,
+exact publication/checkpoint/commit remain unfinished. No locale transfer/build,
+browser,promotion,commit orPractical3 claim/execution occurred. Protected first
+bytes and every prior failed/interrupted attempt remain unchanged.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T07:17:08Z — Approved Russian-home-nine support claimed within current foundation
+
+Root concrete approval accepts declarationf4a83681 and the same-step supporting
+namespace20261009T070000Z-localize-practical-home-ru-01, candidate
+practical.foundation.home.ru.20261009.01, scopepractical.foundation.home.ru,
+audit audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru.
+Actual claim time is 2026-10-09T07:17:08Z; the identifier timestamp is not a claim-time assertion.
+Current04 remains the sole running foundation attempt, with unchanged accepted
+English chain and no overlapping step owner.
+
+Record actual root01a11ab9 and machinery01a11aba inheritedgpt-6.1-sol/max metadata
+bf8a6055. The reused collector's english-author label identifies the same root
+context now owning the Russian translation; it is not a new author-context claim.
+Six initial root inputs are copied exactly into this operation's claim evidence.
+The outer author scope/rationale stays out of judgments. Root adds exact approved
+per-ID requirements/dispositions to final rubrics after actual inventory inspection.
+
+Before product transfer, declare only ru.json plus the existing practicalFirefox
+RUhome containment/active-chooser delta. Preserve33 Russian values/provenance,
+add exactly9 supplied values, result42; omitindex2 and allRU practical products.
+Renderer,62 English sources,five reviewedEN pages,83assets and protected first
+implementation/wording remain exact. The later build must prove that fit, never
+change frozen hashes or relabel old173-file execution evidence.
+
+Reuse cachedimage15a6, readonly foundation base plus narrow locale overlay,
+network-none/pull-never, C1withinaggregateC3/G0/N0. No hostNode/Rust, install,
+download, GPU, browser before language passes, screenshots or newdependency.
+Canonical Cargo.lock's unrelated four blank-line deletions remain preserved;
+accepted stagedlock545b59b1 stays exact. A three-way proposal precedes any later
+canonical reconciliation, with no lock write or Cargo command during this locale work.
+
+Transfer,build,extracted inventory,2fresh locale judgments,static/Firefox and
+publication/checkpoint/commit remain pending. Practical3 remains unclaimed.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T07:46:02Z — Russian chooser build/inventory and fresh initial READY captured
+
+Same-owner locale support transfers exactly the nine root values and the declared
+Firefox test addition. All33 baseline values remain exact; the actual target has42
+fields, with no Russian practical-index fields or practical routes. No Russian prose
+is authored by machinery. The first failed launch stopped before Docker because the
+validation parent did not exist; the fresh setup and six actual selectors pass.
+
+First content80sources/40sets, practical3sources/3sets and course-boundary checks
+pass. Actual static build has173files/89HTML and3071references with89SEO/sitemap/
+analytics routes. English fit ea9978c9 verifies all62reviewed sources, five scopedEN
+HTML and83assets unchanged;172built files exact, sole delta ru/index.html. The original
+173-file English manifest remains evidence of its actual build, never relabeled.
+
+Unchanged parse5/accessible/frontmatter extractor captures12sources/twohomes;
+template alias is retained as inherited metadata and actual executor01a11aba is
+separately bound. Inventory19preserves actual values/groups/order and complete-file
+provenance; root supplies exact per-ID requirements before freeze. Retained33 fields
+are context/preservation, not copy judgments or new linguistic certification.
+
+Root authorizes durable whole-home proof artifacts/practical-llm-in-rust/foundation/localization/ru/html/ru/index.html, containing only the exact
+actual built Russian HTML. Add this exact output to live foundation ownership before
+copying; bind ru.json directly. Only the whole-home publicationPath changes in the
+inventory successor, with all19IDs/types/values/relationships/order exact. Final
+site/dist/ru/index.html must equal the durable proof after the publication build.
+
+Fresh bilingual01a11f96-d4d6-7bd3-a6dd-fe4bf643e11b and target-only
+01a11f96-f2b4-7ee3-9674-fa65c8a1cd23 have genuine fork-none/no-override sol/max
+settings, completed exact5B READY and zero tools. Native opaque task limitations
+remain explicit; no location or semantic task has been delivered. Both remain
+separate from author/machinery and all prior/current English judgment contexts.
+
+Accepted English04 and protected first bytes are unchanged. Foundation stays
+running; locale reviews, affected soleFirefox, publication/commit remain unfinished.
+Unowned canonical Cargo.lock blank-line changes stay exact, with three-way proposal
+still required before promotion. Practical3 stays pending and unexecuted.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T09:43:42Z — Reviewed chooser/browser gates and literal Astro filename admission
+
+Current English04 four-record chain remains exact and passing. Both untouched
+Russian chooser records pass with19covered IDs/no findings through locale and
+routing verification. Original33 values plus nine approved additions are42; no
+Russian practical-index labels or routes. No semantic response is transformed.
+
+Actual sole-Firefox gates pass home2/2, practical20/20 and maintained first39
+complete-lesson1/1, both locales1440x1000/390x844. Preserve launch infrastructure
+failure and both failed20 attempts. Root scope retains frozen first39 page width,
+identity, terminal navigation and figure bounds at390. Its320 document386 failure
+and390 unbordered paragraph ink376.133/comma386.017 beyond paragraph374 stay
+explicit observations, not generic paragraph containment passes. No source/CSS/
+wording repair or screenshot occurred; all new surfaces keep320 ordinary audits.
+The runtime support worker inherited actualsol/max and only compared shell cache
+writes; root approved removing only extra read-only flag for fresh Firefox runner.
+
+Lock reconciliation preserves working-tree545b59b1 and separately approved index
+1bee6a4a. Four unowned LF deletions remain outside the eventual commit; parsed
+125registry graph unchanged. No extra Rust execution for formatting.
+
+Three final production attempts are preserved, with no promotion: first setup
+rewrote an identical read-only tmpfs lock; second setup's narrow character guard
+rejected declared bracket filenames; third reached maintained course-boundary
+admission but its shared readRegularFile rejected the five bound Astro paths.
+Root authorizes exactly scripts/check-functional-step-receipt.mjs and its existing
+focused test file as two added machinery outputs. Add only literal square brackets
+to the existing path character guard, retain absolute/traversal/symlink/nonregular/
+size refusal checks and all five source hashes. Neither output is in the English62
+or locale40 binding sets. Focused positive/negative4 cases and final production
+gates precede fresh424-path/190-source promotion. No alternate checker or omitted
+source binding is permitted. Reviewed language/source/build and protected first
+bytes remain unchanged; no canonical/index write yet, foundation running/P3pending.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T10:10:43Z — Independent practical foundation completed and exact publication promoted
+
+The first course retains the restored implementation through Chapter39 and its
+accepted first-course wording. One founding practical crate copy and moved
+reference/corpus mechanisms now support English practical Chapters0–2. The current
+five-document English04 chain passes both reviews and both same-role adjudications;
+the supported advisories remain untouched. The Russian root chooser passes both
+independent locale reviews with19covered surfaces/no findings, adding only the
+nine approved values to the accepted restored33-field baseline. No Russian practical
+index labels or routes are produced. Historical first-course language findings
+remain held under explicit keep-it authority; this chain does not certify them.
+
+Sole-Firefox passes2home,20practical and1maintained first39 complete-lesson tests.
+Preserve the original browser infrastructure failure and both failed20 attempts.
+The protected first39 page uses its retained390 profile and actual bounded-figure,
+route/navigation checks. Its320 document386 overflow and390 unbordered paragraph
+ink376.133/comma386.017 beyond paragraph374 remain explicit observations, not
+generic paragraph-containment passes. Every new surface retains320 ordinary ink
+audits. No screenshots, source/CSS repair or alternate engine was used.
+
+The existing shared path guard now admits literal Astro square brackets only.
+Focused4 positive/negative tests pass without weakening absolute/traversal/symlink/
+regular-file/size refusals or dropping any of the five source hashes. Production04
+course/content/contract/static/build and four language-verifier commands all pass,
+but its overall outer exit1 remains failed evidence because it used the old
+canonical Russian baseline. Fresh fit06 instead binds restored33 plus the exact
+nine supplied values:42total,index2absent. It verifies all424publication inputs,
+173built files/89HTML,62English and40locale bindings,383Rust inputs and58protected
+files. No prior failed adapter is relabeled, no semantic record transformed, and
+no unchanged broad Rust suite is rerun.
+
+Only the approved424paths are promoted and26snapshot-bound extension paths retired.
+All durable English/Russian proofs equal the actual173-file production build;
+the previous172-file derived tree is retained as evidence. The live admission
+acceptance literal now names the actual accepted04audit, replacing only its
+superseded03current-selector literal; frozen03plans/runs/audits remain unchanged.
+All older run blocks and the pending Practical3 tail stay byte-identical.
+
+The closed foundation commit will use approved index lock1bee6a4a while the working
+tree retains executed lock545b59b1. Their parsed graph is identical; exactly four
+unowned deleted blank lines remain outside the commit. Append-only commit proof
+records its actual stable ID, exact contents and residual. Practical3 stays pending
+until that proof is verified; its private drafts are neither published nor executed.
+Full-data preparation/resource gates and GPU execution remain unfinished downstream.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T10:20:05Z — Required foundation commit blocked by automatic approval review
+
+The exact424-path publication and all language/browser/source/build/Rust/protected
+fits remain valid. The completion checkpoint was recorded before the required
+commit; that status was premature. Preserve checkpoint42189d04 unchanged as
+superseded operational evidence and restore the live foundation step/current04
+run to running. No completion or Practical3 eligibility is claimed.
+
+Commit01 reached no index write: the sandbox mounted.git read-only and Git could
+not create index.lock. Fresh commit02 requested reviewed escalation for the
+already-declared same427bindings/26retirements. Automatic approval review rejected
+the action before process creation, citing main-branch broad first-course
+retirements/Cargo index rewrite and insufficient explicit authorization in the
+original Chapter42 request. Retain its exact650B rejection9a2a3ddc and no-start
+receipt89940846. No command exit or Git commit is invented; HEAD stays3f42ab26
+and the index diff is empty. No workaround or indirect execution is authorized.
+
+Scope evidence or explicit user approval is needed before retrying this rejected
+commit. All promoted bytes, the four unowned lock-format deletions, previous
+failed/interrupted evidence and private Practical3 proposals remain preserved.
+No new product execution, source edit, language judgment or promotion occurs.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T10:25:33Z — Independent practical foundation completed and exact publication promoted
+
+The first course retains the restored implementation through Chapter39 and its
+accepted first-course wording. One founding practical crate copy and moved
+reference/corpus mechanisms now support English practical Chapters0–2. The current
+five-document English04 chain passes both reviews and both same-role adjudications;
+the supported advisories remain untouched. The Russian root chooser passes both
+independent locale reviews with19covered surfaces/no findings, adding only the
+nine approved values to the accepted restored33-field baseline. No Russian practical
+index labels or routes are produced. Historical first-course language findings
+remain held under explicit keep-it authority; this chain does not certify them.
+
+Sole-Firefox passes2home,20practical and1maintained first39 complete-lesson tests.
+Preserve the original browser infrastructure failure and both failed20 attempts.
+The protected first39 page uses its retained390 profile and actual bounded-figure,
+route/navigation checks. Its320 document386 overflow and390 unbordered paragraph
+ink376.133/comma386.017 beyond paragraph374 remain explicit observations, not
+generic paragraph-containment passes. Every new surface retains320 ordinary ink
+audits. No screenshots, source/CSS repair or alternate engine was used.
+
+The existing shared path guard now admits literal Astro square brackets only.
+Focused4 positive/negative tests pass without weakening absolute/traversal/symlink/
+regular-file/size refusals or dropping any of the five source hashes. Production04
+course/content/contract/static/build and four language-verifier commands all pass,
+but its overall outer exit1 remains failed evidence because it used the old
+canonical Russian baseline. Fresh fit06 instead binds restored33 plus the exact
+nine supplied values:42total,index2absent. It verifies all424publication inputs,
+173built files/89HTML,62English and40locale bindings,383Rust inputs and58protected
+files. No prior failed adapter is relabeled, no semantic record transformed, and
+no unchanged broad Rust suite is rerun.
+
+Only the approved424paths are promoted and26snapshot-bound extension paths retired.
+All durable English/Russian proofs equal the actual173-file production build;
+the previous172-file derived tree is retained as evidence. The live admission
+acceptance literal now names the actual accepted04audit, replacing only its
+superseded03current-selector literal; frozen03plans/runs/audits remain unchanged.
+All older run blocks and the pending Practical3 tail stay byte-identical.
+
+Existing user scope explicitly creates a second course/restores the first through39.
+The local completed-step Commit rule is790B byte-identical to originalHEAD3f42ab26;
+this is pre-existing persistence authority, not an agent-added approval claim.
+Retain prior650B automatic rejection/status correction; the fresh review receives
+this concrete authority and the unchanged424+3/26 scope without any bypass.
+The closed foundation commit will use approved index lock1bee6a4a while the working
+tree retains executed lock545b59b1. Their parsed graph is identical; exactly four
+unowned deleted blank lines remain outside the commit. Append-only commit proof
+records its actual stable ID, exact contents and residual. Practical3 stays pending
+until that proof is verified; its private drafts are neither published nor executed.
+Full-data preparation/resource gates and GPU execution remain unfinished downstream.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T10:34:41Z — Exact immutable-artifact formatting preserved for the local foundation commit
+
+Fresh automatic approval review accepted the explicit user-scope/pre-existing
+Commit-rule evidence and allowed the same closed local Git operation03. Exact
+427index bindings and26retirements fit, including approved Cargo index1bee6a4a
+and working-tree545b59b1. The actual adapter then stops1 because the full cached
+Git whitespace check stops2 on exactly eight immutable copied artifacts; no
+Git commit or normalization occurred. Preserve its complete failure and successful
+index/provenance fit44fc5a52, along with both earlier permission failures.
+
+Root inspected all eight exact path/line/type/source-hash records. Six are compiler
+trailing spaces in durable/audit copies of reviewed Practical0–2 HTML. Two retain
+original historical source bytes:002-history-sources.md EOF and NeMo installation
+MDX trailing spaces. Exact declaration367796a4 and authority scope authorize only
+those eight literal path exclusions from mature Git whitespace checking. Every
+other authored/operational path remains strict and passes0; all eight hashes and
+every language/publication verifier remain mandatory. No ninth/directory-wide
+exclusion, attributes change, source edit or review transformation is permitted.
+
+This changes only operational check scope and final process-record bindings.
+All424product/proof/audit bytes,173production files,62English/40locale bindings,
+383Rust inputs,58protected files and accepted language/browser outcomes remain
+unchanged. The final local commit uses the same closed453pathspec and required
+stable step ID; exact contents/residual proof follows in commit-04. Practical3
+stays pending until the accepted stable commit proof is verified.
+Affected step: establish-independent-practical-course-20261008.
+
+
+### 2026-10-09T10:43:36Z — Already staged retirements retained in the bounded commit continuation
+
+Fresh reviewed commit04 was allowed to execute but Git add stops128 on a path
+already absent from its staged index. The adapter stops1 before changing that
+index: its complete starting-index snapshot remains exact and HEAD remains3f42ab26.
+Preserve the untouched command failure and exact index equality. No commit, source
+normalization or product change occurred.
+
+Fresh commit05 stages only the2 differing process-record writes; all26 already-staged
+retirements are separately verified against originalHEAD and remain absent. This
+does not narrow the453-path ownership or omit a removal. The exact eight immutable
+artifact exclusions, strict every-other-source check, fixed424 product bytes,
+approved Cargo index/worktree and four-LF residual remain unchanged. Actual commit
+contents/residual proof follows in operations/commit-05/receipt.json; Practical3
+stays pending until that stable proof passes.
+Affected step: establish-independent-practical-course-20261008.

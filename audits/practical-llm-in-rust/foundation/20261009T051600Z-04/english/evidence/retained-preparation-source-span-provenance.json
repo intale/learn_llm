@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "kind": "supplemental-exact-source-span-provenance",
+  "classification": "Exact source-span provenance inside the existing complete Astro source and preparation-card/figure reading coverage; no additional scalar, role, requirement or isolation boundary.",
+  "sourceBinding": {
+    "path": ".build/runs/20261008T172459Z-establish-independent-practical-course-03/review-prep/current-discovery-01/sources/site/src/components/chapters/CorpusPreparationDiagram.astro",
+    "bytes": 4795,
+    "sha256": "744efd3036dee9c261b86538ca66dcb37a34b4b6639dca8db2e7aaac6e64bf0a"
+  },
+  "sourceSpan": {
+    "utf8ByteStart": 2638,
+    "utf8ByteEndExclusive": 2784,
+    "sha256": "dc25d49b1113e18481c2f114c04e8446b1b4c32014b02692f7ef09b83d3f6701",
+    "literalUtf8": "      <p>The fraction divides the final prepared count by the original input count\n        of <code>{trace.documents.input}</code> documents.</p>\n"
+  },
+  "expressionSpan": {
+    "utf8ByteStart": 2739,
+    "utf8ByteEndExclusive": 2760,
+    "sha256": "68903ed565026c8a4fabb2f0c19a816a19c27811c8c237153be96555f9f74c31",
+    "literalUtf8": "trace.documents.input"
+  },
+  "dynamicOrigin": {
+    "evidenceBinding": {
+      "path": ".build/runs/20261008T172459Z-establish-independent-practical-course-03/review-prep/current-discovery-01/historical-evidence/043/artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json",
+      "bytes": 2545,
+      "sha256": "7e7d0877db6447b23649f704d9d99058d6c32cb957b4e471e5e0189cb2cebf61"
+    },
+    "publicationPath": "artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json",
+    "jsonPointer": "/documents/input",
+    "value": 6,
+    "originalEvidenceIdentity": {
+      "bytes": 2545,
+      "fit": "Exact canonical imported diagram data matches retained historical trace; original identity remains unchanged.",
+      "originEvidenceId": "evidence.accepted.013",
+      "originSpec": "audits/functional-laptop/reviews/41-corpus-preparation/english/spec.json",
+      "originSpecSha256": "3d6cb863ac440e6e0c3dd39e25a504235c9098cc989bb1ac4ad3d1ea78c95746",
+      "path": "artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json",
+      "sha256": "7e7d0877db6447b23649f704d9d99058d6c32cb957b4e471e5e0189cb2cebf61",
+      "snapshotPath": "historical-evidence/043/artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json",
+      "authorApplicability": null,
+      "limitation": "Exact retained prior evidence only; original identity unchanged; no review verdict transferred."
+    }
+  },
+  "renderedParagraph": {
+    "documentId": "practical-02",
+    "observedElementId": "element.0291",
+    "nodePath": "0/1/2/5/1/3/147/3/3/5",
+    "value": "The fraction divides the final prepared count by the original input count of 6 documents.",
+    "location": {
+      "startLine": 433,
+      "startCol": 2375,
+      "startOffset": 139100,
+      "endLine": 434,
+      "endCol": 65,
+      "endOffset": 139265,
+      "attrs": {
+        "data-astro-cid-uxd2e5os": {
+          "startLine": 433,
+          "startCol": 2378,
+          "startOffset": 139103,
+          "endLine": 433,
+          "endCol": 2401,
+          "endOffset": 139126
+        }
+      },
+      "startTag": {
+        "startLine": 433,
+        "startCol": 2375,
+        "startOffset": 139100,
+        "endLine": 433,
+        "endCol": 2402,
+        "endOffset": 139127,
+        "attrs": {
+          "data-astro-cid-uxd2e5os": {
+            "startLine": 433,
+            "startCol": 2378,
+            "startOffset": 139103,
+            "endLine": 433,
+            "endCol": 2401,
+            "endOffset": 139126
+          }
+        }
+      },
+      "endTag": {
+        "startLine": 434,
+        "startCol": 61,
+        "startOffset": 139261,
+        "endLine": 434,
+        "endCol": 65,
+        "endOffset": 139265
+      }
+    },
+    "rawUtf8": "<p data-astro-cid-uxd2e5os>The fraction divides the final prepared count by the original input count\n        of <code data-astro-cid-uxd2e5os>6</code> documents.</p>",
+    "rawUtf8Sha256": "0b078ae90261bbf96a3cfe6854d9b32c8e179b6b40d99f801de35334c11cba71"
+  },
+  "existingPreparationCardId": "practical-02.figure-card-element.0280",
+  "actualCardRoot": "element.0280",
+  "unitMemberships": [
+    "practical-02.complete-built-document",
+    "practical-02.section-follow-the-preparation-to-learning-boundary",
+    "practical-02.figure-reading-corpus-preparation",
+    "practical-02.figure-card-element.0280"
+  ],
+  "jsonFrontmatterScalarAdded": false,
+  "newRequirement": null,
+  "newIsolationBoundary": false,
+  "languageJudgment": null
+}

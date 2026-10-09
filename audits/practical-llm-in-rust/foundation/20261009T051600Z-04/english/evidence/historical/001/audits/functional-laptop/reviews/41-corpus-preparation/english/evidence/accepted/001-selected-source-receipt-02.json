@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-official-primary-source-observation",
+  "commit": "6b956ce8965820de1b638fedf6de0cbcf0cc46ba",
+  "source_files": [
+    {
+      "path": "docker/Dockerfile",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/docker/Dockerfile",
+      "bytes": 4978,
+      "sha256": "accbba391de8e0a6833ca88f9bbb40efa40cfb2f48ddbe682077f2f2569891cf",
+      "git_blob_sha": "8facae88524ca14d23fec2fdd0f2ad492271d75c"
+    },
+    {
+      "path": "fern/versions/main/pages/get-started/installation.mdx",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/fern/versions/main/pages/get-started/installation.mdx",
+      "bytes": 11114,
+      "sha256": "80192fd293a8bf6a000816eef8ab3e49c529d8d6b003414134622c70ba2334c3",
+      "git_blob_sha": "babf4491556cc05b322478fc887e0faf1f22519b"
+    },
+    {
+      "path": "fern/versions/main/pages/reference/infrastructure/container-environments.mdx",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/fern/versions/main/pages/reference/infrastructure/container-environments.mdx",
+      "bytes": 3942,
+      "sha256": "6c369a72c23cfa0d90f485d3e288cf80ed7a0af39ea380410def4a87e69bc0c1",
+      "git_blob_sha": "552b94f00fab62798e5c99224adc70569b75279f"
+    },
+    {
+      "path": "nemo_curator/core/client.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/core/client.py",
+      "bytes": 26023,
+      "sha256": "9ad57c35199b216d6cfb1866edde08d1210b31a92d9075a21be5b7dd830e40d1",
+      "git_blob_sha": "10facab1a2dc3c1e04dd0491052845ecff0cc065"
+    },
+    {
+      "path": "nemo_curator/pipeline/workflow.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/pipeline/workflow.py",
+      "bytes": 2117,
+      "sha256": "a597656cbd52ab8fb4c2a4ea4859d9ecd2646b123689150c722f3bad0056f815",
+      "git_blob_sha": "7fe245e8aad9387a79c8a0a81967b041179964fc"
+    },
+    {
+      "path": "nemo_curator/stages/deduplication/exact/identification.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/deduplication/exact/identification.py",
+      "bytes": 10923,
+      "sha256": "c9bac5230ec87925f0da9446e76e548a71c3fc6b3f04170c5706f5b2adcff17d",
+      "git_blob_sha": "564d79de8853cfd41b3d02c3c43aa71be7eb6b30"
+    },
+    {
+      "path": "nemo_curator/stages/deduplication/exact/workflow.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/deduplication/exact/workflow.py",
+      "bytes": 13975,
+      "sha256": "f228fb8e9b4bcac1889a29d29bf385c352e41182bfd5c7a8ba5b427765396b59",
+      "git_blob_sha": "fee61ae8fdb3963cea487ba7e7fc665c66a7bde8"
+    },
+    {
+      "path": "nemo_curator/stages/deduplication/fuzzy/workflow.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/deduplication/fuzzy/workflow.py",
+      "bytes": 19140,
+      "sha256": "8cb235c3aef5901914f4262381350184629bc32b7fc41a51a972799b8870598c",
+      "git_blob_sha": "12b47e7c68415ee1d48813606b43e9ba7c0543c0"
+    },
+    {
+      "path": "nemo_curator/stages/text/deduplication/removal_workflow.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/deduplication/removal_workflow.py",
+      "bytes": 8724,
+      "sha256": "ed87aeaad70a0ada0d189d0c485640a416b7c010e26936dfee8c73f0c52569de",
+      "git_blob_sha": "7684bafcea2c75ab8d3d2a15eff586df39bdb791"
+    },
+    {
+      "path": "nemo_curator/stages/text/deduplication/removal.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/deduplication/removal.py",
+      "bytes": 4260,
+      "sha256": "4586793305ea2f5496845d4508416595316d006c4a8a72ab2c49192957dfa8d6",
+      "git_blob_sha": "45d48d9a4a2647c3c19729f1641d0adde33e2452"
+    },
+    {
+      "path": "nemo_curator/stages/text/filters/heuristic/string.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/filters/heuristic/string.py",
+      "bytes": 17619,
+      "sha256": "ebc8ad21eb8b3eb07932fc57a88661fa778f8dcd3d7ab99ac94836522813e291",
+      "git_blob_sha": "57090428d78d5ba9e3708179d27967ec0dda0fb4"
+    },
+    {
+      "path": "nemo_curator/stages/text/filters/score_filter.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/filters/score_filter.py",
+      "bytes": 22140,
+      "sha256": "48481465b003682e788aaa81f6a2f3be8c45f133ff65c707545cef1fc7bde2ab",
+      "git_blob_sha": "16af81f79434ac9e0893219a2fa0fc7e89b44a64"
+    },
+    {
+      "path": "nemo_curator/stages/text/io/reader/base.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/io/reader/base.py",
+      "bytes": 5461,
+      "sha256": "6b919aec981fa785b745da4be43480f476cc5500523d23ebc2a944dbc9e29c85",
+      "git_blob_sha": "551dc463be20a316fbec6446eab8894d9d905793"
+    },
+    {
+      "path": "nemo_curator/stages/text/io/reader/jsonl.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/io/reader/jsonl.py",
+      "bytes": 5936,
+      "sha256": "98a29dd84e39475f32d713a22caec3456c977451e873f0548ece1c55ffed89e9",
+      "git_blob_sha": "7ae4c8100361f2223f2e5e29e7283bf2afce7477"
+    },
+    {
+      "path": "nemo_curator/stages/text/io/writer/base.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/io/writer/base.py",
+      "bytes": 4284,
+      "sha256": "dcd1a3a0fe0282578008a9fdb64023b386a83bedee12f8387155ee69b61e2a2f",
+      "git_blob_sha": "316dfd852cbd5bd1f07e8834d238633c453cf5ed"
+    },
+    {
+      "path": "nemo_curator/stages/text/io/writer/jsonl.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/io/writer/jsonl.py",
+      "bytes": 1712,
+      "sha256": "c4412058f59f5e9f4844882a2b7ce2a36f76bacbbbeaa0d33a149450985b9aa5",
+      "git_blob_sha": "9b568d7673b38e81c25e8d6872c08c8bc2ff3635"
+    },
+    {
+      "path": "nemo_curator/stages/text/utils/text_utils.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/nemo_curator/stages/text/utils/text_utils.py",
+      "bytes": 8613,
+      "sha256": "20ecefb4e59d1c36bca78580feb54718e8e81a2f194fdef63395d1fadf08e088",
+      "git_blob_sha": "5a7edbdc95cc5ae12837005736de94e4a9ac9c19"
+    },
+    {
+      "path": "pyproject.toml",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/pyproject.toml",
+      "bytes": 16501,
+      "sha256": "8f4ea04e8ff60254b4263df4022b58266839b39941504050ec110513766570d7",
+      "git_blob_sha": "c8d12bac398534a8b85e7aa160d947c6596b5f2a"
+    },
+    {
+      "path": "tests/stages/text/deduplication/test_removal_workflow.py",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/tests/stages/text/deduplication/test_removal_workflow.py",
+      "bytes": 18287,
+      "sha256": "b6b48afceb0d8fa55b027ce6c0cab869d168e5ecb4114361a09fdb08e6bbbc67",
+      "git_blob_sha": "c45abcee6125a0045511d74a5b05df101f41415e"
+    },
+    {
+      "path": "tutorials/text/deduplication/fuzzy/fuzzy_e2e.ipynb",
+      "url": "https://raw.githubusercontent.com/NVIDIA-NeMo/Curator/6b956ce8965820de1b638fedf6de0cbcf0cc46ba/tutorials/text/deduplication/fuzzy/fuzzy_e2e.ipynb",
+      "bytes": 62019,
+      "sha256": "1796d9d596f4d65c1975595f8869dd5eae0f58fc895f9bbaf640b51233877dc7",
+      "git_blob_sha": "9705692e65d05799be2f12676ad8adc24120c744"
+    }
+  ],
+  "source_bytes": 267768,
+  "authority_cap_bytes": 8388608,
+  "limits": "No package installation, dependency execution, model or corpus acquisition. HTTP bytes and Git tree identities only; not NeMo execution evidence.",
+  "parent_receipt": ".build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/primary-sources/selected-source-receipt.json"
+}

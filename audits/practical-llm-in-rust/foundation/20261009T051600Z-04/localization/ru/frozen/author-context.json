@@ -1,0 +1,31 @@
+{
+  "contextId": "01a11ab9-04cf-7a92-b066-c5e296f19bbc",
+  "createdAt": "2026-10-09T07:53:31.495868+00:00",
+  "freshAuthorContextClaimed": false,
+  "model": "gpt-6.1-sol",
+  "nativeMetadataBinding": {
+    "bytes": 3052,
+    "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/context-settings-02/receipt.json",
+    "sha256": "04e5a14e55cf8d453253eab73f87cf373b4110f8f3aa47750ea0badeb43d7be8"
+  },
+  "nativeMetadataRecords": [
+    {
+      "bytes": 22862,
+      "nativeLineNumber": 1,
+      "nativeSource": "/home/int/.codex/sessions/2026/10/08/rollout-2026-10-08T10-54-55-01a11ab9-04cf-7a92-b066-c5e296f19bbc.jsonl",
+      "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/context-settings-02/localization-author/session-meta.jsonl",
+      "sha256": "b6c5e71047d1a4e13ba19ad4f13d9981e5fd5ba6cf7a3d4b8e7ad27b049ecd74"
+    },
+    {
+      "bytes": 3699,
+      "nativeLineNumber": 10447,
+      "nativeSource": "/home/int/.codex/sessions/2026/10/08/rollout-2026-10-08T10-54-55-01a11ab9-04cf-7a92-b066-c5e296f19bbc.jsonl",
+      "path": ".build/runs/20261009T070000Z-localize-practical-home-ru-01/operations/context-settings-02/localization-author/latest-observed-turn.jsonl",
+      "sha256": "9c011ac05c07b79e74f1cd345c33681730c9b4751bc8a5c1ec955f3d8d1f2d5a"
+    }
+  ],
+  "reasoning": "max",
+  "role": "localization-author",
+  "schemaVersion": 1,
+  "selection": "Actual current inherited user selection; no model or effort override."
+}

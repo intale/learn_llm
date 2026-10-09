@@ -18,12 +18,14 @@ import {
   normalizeSiteBase,
   sitePathForBase,
 } from '../src/lib/site-path';
+import {messageKeys} from '../src/i18n/messages';
 
 describe('localized message catalogs', () => {
-  it('loads one exact-shape catalog for every configured locale', () => {
-    expect(Object.keys(messages.en).sort()).toEqual(
-      Object.keys(messages.ru).sort(),
-    );
+  it('requires the same core catalog keys with separately scoped optional course groups', () => {
+    for (const locale of locales) {
+      expect(messageKeys.every(key => Object.hasOwn(messages[locale],key))).toBe(true);
+      expect(() => validateMessageCatalog(messages[locale])).not.toThrow();
+    }
     expect(Object.keys(messages).sort()).toEqual([...locales].sort());
   });
 

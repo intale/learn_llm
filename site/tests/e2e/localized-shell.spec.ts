@@ -150,19 +150,45 @@ test.describe('localized shell', () => {
       await repositoryLink.focus();
       await expect(repositoryLink).toBeFocused();
 
-      const courseLink = page.locator('a.course-cta');
+      const chooser = page.locator('[data-course-selection]');
+      const chooserCount = await chooser.count();
+      expect([0, 1]).toContain(chooserCount);
+      const hasChooser = chooserCount === 1;
+      const courseLink = hasChooser
+        ? chooser.locator('[data-course-id="llm-from-scratch"] a.course-cta')
+        : page.locator('a.course-cta');
+      const courseDestination = hasChooser
+        ? `/${locale.code}/course/00-llm-parts/`
+        : `/${locale.code}/course/`;
+      if (hasChooser) {
+        await expect(chooser.locator('[data-course-id]')).toHaveCount(2);
+        await expect(page.locator('a.course-cta')).toHaveCount(2);
+        await expect(courseActions.locator('a.course-cta')).toHaveCount(0);
+        const practicalLink = chooser.locator(
+          '[data-course-id="practical-llm-in-rust"] a.course-cta',
+        );
+        await expect(practicalLink).toHaveAttribute(
+          'href',
+          '/en/practical-llm-in-rust/00-course-structure/',
+        );
+        await expect(practicalLink).toHaveAttribute('hreflang', 'en');
+        expect(await practicalLink.getAttribute('lang')).toBeNull();
+      } else {
+        await expect(page.locator('a.course-cta')).toHaveCount(1);
+      }
+      await expect(courseLink).toHaveCount(1);
       await expect(courseLink).toBeVisible();
       await expect(courseLink).toHaveText(/.+/);
       await expect(courseLink).toHaveAttribute(
         'href',
-        `/${locale.code}/course/`,
+        courseDestination,
       );
       await courseLink.focus();
       await expect(courseLink).toBeFocused();
       await expectNoOverflowOrClientScripts(page);
 
       await courseLink.click();
-      await expect(page).toHaveURL(new RegExp(`/${locale.code}/course/$`));
+      await expect(page).toHaveURL(new RegExp(`${courseDestination}$`));
       await expect(page.locator('html')).toHaveAttribute(
         'lang',
         locale.languageTag,
@@ -172,6 +198,14 @@ test.describe('localized shell', () => {
         locale.direction,
       );
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(/.+/);
+      if (hasChooser) {
+        await expect(page.locator('article[data-chapter-root]')).toHaveAttribute(
+          'data-chapter-id',
+          '00-llm-parts',
+        );
+        await expectNoOverflowOrClientScripts(page);
+        await page.goto(`/${locale.code}/course/`);
+      }
       const chapters = await readOrderedCourseChapters(page, locale.code);
       expect(chapters[0]).toEqual(
         expect.objectContaining({

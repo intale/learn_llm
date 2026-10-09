@@ -2,12 +2,12 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 10,
+  "content_revision": 9,
   "order": 39,
   "concept_id": "end-to-end-llm",
-  "title": "Run the scalar reference end to end",
-  "description": "Trace a scalar CPU reference decoder in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy. This integration example does not establish useful language quality or laptop-scale performance.",
-  "objective": "Run one deterministic scalar reference decoder end to end on bilingual data, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.",
+  "title": "Run the whole tiny LLM",
+  "description": "Trace a tiny decoder-only language model in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy.",
+  "objective": "Run one deterministic bilingual decoder-only LLM end to end, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.",
   "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation mean NLL 3.889531885, and compare the decoder with the frozen bigram on the same 1,744 overlapping stride-one window-target slots. Label 3.866087547 and 3.981342714 as mean NLL in nats per slot and 47.755180205 and 53.588940583 as their dimensionless window-slot perplexities. A separate policy would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
@@ -113,7 +113,7 @@
     "id": "end-to-end-llm",
     "rationale": "One numbered process makes the within-execution boundary visible: test batches appear only after selection; the 1,744-slot metric is separated from the policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, without reporting numeric mean NLL or PPL; the known slot ordering is marked as fixed-fixture regression evidence before exact reload and cached generation."
   },
-  "decoder_connection": "The scalar reference components now participate in one bounded CPU program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects the decoder state before the decoder and count-bigram baseline score the same ordered test-window target slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text. This integration evidence does not establish useful language quality or measured laptop-scale capability."
+  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects before both models score the same ordered slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text."
 }
 ---
 
@@ -525,7 +525,7 @@ evidence=scope:fixed-fixture-regression within_run_selection_isolated:true indep
 checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true
 generation=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:"т  " prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true
 history=window_slot_unit:overlapping-window-target-slot window_target_slots:1744 document_transition_occurrences:442 bigram_context_tokens:1 decoder_context_capacity:4 decoder_window_slot_context_lengths:[1,2,3,4] bigram_window_slot_mean_nll_nats:3.981342714 decoder_window_slot_mean_nll_nats:3.866087547 window_slot_gap_nats:0.115255167
-next=inspect the scalar reference and its limits before extending it
+next=inspect, modify, test, and extend the complete decoder
 ```
 
 <RustSource
@@ -617,9 +617,9 @@ not independent.
 
 {/* chapter-section:decoder-connection */}
 
-## Continue from the scalar reference, not a laptop-scale result
+## Take ownership of the complete decoder
 
-The scalar reference components now participate in one bounded CPU program: frozen
+Every course component now participates in one functional program: frozen
 bilingual data becomes BPE tokens and causal batches; validation selects the
 decoder before the local final evaluator receives test batches; both models
 score the same ordered overlapping window-target slots; the separate policy
@@ -629,13 +629,10 @@ numeric mean NLL or PPL; the known lower decoder slot mean-NLL ordering
 remains only fixed-fixture regression evidence;
 checkpoint bytes and state round-trip exactly; the separate <code>At</code> probe reproduces
 logits bit for bit; and cached generation from <code>A</code> returns decoded
-text. The reference uses explicit scalar CPU loops and `f64` values. Its
-end-to-end result is an integration demonstration, not evidence of useful
-language quality or laptop-scale training and inference.
+text.
 
-Chapter 40 begins the separately planned extension by recording the reference's
-configuration, evidence, and limits. Later chapters develop and measure the
-laptop path; this chapter does not claim those capabilities are already present.
-Changing context, model width, tokenizer budget, or sampling policy also changes
-which data, mathematical, training, evaluation, persistence, and inference
-evidence must be re-established.
+That completes the planned road to a modern decoder-only LLM at teaching scale.
+You can now change one bounded piece—more context, a wider block, another
+tokenizer budget, a different sampler—and identify exactly which data,
+mathematical, training, evaluation, persistence, and inference evidence must be
+re-established.

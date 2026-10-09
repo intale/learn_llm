@@ -7,6 +7,8 @@ export const E2E_PROXY_ORIGIN = `http://127.0.0.1:${E2E_PROXY_PORT}`;
 
 const config = defineConfig({
   testDir: './tests/e2e',
+  // Historical first-extension tests retain their original route identity.
+  testIgnore: ['**/ch40-reference-core-handoff.spec.ts', '**/ch41-corpus-preparation.spec.ts'],
   fullyParallel: true,
   forbidOnly: true,
   retries: 0,

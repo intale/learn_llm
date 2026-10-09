@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::io::Write;
 
 use super::lineage::AcquisitionError;
-use llm_from_scratch::artifact_identity::{ArtifactDigest, sha256};
+use llm_from_scratch_practical::artifact_identity::{ArtifactDigest, sha256};
 
 /// Wire-format version understood by this validator, not an admission limit.
 pub const DATASET_MANIFEST_SCHEMA_VERSION: u32 = 2;

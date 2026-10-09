@@ -1,0 +1,1 @@
+Practical LLM in Rust Extend the completed model with corpus preparation, efficient execution, and measured training and inference. Start with the course structure in Chapter 0. Requires the basics from LLM from scratch or equivalent Rust and LLM experience. Available in English Start Practical LLM in Rust

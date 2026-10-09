@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-helper-tests",
+  "image": "sha256:96d814b03d02a134cdc3f7702c8a11471f8940fa638ef7895e2054cadd7fb196",
+  "command": "docker run --rm --pull=never --network none --gpus all --user 0:1000 --read-only --cap-drop ALL --security-opt no-new-privileges --memory 4294967296 --cpus 2 --env PYTHONDONTWRITEBYTECODE=1 --env NUMEXPR_MAX_THREADS=2 --tmpfs /tmp:rw,nosuid,nodev,size=268435456 --mount type=bind,source=/home/int/rust/learn_llm/.build/runs/20261007T085507Z-merge-ch41-nemo-corpus-preparation-01/publish/tools/nemo-curator,target=/course,readonly sha256:96d814b03d02a134cdc3f7702c8a11471f8940fa638ef7895e2054cadd7fb196 -m unittest discover -s /course -p test_prepared_export.py -v",
+  "result": {
+    "chunk_id": "d81e81",
+    "wall_time_seconds": 0.000007885,
+    "exit_code": 0,
+    "original_token_count": 228,
+    "output": "test_duplicate_or_unknown_role_policy_refuses (test_prepared_export.PreparedExportTests.test_duplicate_or_unknown_role_policy_refuses) ... ok\ntest_empty_input_and_split_export_are_empty (test_prepared_export.PreparedExportTests.test_empty_input_and_split_export_are_empty) ... ok\ntest_input_shape_and_caps_are_not_curation (test_prepared_export.PreparedExportTests.test_input_shape_and_caps_are_not_curation) ... ok\ntest_prior_split_is_not_overwritten (test_prepared_export.PreparedExportTests.test_prior_split_is_not_overwritten) ... ok\ntest_supplied_policy_keeps_a_group_in_one_role (test_prepared_export.PreparedExportTests.test_supplied_policy_keeps_a_group_in_one_role) ... ok\ntest_unassigned_or_missing_group_refuses (test_prepared_export.PreparedExportTests.test_unassigned_or_missing_group_refuses) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.006s\n\nOK\n"
+  },
+  "scope": "Six actual helper unit tests, not NeMo workflow execution."
+}

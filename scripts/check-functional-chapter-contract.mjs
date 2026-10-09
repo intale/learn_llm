@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-import {resolve,dirname} from 'node:path';
+import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {readdirSync} from 'node:fs';
 import {runChapterContractCheck,validateChapterContractText,validateChapterContractIntegration} from './check-chapter-contract.mjs';
 import {readLocaleConfiguration} from './locale-config.mjs';
 import {parseJsonFrontmatter} from './check-site-content.mjs';
@@ -10,14 +9,25 @@ import {readFunctionalChapterLocaleConfiguration} from './functional-chapter-loc
 import {demoPaths} from './check-functional-rust-examples.mjs';
 import {parseRegistryFragment,readFunctionalPlan,ownedSources} from './check-functional-rust-ownership.mjs';
 import {readPrivateBuildScope,privateReviewCandidateForChapter} from './check-functional-site-content.mjs';
+import {FIRST_COURSE_ID,PRACTICAL_COURSE_ID,validateCourseChapterIdentity} from './lib/course-boundaries.mjs';
 
-export function contractDispatch(chapterId) {
+export function contractDispatch(chapterId,{course,historical=false}={}) {
   if (!/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(chapterId))throw new Error('invalid chapter ID');
   const order=Number(chapterId.slice(0,2));
-  if(order>85)throw new Error('chapter ID outside course range');
-  return order<=39?'legacy-demo':'successor-demo';
+  if(historical) {
+    if(order>85)throw new Error('chapter ID outside historical course range');
+    return order<=39?'legacy-demo':'successor-demo';
+  }
+  if(course) {
+    validateCourseChapterIdentity(course,{chapter_id:chapterId,order,locale:course.referenceLocale,
+      chapter_kind:order===0?'orientation':'lesson'});
+    return course.id===PRACTICAL_COURSE_ID?'practical-demo':'legacy-demo';
+  }
+  if(order>39)throw new Error('chapter ID outside first course range');
+  return 'legacy-demo';
 }
-export function validateDemoContractBinding(data,plan) {
+export function validateDemoContractBinding(data,plan,{historical=false}={}) {
+  if(!historical)throw new Error('historical demo binding requires explicit historical context');
   if(plan.chapters.filter(c=>c.chapter_id===data.chapter_id&&c.order===data.order).length!==1)
     throw new Error('contract chapter/order absent from exact functional plan');
   const demo=demoPaths(data.chapter_id),prefix='rust/demos/'+demo.package+'/';
@@ -33,10 +43,12 @@ export function validateDemoContractBinding(data,plan) {
   return {demo,owners,expected,fragment:expected.length
     ? 'rust/crates/llm-from-scratch/module-registry/functional-v1/'+filename:null};
 }
-export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
+export function checkFunctionalContract(root,path,{structureOnly=false,course=FIRST_COURSE_ID,historical=false}={}) {
+  if(!historical)
+    return runChapterContractCheck(['--course',course,resolve(root,path),...(structureOnly?['--structure-only']:[])],root);
   const source=readRegularFile(root,path).toString();
   const data=parseJsonFrontmatter(source,path).data;
-  if(contractDispatch(data.chapter_id)==='legacy-demo')
+  if(contractDispatch(data.chapter_id,{historical:true})==='legacy-demo')
     return runChapterContractCheck([resolve(root,path),...(structureOnly?['--structure-only']:[])],root);
   const config=readFunctionalChapterLocaleConfiguration(root);
   const chapter=config.byChapter[data.chapter_id];
@@ -49,7 +61,7 @@ export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
   const structuralLocales=privateScope?.schemaVersion===2 && data.chapter_id==='40-reference-core-handoff'
     ? chapter.activeLocales : requiredLocales;
   const parsed=validateChapterContractText(source,{sourceName:path,supportedLocales:structuralLocales});
-  const binding=validateDemoContractBinding(data,readFunctionalPlan(root));
+  const binding=validateDemoContractBinding(data,readFunctionalPlan(root),{historical:true});
   if(structureOnly)return parsed;
   if(binding.fragment) {
     const records=parseRegistryFragment(binding.fragment.split('/').at(-1),
@@ -64,15 +76,9 @@ export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
   return parsed;
 }
 export function runFunctionalContractCheck(args,cwd) {
-  const root=cwd.endsWith('/site')?resolve(cwd,'..'):cwd;
-  const structureOnly=args.includes('--structure-only');
-  if(args.some(a=>a.startsWith('--')&&a!=='--structure-only'))throw new Error('unknown contract option');
-  const paths=args.filter(a=>a!=='--structure-only');
-  const selected=paths.length?paths.map(p=>resolve(cwd,p).slice(root.length+1)):
-    readdirSync(resolve(root,'curriculum/chapters')).filter(p=>p.endsWith('.md')).map(p=>'curriculum/chapters/'+p);
-  return selected.map(p=>checkFunctionalContract(root,p,{structureOnly}));
+  return runChapterContractCheck(args,cwd).results;
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  try {console.log('Functional/legacy contracts checked:',runFunctionalContractCheck(process.argv.slice(2),process.cwd()).length);}
+  try {console.log('Course contracts checked:',runFunctionalContractCheck(process.argv.slice(2),process.cwd()).length);}
   catch(error){console.error(error.message);process.exitCode=1;}
 }

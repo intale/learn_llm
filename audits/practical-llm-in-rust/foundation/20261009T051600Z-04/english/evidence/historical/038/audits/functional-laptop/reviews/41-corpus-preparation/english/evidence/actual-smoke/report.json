@@ -1,0 +1,85 @@
+{
+  "documents": {
+    "after_quality": 4,
+    "input": 6,
+    "prepared": 3
+  },
+  "input": {
+    "bytes": 373,
+    "sha256": "a1296cd7f53d659485f4ac41200072832ba8d6f6ec8668296dc92d6ab2ec897d"
+  },
+  "not_established": [
+    "rights or redistribution permission",
+    "privacy clearance",
+    "near-duplicate removal",
+    "completeness or correctness of supplied related-source groups",
+    "protected evaluation decontamination",
+    "trained-model quality",
+    "bulk-corpus resource feasibility"
+  ],
+  "policy": {
+    "exact_duplicates": "NeMo MD5 text-hash grouping; one representative per group",
+    "input_block_bytes": 65536,
+    "language": "en",
+    "max_documents": 4096,
+    "max_input_bytes": 4194304,
+    "max_words": 20,
+    "min_words": 3,
+    "rmm_pool_bytes": 536870912,
+    "spill_limit_bytes": 268435456,
+    "split_assignment": {
+      "group_field": "source_group",
+      "method": "caller-predeclared known source groups; Pandas metadata join",
+      "sha256": "126c3605d2d5ff78b7bb1727206ada9532fb80aaf98105934a3f5abb15171025"
+    }
+  },
+  "prepared": {
+    "bytes": 295,
+    "decoded_text_utf8_bytes": 39,
+    "file": "prepared.jsonl",
+    "sha256": "9e8131f640a0c638e5b96d76166d463d7ce014f830ee1a54a52e16933066d015"
+  },
+  "schema_version": 1,
+  "scope": "bounded-supplied-jsonl-preparation",
+  "splits": {
+    "test": {
+      "bytes": 100,
+      "decoded_text_utf8_bytes": 17,
+      "documents": 1,
+      "file": "test.jsonl",
+      "sha256": "69e5902a6908a946f62e6a861b202ef6365b48d4c69c9a30579cfee0bff1dc8f"
+    },
+    "train": {
+      "bytes": 95,
+      "decoded_text_utf8_bytes": 11,
+      "documents": 1,
+      "file": "train.jsonl",
+      "sha256": "aee8661ced42478c82f00ce11cb21ff7b8d5f3d686f6cf5f85fd00ff7f7174a6"
+    },
+    "validation": {
+      "bytes": 100,
+      "decoded_text_utf8_bytes": 11,
+      "documents": 1,
+      "file": "validation.jsonl",
+      "sha256": "bd89c5fdc1243d728b92ad974ddf23614dbb7580d8271f2c40d5c9d01489b110"
+    }
+  },
+  "tool": {
+    "name": "nemo-curator",
+    "version": "1.3.0"
+  },
+  "workflow": {
+    "exact_identification_executed": true,
+    "identification": {
+      "id_generator_path": null,
+      "identification_time": 10.165733814239502,
+      "input_filegroups_time": 4.382594108581543,
+      "num_duplicates": 1,
+      "total_time": 14.548812866210938
+    },
+    "removal": {
+      "num_duplicates_removed": 1,
+      "total_time": 11.130114793777466
+    }
+  }
+}

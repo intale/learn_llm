@@ -1,0 +1,189 @@
+import {
+  activeLocalesForChapter,
+  chapterLocaleConfiguration,
+} from './chapter-locales';
+
+export interface PublicationChapterData {
+  chapter_id: string;
+  chapter_kind?: 'lesson' | 'orientation';
+  locale: string;
+  content_revision: number;
+  order: number;
+  concept_id: string;
+  formula: {
+    latex: string;
+    symbols: readonly { symbol: string }[];
+  } | null;
+  history: {
+    rust_source: string | null;
+    llm_evolution?: {
+      predecessor_kind: string;
+      sources: readonly {
+        role: string;
+        year: number;
+        name: string;
+        source_url: string;
+      }[];
+    };
+  };
+  rust_sources: readonly { path: string; region?: string }[];
+  visualization: {
+    decision: string;
+    id: string | null;
+    component?: string;
+    supplementary?: readonly { id: string; component: string }[];
+  };
+}
+
+export interface PublicationChapterEntry {
+  data: PublicationChapterData;
+}
+
+export interface PublishableChapterSet<T extends PublicationChapterEntry> {
+  chapterId: string;
+  revision: number;
+  activeLocales: readonly string[];
+  reference: T;
+  byLocale: Readonly<Partial<Record<string, T>>>;
+}
+
+export type ChapterLocaleRequirements =
+  | readonly string[]
+  | ((chapterId: string) => readonly string[]);
+
+function validatePublicationLocales(
+  requiredLocales: readonly string[],
+  referenceLocale: string,
+  context = 'Publication locales',
+): void {
+  if (
+    !Array.isArray(requiredLocales) ||
+    requiredLocales.length === 0 ||
+    requiredLocales.some(
+      (locale) => typeof locale !== 'string' || locale.length === 0,
+    ) ||
+    new Set(requiredLocales).size !== requiredLocales.length ||
+    !requiredLocales.includes(referenceLocale)
+  ) {
+    throw new Error(
+      `${context} must be non-empty, unique, and include the reference locale.`,
+    );
+  }
+}
+
+export function sharedChapterSignature(entry: PublicationChapterEntry): string {
+  return JSON.stringify({
+    chapter_id: entry.data.chapter_id,
+    chapter_kind: entry.data.chapter_kind ?? 'lesson',
+    order: entry.data.order,
+    concept_id: entry.data.concept_id,
+    formula: entry.data.formula
+      ? {
+          latex: entry.data.formula.latex,
+          symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
+        }
+      : null,
+    history_rust_source: entry.data.history.rust_source,
+    history_llm_evolution: entry.data.history.llm_evolution
+      ? {
+          predecessor_kind: entry.data.history.llm_evolution.predecessor_kind,
+          sources: entry.data.history.llm_evolution.sources.map((source) => ({
+            role: source.role,
+            year: source.year,
+            name: source.name,
+            source_url: source.source_url,
+          })),
+        }
+      : null,
+    rust_sources: entry.data.rust_sources.map((source) => ({
+      path: source.path,
+      region: source.region ?? null,
+    })),
+    visualization: {
+      decision: entry.data.visualization.decision,
+      id: entry.data.visualization.id,
+      ...(entry.data.visualization.component
+        ? { component: entry.data.visualization.component }
+        : {}),
+      ...((entry.data.visualization.supplementary?.length ?? 0) > 0
+        ? {
+            supplementary: entry.data.visualization.supplementary!.map(
+              ({ id, component }) => ({ id, component }),
+            ),
+          }
+        : {}),
+    },
+  });
+}
+
+export function findPublishableChapterSets<T extends PublicationChapterEntry>(
+  entries: readonly T[],
+  localeRequirements: ChapterLocaleRequirements = activeLocalesForChapter,
+  referenceLocale: string = chapterLocaleConfiguration.referenceLocale,
+): PublishableChapterSet<T>[] {
+  if (typeof localeRequirements !== 'function') {
+    validatePublicationLocales(localeRequirements, referenceLocale);
+  }
+
+  const groups = new Map<string, T[]>();
+  for (const entry of entries) {
+    const group = groups.get(entry.data.chapter_id) ?? [];
+    group.push(entry);
+    groups.set(entry.data.chapter_id, group);
+  }
+
+  const sets: PublishableChapterSet<T>[] = [];
+  for (const [chapterId, group] of groups) {
+    const requiredLocales =
+      typeof localeRequirements === 'function'
+        ? localeRequirements(chapterId)
+        : localeRequirements;
+    validatePublicationLocales(
+      requiredLocales,
+      referenceLocale,
+      `Publication locales for ${chapterId}`,
+    );
+    if (group.length !== requiredLocales.length) continue;
+    const byLocale: Record<string, T> = {};
+    let complete = true;
+    for (const locale of requiredLocales) {
+      const localized = group.filter((entry) => entry.data.locale === locale);
+      if (localized.length !== 1) {
+        complete = false;
+        break;
+      }
+      byLocale[locale] = localized[0];
+    }
+    if (!complete) continue;
+
+    const reference = byLocale[referenceLocale];
+    if (!reference) continue;
+    const signature = sharedChapterSignature(reference);
+    if (
+      requiredLocales.some((locale) => {
+        const localized = byLocale[locale];
+        return (
+          !localized ||
+          localized.data.content_revision !== reference.data.content_revision ||
+          sharedChapterSignature(localized) !== signature
+        );
+      })
+    ) {
+      continue;
+    }
+
+    sets.push({
+      chapterId,
+      revision: reference.data.content_revision,
+      activeLocales: Object.freeze([...requiredLocales]),
+      reference,
+      byLocale: Object.freeze(byLocale),
+    });
+  }
+
+  return sets.sort(
+    (left, right) =>
+      left.reference.data.order - right.reference.data.order ||
+      left.chapterId.localeCompare(right.chapterId),
+  );
+}

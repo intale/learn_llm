@@ -624,7 +624,7 @@ mod tests {
         inventory::verify_bundle,
         lineage::DatasetPolicy,
     };
-    use llm_from_scratch::artifact_identity::sha256;
+    use llm_from_scratch_practical::artifact_identity::sha256;
     use std::sync::atomic::{AtomicU64, Ordering};
     static NEXT: AtomicU64 = AtomicU64::new(0);
     struct Temp(PathBuf);

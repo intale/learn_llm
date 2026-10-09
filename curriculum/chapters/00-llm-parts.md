@@ -3,7 +3,7 @@
   "chapter_id": "00-llm-parts",
   "chapter_kind": "orientation",
   "concept_id": "llm-parts",
-  "content_revision": 6,
+  "content_revision": 5,
   "order": 0,
   "objective": {
     "en": "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.",
@@ -93,8 +93,8 @@
     ]
   },
   "decoder_connection": {
-    "en": "The map previews the scalar reference decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and learning changes the same weights through loss, gradients, and AdamW. This structural map does not establish language quality or measured laptop-scale capability.",
-    "ru": "Карта заранее показывает эталонный декодер со скалярными вычислениями: ID токенов превращаются в векторы признаков, повторяющиеся блоки с предварительной нормализацией смешивают доступный контекст и преобразуют признаки, выходная проекция с весами, общими с таблицей эмбеддингов, выдаёт логиты, выбор следующего токена продолжает генерацию, а при обучении те же веса изменяются с помощью функции потерь, градиентов и AdamW. Эта схема связей не подтверждает качество текста или измеренные возможности более крупной LLM на ноутбуке."
+    "en": "The map previews the complete decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and learning changes the same weights through loss, gradients, and AdamW.",
+    "ru": "Карта заранее показывает весь декодер: ID токенов превращаются в векторы признаков, повторяющиеся блоки с предварительной нормализацией смешивают доступный контекст и преобразуют признаки, выходная проекция с весами, общими с таблицей эмбеддингов, выдаёт логиты, выбор следующего токена продолжает генерацию, а при обучении те же веса изменяются с помощью функции потерь, градиентов и AdamW."
   },
   "terminology": [
     {
@@ -129,7 +129,7 @@
     }
   ],
   "translation_notes": [
-    "Previous published Russian revision 5 was translated directly from the matching English orientation. Revision 6 reframes the reference-core scope: refresh Russian only from independently approved English, and do not use another locale as an intermediate source.",
+    "Russian revision 5 is translated directly from the matching English orientation; do not use another locale as an intermediate source.",
     "Canonical English revision 5 has SHA-256 00ef6816f10320cc98ff31d60afd9dffb6798514cfdfbc0f2809d08b60ae495e; the reviewed direct Russian revision 5 has SHA-256 315ea8f2523a8b01a3f3bca8de9f2d399790f698447f2b6e2d725dbecb006bfd.",
     "Keep LLM, BPE, RMSNorm, SwiGLU, Q/K/V, RoPE, AdamW, KV, BOS, EOS, source titles, identifiers, URLs, and diagram topology stable; use established Russian technical forms such as логиты, эмбеддинги, каузальное внимание, функция потерь, контрольная точка, and KV-кэш (кэш ключей и значений) in explanations.",
     "On the Russian detail map, use the published Russian destination for every implementation chapter; if a future chapter has no active Russian route, use a visibly and accessibly marked English destination rather than creating a placeholder route.",
@@ -157,7 +157,7 @@
 }
 ---
 
-# Chapter 0: A map of the scalar reference decoder
+# Chapter 0: A map of a modern LLM
 
 <!-- contract-section:scope -->
 ## Scope
@@ -184,7 +184,7 @@ weights. Evaluation, checkpoints, a KV cache, and the numeric foundation attach 
 this path without becoming additional token-processing stages.
 
 <!-- contract-section:history -->
-## From short count contexts to the reference decoder's building blocks
+## From short count contexts to decoder-only LLMs
 
 [Bengio and colleagues](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 describe traditional n-gram language models as relying on short overlapping
@@ -225,11 +225,7 @@ figure.
 The learner may return to this map as a table of contents. Chapters 1-7 establish
 the text and language-model boundary; Chapters 8-23 build numeric and learning
 foundations; Chapters 24-32 assemble the decoder; Chapters 33-38 train, evaluate,
-persist, sample, and cache it; Chapter 39 connects the bounded scalar reference.
-Explicit CPU loops and `f64` values make this reference inspectable; the capstone
-does not establish language quality or measured laptop-scale training and
-inference. The separately planned extension starts in Chapter 40 by recording
-that evidence boundary.
+persist, sample, and cache it; Chapter 39 connects the complete system.
 
 The evaluation node names a post-selection role, not a promise that every
 repository run sees newly unopened data. Inside one execution, the local
@@ -247,10 +243,8 @@ and evidence.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian remain the active locales. Revision 6 reframes the reference
-scope and requires independent English approval before Russian is refreshed. Publish
-the pair only after both languages pass their required reviews. Translate the
-Russian orientation directly from the matching English source with established technical
+English and Russian are the active locales for revision 5. The Russian orientation
+is translated directly from the matching English source with established technical
 language, while model names, abbreviations, source titles, URLs, and diagram
 relationships remain stable. Keep the historical sequence on the road to modern
 LLMs and keep both pages as overviews rather than turning either into an assessed

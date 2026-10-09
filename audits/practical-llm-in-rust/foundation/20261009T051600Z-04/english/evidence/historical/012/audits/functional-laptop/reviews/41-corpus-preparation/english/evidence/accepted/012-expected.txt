@@ -1,0 +1,29 @@
+{
+  "first_documents": [
+    {
+      "id": "story-a",
+      "metadata_fields": [
+        "source_group"
+      ],
+      "text_utf8_bytes": 11
+    },
+    {
+      "id": "story-c",
+      "metadata_fields": [
+        "source_group"
+      ],
+      "text_utf8_bytes": 11
+    },
+    {
+      "id": "story-d",
+      "metadata_fields": [
+        "source_group"
+      ],
+      "text_utf8_bytes": 17
+    }
+  ],
+  "loaded": {
+    "documents": 3,
+    "text_bytes": 39
+  }
+}

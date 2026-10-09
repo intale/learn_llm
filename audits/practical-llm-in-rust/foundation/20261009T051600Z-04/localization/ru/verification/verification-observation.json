@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "kind": "actual-paired-maintained-localization-and-routing-verification",
+  "candidateId": "practical.foundation.home.ru.20261009.01",
+  "scopeId": "practical.foundation.home.ru",
+  "results": {
+    "localization": {
+      "status": "pass",
+      "result": {
+        "bindingSha256": "31ca8a1cb8b21f0ece464f56c8b4b16a23cbe6dafa95b652d93f964c22db3c91",
+        "bilingualRecordSha256": "ff7bd9844b2fe06c057a6665d9abb1563adb03a48aac852c9d2ade3510edb5c5",
+        "candidateId": "practical.foundation.home.ru.20261009.01",
+        "inventorySha256": "84121e7bb939fc91cfac5437b65ae3bc7bb5b621633eeac35edf9bbfc52f1cbc",
+        "schemaVersion": 1,
+        "status": "structural-evidence-verified",
+        "targetOnlyRecordSha256": "5d5f1bf3811996e6e08a6d0d21591222d55b8dea0584c6917e4942eb214dfa3a",
+        "targetSha256": "776eefb91680f07891e22ff986e0a022c9fb66b4c322bf5f179b0a5cdc85925a"
+      }
+    },
+    "routing": {
+      "status": "pass",
+      "result": {
+        "schemaVersion": 1,
+        "status": "exact-route-verified",
+        "roles": {
+          "bilingual": {
+            "contextId": "01a11f96-d4d6-7bd3-a6dd-fe4bf643e11b",
+            "recordSha256": "ff7bd9844b2fe06c057a6665d9abb1563adb03a48aac852c9d2ade3510edb5c5",
+            "recordBytes": 1688,
+            "contextSha256": "160b65a161fff3bda5160537f2d60f118348ac388a74f969f06fc692dd92a7b9",
+            "promptSha256": "5d8387079a836ce7dc47a7b3e64cce37790c6c4d6379e4cd70d9edb19eafe36d",
+            "bundleSha256": "1cc9cd569c1125b087747b71a1aafe26b1f11f8b8f05170ba5dc88d1bd8f80a6"
+          },
+          "target-only": {
+            "contextId": "01a11f96-f2b4-7ee3-9674-fa65c8a1cd23",
+            "recordSha256": "5d5f1bf3811996e6e08a6d0d21591222d55b8dea0584c6917e4942eb214dfa3a",
+            "recordBytes": 1613,
+            "contextSha256": "114125a97d225b79db7dc0dc48532cdef8af88911689ced8434af5c132ad571b",
+            "promptSha256": "76b5e96ef0f94308dcd7cb3b1299b5eecff14c6f25206e5cb4748bbc792f84b9",
+            "bundleSha256": "cf7828965bbdabc8a495d780c03ba48fc5c7a0f4010279fb01043d9d6f8d203f"
+          }
+        },
+        "limitations": "Operational byte/routing/configuration checks only. The unchanged maintained localization verifier remains required for schema, coverage, source/target binding, blockers and publication identity; language substance comes from independent model judgments."
+      }
+    }
+  },
+  "roles": {
+    "bilingual": {
+      "rawResponsePath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/raw/bilingual.json",
+      "bytes": 1688,
+      "sha256": "ff7bd9844b2fe06c057a6665d9abb1563adb03a48aac852c9d2ade3510edb5c5",
+      "finalByteHex": "0a",
+      "verdict": "pass",
+      "findings": 0,
+      "coveredSurfaceIds": [
+        "catalog.basicsCourseDescription",
+        "catalog.basicsCourseStart",
+        "catalog.basicsCourseTitle",
+        "catalog.complete-document",
+        "catalog.courseSelectionTitle",
+        "catalog.practicalCourseDescription",
+        "catalog.practicalCourseLanguage",
+        "catalog.practicalCoursePrerequisite",
+        "catalog.practicalCourseStart",
+        "catalog.practicalCourseTitle",
+        "home.basics.card-group",
+        "home.basics.heading",
+        "home.basics.start-action",
+        "home.complete-document",
+        "home.practical.card-group",
+        "home.practical.heading",
+        "home.practical.start-action",
+        "home.selection.heading",
+        "home.selection.reading-unit"
+      ],
+      "contextId": "01a11f96-d4d6-7bd3-a6dd-fe4bf643e11b"
+    },
+    "target-only": {
+      "rawResponsePath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/raw/target-only.json",
+      "bytes": 1613,
+      "sha256": "5d5f1bf3811996e6e08a6d0d21591222d55b8dea0584c6917e4942eb214dfa3a",
+      "finalByteHex": "0a",
+      "verdict": "pass",
+      "findings": 0,
+      "coveredSurfaceIds": [
+        "catalog.basicsCourseDescription",
+        "catalog.basicsCourseStart",
+        "catalog.basicsCourseTitle",
+        "catalog.complete-document",
+        "catalog.courseSelectionTitle",
+        "catalog.practicalCourseDescription",
+        "catalog.practicalCourseLanguage",
+        "catalog.practicalCoursePrerequisite",
+        "catalog.practicalCourseStart",
+        "catalog.practicalCourseTitle",
+        "home.basics.card-group",
+        "home.basics.heading",
+        "home.basics.start-action",
+        "home.complete-document",
+        "home.practical.card-group",
+        "home.practical.heading",
+        "home.practical.start-action",
+        "home.selection.heading",
+        "home.selection.reading-unit"
+      ],
+      "contextId": "01a11f96-f2b4-7ee3-9674-fa65c8a1cd23"
+    }
+  },
+  "rawResponseTransformation": false,
+  "published": false,
+  "FirefoxRun": false,
+  "limitations": "Tool verification checks exact bytes, structure, coverage, actual routing and the private reviewed publication files. Language judgments come only from the untouched independent records; canonical promotion and final build fit remain pending."
+}

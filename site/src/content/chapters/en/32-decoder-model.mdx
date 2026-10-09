@@ -2,7 +2,7 @@
 {
   "chapter_id": "32-decoder-model",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 4,
   "order": 32,
   "concept_id": "decoder-model",
   "title": "Stack a decoder and tie its vocabulary head",
@@ -165,7 +165,7 @@
     "id": "tied-decoder-model-flow",
     "rationale": "A single pipeline makes the repeated same-shaped block stack and the one embedding table's two distant roles visible together, while exact per-stage vectors and logits prove that the diagram is evidence rather than decorative architecture art."
   },
-  "decoder_connection": "The scalar reference implementation now produces differentiable next-token logits and mean indexed loss from token IDs. Chapter 33 will train this CPU model with a bounded deterministic loop and choose one state using validation loss only; these steps do not establish measured laptop-scale capability."
+  "decoder_connection": "The cumulative implementation now produces differentiable next-token logits and mean indexed loss from token IDs; Chapter 33 will train this exact model with a bounded deterministic loop and choose one state using validation loss only."
 }
 ---
 
@@ -173,7 +173,7 @@ import RustSource from "../../../components/RustSource.astro";
 import DecoderModelDiagram from "../../../components/chapters/DecoderModelDiagram.astro";
 
 export const diagramLabels = {
-  title: "Follow one tied vocabulary table through the scalar reference decoder",
+  title: "Follow one tied vocabulary table through a complete decoder",
   description:
     "Read exact Rust-authored token rows through lookup, two distinct causal blocks, final RMSNorm, and the transpose projection back to five vocabulary logits.",
   sections: {
@@ -407,7 +407,7 @@ Transformer, GPT-2, or LLaMA.
 
 {/* chapter-section:rust-implementation */}
 
-## Make the scalar reference model boundary explicit in Rust
+## Make the complete model boundary explicit in Rust
 
 `DecoderModelError` identifies invalid vocabulary, width, head, feed-forward,
 depth, context, RoPE, RMSNorm, component, parameter-name, token, target, and tape
@@ -491,7 +491,7 @@ checks, and bitwise replay.
 <RustSource
   path="rust/demos/ch32-decoder-model/src/lib.rs"
   region="learner-evidence"
-  caption="Collect one coherent evidence record for the scalar reference decoder boundary"
+  caption="Collect one coherent evidence record for the complete decoder boundary"
   label="Rust source collecting Chapter 32 learner evidence"
 />
 
@@ -612,10 +612,10 @@ would have separate identity, parameter ownership, and gradients.
 
 ## Train this exact model at the next boundary
 
-The scalar reference implementation now produces differentiable next-token
-logits and mean indexed loss from token IDs. Chapter 33 will train this CPU model
+The cumulative implementation now produces differentiable next-token logits
+and mean indexed loss from token IDs; Chapter 33 will train this exact model
 with a bounded deterministic loop and choose one state using validation loss
-only; these steps do not establish measured laptop-scale capability.
+only.
 
 This chapter stops before optimization. It owns architecture, parameter
 identity, logits, indexed loss, causality, and gradients, but it does not clip

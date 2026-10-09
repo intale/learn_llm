@@ -34,7 +34,7 @@ const copy = {
       "Prepare every block, then commit every cache together",
       "Follow prefill into one-token decode",
       "Predict before checking the results",
-      "Connect inference to the scalar reference pipeline",
+      "Connect inference to the whole pipeline",
     ],
     cues: [
       "| prompt prefill — solid border",
@@ -61,7 +61,7 @@ const copy = {
     contextBoundaryFragment:
       "selected from those logits and returned, then context-limit stops before decoding it",
     handoffFragments: [
-      "Chapter 39 will connect this inference path to the bounded CPU reference pipeline, not demonstrate laptop-scale performance; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence.",
+      "Chapter 39 will connect this inference path to the full pipeline; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence.",
       "That within-run boundary does not turn Chapter 39's checked-in decoder-versus-bigram result into a new independent generalization estimate when later executions repeat the comparison.",
     ],
     staleScopeClaims: [
@@ -90,7 +90,7 @@ const copy = {
       "Подготовьте каждый блок, затем согласованно запишите изменения во все кэши",
       "Проследите путь от промпта до декодирования одного токена",
       "Сначала предскажите, затем сверьтесь с результатами",
-      "Соедините генерацию с процессом эталонной реализации со скалярными вычислениями",
+      "Соедините генерацию со всем процессом",
     ],
     cues: [
       "| заполнение по промпту — сплошная рамка",
@@ -118,7 +118,7 @@ const copy = {
     contextBoundaryFragment:
       "выбирается из полученных логитов и возвращается, после чего ограничение контекста останавливает генерацию до его декодирования",
     handoffFragments: [
-      "Глава 39 соединит этот способ генерации с ограниченным по масштабу процессом эталонной реализации для CPU, а не продемонстрирует производительность более крупной LLM на ноутбуке; в пределах одного запуска тестовые данные не смогут повлиять на выбранное состояние, а сохранённый в репозитории порядок потерь из главы 39, при котором потери декодера ниже, чем у биграммной модели, будет служить только регрессионной проверкой фиксированного примера.",
+      "Глава 39 соединит этот способ генерации с полным процессом; в пределах одного запуска тестовые данные не смогут повлиять на выбранное состояние, а сохранённый в репозитории порядок потерь из главы 39, при котором потери декодера ниже, чем у биграммной модели, будет служить только регрессионной проверкой фиксированного примера.",
       "Эта граница внутри запуска не превращает сохранённый в главе 39 результат сравнения декодера с биграммной моделью в новую независимую оценку, когда в последующих запусках это сравнение повторяют.",
     ],
     staleScopeClaims: [
@@ -328,7 +328,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 38,
-    revision: 7,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],

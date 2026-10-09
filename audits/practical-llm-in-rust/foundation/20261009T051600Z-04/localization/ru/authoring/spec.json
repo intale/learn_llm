@@ -1,0 +1,322 @@
+{
+  "authorContext": {
+    "id": "01a11ab9-04cf-7a92-b066-c5e296f19bbc",
+    "sha256": "d53093d8f61bfd2064b62050c18ed3ae91d98e54c045864bb088106553039fbb"
+  },
+  "candidateId": "practical.foundation.home.ru.20261009.01",
+  "referenceLocale": "en",
+  "requiredReviewers": {
+    "bilingual": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "max"
+    },
+    "targetOnly": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "max"
+    }
+  },
+  "requiredSurfaceIds": [
+    "catalog.basicsCourseDescription",
+    "catalog.basicsCourseStart",
+    "catalog.basicsCourseTitle",
+    "catalog.complete-document",
+    "catalog.courseSelectionTitle",
+    "catalog.practicalCourseDescription",
+    "catalog.practicalCourseLanguage",
+    "catalog.practicalCoursePrerequisite",
+    "catalog.practicalCourseStart",
+    "catalog.practicalCourseTitle",
+    "home.basics.card-group",
+    "home.basics.heading",
+    "home.basics.start-action",
+    "home.complete-document",
+    "home.practical.card-group",
+    "home.practical.heading",
+    "home.practical.start-action",
+    "home.selection.heading",
+    "home.selection.reading-unit"
+  ],
+  "rubrics": {
+    "bilingual": {
+      "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/authoring/bilingual-rubric.txt",
+      "sha256": "5fb1d6e2aab5fdac4a3b6aec3a6aa05216205c851ee1bd20f843b8723b6e22af"
+    },
+    "targetOnly": {
+      "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/authoring/target-only-rubric.txt",
+      "sha256": "6b60ffd817df106862f4da3ccb630310f166d6d0f834e65c915dbd4aca5ec381"
+    }
+  },
+  "schemaVersion": 1,
+  "scopeId": "practical.foundation.home.ru",
+  "surfaces": [
+    {
+      "id": "catalog.basicsCourseDescription",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 13,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.basicsCourseDescription.txt",
+        "sha256": "468d9838b1da8cd5bb98dfdd40f8b20c99818158c6eb25ee8e40b274234f8fa2"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.basicsCourseDescription.txt",
+        "sha256": "e9990db699bdf517d1e30a729a3bfcda7208e46113812689bfedc3001f8665f6"
+      }
+    },
+    {
+      "id": "catalog.basicsCourseStart",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 14,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.basicsCourseStart.txt",
+        "sha256": "51673d5ae7dc9ef76411fb68bba9e5afc7978004b245f7205b1a1b77b315762d"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.basicsCourseStart.txt",
+        "sha256": "62d8b65a53bfb11e93c975a6671f7ebce4f67af5a6e29bd17b5b79a1176d875e"
+      }
+    },
+    {
+      "id": "catalog.basicsCourseTitle",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 12,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.basicsCourseTitle.txt",
+        "sha256": "883271b49ce460a3322b2ba13f8dbabcbd05616f1a1ff75e68b347b560b7e5a9"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.basicsCourseTitle.txt",
+        "sha256": "b05df03e97769f6627de86f21f0e611ccbe9dab78abdb9a63b335f8092aeb728"
+      }
+    },
+    {
+      "id": "catalog.complete-document",
+      "kind": "complete-document",
+      "localization": "translate",
+      "order": 10,
+      "publicationPath": "site/src/i18n/catalogs/ru.json",
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.complete-document.json",
+        "sha256": "ca2e2bbc094e721d9b82765db0ae16e2cb92ab79ed911086bf7fb9c86591c6ca"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.complete-document.json",
+        "sha256": "8354679d67d2486f8b50a1b5535533d8b09fb093e9e789be6b137a45faebfc76"
+      }
+    },
+    {
+      "id": "catalog.courseSelectionTitle",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 11,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.courseSelectionTitle.txt",
+        "sha256": "8a1518e9c1ab47482e363bc983927f894d326e3511ddbb53fbde02cf7a6f5d06"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.courseSelectionTitle.txt",
+        "sha256": "3fd2ee71d8388d8a9896c7f075e05e3a234a945bf2957cb6d58d72221fdd0f48"
+      }
+    },
+    {
+      "id": "catalog.practicalCourseDescription",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 16,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.practicalCourseDescription.txt",
+        "sha256": "c59be5abf2af5671cacfb521ba1c22f63c25795a5661541649e35563ec39c997"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.practicalCourseDescription.txt",
+        "sha256": "3cdf07204198d59a7ca432ded76de9011e672fabd36236cc9498a7dd9cb67b6d"
+      }
+    },
+    {
+      "id": "catalog.practicalCourseLanguage",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 18,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.practicalCourseLanguage.txt",
+        "sha256": "f7ad2d76ddb6c34f74e3fab744948ec22ff039725a6bd03e71391d986fd6e3f3"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.practicalCourseLanguage.txt",
+        "sha256": "16153925119e78d7eea19b389b05f31a365f059ec1280ac561d5bb67269ce06b"
+      }
+    },
+    {
+      "id": "catalog.practicalCoursePrerequisite",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 17,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.practicalCoursePrerequisite.txt",
+        "sha256": "199e95cec9932aa52494c21583f61418bde998b035091682e402a6683b679436"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.practicalCoursePrerequisite.txt",
+        "sha256": "83d6d196a639e31e0830dcb37526fa2ada1fc4d26ece11dfd32a08453dd41925"
+      }
+    },
+    {
+      "id": "catalog.practicalCourseStart",
+      "kind": "catalog-value",
+      "localization": "translate",
+      "order": 19,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.practicalCourseStart.txt",
+        "sha256": "67587a51cad131717e795c7884ccb5dad9848b841f94c1550fca190f7658da3a"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.practicalCourseStart.txt",
+        "sha256": "bacf76a65bed1583be4d1183b1beb9b77b82c474b5042004d75652b935a3a308"
+      }
+    },
+    {
+      "id": "catalog.practicalCourseTitle",
+      "kind": "catalog-value",
+      "localization": "copy",
+      "order": 15,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/catalog.practicalCourseTitle.txt",
+        "sha256": "ee2c25d2669a932ceb51f4c05402951f5e017e6538392f05c634e9f8debc6668"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/catalog.practicalCourseTitle.txt",
+        "sha256": "ee2c25d2669a932ceb51f4c05402951f5e017e6538392f05c634e9f8debc6668"
+      }
+    },
+    {
+      "id": "home.basics.card-group",
+      "kind": "course-card-group",
+      "localization": "translate",
+      "order": 4,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.basics.card-group.txt",
+        "sha256": "3a18454cbaa3210c1afa6f34795e735a42492f386664dd2caf9aace82c86b3ca"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.basics.card-group.txt",
+        "sha256": "fd2d3203966912ee30a0caa39e3c2d43b500e186e5ec483620d781d10da2d013"
+      }
+    },
+    {
+      "id": "home.basics.heading",
+      "kind": "contextual-heading",
+      "localization": "translate",
+      "order": 5,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.basics.heading.txt",
+        "sha256": "883271b49ce460a3322b2ba13f8dbabcbd05616f1a1ff75e68b347b560b7e5a9"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.basics.heading.txt",
+        "sha256": "b05df03e97769f6627de86f21f0e611ccbe9dab78abdb9a63b335f8092aeb728"
+      }
+    },
+    {
+      "id": "home.basics.start-action",
+      "kind": "start-action",
+      "localization": "translate",
+      "order": 6,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.basics.start-action.txt",
+        "sha256": "51673d5ae7dc9ef76411fb68bba9e5afc7978004b245f7205b1a1b77b315762d"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.basics.start-action.txt",
+        "sha256": "62d8b65a53bfb11e93c975a6671f7ebce4f67af5a6e29bd17b5b79a1176d875e"
+      }
+    },
+    {
+      "id": "home.complete-document",
+      "kind": "complete-document",
+      "localization": "translate",
+      "order": 1,
+      "publicationPath": "artifacts/practical-llm-in-rust/foundation/localization/ru/html/ru/index.html",
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.complete-document.html",
+        "sha256": "f02ed0b8057bd370cf6bdda61bf4ad9c629e41a77a29db93e4c001e6e9e71f86"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.complete-document.html",
+        "sha256": "678a76a0389e1ade7e95c71f70e7cb614e77adf10aade65919738d65bfe2150a"
+      }
+    },
+    {
+      "id": "home.practical.card-group",
+      "kind": "course-card-group",
+      "localization": "translate",
+      "order": 7,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.practical.card-group.txt",
+        "sha256": "054f64d9c2156a455ae7c208d88a931fe7eb08987380a8526c1071e28949bcb1"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.practical.card-group.txt",
+        "sha256": "8cc2bc8dadb29f2128f6850aa43d0702e4e53e0aff6b6a4fe25bb286e5227ec7"
+      }
+    },
+    {
+      "id": "home.practical.heading",
+      "kind": "contextual-heading",
+      "localization": "copy",
+      "order": 8,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.practical.heading.txt",
+        "sha256": "ee2c25d2669a932ceb51f4c05402951f5e017e6538392f05c634e9f8debc6668"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.practical.heading.txt",
+        "sha256": "ee2c25d2669a932ceb51f4c05402951f5e017e6538392f05c634e9f8debc6668"
+      }
+    },
+    {
+      "id": "home.practical.start-action",
+      "kind": "start-action",
+      "localization": "translate",
+      "order": 9,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.practical.start-action.txt",
+        "sha256": "67587a51cad131717e795c7884ccb5dad9848b841f94c1550fca190f7658da3a"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.practical.start-action.txt",
+        "sha256": "bacf76a65bed1583be4d1183b1beb9b77b82c474b5042004d75652b935a3a308"
+      }
+    },
+    {
+      "id": "home.selection.heading",
+      "kind": "contextual-heading",
+      "localization": "translate",
+      "order": 3,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.selection.heading.txt",
+        "sha256": "8a1518e9c1ab47482e363bc983927f894d326e3511ddbb53fbde02cf7a6f5d06"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.selection.heading.txt",
+        "sha256": "3fd2ee71d8388d8a9896c7f075e05e3a234a945bf2957cb6d58d72221fdd0f48"
+      }
+    },
+    {
+      "id": "home.selection.reading-unit",
+      "kind": "reading-unit",
+      "localization": "translate",
+      "order": 2,
+      "source": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/source/home.selection.reading-unit.txt",
+        "sha256": "06a5970ec9f4e428cad23f83494ae8080e984b80d0344d4717b78b75e1f02111"
+      },
+      "target": {
+        "path": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/surfaces/target/home.selection.reading-unit.txt",
+        "sha256": "ae3ee8ff05a219cf47de3550649ba72f017848a785c9d6a7b8a3cc7c18683d2a"
+      }
+    }
+  ],
+  "targetLocale": "ru"
+}

@@ -1,0 +1,859 @@
+{
+  "schemaVersion": 1,
+  "completeReadingUnitId": "practical-01.section-the-solution-identify-inputs-then-interpret-evidence",
+  "constituents": [
+    {
+      "originUnitId": "practical-01.section-the-solution-identify-inputs-then-interpret-evidence",
+      "observedRootIds": [
+        "element.0118",
+        "element.0119",
+        "element.0120"
+      ],
+      "valueCount": 3,
+      "values": [
+        {
+          "observedElementId": "element.0118",
+          "nodePath": "0/1/2/5/1/3/23",
+          "value": "The solution: identify inputs, then interpret evidence"
+        },
+        {
+          "observedElementId": "element.0119",
+          "nodePath": "0/1/2/5/1/3/25/0/0/0",
+          "value": "R_{\\mathrm{ref}}=\\operatorname{SHA256}(\\mathrm{config}_{1188}\\Vert\\mathrm{fixture}\\Vert\\mathrm{source\\_revision})"
+        },
+        {
+          "observedElementId": "element.0120",
+          "nodePath": "0/1/2/5/1/3/25/0/1",
+          "value": ""
+        }
+      ],
+      "rootProvenance": [
+        {
+          "id": "element.0118",
+          "nodePath": "0/1/2/5/1/3/23",
+          "attrs": {
+            "id": "the-solution-identify-inputs-then-interpret-evidence"
+          },
+          "location": {
+            "startLine": 93,
+            "startCol": 1,
+            "startOffset": 72661,
+            "endLine": 93,
+            "endCol": 122,
+            "endOffset": 72782,
+            "attrs": {
+              "id": {
+                "startLine": 93,
+                "startCol": 5,
+                "startOffset": 72665,
+                "endLine": 93,
+                "endCol": 62,
+                "endOffset": 72722
+              }
+            },
+            "startTag": {
+              "startLine": 93,
+              "startCol": 1,
+              "startOffset": 72661,
+              "endLine": 93,
+              "endCol": 63,
+              "endOffset": 72723,
+              "attrs": {
+                "id": {
+                  "startLine": 93,
+                  "startCol": 5,
+                  "startOffset": 72665,
+                  "endLine": 93,
+                  "endCol": 62,
+                  "endOffset": 72722
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 93,
+              "startCol": 117,
+              "startOffset": 72777,
+              "endLine": 93,
+              "endCol": 122,
+              "endOffset": 72782
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0119",
+          "nodePath": "0/1/2/5/1/3/25/0/0/0",
+          "attrs": {
+            "xmlns": "http://www.w3.org/1998/Math/MathML",
+            "display": "block"
+          },
+          "location": {
+            "startLine": 94,
+            "startCol": 76,
+            "startOffset": 72858,
+            "endLine": 94,
+            "endCol": 1585,
+            "endOffset": 74367,
+            "attrs": {
+              "xmlns": {
+                "startLine": 94,
+                "startCol": 82,
+                "startOffset": 72864,
+                "endLine": 94,
+                "endCol": 124,
+                "endOffset": 72906
+              },
+              "display": {
+                "startLine": 94,
+                "startCol": 125,
+                "startOffset": 72907,
+                "endLine": 94,
+                "endCol": 140,
+                "endOffset": 72922
+              }
+            },
+            "startTag": {
+              "startLine": 94,
+              "startCol": 76,
+              "startOffset": 72858,
+              "endLine": 94,
+              "endCol": 141,
+              "endOffset": 72923,
+              "attrs": {
+                "xmlns": {
+                  "startLine": 94,
+                  "startCol": 82,
+                  "startOffset": 72864,
+                  "endLine": 94,
+                  "endCol": 124,
+                  "endOffset": 72906
+                },
+                "display": {
+                  "startLine": 94,
+                  "startCol": 125,
+                  "startOffset": 72907,
+                  "endLine": 94,
+                  "endCol": 140,
+                  "endOffset": 72922
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 94,
+              "startCol": 1578,
+              "startOffset": 74360,
+              "endLine": 94,
+              "endCol": 1585,
+              "endOffset": 74367
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0120",
+          "nodePath": "0/1/2/5/1/3/25/0/1",
+          "attrs": {
+            "class": "katex-html",
+            "aria-hidden": "true"
+          },
+          "location": {
+            "startLine": 94,
+            "startCol": 1592,
+            "startOffset": 74374,
+            "endLine": 94,
+            "endCol": 3594,
+            "endOffset": 76376,
+            "attrs": {
+              "class": {
+                "startLine": 94,
+                "startCol": 1598,
+                "startOffset": 74380,
+                "endLine": 94,
+                "endCol": 1616,
+                "endOffset": 74398
+              },
+              "aria-hidden": {
+                "startLine": 94,
+                "startCol": 1617,
+                "startOffset": 74399,
+                "endLine": 94,
+                "endCol": 1635,
+                "endOffset": 74417
+              }
+            },
+            "startTag": {
+              "startLine": 94,
+              "startCol": 1592,
+              "startOffset": 74374,
+              "endLine": 94,
+              "endCol": 1636,
+              "endOffset": 74418,
+              "attrs": {
+                "class": {
+                  "startLine": 94,
+                  "startCol": 1598,
+                  "startOffset": 74380,
+                  "endLine": 94,
+                  "endCol": 1616,
+                  "endOffset": 74398
+                },
+                "aria-hidden": {
+                  "startLine": 94,
+                  "startCol": 1617,
+                  "startOffset": 74399,
+                  "endLine": 94,
+                  "endCol": 1635,
+                  "endOffset": 74417
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 94,
+              "startCol": 3587,
+              "startOffset": 76369,
+              "endLine": 94,
+              "endCol": 3594,
+              "endOffset": 76376
+            }
+          },
+          "references": []
+        }
+      ]
+    },
+    {
+      "originUnitId": "practical-01.section-the-identitys-symbols-and-fixed-settings",
+      "observedRootIds": [
+        "element.0121",
+        "element.0122",
+        "element.0129",
+        "element.0141",
+        "element.0144",
+        "element.0157",
+        "element.0160",
+        "element.0161",
+        "element.0164",
+        "element.0165",
+        "element.0166",
+        "element.0167"
+      ],
+      "valueCount": 12,
+      "values": [
+        {
+          "observedElementId": "element.0121",
+          "nodePath": "0/1/2/5/1/3/27",
+          "value": "The identity’s symbols and fixed settings"
+        },
+        {
+          "observedElementId": "element.0122",
+          "nodePath": "0/1/2/5/1/3/29",
+          "value": "R_{\\mathrm{ref}} is a 256-bit digest, displayed as 64 lowercase hexadecimal characters. Its three named inputs are:"
+        },
+        {
+          "observedElementId": "element.0129",
+          "nodePath": "0/1/2/5/1/3/31",
+          "value": "\\mathrm{config}_{1188}: a canonical record of eighteen tiny-run settings, together with the invariant that the decoder has 1188 parameters. \\mathrm{fixture}: a canonical record of SHA-256 digests of the exact corpus bytes and exact split-manifest bytes. Even a byte change that leaves parsed JSON meaning unchanged creates a different input identity. \\mathrm{source\\_revision}: a verified source identity combining a baseline revision with the exact forty Rust source files of the completed first-course crate, including its module declarations in lib.rs."
+        },
+        {
+          "observedElementId": "element.0141",
+          "nodePath": "0/1/2/5/1/3/33",
+          "value": "Here \\Vert means composition into the shared identity format’s named, canonical fields, not writing three unframed strings beside one another. That distinction matters: without field boundaries, different input sequences can have the same concatenated bytes. The helper orders fields, serializes one unambiguous record and hashes its complete bytes."
+        },
+        {
+          "observedElementId": "element.0144",
+          "nodePath": "0/1/2/5/1/3/35",
+          "value": "The settings fix eight BPE merges; decoder width, feed-forward width and context capacity of four; one attention head and one block; stride one; training and evaluation batch sizes of sixteen and one hundred twenty-eight; thirty-two updates; learning rate 0.04; gradient-norm cap 1; training seed 39; generation seed 38; bigram smoothing 1; generation temperature 0.8; top-k four; and three generated tokens. The identity records floating-point settings by their exact bit patterns rather than rounded display text."
+        },
+        {
+          "observedElementId": "element.0157",
+          "nodePath": "0/1/2/5/1/3/37",
+          "value": "Bind configuration, exact fixture bytes and verified scalar-reference source to one input identity. rust/demos/practical-ch01-reference-core-handoff/src/lib.rs#reference-input-identity /// Bind every tiny-config field, including exact represented floating values. /// The count is the reference decoder's required 1,188-parameter invariant. pub fn tiny_config_identity() -> Result<ArtifactIdentity, IdentityError> { let config = CapstoneConfig::tiny(); let fields = [ (\"parameters\", \"1188\".to_owned()), (\"bpe_merges\", config.bpe_merges().to_string()), (\"model_width\", config.model_width().to_string()), (\"heads\", config.heads().to_string()), ( \"feed_forward_width\", config.feed_forward_width().to_string(), ), (\"layers\", config.layers().to_string()), (\"context_length\", config.context_length().to_string()), (\"window_stride\", config.window_stride().to_string()), (\"update_batch_size\", config.update_batch_size().to_string()), ( \"evaluation_batch_size\", config.evaluation_batch_size().to_string(), ), (\"updates\", config.updates().to_string()), ( \"learning_rate_f64_bits\", format!(\"{:016x}\", config.learning_rate().to_bits()), ), ( \"max_gradient_norm_f64_bits\", format!(\"{:016x}\", config.max_gradient_norm().to_bits()), ), (\"seed\", config.seed().to_string()), (\"generation_seed\", config.generation_seed().to_string()), ( \"bigram_alpha_f64_bits\", format!(\"{:016x}\", config.bigram_alpha().to_bits()), ), ( \"generation_temperature_f64_bits\", format!(\"{:016x}\", config.generation_temperature().to_bits()), ), (\"generation_top_k\", config.generation_top_k().to_string()), (\"generation_tokens\", config.generation_tokens().to_string()), ]; ArtifactIdentity::new( \"scalar_reference_config\", fields.iter().map(|(key, value)| (*key, value.as_str())), ) } /// Pure identity construction, also usable by mutation tests without training. /// An identity by itself does not admit alternate inputs to the reference run. pub fn reference_input_identity( config: &ArtifactIdentity, corpus: &[u8], splits: &[u8], source: &ArtifactIdentity, ) -> Result<ArtifactIdentity, IdentityError> { let corpus_digest = sha256(corpus); let splits_digest = sha256(splits); let fixture = ArtifactIdentity::new( \"scalar_reference_fixture\", [ (\"corpus_sha256\", corpus_digest.as_hex()), (\"splits_sha256\", splits_digest.as_hex()), ], )?; let config_bytes = canonical_string(config)?; let fixture_bytes = canonical_string(&fixture)?; let source_bytes = canonical_string(source)?; ArtifactIdentity::new( \"scalar_reference_run\", [ (\"config_1188\", config_bytes.as_str()), (\"fixture\", fixture_bytes.as_str()), (\"source_revision\", source_bytes.as_str()), ], ) }"
+        },
+        {
+          "observedElementId": "element.0160",
+          "nodePath": "0/1/2/5/1/3/39",
+          "value": "The example verifies its compiled reference-source evidence first. It then rejects changed corpus or split bytes before training or checkpoint work. Only accepted fixed inputs reach the existing pipeline. The wrapper calls that pipeline once; the pipeline itself performs primary training and replay."
+        },
+        {
+          "observedElementId": "element.0161",
+          "nodePath": "0/1/2/5/1/3/41",
+          "value": "Reject changed fixtures, run the unchanged scalar pipeline and retain only its checked observation. rust/demos/practical-ch01-reference-core-handoff/src/lib.rs#reference-handoff /// Refuse changed fixtures before model/checkpoint work, then call the existing /// capstone once. That call already includes primary training and full replay. pub fn run_reference_handoff( corpus_source: &str, split_source: &str, checkpoint_path: impl AsRef<Path>, source: &ReferenceSourceProof, ) -> Result<ReferenceHandoffTrace, ReferenceHandoffError> { if sha256(corpus_source.as_bytes()).as_hex() != CORPUS_SHA256 { return Err(ReferenceHandoffError::FixtureMismatch(\"corpus\")); } if sha256(split_source.as_bytes()).as_hex() != SPLITS_SHA256 { return Err(ReferenceHandoffError::FixtureMismatch(\"split manifest\")); } // Safe callers obtain this opaque proof only through the foundation's // approved-manifest/compiled-census verification, not a revision string. let identity = reference_input_identity( &tiny_config_identity()?, corpus_source.as_bytes(), split_source.as_bytes(), source.identity(), )?; let digest = identity.digest()?; let observation = run_capstone( corpus_source, split_source, checkpoint_path, CapstoneConfig::tiny(), )?; let evaluation = observation.final_evaluation(); let checkpoint = observation.checkpoint(); if observation.training().parameter_count() != 1188 || observation.training().optimizer_step() != 32 || !observation.training().replay_bitwise() || evaluation.window_count() != 436 || evaluation.window_target_slot_count() != 1744 || evaluation.document_transition_occurrence_count() != 442 || !evaluation.decoder().mean_nll().is_finite() || !evaluation.bigram().mean_nll().is_finite() || !checkpoint.bytes_roundtrip() || !checkpoint.model_bits_exact() || !checkpoint.optimizer_bits_exact() || !checkpoint.tokenizer_exact() || !checkpoint.prompt_logits_bitwise() || !observation.generation().tokens_exact() || !observation.generation().decisions_bitwise() || !observation.generation().rng_state_exact() { return Err(ReferenceHandoffError::Invariant( \"scalar reference handoff evidence changed\", )); } Ok(ReferenceHandoffTrace { identity, digest, source_revision: source.source_revision().to_owned(), observation, }) }"
+        },
+        {
+          "observedElementId": "element.0164",
+          "nodePath": "0/1/2/5/1/3/43",
+          "value": "What matching identities do not prove"
+        },
+        {
+          "observedElementId": "element.0165",
+          "nodePath": "0/1/2/5/1/3/45",
+          "value": "A matching digest identifies the same canonical input record, subject to the hash’s collision-resistance assumption. It does not prove that the algorithm is correct or that a new machine will reproduce every floating-point bit."
+        },
+        {
+          "observedElementId": "element.0166",
+          "nodePath": "0/1/2/5/1/3/47",
+          "value": "The source identity deliberately covers the forty first-course source files, not the evolving practical crate, this chapter’s reporting wrapper or interface. Toolchain, locked dependencies and arithmetic environment are recorded separately. A matching source digest is therefore not evidence that two execution environments match. The temporary checkpoint path is also outside the input identity; changing that path does not change the model’s fixed inputs."
+        },
+        {
+          "observedElementId": "element.0167",
+          "nodePath": "0/1/2/5/1/3/49",
+          "value": "Likewise, exact checkpoint reload is narrower than complete job resumption. This check does not restore every data cursor, in-flight operation or whole-job continuation state. No laptop throughput is measured here."
+        }
+      ],
+      "rootProvenance": [
+        {
+          "id": "element.0121",
+          "nodePath": "0/1/2/5/1/3/27",
+          "attrs": {
+            "id": "the-identitys-symbols-and-fixed-settings"
+          },
+          "location": {
+            "startLine": 96,
+            "startCol": 1,
+            "startOffset": 76392,
+            "endLine": 96,
+            "endCol": 97,
+            "endOffset": 76488,
+            "attrs": {
+              "id": {
+                "startLine": 96,
+                "startCol": 5,
+                "startOffset": 76396,
+                "endLine": 96,
+                "endCol": 50,
+                "endOffset": 76441
+              }
+            },
+            "startTag": {
+              "startLine": 96,
+              "startCol": 1,
+              "startOffset": 76392,
+              "endLine": 96,
+              "endCol": 51,
+              "endOffset": 76442,
+              "attrs": {
+                "id": {
+                  "startLine": 96,
+                  "startCol": 5,
+                  "startOffset": 76396,
+                  "endLine": 96,
+                  "endCol": 50,
+                  "endOffset": 76441
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 96,
+              "startCol": 92,
+              "startOffset": 76483,
+              "endLine": 96,
+              "endCol": 97,
+              "endOffset": 76488
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0122",
+          "nodePath": "0/1/2/5/1/3/29",
+          "attrs": {},
+          "location": {
+            "startLine": 97,
+            "startCol": 1,
+            "startOffset": 76489,
+            "endLine": 98,
+            "endCol": 44,
+            "endOffset": 78526,
+            "startTag": {
+              "startLine": 97,
+              "startCol": 1,
+              "startOffset": 76489,
+              "endLine": 97,
+              "endCol": 4,
+              "endOffset": 76492
+            },
+            "endTag": {
+              "startLine": 98,
+              "startCol": 40,
+              "startOffset": 78522,
+              "endLine": 98,
+              "endCol": 44,
+              "endOffset": 78526
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0129",
+          "nodePath": "0/1/2/5/1/3/31",
+          "attrs": {},
+          "location": {
+            "startLine": 99,
+            "startCol": 1,
+            "startOffset": 78527,
+            "endLine": 108,
+            "endCol": 6,
+            "endOffset": 82228,
+            "startTag": {
+              "startLine": 99,
+              "startCol": 1,
+              "startOffset": 78527,
+              "endLine": 99,
+              "endCol": 5,
+              "endOffset": 78531
+            },
+            "endTag": {
+              "startLine": 108,
+              "startCol": 1,
+              "startOffset": 82223,
+              "endLine": 108,
+              "endCol": 6,
+              "endOffset": 82228
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0141",
+          "nodePath": "0/1/2/5/1/3/33",
+          "attrs": {},
+          "location": {
+            "startLine": 109,
+            "startCol": 1,
+            "startOffset": 82229,
+            "endLine": 113,
+            "endCol": 54,
+            "endOffset": 82996,
+            "startTag": {
+              "startLine": 109,
+              "startCol": 1,
+              "startOffset": 82229,
+              "endLine": 109,
+              "endCol": 4,
+              "endOffset": 82232
+            },
+            "endTag": {
+              "startLine": 113,
+              "startCol": 50,
+              "startOffset": 82992,
+              "endLine": 113,
+              "endCol": 54,
+              "endOffset": 82996
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0144",
+          "nodePath": "0/1/2/5/1/3/35",
+          "attrs": {},
+          "location": {
+            "startLine": 114,
+            "startCol": 1,
+            "startOffset": 82997,
+            "endLine": 120,
+            "endCol": 75,
+            "endOffset": 85765,
+            "startTag": {
+              "startLine": 114,
+              "startCol": 1,
+              "startOffset": 82997,
+              "endLine": 114,
+              "endCol": 4,
+              "endOffset": 83000
+            },
+            "endTag": {
+              "startLine": 120,
+              "startCol": 71,
+              "startOffset": 85761,
+              "endLine": 120,
+              "endCol": 75,
+              "endOffset": 85765
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0157",
+          "nodePath": "0/1/2/5/1/3/37",
+          "attrs": {
+            "class": "rust-source",
+            "data-source-path": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+            "data-source-region": "reference-input-identity",
+            "data-astro-cid-i3uagjh5": ""
+          },
+          "location": {
+            "startLine": 121,
+            "startCol": 1,
+            "startOffset": 85766,
+            "endLine": 198,
+            "endCol": 86,
+            "endOffset": 104371,
+            "attrs": {
+              "class": {
+                "startLine": 121,
+                "startCol": 9,
+                "startOffset": 85774,
+                "endLine": 121,
+                "endCol": 28,
+                "endOffset": 85793
+              },
+              "data-source-path": {
+                "startLine": 121,
+                "startCol": 29,
+                "startOffset": 85794,
+                "endLine": 121,
+                "endCol": 107,
+                "endOffset": 85872
+              },
+              "data-source-region": {
+                "startLine": 121,
+                "startCol": 108,
+                "startOffset": 85873,
+                "endLine": 121,
+                "endCol": 153,
+                "endOffset": 85918
+              },
+              "data-astro-cid-i3uagjh5": {
+                "startLine": 121,
+                "startCol": 154,
+                "startOffset": 85919,
+                "endLine": 121,
+                "endCol": 177,
+                "endOffset": 85942
+              }
+            },
+            "startTag": {
+              "startLine": 121,
+              "startCol": 1,
+              "startOffset": 85766,
+              "endLine": 121,
+              "endCol": 178,
+              "endOffset": 85943,
+              "attrs": {
+                "class": {
+                  "startLine": 121,
+                  "startCol": 9,
+                  "startOffset": 85774,
+                  "endLine": 121,
+                  "endCol": 28,
+                  "endOffset": 85793
+                },
+                "data-source-path": {
+                  "startLine": 121,
+                  "startCol": 29,
+                  "startOffset": 85794,
+                  "endLine": 121,
+                  "endCol": 107,
+                  "endOffset": 85872
+                },
+                "data-source-region": {
+                  "startLine": 121,
+                  "startCol": 108,
+                  "startOffset": 85873,
+                  "endLine": 121,
+                  "endCol": 153,
+                  "endOffset": 85918
+                },
+                "data-astro-cid-i3uagjh5": {
+                  "startLine": 121,
+                  "startCol": 154,
+                  "startOffset": 85919,
+                  "endLine": 121,
+                  "endCol": 177,
+                  "endOffset": 85942
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 198,
+              "startCol": 77,
+              "startOffset": 104362,
+              "endLine": 198,
+              "endCol": 86,
+              "endOffset": 104371
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0160",
+          "nodePath": "0/1/2/5/1/3/39",
+          "attrs": {},
+          "location": {
+            "startLine": 199,
+            "startCol": 1,
+            "startOffset": 104372,
+            "endLine": 202,
+            "endCol": 77,
+            "endOffset": 104679,
+            "startTag": {
+              "startLine": 199,
+              "startCol": 1,
+              "startOffset": 104372,
+              "endLine": 199,
+              "endCol": 4,
+              "endOffset": 104375
+            },
+            "endTag": {
+              "startLine": 202,
+              "startCol": 73,
+              "startOffset": 104675,
+              "endLine": 202,
+              "endCol": 77,
+              "endOffset": 104679
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0161",
+          "nodePath": "0/1/2/5/1/3/41",
+          "attrs": {
+            "class": "rust-source",
+            "data-source-path": "rust/demos/practical-ch01-reference-core-handoff/src/lib.rs",
+            "data-source-region": "reference-handoff",
+            "data-astro-cid-i3uagjh5": ""
+          },
+          "location": {
+            "startLine": 203,
+            "startCol": 1,
+            "startOffset": 104680,
+            "endLine": 261,
+            "endCol": 86,
+            "endOffset": 120151,
+            "attrs": {
+              "class": {
+                "startLine": 203,
+                "startCol": 9,
+                "startOffset": 104688,
+                "endLine": 203,
+                "endCol": 28,
+                "endOffset": 104707
+              },
+              "data-source-path": {
+                "startLine": 203,
+                "startCol": 29,
+                "startOffset": 104708,
+                "endLine": 203,
+                "endCol": 107,
+                "endOffset": 104786
+              },
+              "data-source-region": {
+                "startLine": 203,
+                "startCol": 108,
+                "startOffset": 104787,
+                "endLine": 203,
+                "endCol": 146,
+                "endOffset": 104825
+              },
+              "data-astro-cid-i3uagjh5": {
+                "startLine": 203,
+                "startCol": 147,
+                "startOffset": 104826,
+                "endLine": 203,
+                "endCol": 170,
+                "endOffset": 104849
+              }
+            },
+            "startTag": {
+              "startLine": 203,
+              "startCol": 1,
+              "startOffset": 104680,
+              "endLine": 203,
+              "endCol": 171,
+              "endOffset": 104850,
+              "attrs": {
+                "class": {
+                  "startLine": 203,
+                  "startCol": 9,
+                  "startOffset": 104688,
+                  "endLine": 203,
+                  "endCol": 28,
+                  "endOffset": 104707
+                },
+                "data-source-path": {
+                  "startLine": 203,
+                  "startCol": 29,
+                  "startOffset": 104708,
+                  "endLine": 203,
+                  "endCol": 107,
+                  "endOffset": 104786
+                },
+                "data-source-region": {
+                  "startLine": 203,
+                  "startCol": 108,
+                  "startOffset": 104787,
+                  "endLine": 203,
+                  "endCol": 146,
+                  "endOffset": 104825
+                },
+                "data-astro-cid-i3uagjh5": {
+                  "startLine": 203,
+                  "startCol": 147,
+                  "startOffset": 104826,
+                  "endLine": 203,
+                  "endCol": 170,
+                  "endOffset": 104849
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 261,
+              "startCol": 77,
+              "startOffset": 120142,
+              "endLine": 261,
+              "endCol": 86,
+              "endOffset": 120151
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0164",
+          "nodePath": "0/1/2/5/1/3/43",
+          "attrs": {
+            "id": "what-matching-identities-do-not-prove"
+          },
+          "location": {
+            "startLine": 262,
+            "startCol": 1,
+            "startOffset": 120152,
+            "endLine": 262,
+            "endCol": 90,
+            "endOffset": 120241,
+            "attrs": {
+              "id": {
+                "startLine": 262,
+                "startCol": 5,
+                "startOffset": 120156,
+                "endLine": 262,
+                "endCol": 47,
+                "endOffset": 120198
+              }
+            },
+            "startTag": {
+              "startLine": 262,
+              "startCol": 1,
+              "startOffset": 120152,
+              "endLine": 262,
+              "endCol": 48,
+              "endOffset": 120199,
+              "attrs": {
+                "id": {
+                  "startLine": 262,
+                  "startCol": 5,
+                  "startOffset": 120156,
+                  "endLine": 262,
+                  "endCol": 47,
+                  "endOffset": 120198
+                }
+              }
+            },
+            "endTag": {
+              "startLine": 262,
+              "startCol": 85,
+              "startOffset": 120236,
+              "endLine": 262,
+              "endCol": 90,
+              "endOffset": 120241
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0165",
+          "nodePath": "0/1/2/5/1/3/45",
+          "attrs": {},
+          "location": {
+            "startLine": 263,
+            "startCol": 1,
+            "startOffset": 120242,
+            "endLine": 265,
+            "endCol": 78,
+            "endOffset": 120476,
+            "startTag": {
+              "startLine": 263,
+              "startCol": 1,
+              "startOffset": 120242,
+              "endLine": 263,
+              "endCol": 4,
+              "endOffset": 120245
+            },
+            "endTag": {
+              "startLine": 265,
+              "startCol": 74,
+              "startOffset": 120472,
+              "endLine": 265,
+              "endCol": 78,
+              "endOffset": 120476
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0166",
+          "nodePath": "0/1/2/5/1/3/47",
+          "attrs": {},
+          "location": {
+            "startLine": 266,
+            "startCol": 1,
+            "startOffset": 120477,
+            "endLine": 271,
+            "endCol": 56,
+            "endOffset": 120941,
+            "startTag": {
+              "startLine": 266,
+              "startCol": 1,
+              "startOffset": 120477,
+              "endLine": 266,
+              "endCol": 4,
+              "endOffset": 120480
+            },
+            "endTag": {
+              "startLine": 271,
+              "startCol": 52,
+              "startOffset": 120937,
+              "endLine": 271,
+              "endCol": 56,
+              "endOffset": 120941
+            }
+          },
+          "references": []
+        },
+        {
+          "id": "element.0167",
+          "nodePath": "0/1/2/5/1/3/49",
+          "attrs": {},
+          "location": {
+            "startLine": 272,
+            "startCol": 1,
+            "startOffset": 120942,
+            "endLine": 274,
+            "endCol": 63,
+            "endOffset": 121163,
+            "startTag": {
+              "startLine": 272,
+              "startCol": 1,
+              "startOffset": 120942,
+              "endLine": 272,
+              "endCol": 4,
+              "endOffset": 120945
+            },
+            "endTag": {
+              "startLine": 274,
+              "startCol": 59,
+              "startOffset": 121159,
+              "endLine": 274,
+              "endCol": 63,
+              "endOffset": 121163
+            }
+          },
+          "references": []
+        }
+      ]
+    }
+  ],
+  "formerDefinitionId": "practical-01.section-the-identitys-symbols-and-fixed-settings",
+  "formerDefinitionIsIndependentReadingRecord": false,
+  "retainedHeadingAndSourceMembershipReferences": "Existing references to the former definition ID identify this bound constituent; all such record bytes remain unchanged."
+}

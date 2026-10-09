@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "contextId": "01a11f96-d4d6-7bd3-a6dd-fe4bf643e11b",
+  "role": "bilingual",
+  "freshContext": true,
+  "model": "gpt-6.1-sol",
+  "reasoning": "max",
+  "createdAt": "2026-10-09T08:01:34.874Z",
+  "accessBoundary": [
+    "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/contexts/bilingual.json",
+    "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/prompts/bilingual.txt",
+    "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/bundle/bilingual/review-bundle.json",
+    "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/schemas/review-record.schema.json"
+  ]
+}

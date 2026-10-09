@@ -3,11 +3,11 @@
   "chapter_id": "00-llm-parts",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 5,
   "order": 0,
   "concept_id": "llm-parts",
-  "title": "A map of the scalar reference decoder",
-  "description": "In the tiny CPU reference, tokenization gives IDs, embeddings give features, and decoder blocks plus a vocabulary head produce logits. Sampling selects tokens, caching reuses attention state, and training updates the same weights. This architectural map does not establish measured laptop-scale capability.",
+  "title": "A map of a modern LLM",
+  "description": "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.",
   "objective": "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.",
   "worked_inputs": "Follow prompt text through tokenization, embeddings, repeated decoder blocks, the vocabulary head, and next-token selection; then compare generation with the learning branch that uses targets, loss, gradients, updates, evaluation, and checkpoints.",
   "formula": null,
@@ -59,7 +59,7 @@
       }
     ]
   },
-  "decoder_connection": "The map previews the scalar reference decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and learning changes the same weights through loss, gradients, and AdamW. This structural map does not establish language quality or measured laptop-scale capability."
+  "decoder_connection": "The map previews the complete decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and learning changes the same weights through loss, gradients, and AdamW."
 }
 ---
 
@@ -67,12 +67,12 @@ import LlmPartsDiagram from "../../../components/chapters/LlmPartsDiagram.astro"
 import LlmSystemDiagram from "../../../components/chapters/LlmSystemDiagram.astro";
 
 export const diagramLabels = {
-  title: "See the scalar reference before building its parts",
-  description: "The tiny CPU reference maps text to logits. Generation uses those logits to select the next token; learning computes loss from a target token, derives gradients, and uses AdamW to update the same weights. These paths explain computation, not language quality or laptop performance.",
-  detailTitle: "Open the scalar reference decoder and follow its chapters",
-  detailDescription: "Trace inference and learning inside the scalar reference, inspect its decoder block, and follow each part's implementation chapter.",
+  title: "See the whole LLM before building its parts",
+  description: "Follow one connected system from text to logits, compare generation with learning, then open the detailed views and jump to the chapter that builds each part.",
+  detailTitle: "Open the model and follow the course chapters",
+  detailDescription: "Trace inference, inspect the repeated decoder block, and follow learning while each part links to the chapter that builds it.",
   sections: {
-    system: "How the scalar reference connects",
+    system: "How the complete system connects",
     inference: "The next-token inference path",
     decoder: "Inside every pre-norm decoder block",
     learning: "Learning and evaluating the same weights",
@@ -149,8 +149,8 @@ export const diagramLabels = {
       purpose: "Save the exact model and training state.",
     },
     capstone: {
-      name: "Scalar reference capstone",
-      purpose: "Connect the reference parts in one bounded training-to-generation example.",
+      name: "Capstone",
+      purpose: "Assemble everything.",
     },
   },
   system: {
@@ -225,12 +225,6 @@ acts as a target: loss measures the prediction, gradients assign responsibility,
 and an optimizer changes the weights used by embeddings, decoder blocks, and the
 vocabulary head.
 
-The course implements these connections as a scalar reference: explicit CPU
-loops operate on `f64` values so the computation can be inspected. Chapter 39
-joins the parts in a tiny deterministic example. That example demonstrates how
-the parts work together, not useful language quality or measured laptop-scale
-training and inference.
-
 This overview deliberately stops at names, purposes, and connections. Later
 chapters derive the mathematics and build each mechanism in Rust when that detail
 has a clear place in the model.
@@ -294,9 +288,7 @@ Chapters 1 through 7 establish text, tokenization, causal examples, a count
 baseline, and language-model metrics. Chapters 8 through 23 build the numeric and
 learning foundation. Chapters 24 through 32 assemble the decoder. Chapters 33
 through 38 train, evaluate, persist, sample, and cache it. Chapter 39 runs the
-scalar reference end to end. The separately planned extension begins with
-Chapter 40's explanation of what this reference establishes and what later
-laptop work must still demonstrate.
+whole tiny LLM.
 
 The evaluation node names a post-selection role, not a promise that every
 repository run sees newly unopened data. Inside one execution, the local

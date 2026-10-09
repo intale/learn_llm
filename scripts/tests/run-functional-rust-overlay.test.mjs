@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,symlinkSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,symlinkSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -59,6 +59,24 @@ test('only Cargo run forwards supplied bytes, empty EOF and malformed input with
       assert.ok(!args.includes('-t') && !args.includes('--tty'));
     }finally{f.close();}
   }
+});
+test('actual regular-file archive copy omits empty historical packages and preserves real source parents',()=>{
+ const f=fixture();try{
+  writeFileSync(join(f.root,'Cargo.lock'),'version = 4\n');
+  mkdirSync(join(f.root,'rust/demos/ch41-governed-corpus-acquisition'),{recursive:true});
+  mkdirSync(join(f.root,'rust/crates/actual/src'),{recursive:true});
+  writeFileSync(join(f.root,'rust/crates/actual/src/lib.rs'),'pub fn current() {}\n');
+  const work=join(f.root,'copy-work');mkdirSync(work);
+  assert.equal(f.call().status,0);
+  const args=JSON.parse(readFileSync(f.log,'utf8')),program=args[args.indexOf('-c')+1];
+  const copy=program.slice(program.indexOf('cd /repo\n'),program.indexOf('\ncd /staged'))
+    .replaceAll('/repo',f.root).replaceAll('/work',work);
+  const result=spawnSync('bash',['-c',copy],{encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+  assert.equal(readFileSync(join(work,'Cargo.toml'),'utf8'),'[workspace]\n');
+  assert.equal(readFileSync(join(work,'rust/crates/actual/src/lib.rs'),'utf8'),'pub fn current() {}\n');
+  assert.equal(existsSync(join(work,'rust/demos/ch41-governed-corpus-acquisition')),false);
+ }finally{f.close();}
 });
 test('Docker/Cargo failure is returned and recorded without replacing evidence',()=>{
   const f=fixture();try{

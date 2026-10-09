@@ -136,3 +136,29 @@ test('shared40English projection checks exact scope/source paths/bytes, never re
     verifySharedEnglishProjection(root,'40-reference-core-handoff',1,contract);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
+
+
+test('regular-file reader accepts literal Astro route filenames',()=>{
+  const root=mkdtempSync(join(tmpdir(),'functional-literal-route-'));
+  try{
+    for(const path of ['site/src/pages/[locale]/index.astro','site/src/pages/[locale]/course/[...slug].astro','site/src/pages/[locale]/practical-llm-in-rust/[...slug].astro']){
+      const bytes=Buffer.from('literal filename fixture\n');
+      mkdirSync(dirname(join(root,path)),{recursive:true});writeFileSync(join(root,path),bytes);
+      assert.deepEqual(readRegularFile(root,path),bytes);
+      assert.throws(()=>readRegularFile(root,path,bytes.length-1),/oversized input/);
+    }
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+test('literal Astro brackets preserve traversal character and symlink refusals',()=>{
+  const root=mkdtempSync(join(tmpdir(),'functional-literal-refusals-'));
+  try{
+    for(const path of ['/site/[locale]/absolute','site/[locale]/../outside','site/[locale]//file','site/[locale]/./file','site/[locale]\\file','site/[locale]/$(touch)','site/[locale]/`command`']){
+      assert.throws(()=>readRegularFile(root,path),/unsafe repository-relative path/);
+    }
+    mkdirSync(join(root,'real'));writeFileSync(join(root,'real/file.astro'),'fixture\n');
+    symlinkSync('real',join(root,'[locale]'));
+    assert.throws(()=>readRegularFile(root,'[locale]/file.astro'),/symlink\/nonregular input/);
+    mkdirSync(join(root,'routes'));symlinkSync('../real/file.astro',join(root,'routes/[...slug].astro'));
+    assert.throws(()=>readRegularFile(root,'routes/[...slug].astro'),/symlink\/nonregular input/);
+  }finally{rmSync(root,{recursive:true,force:true});}
+});

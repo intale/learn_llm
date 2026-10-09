@@ -1,0 +1,1 @@
+Requires the basics from LLM from scratch or equivalent Rust and LLM experience.

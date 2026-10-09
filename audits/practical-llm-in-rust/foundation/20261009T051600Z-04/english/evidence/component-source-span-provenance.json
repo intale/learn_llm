@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kind": "supplemental-exact-source-span-provenance",
+  "classification": "Exact source-span provenance inside the existing complete Astro source and checked-behavior card/figure reading coverage; no additional scalar, role, requirement or isolation boundary.",
+  "sourceBinding": {
+    "path": ".build/runs/20261009T051600Z-establish-independent-practical-course-04/review-prep/current-discovery-01/sources/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+    "bytes": 3050,
+    "sha256": "44c6869f8a6c503e0b805dc0c7e0d6669e40e837701d73f86c07caf8c3f82d1a"
+  },
+  "sourceSpan": {
+    "utf8ByteStart": 2513,
+    "utf8ByteEndExclusive": 2828,
+    "sha256": "dd41f78e89d8f346c623e627419b7a424aed3d9b351b455c5f28117bf48c3d89",
+    "literalUtf8": "      <p>The target slots and transition occurrences belong to the same test\n        documents. Each transition occurrence is one adjacent pair of token\n        positions within a document. Overlapping windows score some occurrences\n        more than once, giving more target slots than transition occurrences.</p>\n"
+  },
+  "renderedParagraph": {
+    "documentId": "practical-01",
+    "observedElementId": "element.0212",
+    "nodePath": "0/1/2/5/1/3/83/3/3/5",
+    "value": "The target slots and transition occurrences belong to the same test documents. Each transition occurrence is one adjacent pair of token positions within a document. Overlapping windows score some occurrences more than once, giving more target slots than transition occurrences.",
+    "location": {
+      "startLine": 391,
+      "startCol": 1589,
+      "startOffset": 149782,
+      "endLine": 394,
+      "endCol": 82,
+      "endOffset": 150090,
+      "startTag": {
+        "startLine": 391,
+        "startCol": 1589,
+        "startOffset": 149782,
+        "endLine": 391,
+        "endCol": 1592,
+        "endOffset": 149785
+      },
+      "endTag": {
+        "startLine": 394,
+        "startCol": 78,
+        "startOffset": 150086,
+        "endLine": 394,
+        "endCol": 82,
+        "endOffset": 150090
+      }
+    },
+    "rawUtf8": "<p>The target slots and transition occurrences belong to the same test\n        documents. Each transition occurrence is one adjacent pair of token\n        positions within a document. Overlapping windows score some occurrences\n        more than once, giving more target slots than transition occurrences.</p>",
+    "rawUtf8Sha256": "1246872f54c2ab578b2e90ee0568b8de3e85d093a84d3a018163f485b4fdaf80"
+  },
+  "existingReferenceCardId": "practical-01.figure-card-element.0203",
+  "actualCardRoot": "element.0203",
+  "unitMemberships": [
+    "practical-01.complete-built-document",
+    "practical-01.section-keep-the-three-evidence-layers-separate",
+    "practical-01.figure-reading-reference-core-handoff",
+    "practical-01.figure-card-element.0203"
+  ],
+  "jsonFrontmatterScalarAdded": false,
+  "newRequirement": null,
+  "newIsolationBoundary": false,
+  "languageJudgment": null
+}

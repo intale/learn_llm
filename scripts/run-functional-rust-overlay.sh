@@ -55,7 +55,8 @@ docker run --rm --pull never --network none \
   --entrypoint sh "$image" -c '
 set -eu
 test -z "$(find /staged -type l -print -quit)" || { echo "symlink in stage" >&2; exit 2; }
-tar -C /repo -cf - Cargo.toml Cargo.lock rust configs | tar -C /work -xf -
+cd /repo
+find Cargo.toml Cargo.lock rust configs -type f -print0 | tar --null --no-recursion -T - -cf - | tar -C /work -xf -
 cd /staged
 find . -type f -print0 | tar --null -T - -cf - | tar -C /work -xf -
 if [ -f /deletions.json ]; then

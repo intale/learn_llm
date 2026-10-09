@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import CourseIndex from '../course/index.astro';
+import { practicalCourse } from '../../../lib/course-configuration';
+
+export function getStaticPaths() {
+  return practicalCourse.activeLocales.map(locale=>({params:{locale},props:{locale,course:practicalCourse}}));
+}
+const courseEntries=await getCollection('practicalChapters');
+---
+
+<CourseIndex {...Astro.props} courseEntries={courseEntries} />

@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learn-llm.local/schemas/localization-review-record-v1.json",
+  "title": "Independent localization review record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "reviewId",
+    "role",
+    "scopeId",
+    "targetLocale",
+    "bindingSha256",
+    "bundleSha256",
+    "targetSha256",
+    "inventorySha256",
+    "rubricSha256",
+    "reviewer",
+    "coveredSurfaceIds",
+    "verdict",
+    "findings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "candidateId": { "$ref": "#/$defs/id" },
+    "reviewId": { "$ref": "#/$defs/id" },
+    "role": { "enum": ["bilingual", "target-only"] },
+    "scopeId": { "$ref": "#/$defs/id" },
+    "targetLocale": { "$ref": "#/$defs/locale" },
+    "bindingSha256": { "$ref": "#/$defs/sha256" },
+    "bundleSha256": { "$ref": "#/$defs/sha256" },
+    "sourceSha256": { "$ref": "#/$defs/sha256" },
+    "targetSha256": { "$ref": "#/$defs/sha256" },
+    "inventorySha256": { "$ref": "#/$defs/sha256" },
+    "rubricSha256": { "$ref": "#/$defs/sha256" },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contextId",
+        "contextSha256",
+        "freshContext",
+        "model",
+        "reasoning",
+        "promptSha256",
+        "startedAt",
+        "completedAt"
+      ],
+      "properties": {
+        "contextId": { "$ref": "#/$defs/id" },
+        "contextSha256": { "$ref": "#/$defs/sha256" },
+        "freshContext": { "const": true },
+        "model": { "type": "string", "minLength": 1 },
+        "reasoning": { "type": "string", "minLength": 1 },
+        "promptSha256": { "$ref": "#/$defs/sha256" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "coveredSurfaceIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "verdict": { "enum": ["pass", "fail"] },
+    "findings": {
+      "type": "array",
+      "uniqueItems": true,
+      "x-uniqueBy": "id",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "role": { "const": "bilingual" } } },
+      "then": { "required": ["sourceSha256"] },
+      "else": { "not": { "required": ["sourceSha256"] } }
+    },
+    {
+      "if": { "properties": { "verdict": { "const": "pass" } } },
+      "then": {
+        "properties": {
+          "findings": {
+            "not": {
+              "contains": {
+                "type": "object",
+                "required": ["severity"],
+                "properties": { "severity": { "const": "blocking" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "locale": {
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^[A-Za-z0-9-]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "surfaceIds",
+        "evidence",
+        "learnerConsequence",
+        "correctionCriterion"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": {
+          "enum": [
+            "semantic",
+            "terminology",
+            "technical-language",
+            "coherence",
+            "accessibility",
+            "source-defect",
+            "other"
+          ]
+        },
+        "severity": { "enum": ["blocking", "advisory"] },
+        "surfaceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidence": { "type": "string", "minLength": 1 },
+        "learnerConsequence": { "type": "string", "minLength": 1 },
+        "correctionCriterion": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -203,7 +203,7 @@ pub fn verify_bundle<S: AssetSource>(
 mod tests {
     use super::super::canonical_manifest::{canonical_manifest_bytes, test_support::fixture};
     use super::*;
-    use llm_from_scratch::artifact_identity::sha256;
+    use llm_from_scratch_practical::artifact_identity::sha256;
     use std::io::Cursor;
 
     fn declaration(bytes: &[u8]) -> PayloadEntry {

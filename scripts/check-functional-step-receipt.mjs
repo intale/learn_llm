@@ -20,7 +20,7 @@ export function closed(value, keys, label) {
     throw new Error(label + ': exact closed keys required');
 }
 export function readRegularFile(root, path, limit = MAX_INPUT_FILE_BYTES) {
-  if (typeof path !== 'string' || !path || !/^[A-Za-z0-9_./-]+$/.test(path) ||
+  if (typeof path !== 'string' || !path || !/^[A-Za-z0-9_./\[\]-]+$/.test(path) ||
       path.startsWith('/') || path.split('/').some(p => !p || p === '.' || p === '..'))
     throw new Error('unsafe repository-relative path');
   const parts = path.split('/');

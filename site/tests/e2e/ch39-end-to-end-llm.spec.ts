@@ -20,9 +20,9 @@ const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
 const copy = {
   en: {
     revisionLabel: "Content revision",
-    title: "Run the scalar reference end to end",
+    title: "Run the whole tiny LLM",
     description:
-      "Trace a scalar CPU reference decoder in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy. This integration example does not establish useful language quality or laptop-scale performance.",
+      "Trace a tiny decoder-only language model in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy.",
     diagramTitle: "Keep execution one-way and label fixture evidence",
     diagramDescription:
       "Follow frozen Rust evidence through training-only BPE, selection, and a locally isolated comparison over 1,744 overlapping window-target slots. A separate unreported metric would score 442 within-document transition occurrences once each with the longest available causal prefix capped at four tokens and only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then follow exact reload and cached generation.",
@@ -34,7 +34,7 @@ const copy = {
       "Assemble APIs instead of copying algorithms",
       "Follow the one-way pipeline",
       "Predict before checking the final trace",
-      "Continue from the scalar reference, not a laptop-scale result",
+      "Take ownership of the complete decoder",
     ],
     historyLimitation:
       "A count-based bigram estimates the next token from one preceding token",
@@ -82,9 +82,9 @@ const copy = {
   },
   ru: {
     revisionLabel: "Версия материала",
-    title: "Запустите эталонную реализацию со скалярными вычислениями от начала до конца",
+    title: "Запустите небольшую LLM целиком",
     description:
-      "Проследите работу эталонного декодера на Rust, который выполняет скалярные вычисления на CPU: обучение с выбором по валидации, сравнение фиксированного примера по целевым позициям перекрывающихся окон, точное восстановление и генерацию с KV-кэшем. Отдельное правило оценивало бы каждый из 442 переходов внутри документов один раз, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Этот пример совместной работы частей не подтверждает полезное качество текста или производительность более крупной LLM на ноутбуке.",
+      "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором по валидации, сравнение по целевым позициям перекрывающихся окон, точное восстановление и генерацию с KV-кэшем. Отдельное правило оценивало бы каждый из 442 переходов внутри документов один раз, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся.",
     diagramTitle:
       "Сохраните односторонний порядок запуска и обозначьте статус результата",
     diagramDescription:
@@ -97,7 +97,7 @@ const copy = {
       "Соедините уже реализованные API, не дублируя алгоритмы",
       "Проследите процесс: поздние результаты не влияют на ранние этапы",
       "Сначала предскажите, затем проверьте итоговую трассировку",
-      "Продолжайте от эталонной реализации, а не от результата для крупной LLM на ноутбуке",
+      "Теперь весь декодер в ваших руках",
     ],
     historyLimitation:
       "Частотная биграммная модель оценивает следующий токен только по одному предыдущему токену",
@@ -1443,7 +1443,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 39,
-    revision: 10,
+    revision: 9,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],

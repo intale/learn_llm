@@ -2,11 +2,11 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 10,
+  "content_revision": 9,
   "order": 39,
   "objective": {
-    "en": "Run one deterministic scalar reference decoder end to end on bilingual data, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.",
-    "ru": "Запустить один детерминированный эталонный декодер со скалярными вычислениями на двуязычных данных от начала до конца, вывести среднее NLL и перплексию по целевым позициям перекрывающихся тестовых окон, отличить эти 1744 позиции от 442 переходов внутри документов и сохранить границы выбора, регрессионной проверки, восстановления из контрольной точки и генерации с кэшем."
+    "en": "Run one deterministic bilingual decoder-only LLM end to end, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.",
+    "ru": "Запустить одну детерминированную двуязычную декодерную LLM по всей цепочке, вывести среднее NLL и перплексию по целевым позициям перекрывающихся тестовых окон, отличить эти 1744 позиции от 442 переходов внутри документов и сохранить границы выбора, регрессионной проверки, восстановления из контрольной точки и генерации с кэшем."
   },
   "worked_inputs": {
     "en": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation mean NLL 3.889531885, and compare the decoder with the frozen bigram on the same 1,744 overlapping stride-one window-target slots. Label 3.866087547 and 3.981342714 as mean NLL in nats per slot and 47.755180205 and 53.588940583 as their dimensionless window-slot perplexities. A separate policy would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
@@ -132,7 +132,7 @@
       "rust/demos/ch39-end-to-end-llm/src/lib.rs",
       "rust/demos/ch39-end-to-end-llm/src/main.rs"
     ],
-    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] stride:1 windows:436 batches:4 window_target_slots:1744 document_transition_occurrences:442 transition_multiplicity_counts:[1x4,2x4,3x4,4x430] window_slot_fingerprint:fnv1a64:77b836869f848986 no_grad:true unchanged:true\nslot_metric=unit:overlapping-window-target-slot decoder_window_slot_mean_nll_nats:3.866087547 decoder_window_slot_perplexity:47.755180205 bigram_window_slot_mean_nll_nats:3.981342714 bigram_window_slot_perplexity:53.588940583 window_slot_gap_nats:0.115255167 comparison_slot_set:shared-ordered-window-slots decoder_lower_on_fixture:true\ntransition_metric=unit:within-document-next-token-transition count:442 context_policy:longest-available-causal-prefix-up-to-4 newest_position_only:true reported:false mean_nll:not-reported perplexity:not-reported\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=window_slot_unit:overlapping-window-target-slot window_target_slots:1744 document_transition_occurrences:442 bigram_context_tokens:1 decoder_context_capacity:4 decoder_window_slot_context_lengths:[1,2,3,4] bigram_window_slot_mean_nll_nats:3.981342714 decoder_window_slot_mean_nll_nats:3.866087547 window_slot_gap_nats:0.115255167\nnext=inspect the scalar reference and its limits before extending it\n"
+    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] stride:1 windows:436 batches:4 window_target_slots:1744 document_transition_occurrences:442 transition_multiplicity_counts:[1x4,2x4,3x4,4x430] window_slot_fingerprint:fnv1a64:77b836869f848986 no_grad:true unchanged:true\nslot_metric=unit:overlapping-window-target-slot decoder_window_slot_mean_nll_nats:3.866087547 decoder_window_slot_perplexity:47.755180205 bigram_window_slot_mean_nll_nats:3.981342714 bigram_window_slot_perplexity:53.588940583 window_slot_gap_nats:0.115255167 comparison_slot_set:shared-ordered-window-slots decoder_lower_on_fixture:true\ntransition_metric=unit:within-document-next-token-transition count:442 context_policy:longest-available-causal-prefix-up-to-4 newest_position_only:true reported:false mean_nll:not-reported perplexity:not-reported\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=window_slot_unit:overlapping-window-target-slot window_target_slots:1744 document_transition_occurrences:442 bigram_context_tokens:1 decoder_context_capacity:4 decoder_window_slot_context_lengths:[1,2,3,4] bigram_window_slot_mean_nll_nats:3.981342714 decoder_window_slot_mean_nll_nats:3.866087547 window_slot_gap_nats:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
   },
   "visualization": {
     "decision": "useful",
@@ -143,8 +143,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The scalar reference components now participate in one bounded CPU program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects the decoder state before the decoder and count-bigram baseline score the same ordered test-window target slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text. This integration evidence does not establish useful language quality or measured laptop-scale capability.",
-    "ru": "Теперь части эталонной реализации со скалярными вычислениями участвуют в одной ограниченной по масштабу программе для CPU: зафиксированные двуязычные данные превращаются в BPE-токены и перекрывающиеся каузальные окна; валидационная выборка определяет состояние декодера до того, как декодер и частотная биграммная модель оценят одни и те же упорядоченные целевые позиции тестовых окон; отдельное правило оценивало бы 442 перехода внутри документов по одному разу, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции, но числовые значения среднего NLL и перплексии по этому правилу не приводятся; состояние из контрольной точки восстанавливается точно; проба At воспроизводит логиты; генерация с кэшем возвращает текст. Эта проверка совместной работы частей не подтверждает полезное качество текста или измеренные возможности более крупной LLM на ноутбуке."
+    "en": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects before both models score the same ordered slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text.",
+    "ru": "Теперь все части курса участвуют в одной программе: корпус превращается в BPE-токены и перекрывающиеся окна; выбор завершается до оценки одних и тех же позиций обеими моделями; отдельное правило оценивало бы 442 перехода по одному разу, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Контрольная точка восстанавливается точно; проба At воспроизводит логиты; генерация с кэшем возвращает текст."
   },
   "terminology": [
     {
@@ -262,7 +262,7 @@
 }
 ---
 
-# Chapter 39: Run the scalar reference end to end
+# Chapter 39: Run the whole tiny LLM
 
 <!-- contract-section:scope -->
 ## Scope
@@ -556,7 +556,7 @@ toolchain.
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The scalar reference core now has one bounded CPU language-model program.
+The course now ends with one functioning decoder-only language-model program.
 Text is partitioned before tokenizer learning; BPE tokens become causal batches;
 the decoder trains with reverse-mode gradients and AdamW; validation selects;
 the capstone's local evaluator consumes test evidence once after selection in
@@ -568,21 +568,15 @@ perplexity; the known ordering remains a fixed-fixture regression;
 versioned bytes restore the selected model and optimizer exactly; an `At` probe
 checks reloaded logits; and generation from `A` uses one KV cache per block.
 
-The implementation uses explicit scalar loops and `f64` values. Its end-to-end
-result is an integration demonstration, not evidence of useful language quality
-or measured laptop-scale capability. Chapter 40 begins the separately planned
-extension by recording the reference's configuration, evidence, and limits.
-Later laptop work must establish its own capability and resource evidence.
-Changing one bounded component also requires re-establishing the affected data,
-mathematical, training, evaluation, persistence, and inference evidence.
+The handoff is now the learner’s: inspect a component, change one bounded choice,
+rerun the exact evidence, and explain which data, mathematical, or inference
+contract changed.
 
 <!-- contract-section:localization -->
 ## Localization notes
 
-The previous published pair used English and Russian revision 9. Revision 10
-reframes the reference-core scope; refresh Russian directly from independently approved
-English, and publish only after both languages pass their required reviews.
-Preserve source titles, BPE
+English revision 9 is the canonical semantic source; Russian revision 9 is
+published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Preserve the distinction between within-execution
 selection isolation and repository-level regression reuse, and never translate

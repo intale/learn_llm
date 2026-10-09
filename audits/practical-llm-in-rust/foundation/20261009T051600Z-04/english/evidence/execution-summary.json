@@ -1,0 +1,443 @@
+{
+  "currentReferenceDemoTest": {
+    "actualOriginRunId": "20261008T152502Z-establish-independent-practical-course-02",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "practical-ch01-reference-core-handoff",
+      "--test",
+      "reference_handoff"
+    ],
+    "artifacts": [
+      {
+        "bytes": 96,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/argv.nul",
+        "sha256": "514d5332589bca55aac29e8779609e9199ec405ee6ab97983fc60f926c4c1e13"
+      },
+      {
+        "bytes": 72,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/image.txt",
+        "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+      },
+      {
+        "bytes": 44465,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/input-hashes.txt",
+        "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+      },
+      {
+        "bytes": 366,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/stdout.txt",
+        "sha256": "3f81be7c0e85086387bc29121716d4e39a653b8f13fb08a6e634607a33b64f14"
+      },
+      {
+        "bytes": 1060,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/stderr.txt",
+        "sha256": "9c47058cf23c2d73159da904ee5a58ea0410cb0475183a73b7c4a9d22b822ad9"
+      },
+      {
+        "bytes": 2,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/cargo-exit-status.txt",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "bytes": 2,
+        "path": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01/launcher-exit-status.txt",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    ],
+    "exactCurrentInputCount": 383,
+    "executedInSuccessor": false,
+    "failed": 0,
+    "filteredOut": 0,
+    "ignored": 0,
+    "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+    "network": "none",
+    "operation": "reference-demo-tests-01",
+    "origin": ".build/runs/20261008T152502Z-establish-independent-practical-course-02/validation/reference-demo-tests-01",
+    "passed": 4,
+    "selected": 4
+  },
+  "currentRunId": "20261009T051600Z-establish-independent-practical-course-04",
+  "freshRustExecutions": 0,
+  "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+  "network": "none",
+  "retainedExecutions": [
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "llm-from-scratch",
+        "-p",
+        "llm-from-scratch-practical",
+        "-p",
+        "practical-ch01-reference-core-handoff",
+        "-p",
+        "practical-ch02-corpus-preparation",
+        "-p",
+        "functional-artifact-cache",
+        "-p",
+        "course-asset-fetch"
+      ],
+      "artifacts": [
+        {
+          "bytes": 210,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/argv.nul",
+          "sha256": "d767728d466d1bdbd4efe3ef034993a962efd88ffb5fac91c542e303c4c20ac1"
+        },
+        {
+          "bytes": 72,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/image.txt",
+          "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+        },
+        {
+          "bytes": 44465,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/input-hashes.txt",
+          "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 3438,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/stderr.txt",
+          "sha256": "39653a4b37ca722fbcf22908e7cbc145852cf3ea9c302ce04720e071a2f7d59b"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/cargo-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "exactCurrentInputCount": 383,
+      "executedInSuccessor": false,
+      "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+      "network": "none",
+      "observedTestResults": [],
+      "operation": "foundation-rust-check-01",
+      "origin": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-rust-check-01",
+      "provenanceFit": "Exact current source/config/lock plus recorded command, image and untouched outputs"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "llm-from-scratch-practical",
+        "-p",
+        "practical-ch02-corpus-preparation"
+      ],
+      "artifacts": [
+        {
+          "bytes": 97,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/argv.nul",
+          "sha256": "de53b4963c21f71921ce7fc5f870f7dded280b022de4d383349deccb5deb43d9"
+        },
+        {
+          "bytes": 72,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/image.txt",
+          "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+        },
+        {
+          "bytes": 44465,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/input-hashes.txt",
+          "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+        },
+        {
+          "bytes": 45625,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/stdout.txt",
+          "sha256": "dce16167d56a45ae7de1b1d74daee9cf25d7609ea3f29f1c4a4d120be2d50e77"
+        },
+        {
+          "bytes": 785,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/stderr.txt",
+          "sha256": "1d46fa6fcd28d70ceeb881154cd39c0501ba32529b7d1f5b5f9a2cd34243a0d8"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/cargo-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "exactCurrentInputCount": 383,
+      "executedInSuccessor": false,
+      "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+      "network": "none",
+      "observedTestResults": [
+        "472 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+        "5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s",
+        "3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+        "0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "operation": "foundation-practical-tests-01",
+      "origin": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-practical-tests-01",
+      "provenanceFit": "Exact current source/config/lock plus recorded command, image and untouched outputs"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "llm-from-scratch"
+      ],
+      "artifacts": [
+        {
+          "bytes": 50,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/argv.nul",
+          "sha256": "29bf040a971f363b6b47df40c8c6fbfd7d9462fa194789febc7b49d85b4c925e"
+        },
+        {
+          "bytes": 72,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/image.txt",
+          "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+        },
+        {
+          "bytes": 44465,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/input-hashes.txt",
+          "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+        },
+        {
+          "bytes": 43367,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/stdout.txt",
+          "sha256": "f6705fae64bac3de1843a57a8237265fbce905e8d9c5bba9a052eff157eafc6c"
+        },
+        {
+          "bytes": 266,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/stderr.txt",
+          "sha256": "7c5e46385a8fa4d3d1c14da0657946a9d917bdcafae05749e28bf6be0cd7fbf4"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/cargo-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "exactCurrentInputCount": 383,
+      "executedInSuccessor": false,
+      "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+      "network": "none",
+      "observedTestResults": [
+        "459 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+        "5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      ],
+      "operation": "foundation-original-tests-01",
+      "origin": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-original-tests-01",
+      "provenanceFit": "Exact current source/config/lock plus recorded command, image and untouched outputs"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "llm-from-scratch-practical",
+        "-p",
+        "practical-ch01-reference-core-handoff",
+        "-p",
+        "practical-ch02-corpus-preparation",
+        "-p",
+        "functional-artifact-cache",
+        "-p",
+        "course-asset-fetch",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "artifacts": [
+        {
+          "bytes": 220,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/argv.nul",
+          "sha256": "e24de34b4550cadfa0279e443fe46bb6bdcf836b4685a803b02dcf820c08ac15"
+        },
+        {
+          "bytes": 72,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/image.txt",
+          "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+        },
+        {
+          "bytes": 44465,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/input-hashes.txt",
+          "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 630,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/stderr.txt",
+          "sha256": "2e23d0abf2a660783a46d2ecb65c6531c35a042f1666197b4469a1332805b043"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/cargo-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "exactCurrentInputCount": 383,
+      "executedInSuccessor": false,
+      "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+      "network": "none",
+      "observedTestResults": [],
+      "operation": "foundation-clippy-01",
+      "origin": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-clippy-01",
+      "provenanceFit": "Exact current source/config/lock plus recorded command, image and untouched outputs"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--locked",
+        "--offline",
+        "-p",
+        "practical-ch01-reference-core-handoff"
+      ],
+      "artifacts": [
+        {
+          "bytes": 78,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/argv.nul",
+          "sha256": "dac09a15def8e1e1e7ae07e424b2563a87bdf93f2f9d55e1ef5a6f1b277be30b"
+        },
+        {
+          "bytes": 72,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/image.txt",
+          "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+        },
+        {
+          "bytes": 44465,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/input-hashes.txt",
+          "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+        },
+        {
+          "bytes": 1895,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/stdout.txt",
+          "sha256": "e3ef8325ae278cc8fba8c638af43df1f93359365cf0e9a2ade7e844481aa0ec5"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/cargo-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "exactCurrentInputCount": 383,
+      "executedInSuccessor": false,
+      "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+      "network": "none",
+      "observedTestResults": [],
+      "operation": "foundation-reference-capture-02",
+      "origin": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-reference-capture-02",
+      "provenanceFit": "Exact current source/config/lock plus recorded command, image and untouched outputs"
+    },
+    {
+      "actualExitStatus": 0,
+      "argv": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--locked",
+        "--offline",
+        "-p",
+        "practical-ch02-corpus-preparation"
+      ],
+      "artifacts": [
+        {
+          "bytes": 74,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/argv.nul",
+          "sha256": "b0f50984f34831ffaba970626eae34b1b4f8d07c3510dbf1f07cb1262925b989"
+        },
+        {
+          "bytes": 72,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/image.txt",
+          "sha256": "d56c9f531b16c29767e7d703cd1d7ee17641ff8bccfd538cd0dd63cd059bccca"
+        },
+        {
+          "bytes": 44465,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/input-hashes.txt",
+          "sha256": "653b55c3b81169b1979c2d95fc793ff2cdabf60178cd96a109f789ab75f17f27"
+        },
+        {
+          "bytes": 459,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/stdout.txt",
+          "sha256": "3d431513ead3895ad2b4752fb9fcbb1eda13c84e909f981baa17a4ad8781baac"
+        },
+        {
+          "bytes": 0,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/cargo-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "bytes": 2,
+          "path": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01/launcher-exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "exactCurrentInputCount": 383,
+      "executedInSuccessor": false,
+      "image": "sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23",
+      "network": "none",
+      "observedTestResults": [],
+      "operation": "foundation-corpus-capture-01",
+      "origin": ".build/runs/20261008T105206Z-establish-independent-practical-course-01/validation/foundation-corpus-capture-01",
+      "provenanceFit": "Exact current source/config/lock plus recorded command, image and untouched outputs"
+    }
+  ],
+  "schemaVersion": 1,
+  "scope": "All Rust operations were executed in the named prior runs. Current exact383 source/input/command/toolchain provenance fit and observed results only; no new Rust execution, full-data/GPU or language result inferred."
+}

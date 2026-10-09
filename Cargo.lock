@@ -331,23 +331,6 @@ dependencies = [
  "llm-from-scratch",
 ]
 
-[[package]]
-name = "ch40-reference-core-handoff"
-version = "0.1.0"
-dependencies = [
- "llm-from-scratch",
- "serde_json",
-]
-
-[[package]]
-name = "ch41-corpus-preparation"
-version = "0.1.0"
-dependencies = [
- "llm-from-scratch",
- "serde",
- "serde_json",
-]
-
 
 
 
@@ -377,7 +360,7 @@ name = "course-asset-fetch"
 version = "0.1.0"
 dependencies = [
  "functional-artifact-cache",
- "llm-from-scratch",
+ "llm-from-scratch-practical",
  "mime",
  "reqwest",
  "serde",
@@ -474,7 +457,7 @@ dependencies = [
 name = "functional-artifact-cache"
 version = "0.1.0"
 dependencies = [
- "llm-from-scratch",
+ "llm-from-scratch-practical",
  "rustix",
  "serde",
  "serde_json",
@@ -801,6 +784,14 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "llm-from-scratch-practical"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
  "sha2",
 ]
 
@@ -924,6 +915,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d83eb9bc6d8e5cf568e7a1101d60ee05e81ed50ea106026f3d18deeb046d7661"
 dependencies = [
  "zerovec",
+]
+
+[[package]]
+name = "practical-ch01-reference-core-handoff"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+ "llm-from-scratch-practical",
+ "serde_json",
+]
+
+[[package]]
+name = "practical-ch02-corpus-preparation"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch-practical",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

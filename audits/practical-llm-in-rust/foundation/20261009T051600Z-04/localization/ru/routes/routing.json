@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "candidate": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru",
+  "roles": {
+    "bilingual": {
+      "contextId": "01a11f96-d4d6-7bd3-a6dd-fe4bf643e11b",
+      "contextPath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/contexts/bilingual.json",
+      "promptPath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/prompts/bilingual.txt",
+      "bundlePath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/bundle/bilingual/review-bundle.json",
+      "schemaPath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/schemas/review-record.schema.json",
+      "responsePath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/raw/bilingual.json",
+      "artifacts": {
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/contexts/bilingual.json": {
+          "bytes": 713,
+          "sha256": "160b65a161fff3bda5160537f2d60f118348ac388a74f969f06fc692dd92a7b9"
+        },
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/prompts/bilingual.txt": {
+          "bytes": 2038,
+          "sha256": "5d8387079a836ce7dc47a7b3e64cce37790c6c4d6379e4cd70d9edb19eafe36d"
+        },
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/bundle/bilingual/review-bundle.json": {
+          "bytes": 47724,
+          "sha256": "1cc9cd569c1125b087747b71a1aafe26b1f11f8b8f05170ba5dc88d1bd8f80a6"
+        },
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/schemas/review-record.schema.json": {
+          "bytes": 4170,
+          "sha256": "34996de163025aa6411e19ff72a00fc75e88bbfecd8953672a50d790c4d2b41b"
+        }
+      }
+    },
+    "target-only": {
+      "contextId": "01a11f96-f2b4-7ee3-9674-fa65c8a1cd23",
+      "contextPath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/contexts/target-only.json",
+      "promptPath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/prompts/target-only.txt",
+      "bundlePath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/bundle/target-only/review-bundle.json",
+      "schemaPath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/schemas/review-record.schema.json",
+      "responsePath": "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/raw/target-only.json",
+      "artifacts": {
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/contexts/target-only.json": {
+          "bytes": 721,
+          "sha256": "114125a97d225b79db7dc0dc48532cdef8af88911689ced8434af5c132ad571b"
+        },
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/prompts/target-only.txt": {
+          "bytes": 4021,
+          "sha256": "76b5e96ef0f94308dcd7cb3b1299b5eecff14c6f25206e5cb4748bbc792f84b9"
+        },
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/bundle/target-only/review-bundle.json": {
+          "bytes": 36096,
+          "sha256": "cf7828965bbdabc8a495d780c03ba48fc5c7a0f4010279fb01043d9d6f8d203f"
+        },
+        "audits/practical-llm-in-rust/foundation/20261009T051600Z-04/localization/ru/routes/schemas/review-record.schema.json": {
+          "bytes": 4170,
+          "sha256": "34996de163025aa6411e19ff72a00fc75e88bbfecd8953672a50d790c4d2b41b"
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,79 @@
 # Maintained development-script helpers
 
+## Independent course selectors
+
+`configs/course-boundaries-v1.json` separates the original `llm-from-scratch`
+course (orders0–39, `/en/course/` and `/ru/course/`) from
+`practical-llm-in-rust` (orders0–44, currently English only). Their content,
+contracts, sheets and crates have separate directories. The practical course
+starts with `00-course-structure`; its orientation has no formula, Rust plan,
+sheet or registered figure. This exception never changes `00-llm-parts`.
+
+From the repository root in the selected pinned offline development container:
+
+```sh
+node scripts/check-course-boundaries.mjs
+node scripts/check-site-content.mjs
+node scripts/check-site-content.mjs --course practical-llm-in-rust
+node scripts/check-chapter-contract.mjs
+node scripts/check-chapter-contract.mjs --course practical-llm-in-rust
+node --test scripts/tests/course-boundaries.test.mjs scripts/tests/check-chapter-contract.test.mjs scripts/tests/check-functional-chapter-contract.test.mjs scripts/tests/check-static-links.test.mjs scripts/tests/run-functional-rust-overlay.test.mjs
+npm --prefix site run check
+npm --prefix site run build
+node scripts/check-static-links.mjs
+```
+
+The common content/contract CLIs default to the first course and accept
+`--course practical-llm-in-rust`. The functional-contract CLI now delegates to
+that same implementation. Its old frozen-plan regression APIs require explicit
+`{historical:true}`. Original40–83 plan, locale, registry and receipt modules
+remain historical interfaces; they do not select current routes or certify moved
+practical lessons. Preserve their original identifiers and completed evidence.
+
+The current practical private-review descriptor is
+`site/src/i18n/practical-catalogs/private-review.json`. It admits exactly the
+three current foundation candidates0–2 with their actual revisions and English
+source hashes and requires `COURSE_BUILD_ROLE=private-review`. Production
+rejects this descriptor. Production lesson admission instead requires
+`artifacts/practical-llm-in-rust/foundation/publication-receipt.json`, its complete
+source bindings and the maintained exact English two-review/two-adjudication
+verification. A status flag or relabeled historical review cannot admit a
+lesson. Index, lesson, navigation, sitemap, content and static SEO use this same
+course boundary. A future practical lesson requires a separately declared
+admission amendment; a source file alone does not activate its route.
+
+Optional localized root chooser copy is one complete nine-key home group.
+Practical index copy is a separate complete two-key group. A reviewed Russian
+root chooser therefore does not require deferred Russian practical-index copy.
+Practical hreflang lists only active English equivalents; the inactive locale
+switch points to its labeled locale home, never a fabricated practical route.
+
+The restored first crate is checked against its exact41-file Git9f38a06
+inventory. The independently named practical crate starts from one verified
+copy and receives the existing reader/identity helpers. Practical1 uses the
+read-only original scalar core for its fixed comparison, with the40 complete
+original Rust-source hashes (including `lib.rs`); practical2 and later taught
+mechanisms use the practical copy. Artifact-cache/asset-fetch tools import the
+moved practical identity helper without changing their algorithms.
+
+Run Rust checks through the maintained locked offline overlay, separately from
+Node-only checks. For a declared staged run and operation:
+
+```sh
+bash scripts/run-functional-rust-overlay.sh RUN_ID OPERATION sha256:IMAGE_DIGEST -- cargo check --locked --offline -p llm-from-scratch -p llm-from-scratch-practical -p practical-ch01-reference-core-handoff -p practical-ch02-corpus-preparation
+bash scripts/run-functional-rust-overlay.sh RUN_ID OPERATION sha256:IMAGE_DIGEST -- cargo test --locked --offline -p llm-from-scratch-practical --test reference_source_identity
+bash scripts/run-functional-rust-overlay.sh RUN_ID OPERATION sha256:IMAGE_DIGEST -- cargo test --locked --offline -p practical-ch01-reference-core-handoff --test reference_handoff
+bash scripts/run-functional-rust-overlay.sh RUN_ID OPERATION sha256:IMAGE_DIGEST -- cargo run --quiet --locked --offline -p practical-ch02-corpus-preparation < rust/demos/practical-ch02-corpus-preparation/fixtures/prepared.jsonl
+```
+
+Use a distinct declared operation name for every invocation. Each Docker run
+disables networking. These fixture/reference checks do not execute NeMo, acquire
+data, prove full-corpus resource bounds, or close downstream training gates.
+The old corpus pipeline and its immutable measurements remain reusable external
+preparation evidence with their original Chapter41 identity; the current reader
+lesson is practical2. The following sections retain the original operational and
+historical selector documentation for that evidence.
+
 ## Current external corpus preparation and revision2 migration
 
 Current Chapter41 uses the replaceable external NVIDIA NeMo Curator1.3.0

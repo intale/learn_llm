@@ -8,7 +8,7 @@ use super::canonical_manifest::{
     DatasetArtifactManifestV2, MAX_MANIFEST_BYTES, MAX_METADATA_LABEL_BYTES, bounded_label,
     canonical_manifest_bytes,
 };
-use llm_from_scratch::artifact_identity::{ArtifactDigest, sha256};
+use llm_from_scratch_practical::artifact_identity::{ArtifactDigest, sha256};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

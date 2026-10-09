@@ -2,7 +2,7 @@
 {
   "chapter_id": "32-decoder-model",
   "concept_id": "decoder-model",
-  "content_revision": 5,
+  "content_revision": 4,
   "order": 32,
   "objective": {
     "en": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits.",
@@ -179,8 +179,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The scalar reference implementation now produces differentiable next-token logits and mean indexed loss from token IDs. Chapter 33 will train this CPU model with a bounded deterministic loop and choose one state using validation loss only; these steps do not establish measured laptop-scale capability.",
-    "ru": "Теперь эталонная реализация со скалярными вычислениями получает из ID токенов дифференцируемые логиты следующего токена и среднее значение индексированной функции потерь. В главе 33 эта модель для CPU будет обучаться в ограниченном детерминированном цикле, а одно состояние будет выбрано только по функции потерь на валидационной выборке; эти этапы не подтверждают измеренные возможности более крупной LLM на ноутбуке."
+    "en": "The cumulative implementation now produces differentiable next-token logits and mean indexed loss from token IDs; Chapter 33 will train this exact model with a bounded deterministic loop and choose one state using validation loss only.",
+    "ru": "Теперь совокупная реализация получает из ID токенов дифференцируемые логиты следующего токена и среднее значение индексированной функции потерь. В главе 33 эта же модель будет обучаться в ограниченном детерминированном цикле, а одно состояние будет выбрано только по функции потерь на валидационной выборке."
   },
   "terminology": [
     {
@@ -215,7 +215,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 32 has the exact active locale set {en, ru}. Published revision 4 supplied the previous canonical English source and direct Russian translation. Revision 5 reframes the reference-core scope; Russian must be refreshed from its independently approved English before bilingual publication.",
+    "Chapter 32 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
     "canonical English SHA-256: fe6b59faa766968d447cadeec12fcf0fa41fdf44b095af85c47c628417b3e384",
     "Translate weight tying as «связывание весов» and immediately ground it as one shared parameter with two differentiable uses, never as copying, mirroring, or synchronizing two tables. Use «выходная проекция на словарь» in ordinary prose rather than a literal UI-like rendering of output head.",
     "Translate token lookup as «выбор строк таблицы по ID токенов» or the concise contextual phrase «выбор эмбеддингов по ID токенов», never as «поиск токенов».",
@@ -269,10 +269,8 @@
 <!-- contract-section:scope -->
 ## Scope
 
-This chapter assembles the scalar reference decoder's complete forward path.
-Explicit CPU loops operate on `f64` values; this is a teaching implementation,
-not a measured laptop-scale model. Integer token IDs select rows from one
-trainable embedding table. A
+This chapter assembles the first complete decoder-only language model in the
+course. Integer token IDs select rows from one trainable embedding table. A
 configurable sequence of Chapter 31 blocks transforms those rows without
 changing the residual width. Final RMSNorm prepares the hidden states, and the
 transpose of the same embedding table produces one logit per vocabulary item.
@@ -492,7 +490,7 @@ not share block weights: `blocks.0` and `blocks.1` own distinct parameters.
 <!-- contract-section:decoder-connection -->
 ## Decoder connection
 
-The scalar reference implementation can now start from integer token IDs, preserve a
+The cumulative implementation can now start from integer token IDs, preserve a
 causal residual stream through a configurable stack, normalize the final hidden
 state, produce one logit per vocabulary item with a tied table, and compute the
 scalar next-token loss needed for optimization. Parameter names and order are
@@ -506,10 +504,9 @@ validation evidence without consulting the test partition.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the canonical semantic source and Russian remains an active locale.
-For revision 5, refresh Russian directly from independently approved
-English and publish complete same-revision lessons with reciprocal routes only
-after the required language gates pass. Any later English change makes the Russian review stale until
+English is the canonical semantic source and Russian is an active direct
+translation of the same revision. Both locales publish complete lessons and
+reciprocal routes. Any later English change makes the Russian review stale until
 formula symbols, zero-depth identity, tensor axes, exact fixture values,
 parameter names, trace tokens, source boundaries, diagram labels, and
 accessibility labels have been refreshed from English and reviewed again.
