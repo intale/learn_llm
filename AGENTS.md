@@ -210,6 +210,8 @@ user-authorized exception and exact unchanged teaching baseline, and retain the
 prior reviews only for the original candidate. This exception does not cover
 changes to teaching prose, formulas, examples, answers or unrelated surfaces.
 
+Link-only changes do not require fresh technical, pedagogical, wording, isolated-surface, adjudication, or localization reviews when they change only link destinations and necessary revision or provenance metadata. Preserve the prior reviews as judgments of their original teaching candidate; do not relabel them as reviews of the edited candidate. Verify the exact permitted change against that reviewed baseline, preserve displayed wording and link labels, formulas, examples, algorithms, surface roles, reading order and isolation groups, and run the applicable build, static-link and supported-Firefox navigation checks. An edit to any of those preserved teaching or presentation properties falls outside this exception.
+
 Learner-facing chapter content must explain LLM concepts, evidence, and
 presentation choices at the learner's level. Never refer to build instructions,
 authoring contracts, test requirements, framework or deployment constraints, or

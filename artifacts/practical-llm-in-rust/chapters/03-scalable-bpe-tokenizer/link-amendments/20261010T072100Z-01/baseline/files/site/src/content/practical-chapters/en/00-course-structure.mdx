@@ -1,0 +1,111 @@
+---
+{
+  "chapter_id": "00-course-structure",
+  "chapter_kind": "orientation",
+  "locale": "en",
+  "content_revision": 2,
+  "order": 0,
+  "concept_id": "practical-course-structure",
+  "title": "The structure of Practical LLM in Rust",
+  "description": "Start from the completed Rust language model, follow the practical chapter sequence, and distinguish CPU examples, external corpus preparation and the GPU-backed path.",
+  "objective": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs.",
+  "worked_inputs": "Trace the path from a fixed reference experiment through prepared documents and extended BPE to the later batching, GPU, training, evaluation and serving stages.",
+  "formula": null,
+  "history": {
+    "approach": "The first course builds the mechanisms of a small causal language model.",
+    "summary": "This course starts from that completed implementation and studies how its data handling, execution, training and inference must change for larger workloads.",
+    "rust_source": null
+  },
+  "rust_sources": [],
+  "visualization": {
+    "decision": "not-useful",
+    "id": null,
+    "rationale": "An ordered chapter list directly associates each available lesson with its purpose and distinguishes it from the later roadmap; a second model diagram would repeat the first course's structural map."
+  },
+  "decoder_connection": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; later chapters change how that same model is configured, trained, evaluated and used for generation."
+}
+---
+
+{/* chapter-section:overview */}
+
+## Start from a working model
+
+This course starts from a working language model and studies what must change as
+the data, model and workload grow. The starting implementation is a separate
+copy of the model completed in *LLM from scratch*. It already contains byte-pair
+tokenization, tensors, automatic differentiation, a causal decoder, training,
+evaluation, checkpoints and cached generation. Here we extend those parts.
+
+Chapter 0 is an orientation. Chapter 1 begins the learning material by recording
+exactly what the small reference model demonstrates. That record gives later
+changes a concrete comparison point.
+
+## Before starting
+
+Complete [LLM from scratch](/en/course/) or bring equivalent experience with
+Rust, byte-pair encoding, causal attention, gradients and next-token training.
+The first course's [Chapter 39](/en/course/39-end-to-end-llm/) shows the complete
+small model. Familiarity with that model matters more than memorizing its
+chapter numbers.
+
+The initial reference and Rust loading of an already prepared corpus run on a
+CPU. The GPU-backed practical path requires a compatible NVIDIA GPU. The external
+corpus-preparation example uses NVIDIA NeMo Curator and needs a GPU and driver
+compatible with its pinned CUDA/RAPIDS environment. NeMo prepares text outside
+the Rust model; another tool can supply the same prepared-document format.
+
+{/* chapter-section:history */}
+
+## Keep the completed model as the starting point
+
+The first course builds the mechanisms of a small causal language model. This
+course begins with its completed implementation and studies how data handling,
+execution, training and inference must change for larger workloads. The Rust
+implementation for this course lives in
+`rust/crates/llm-from-scratch-practical`. Its examples extend that copy; the first
+course keeps its own implementation.
+
+{/* chapter-section:course-path */}
+
+## Follow the practical path
+
+1. [Chapter 1: Record the reference model](../01-reference-core-handoff/) binds
+   the tiny experiment to its inputs and separates repeatable results from
+   claims about language quality or speed.
+2. [Chapter 2: Prepare a corpus](../02-corpus-preparation/) separates external
+   text preparation from Rust loading, and preserves document and split identity.
+3. [Chapter 3](../03-scalable-bpe-tokenizer/) extends byte-pair encoding. It adds
+   bounded ingestion, local pair updates and efficient application of frozen
+   merge ranks to the existing tokenizer.
+
+The [practical course index](/en/practical-llm-in-rust/) links to the lessons
+currently available. The later curriculum continues with variable-length batches and packing,
+configurable decoder depth and shape, GPU execution, larger training runs,
+complete resume state, evaluation, adaptation, quantized inference and serving.
+These are stages of one causal text model. Their examples become available as
+each mechanism is implemented and measured.
+
+## Read the examples at their stated scale
+
+Small fixtures make intermediate values inspectable: a pair count, a token
+sequence, a loss or a restored state. They establish the behavior shown for
+those inputs. They do not establish full-corpus throughput, useful generated
+language, or a larger model's memory use. Full-data runs and hardware
+measurements supply that separate evidence.
+
+{/* chapter-section:visualization */}
+
+## Use the sequence to navigate
+
+An ordered chapter list connects each available lesson to its purpose and names
+the later stages. The individual lessons introduce diagrams where a computation
+or comparison benefits from one.
+
+{/* chapter-section:decoder-connection */}
+
+## Continue with the reference experiment
+
+Corpus preparation and tokenization supply the causal decoder's inputs. Later
+chapters change how that same model is configured, trained, evaluated and used
+for generation. Start by establishing the reference experiment in
+[Chapter 1](../01-reference-core-handoff/).

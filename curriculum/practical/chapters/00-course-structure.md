@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "concept_id": "practical-course-structure",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 0,
   "objective": {
     "en": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs."

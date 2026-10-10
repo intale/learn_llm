@@ -423,6 +423,14 @@ language tags, native names, and directions. The course plan defines which of
 those registered locales are active for a particular chapter. Do not hard-code
 an English/Russian pair in chapter logic.
 
+The user-authorized link-only exception in `AGENTS.md` applies before the ordinary
+review sequence below. For destination-only edits and necessary revision or
+provenance metadata, preserve the original judgments for their original teaching
+candidate, verify the exact allowed source and rendered delta, and run applicable
+build, static-link and sole-Firefox navigation checks. Displayed wording and labels,
+formulas, examples, algorithms, surface roles, reading order and isolation groups
+must remain unchanged; otherwise require the ordinary fresh-review workflow.
+
 English is the canonical semantic source. For every English learner-facing
 change, invoke `.agents/skills/author-llm-course-english/SKILL.md` in the author
 or orchestration context and follow this publication order:

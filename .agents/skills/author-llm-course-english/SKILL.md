@@ -135,6 +135,14 @@ with exact baseline/current byte evidence. Preserve existing reviews as evidence
 for their original candidate, never as a new verdict over changed bytes. Other
 English meaning or presentation changes retain the full review workflow below.
 
+Apply the user-authorized link-only exception in `AGENTS.md` before the ordinary
+review gates below. Destination-only edits with necessary revision/provenance
+metadata retain original judgments only for their original teaching candidate;
+verify the exact source/rendered delta and applicable build, static-link and
+supported-Firefox navigation evidence. Any change to displayed wording, labels,
+formulas, examples, algorithms, surface roles, reading order or isolation groups
+falls outside that exception and requires the full workflow.
+
 Retain the required worked evidence, substantive exercise coverage and checked
 answers in the course contract, recasting any prediction prompt as an explained
 example or a reproduction/inspection task. Optional means the learner may skip

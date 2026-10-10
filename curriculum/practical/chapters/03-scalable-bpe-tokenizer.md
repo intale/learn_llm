@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-scalable-bpe-tokenizer",
   "concept_id": "scalable-bpe-tokenizer",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 3,
   "objective": {"en": "Extend the existing BPE trainer and tokenizer with bounded prepared-document training and ranked application while preserving training-only input, numeric tie order, leftmost replacement and exact byte reconstruction."},
   "worked_inputs": {"en": "Training documents abab and abac learn ab as content ID 258, then ac as ID 259. All three remaining pair counts tie at one after the first rank; numeric pair order selects (99,101). Held-out acac encodes as [259,259]. A separate a1 fixture shows how the published GPT-2 pretokenizer prevents a supplied letter-digit merge."},

@@ -1,4 +1,8 @@
 import { defineConfig } from '@playwright/test';
+import { normalizeSiteBase } from './src/lib/site-path';
+
+declare const process: { env: Record<string, string | undefined> };
+const previewBase = normalizeSiteBase(process.env.SITE_BASE ?? '/');
 
 export const E2E_PREVIEW_PORT = 64_173;
 export const E2E_PREVIEW_ORIGIN = `http://127.0.0.1:${E2E_PREVIEW_PORT}`;
@@ -31,7 +35,7 @@ const config = defineConfig({
   webServer: [
     {
       command: `npm run preview -- --host 127.0.0.1 --port ${E2E_PREVIEW_PORT}`,
-      url: `${E2E_PREVIEW_ORIGIN}/`,
+      url: `${E2E_PREVIEW_ORIGIN}${previewBase}`,
       reuseExistingServer: false,
       timeout: 30_000,
     },

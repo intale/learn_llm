@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-08T10:52:06Z"
+updated_at: '2026-10-10T08:45:33.394890+00:00'
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -68622,3 +68622,291 @@ builds:
             copy, parser/validator or old audit mutation. Mandatory scoped local completed-step commit is next; no push
             or deployment claim.
           finished_at: '2026-10-09T18:53:26.474003+00:00'
+      - id: repair-gh-pages-practical-relative-links
+        objective: Make five practical links resolve under root and GitHub Pages through a verified link-only mechanical overlay
+          of the unchanged originally reviewed teaching candidate.
+        depends_on:
+        - repair-gh-actions-site-dependency-layout
+        status: completed
+        inputs:
+        - Dockerfile
+        - .dockerignore
+        - .github/workflows/deploy-pages.yml
+        - scripts/check-course-boundaries.mjs
+        - scripts/check-site-content.mjs
+        - scripts/check-static-links.mjs
+        - site/package.json
+        - site/package-lock.json
+        - site/playwright.config.ts
+        - site/src/content/practical-chapters/en/00-course-structure.mdx
+        - site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx
+        - curriculum/practical/chapters/00-course-structure.md
+        - curriculum/practical/chapters/03-scalable-bpe-tokenizer.md
+        - site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json
+        - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json
+        - User-supplied read-only Actions job log; exact raw diagnostic613a4531
+        - Root-selected five-relative-destination repair and metadata revisions; no shared renderer changes
+        - Cached pinned image sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23
+        outputs:
+        - site/src/content/practical-chapters/en/00-course-structure.mdx
+        - site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx
+        - curriculum/practical/chapters/00-course-structure.md
+        - curriculum/practical/chapters/03-scalable-bpe-tokenizer.md
+        - site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json
+        - scripts/check-course-boundaries.mjs
+        - site/tests/e2e/practical-links.spec.ts
+        - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json
+        - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/english-html/
+        - BUILD_STATE.yaml
+        - DECISIONS.md
+        - site/playwright.config.ts
+        - AGENTS.md
+        - SKILLS.md
+        - .agents/skills/author-llm-course-english/SKILL.md
+        - scripts/lib/practical-link-amendment.mjs
+        - scripts/tests/practical-link-amendment.test.mjs
+        - scripts/README.md
+        - scripts/tests/course-boundaries.test.mjs
+        - artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/link-amendments/20261010T072100Z-01/
+        acceptance:
+        - Reproduce exactly five practical lesson links escaping /learn_llm/ in the supplied Actions log and unchanged staged
+          project build at SITE_BASE=/learn_llm/ and SITE_URL=https://intale.github.io/learn_llm.
+        - Replace only the five destinations using existing relative-link convention; preserve all first-course implementation
+          and lesson bytes, all LLM algorithms/math/traces/teaching wording and Russian inputs.
+        - Synchronize practical P0 content revision3 and P3 revision2 in metadata; no new supporting dependency or shared renderer/API
+          changes.
+        - 'User overrides fresh reviews for exact link-only edits: preserve original four judgments as original candidate evidence,
+          verify their full chain against exact original bytes, and prove the permitted current href/revision delta with all
+          teaching/presentation properties preserved.'
+        - Run the exact reported Docker workspace check sequence at the Actions project configuration and root configuration;
+          both static link audits pass.
+        - Use the sole Firefox project with JavaScript for practical P0/P3 link navigation and desktop/narrow behavior without
+          screenshots; no package provisioning, GPU or remote write.
+        - Strict current-head no-fallback guards fail closed; explicit current mechanical overlay binds the original verified
+          chain, exact permitted current source/rendered delta and applicable positive build/static-link/Firefox evidence;
+          no changed candidate is called freshly reviewed.
+        - Record truthful canonical checkpoint and commit only declared validated completed outputs; no push or remote deployment.
+        validate:
+        - Private-role unchanged project-base npm --prefix site run build; npm --prefix site run test:links (expected exactly5
+          failures)
+        - cargo fmt --all -- --check
+        - npm --prefix site run check
+        - npm --prefix site run check:content
+        - npm --prefix site run check:parity
+        - npm --prefix site run build
+        - npm --prefix site run test:links
+        - npm --prefix site run test -- --run tests/deployment.test.ts
+        - npm --prefix site run test:e2e -- tests/e2e/practical-links.spec.ts
+        - Verify full unchanged original English chain in an exact original-byte baseline root; validate closed link-only amendment
+          and current publication identity with negative regressions
+        - Current-head positive/negative admission regressions; retained RU/first-course/prose/math/trace byte comparisons;
+          git diff --check; scoped local commit
+        cost:
+          class: medium
+          notes: cpu=C1;gpu=G0;paid=none;network=user-authorized single bounded read-only supplied-log retrieval already captured;
+            product execution entirely cached network-none/pull-never; no dependency downloads/image provisioning or remote
+            mutation
+        runs:
+        - run_id: 20261010T072100Z-repair-gh-actions-followup-01
+          started_at: '2026-10-10T07:31:38.703566+00:00'
+          status: succeeded
+          input_fingerprint:
+            git: 936e61dae43d735dfd204a0a7de36a5bf202bc3e
+            files:
+              Dockerfile: sha256:c42b790f737e98e65fead6eb9d2dc077be6e6c7cf251f607b858b4735703e6d8
+              .dockerignore: sha256:0ee0adecbd37dad582eea21e58a46adc5889dd7ec43f0506fd35150967cba951
+              .github/workflows/deploy-pages.yml: sha256:2ceeb343676733f6c80a488960ab6174aca143a7793508919e8cee59a95c5854
+              scripts/check-course-boundaries.mjs: sha256:1dbb1bae3956e3b39735f6eb5673e6ba9a3034d1acfcdc3fb52c8e5a5c4512d9
+              scripts/check-site-content.mjs: sha256:65dc857ceb26722db2316696f25faeedce3612042f523a81b3acef862d11bd72
+              scripts/check-static-links.mjs: sha256:ff0bbfe45d43f18777679609cbe9a004138f1dcbc23bfc8fd1f34e9512ef42d7
+              site/package.json: sha256:3e99c073ae7dd8ba6a942986c1b9c0f47845b28580fa6fb5b06b01f65403b6b6
+              site/package-lock.json: sha256:e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed
+              site/playwright.config.ts: sha256:675b4fba626282919176b31234492af6b1af6ab5ae85e844b41cfa2200046a4b
+              site/src/content/practical-chapters/en/00-course-structure.mdx: sha256:fe800cf23ba80a82653ba6853235ad695a7715b291fbdbd02ae464627f879bde
+              site/src/content/practical-chapters/en/03-scalable-bpe-tokenizer.mdx: sha256:43dd736c74f0dc1cb2485ba050156448edc871ce7eec87cc6a84e2c4776e23c6
+              curriculum/practical/chapters/00-course-structure.md: sha256:a3236d5d7990478c697059a4957a223fbd752c9fce9ada9c0b7005a1c0dcbf8b
+              curriculum/practical/chapters/03-scalable-bpe-tokenizer.md: sha256:e5ca00b179eaf13af0edcf1febcd90de779ef7e63ef0aabe34b619f590aff5ab
+              site/src/i18n/practical-catalogs/en/03-scalable-bpe-tokenizer.json: sha256:009c415aff60ca916acadbbb1135fe3831d87c0040137b643ecf9249b723d2b7
+              artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json: sha256:4acdeebfcb0f4f84effeb7d6bef558f5273f0d71b7b6748e7af777e460e07030
+            tools:
+              image: sha256:15a6cf7922e2266b5c6982bc713eeb619e73cad0680e03aa4e0f92f488a39e23
+              node: 22.12.0
+              npm: 10.9.0
+              rustc: 1.93.1
+              cargo: 1.93.1
+            actual_machinery_context:
+              nativeId: 01a124af-a270-72f0-87ab-560a44178cb2
+              model: gpt-6.1-sol
+              effort: max
+              modelOverride: false
+            current_role_settings:
+              author:
+                effort: xhigh
+                model: gpt-6.1-sol
+                rawPath: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/current-runtime-01/author.turn-context.jsonl
+                rawSha256: bf70877c344d60278db325eec790bbe76222939e21e862f7226c445467b283a2
+                timestamp: '2026-10-10T07:40:13.664Z'
+                turnId: 01a124ae-ef79-7a52-94a9-db6186615b7c
+              machinery:
+                effort: xhigh
+                model: gpt-6.1-sol
+                rawPath: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/current-runtime-01/machinery.turn-context.jsonl
+                rawSha256: f65bebec142f37a153c0117e5a263eb3d5a391fb1e8938d9c8bbd8624813ec3d
+                timestamp: '2026-10-10T08:18:10.264Z'
+                turnId: 01a124af-a285-7812-ad0c-4bba874afd74
+          staging_dir: .build/runs/20261010T072100Z-repair-gh-actions-followup-01
+          commands:
+          - Read complete build ledger/current directives and prior exact repair receipts
+          - curl read-only the exact supplied signed Actions-log URL; sandbox DNS failure then ordinary network escalation
+            succeedsHTTP200429191bytes; no query retained in receipt
+          - Inspect already-existing immutable cached image; no pull/build
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/run-before-project-base-01.sh
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/run-after-both-bases-01.sh
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/run-after-both-bases-02.sh (preserved
+            browser launch failure; project static build/links passed)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/run-after-both-bases-03.sh (both-base
+            static/Firefox success; no screenshots)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/run-navigation-observations-01.sh (20
+            actual navigation observations; no workspace rerun)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/run-tests-01.sh
+            (original baseline missing-schema failure preserved)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/run-tests-02.sh
+            (26/30 pass; exact fixture/setup failures preserved)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/run-tests-03.sh
+            (26/30 pass; fixture correction attempt preserved)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/run-tests-04.sh
+            (30/30 pass, no skips; reused190-file original foundation fixture)
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/run-production-01.sh
+            (strict production root and exact Pages, six-route identity each)
+          - Canonical 44-file promotion, 499 protected-source and52 retained-Russian binding checks; Docker context388 required
+            files included
+          - bash .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/run-canonical-admission-01.sh
+            (canonical maintained original-chain/current mechanical admission passed)
+          - git diff --check -- . :(exclude)artifacts/** (authored-source pass; exact generated Astro whitespace retained)
+          artifacts:
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/diagnostic/log-fetch-01/receipt.json
+            sha256: 919611d5f6dfffdfec418911ef501fd16033a4ef8d513ee3420874411bada9aa
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/diagnostic/log-fetch-01/job-logs.txt
+            sha256: 613a4531ff7e35b0595bdb71b6c25cc158869f1d12b454b18fe25ec470478ebc
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/before-reproduction-checkpoint-01/receipt.json
+            sha256: f3d0178b841e9739b8205704189e595e2ee97933bcf26cc8dfb51bb0d51aae93
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/fixture-readiness-correction-01/receipt.json
+            sha256: 0740ec692ebf6e1854c7301e440d2785d77afe14f793d7cdcaa039bbbb2e12bc
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/link-only-exception-01/declaration.json
+            sha256: 49e7854ab73b04a093d4ce6b1044f3f0cfdd1b285ec2e9095f8d2ec7a632c21c
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/complete-step-01/receipt.json
+            sha256: 9e768889c3df588e1ee5d190e9aa18ee299ae48c4fbc680f0091f046f43bb8e3
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/canonical-mechanical-promotion-01/manifest.json
+            sha256: cfde6f8622fffd43dea8f5a9a6db8f5fa7c3870193f24799c5e2eaec197f2ed8
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/canonical-mechanical-promotion-01/docker-context-inputs.json
+            sha256: 0c72dac448e2528ed1fc161ddb6ff19403388106193addcb14dcaa4a4a7e5ac0
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/canonical-mechanical-promotion-01/hygiene.json
+            sha256: bd0f93034fd2c238b92b8a4fd33c7fea2666cbdf49fe65058fba1af948e01be0
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/foundation-fixture-reuse.json
+            sha256: 892dbba9449fb5b409c07def29474b401ddf9d704338dcc86bbe0b39227e6a24
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/mechanical-amendment-01/current-runtime-01/receipt.json
+            sha256: 2e1dfadd420e5456c313d83d8ab99b5631b6e9aaba65f5875040c272086b8f8e
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/validation/mechanical-admission-04/tests.stdout.txt
+            sha256: fcb9adcf8e3868955f94ab0e051a21db63b226be7b0ef2b6d79928d79207f82e
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/validation/mechanical-production-01/declaration.json
+            sha256: 5d4ef2c6fbcc3595b43d9b4d08a009484caf6b823a6f64cbf7c2a464d78c785b
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/validation/mechanical-production-01/launcher.stdout.txt
+            sha256: 46e3319311361b5dd986ecd747ccd608f788f4ba3d95636e9213b3dadfe4f962
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/validation/canonical-mechanical-admission-01/admission.stdout.txt
+            sha256: 296b9aa11a1193b71e053d541147f74e7e15ccecff5528c701b2465f2543fafc
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/candidate-packaging-01/protected-bytes.json
+            sha256: 572cc123dd7c373e0058bb367f750fcba39973627244dba4e154d3ab0618d5e3
+          - path: .build/runs/20261010T072100Z-repair-gh-actions-followup-01/operations/candidate-packaging-01/revision-and-retained-locale-proof.json
+            sha256: 4d74f82f2bbf916af2215a49b71cea3c0b54b2ddb8399b7a468fcb7700509813
+          - path: artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/publication-receipt.json
+            sha256: f433c642927e04b7ecc61889ddaee835ff0b397dc49339aa6f9aca7d03ec7d7f
+          - path: artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/link-amendments/20261010T072100Z-01/amendment.json
+            sha256: 9e63c0bc8f5f8bb927e3fb977a222ebc93e61e9579ad70cc4284eb11f7de3478
+          validation:
+          - name: unchanged-actual-pages-five-link-failure
+            result: reproduced
+            expected_link_exit_status: 1
+            issues: 5
+          - name: staged-project-checks-and-browser-readiness-attempt01
+            result: failed-before-browser-test-selection
+            passed_workspace_checks: 6
+            deployment_tests_passed: 6
+            firefox_tests_selected: 0
+            cause: root readiness URL does not serve project-base preview
+            preserved: true
+          - name: staged-project-browser-launch-attempt02
+            result: failed-before-navigation-assertions
+            selected_tests: 10
+            passed_browser_assertions: 0
+            cause: read-only runtime font/framebuffer launch; corrected by verified prior writable runtime
+            preserved: true
+          - name: both-base-supported-firefox-navigation
+            result: passed
+            cases: 20
+            sole_project: firefox
+            javascript: true
+            screenshots: false
+          - name: both-base-actual-navigation-observation-capture
+            result: passed
+            static_observations: 10
+            firefox_observations: 20
+            reused_builds_exact: true
+          - name: fresh-independent-review-routing
+            result: user-cancelled-not-acceptance
+            new_judgments_published: 0
+            original_judgments_original_candidate_only: true
+          - name: mechanical-admission-attempt01
+            result: failed
+            cause: missing original bound schemas in temporary baseline
+            preserved: true
+          - name: mechanical-admission-fixture-attempts02-and03
+            result: failed
+            tests_passed_each: 26
+            tests_failed_each: 4
+            cause: original foundation and schema fixture provenance/setup; corrected with exact190-file original fixture and
+              bound schemas
+            preserved: true
+          - name: strict-current-mechanical-admission-and-negative-regressions
+            result: passed
+            selected_tests: 30
+            passed_tests: 30
+            skipped_tests: 0
+            current_chapters: 4
+            complete_routes: 6
+            original_four_judgment_chain_verified_on_original_bytes: true
+          - name: strict-current-production-both-configured-bases
+            result: passed
+            root_site_base: /
+            root_site_url: https://intale.github.io/learn_llm/
+            project_site_base: /learn_llm/
+            project_site_url: https://intale.github.io/learn_llm
+            production_pages_each: 90
+            static_links_each: passed
+            six_route_exact_publication_bytes_each: true
+          - name: canonical-exact-promotion-source-and-docker-context
+            result: passed
+            manifest_files: 44
+            protected_source_files: 499
+            retained_locale_bindings: 52
+            docker_required_inputs: 388
+            new_audit_records: 0
+            full_original_verifier_unchanged: true
+          - name: canonical-current-mechanical-publication-admission
+            result: passed
+            current_head_no_fallback: true
+            original_review_chain_original_bytes_only: true
+          - name: authored-source-whitespace
+            result: passed
+            generated_existing_trailing_spaces_preserved: 2
+          notes: Completed the exact five practical href repair and P0 revision3/P3 revision2 propagation. User-authorized
+            durable link-only exception is recorded in AGENTS/SKILLS/author-skill cross-reference; earlier fresh reviewer routing
+            is user-cancelled operational history, never acceptance. Original sealed practical.ch03.en.20261009.02 four-judgment
+            chain verifies only against exact original bytes; current schema2 head is an explicit mechanical overlay with exact
+            source/rendered delta,155 current bindings and11 original preimages.30 targeted tests pass; root/Pages90-page production
+            builds/static links and six-route equality pass;20 actual sole-Firefox navigation observations remain applicable
+            to byte-identical builds. Four physical revision digits produce ten repeated extracted-unit edits; all other HTML/teaching
+            properties unchanged.44 canonical manifest files exact,499 protected tracked sources and52 Russian bindings retained,388
+            Docker-required inputs included with no .build dependency. Failures and cancelled review routes preserved. No new
+            audit/judgment publication, source-hash bypass, fallback, algorithm/reference/Russian change, provisioning, image
+            pull, full-data execution, remote Actions run/push/deployment or screenshot claim. Stable-step local commit follows.
+          finished_at: '2026-10-10T08:45:33.394890+00:00'

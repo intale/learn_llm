@@ -1,0 +1,414 @@
+---
+{
+  "chapter_id":"03-scalable-bpe-tokenizer",
+  "locale":"en",
+  "content_revision":1,
+  "order":3,
+  "concept_id":"scalable-bpe-tokenizer",
+  "title":"Extend BPE with bounded local updates",
+  "description":"Extend the existing Rust BPE trainer and tokenizer with bounded local updates, preserve their learned decisions and inspect a chapter-local GPT-2 segmentation example.",
+  "objective":"Extend the existing BPE trainer and tokenizer with bounded prepared-document training and ranked application while preserving training-only input, numeric tie order, leftmost replacement and exact byte reconstruction.",
+  "worked_inputs":"Training documents abab and abac learn ab as content ID 258, then ac as ID 259. All three remaining pair counts tie at one after the first rank; numeric pair order selects (99,101). Held-out acac encodes as [259,259]. A separate a1 fixture shows how the published GPT-2 pretokenizer prevents a supplied letter-digit merge.",
+  "formula":{
+    "latex":"p_t=\\min_{\\mathrm{lex}}\\operatorname*{argmax}_{(a,b)}c_t(a,b)",
+    "symbols":[
+      {"symbol":"t","meaning":"the zero-based merge rank, counting completed earlier merge rounds"},
+      {"symbol":"a,b","meaning":"the left and right content token IDs of an adjacent pair in a current training document"},
+      {"symbol":"c_t(a,b)","meaning":"the integer number of adjacent occurrences of that pair in the current training sequences at rank t; overlaps count and document boundaries never contribute"},
+      {"symbol":"p_t","meaning":"the selected pair: maximum current count, with ties resolved by the smallest left ID and then the smallest right ID"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"model-building-practice",
+      "limitation":"A whole-word vocabulary leaves rare and unseen words difficult to represent; learned subwords reduce that problem, but their alphabet and boundary rules still determine which merges are possible.",
+      "later_advance":"The published GPT-2 encoder applies a reversible byte-to-Unicode mapping, an explicit pretokenization pattern and ranked merges within each resulting piece. The pretokenization boundaries determine where a learned merge can apply.",
+      "modern_llm_role":"Freeze the training selection and tokenizer policy before constructing decoder token targets. Improve the implementation without changing those learned decisions or confusing byte reconstruction with equal segmentation.",
+      "sources":[
+        {"role":"earlier","year":2016,"name":"Neural Machine Translation of Rare Words with Subword Units","source_url":"https://aclanthology.org/P16-1162/","claim":"Sennrich and colleagues learn subword units by repeatedly merging frequent symbol pairs, with word boundaries retained in their character-based representation."},
+        {"role":"later","year":2019,"name":"GPT-2 tokenizer implementation","source_url":"https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py","claim":"The published GPT-2 encoder applies a reversible byte-to-Unicode mapping, an explicit pretokenization pattern and ranked merges within each resulting piece."}
+      ]
+    },
+    "approach":"Reuse the existing scalar trainer to recount pairs and replace left to right; compare its decisions with local edge updates, then illustrate a separate published pretokenization policy in the chapter demo.",
+    "summary":"Learned subwords address rare-word representation; byte coverage and pretokenization then specify different encoding policies. An implementation can become faster while preserving one policy, but changing a boundary changes the tokenizer.",
+    "rust_source":"rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs","region":"bounded-prepared-training","purpose":"Expose bounded prepared-document training through the existing trainer type."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs","region":"incremental-pair-choice","purpose":"Select maximum current count and minimum numeric pair while discarding stale queue entries."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs","region":"local-edge-replacement","purpose":"Replace live occurrences left to right and update only disappearing and newly formed edges."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/tokenizer/encoding.rs","region":"ranked-live-encoding","purpose":"Apply this tokenizer's earliest learned adjacent merge and recheck stale encoding candidates."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/tokenizer/artifact.rs","region":"validate-tokenizer-artifact","purpose":"Validate artifact metadata and delegate vocabulary and operand checks to the existing tokenizer."},
+    {"path":"rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs","region":"scalar-rank-reference","purpose":"Adapt the original scalar trainer's results into the same learned-artifact representation."},
+    {"path":"rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs","region":"gpt2-byte-mapping","purpose":"Implement the published reversible byte mapping and define the chapter's tiny illustrative vocabulary."},
+    {"path":"rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs","region":"gpt2-pretoken-boundaries","purpose":"Apply the published segmentation pattern and reuse the existing rank engine separately inside each piece."},
+    {"path":"rust/demos/practical-ch03-scalable-bpe-tokenizer/src/main.rs","region":"scalable-bpe-example","purpose":"Print the complete bounded Rust fixture trace and separate policy contrast."}
+  ],
+  "visualization":{"decision":"useful","id":"scalable-bpe-tokenizer","rationale":"Two current count tables make the numeric tie and changing training representation visible. Scalar and incremental paths converge on the same learned payload, while a separate letter-digit example shows why pretokenization changes eligible merges."},
+  "decoder_connection":"Use the frozen course tokenizer to encode each prepared document separately. Held-out encoding does not fit new merges. Chapter 4 will place those token sequences into variable-length batches without changing tokenizer identity."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import ScalableBpeTokenizerDiagram from "../../../components/chapters/ScalableBpeTokenizerDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+## The problem: repeated scans must not change learned choices
+
+Our byte-pair encoding trainer counts adjacent token pairs, selects one pair,
+replaces its occurrences and repeats. The first course's
+[Chapter 3](/en/course/03-learn-bpe-merges/) implemented that scalar trainer;
+[Chapter 4](/en/course/04-apply-bpe-tokenizer/) applied its frozen ranks and
+decoded the resulting tokens. Both are already in the practical course's
+starting crate. Here we extend the existing `BpeTrainer` and `BpeTokenizer`.
+
+The scalar trainer recounts every current training sequence at every merge
+rank. With more documents and
+more requested merges, those repeated scans revisit many edges that have not
+changed.
+
+We can retain pair statistics and update the edges affected by a replacement.
+Local updates avoid recounting unaffected edges, but introduce a correctness obligation:
+the retained counts must describe the current sequences exactly. An old count
+or an out-of-order replacement can change the learned vocabulary even if the
+result still decodes to the original bytes.
+
+We will preserve the course's policy: learn from training documents only, count
+overlapping adjacent occurrences, break frequency ties by numeric token IDs,
+and replace matches left to right without sharing an input token between two
+replacements. A faster implementation of that policy must keep those decisions.
+
+### Work through two merge ranks
+
+Use two manually prepared training documents, `abab` and `abac`. They are
+separate documents, so the last byte of one never forms a pair with the first
+byte of the other. The held-out text `acac` will be encoded after learning;
+it supplies no pair counts.
+
+Keep the existing public token layout. Program IDs `0` and `1` are BOS and EOS;
+one-byte content IDs run from `2` through `257`. The bytes `a`, `b` and `c`
+therefore have IDs `99`, `100` and `101`. The first learned content ID is `258`.
+There is no PAD token. BOS and EOS are structural controls and do not enter
+training pair counts.
+
+Before rank $0$, the current sequences are `[99,100,99,100]` and
+`[99,100,99,101]`. The pair `a,b` occurs $3$ times, `b,a` occurs $2$ times, and
+`a,c` occurs once. Select `a,b`, assign its merged bytes `ab` the new ID `258`,
+and replace its nonoverlapping occurrences. The sequences become `[258,258]`
+and `[258,99,101]`.
+
+Before rank $1$, there are only three adjacent occurrences: `(258,258)`,
+`(258,99)` and `(99,101)`, each with count $1$. Numeric pair order compares
+the left IDs first. The pair `(99,101)` wins the tie, so the bytes `ac` receive
+ID `259`. The two training sequences are now `[258,258]` and `[258,259]`.
+
+The frozen rules encode held-out `acac` as `[259,259]`. Decoding those content
+tokens reconstructs `acac`; document framing would instead give
+`[0,259,259,1]`. Encoding held-out text applies the learned rules and does not
+learn another rule.
+
+{/* chapter-section:formula */}
+
+## Select from the current counts
+
+$$p_t=\min_{\mathrm{lex}}\operatorname*{argmax}_{(a,b)}c_t(a,b)$$
+
+First collect all pairs having the largest current count. Then choose the
+numerically smallest pair from that set: smallest left ID, then smallest right
+ID. If there are no adjacent pairs, learning stops. The prepared-training policy
+can require an exact merge count. With that policy enabled, training fails if
+the documents run out of pairs before that count is reached; it does not invent
+vocabulary entries. Without it, the requested count is an upper limit, as in
+the original scalar trainer.
+
+{/* chapter-section:symbol-glossary */}
+
+## What the symbols count
+
+- $t$ is the zero-based merge rank, counting completed earlier merge rounds.
+- $a,b$ are the left and right content token IDs of an adjacent pair in a current
+  training document.
+- $c_t(a,b)$ is the integer number of adjacent occurrences of that pair in the
+  current training sequences at rank $t$; overlaps count and document boundaries
+  never contribute.
+- $p_t$ is the selected pair: maximum current count, with ties resolved by the
+  smallest left ID and then the smallest right ID.
+
+For `aaa`, two overlapping `a,a` occurrences contribute to the count, but
+left-to-right replacement consumes the first two bytes together and leaves the
+third byte alone. That produces one replacement. For `aaaa`, three occurrences
+contribute to the count and two nonoverlapping replacements are possible.
+Frequency and replacement count answer different questions.
+
+{/* chapter-section:rust-implementation */}
+
+## Keep live edges, then apply learned ranks
+
+`BpeTrainer::train_prepared` uses Chapter 2's caller-supplied prepared-corpus reader. The
+caller supplies the training-only stream, its expected SHA-256 and the identity
+of the accepted corpus evidence. Training verifies the exact stream bytes and
+rejects any supplied `split` metadata that is not `train`. These checks do not
+discover overlap or establish rights, privacy or suitability; accepting that
+preparation evidence remains the caller's responsibility.
+
+The existing trainer keeps its scalar learning path. The new method adds a
+bounded working representation behind that same type; it does not define a
+second tokenizer. The existing `BpeTokenizer` still owns token layout, frozen
+rules, vocabulary expansions, document framing and byte decoding.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tokenizer/bpe_trainer.rs"
+  region="bounded-prepared-training"
+  caption="The existing BPE trainer accepts bounded prepared documents and delegates local pair updates to its private working representation."
+  label="Rust source: extend BpeTrainer with prepared-document training" />
+
+Each ingested byte becomes a token node with stable position, predecessor and
+successor links. The input text is then released. Consumed nodes retain their
+arena slots, so the node limit counts every ingested byte position. Node slots
+and pair indexes stay in memory under caller-selected bounds. Streaming input
+therefore does not mean constant-memory training or an external-memory algorithm.
+
+A pair index records its current count and ordered live occurrence positions.
+A priority queue puts the greatest count first, using the smallest numeric pair
+when counts tie. Count updates can leave old queue entries behind. Each update
+changes a generation number; a popped entry is usable only if its count and
+generation still match the current pair state. A queue at its configured capacity
+is rebuilt from current pairs, preserving the same winner order.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs"
+  region="incremental-pair-choice"
+  caption="Choose the greatest current pair count with the course's numeric tie rule; discard queue entries invalidated by later count updates."
+  label="Rust source: choose a BPE pair from current incremental counts" />
+
+Replacing one pair removes the edge entering the left node, the selected edge,
+and the edge leaving the right node, when those edges exist. The merged node
+then supplies at most two new edges. Updating those edges immediately keeps
+adjacent replacements from subtracting a shared old edge twice. Ordered live
+positions enforce leftmost replacement; consumed overlapping occurrences vanish.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tokenizer/incremental.rs"
+  region="local-edge-replacement"
+  caption="Visit leftmost live matches, remove disappearing edges once and add the new neighboring edges after each replacement."
+  label="Rust source: update live BPE edges during leftmost replacement" />
+
+The scalar reference reuses the original trainer's complete learning loop:
+recount every current sequence, choose the winner and replace left to right.
+`train_byte_fixture` supplies the same two byte documents to that loop. The
+demo adapts its rules and counters into the artifact metadata used by the new
+path; it does not write another learning loop. Both canonical payloads and
+their hashes appear in the output, so their agreement can be inspected alongside
+the different working representations.
+
+<RustSource path="rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs"
+  region="scalar-rank-reference"
+  caption="Adapt the existing scalar trainer's learned rules and counters to the same artifact fields, without using the local pair index."
+  label="Rust reference: reuse the original BPE trainer's result" />
+
+Application has a different priority: the earliest learned rank among currently
+adjacent eligible pairs, followed by the leftmost position. The encoder rechecks
+adjacency and node versions before using a queued candidate, replaces that pair,
+and queues its new neighbors. Rules are topological: a merge's operands already
+exist before that rule's output ID is created.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tokenizer/encoding.rs"
+  region="ranked-live-encoding"
+  caption="Encode content by earliest learned rank and leftmost live position, rejecting stale candidates after neighboring replacements."
+  label="Rust source: apply learned BPE ranks to live adjacent content" />
+
+Read chunks are transport boundaries, not token boundaries. `encode_reader_bounded`
+reads one whole bounded document before encoding; callers invoke it separately
+for each document. Literal text such as `<|endoftext|>` remains content bytes.
+The existing document-framing operation inserts BOS and EOS after content
+encoding. Byte decoding is exact; text decoding
+checks UTF-8 after concatenating all token fragments, since an individual token
+may contain only part of a UTF-8 character.
+
+`max_nodes` bounds all ingested training byte positions in one training call,
+and byte positions in one encoded document. Bounded decoding uses that same
+numeric limit as the maximum reconstructed content-byte count for one document;
+it checks the total before allocating the output. A short token sequence can
+still expand into too many bytes. The existing vocabulary constructor separately
+bounds each token's expansion with `max_token_bytes` and the sum of all content
+expansions with `max_vocabulary_bytes`.
+
+### Preserve the artifact and its evidence boundary
+
+The tokenizer artifact records its schema and layout, raw-byte policy, training
+binding, requested merge count, ordered learned rules and efficiency counters.
+Validation rejects unknown fields or versions, duplicate pairs, gaps, forward
+operands and inconsistent reduction counts. Vocabulary expansions and output
+serialization have explicit capacity checks.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tokenizer/artifact.rs"
+  region="validate-tokenizer-artifact"
+  caption="Validate the learned artifact's metadata, then ask the existing tokenizer to check operands and construct bounded byte expansions."
+  label="Rust source: validate a learned course BPE artifact" />
+
+Canonical payload bytes identify the learned tokenizer and its declared training
+lineage. Producer timestamps, local paths and machine details belong in a separate
+execution receipt. The two training strategies can emit equal tokenizer payload bytes
+while having different producer receipts. Equal vocabulary size alone does not
+identify the rules or their training source.
+
+The fixture finishes with $4$ content tokens over $8$ input bytes:
+$4/8=0.5$ content tokens per byte. Framing the two training documents adds $4$
+structural controls, which are excluded from that numerator. This is a
+sequence-length ratio, not trained-model quality or
+throughput. Zero input bytes have no tokens-per-byte ratio. Actual memory use
+and speed on a larger corpus require measurements of that workload; these
+bounded examples supply no full-corpus result.
+
+With Docker running, use the repository's Rust workspace setup from the
+repository root. The following command runs the supplied CPU fixtures:
+
+```sh
+COURSE_CORPUS=false ./course run cargo run --offline --locked \
+  -p practical-ch03-scalable-bpe-tokenizer
+```
+
+The JSON output includes two merge rounds, held-out content `[259,259]`, equal
+scalar and incremental payload hashes, content/byte/control counters, storage
+counters, refusal examples and the separate policy contrast below. It loads no
+large corpus or model weights.
+
+<RustSource path="rust/demos/practical-ch03-scalable-bpe-tokenizer/src/main.rs"
+  region="scalable-bpe-example"
+  caption="Run the bounded course BPE example and print its complete trace together with the separate chapter-local pretokenization contrast."
+  label="Rust example: print practical Chapter 3 tokenization evidence" />
+
+{/* chapter-section:history */}
+
+## History: subwords still need a boundary policy
+
+A whole-word vocabulary leaves rare and unseen words difficult to represent;
+learned subwords reduce that problem, but their alphabet and boundary rules still
+determine which merges are possible.
+
+In $2016$, [Neural Machine Translation of Rare Words with Subword Units](https://aclanthology.org/P16-1162/)
+introduced BPE subword learning for neural translation. Sennrich and colleagues
+learn subword units by repeatedly merging frequent symbol pairs, with word
+boundaries retained in their character-based representation. That representation
+is different from treating a complete document as one raw-byte sequence.
+
+The published GPT-2 encoder applies a reversible byte-to-Unicode mapping, an
+explicit pretokenization pattern and ranked merges within each resulting piece.
+The pretokenization boundaries determine where a learned merge can apply.
+Inspect [the pinned encoder implementation](https://github.com/openai/gpt-2/blob/e5c5054474f583d6d9499624649353995d63c70a/src/encoder.py).
+The Unicode symbols represent bytes; the mapping does not normalize the input
+text.
+
+### Isolate one letter-digit boundary in Rust
+
+Our chapter-local Rust example implements the published byte mapping and
+pretokenization pattern. It reuses the course tokenizer's existing frozen-rank
+engine inside each piece, with one hypothetical merge of `a` followed by `1`.
+This isolates boundary behavior without implementing BPE again. The demo's
+tiny vocabulary defines its displayed IDs; they are not the pretrained GPT-2
+vocabulary's IDs.
+
+<RustSource path="rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs"
+  region="gpt2-byte-mapping"
+  caption="Map each possible byte to a reversible Unicode symbol and define the chapter's illustrative vocabulary IDs."
+  label="Rust comparison: the published GPT-2 byte-to-Unicode map" />
+
+The raw-byte fixture learns `a1` from `a1a1` and encodes `a1` as one content
+token. The published GPT-2 pattern splits `a1` into the letter piece `a` and
+the digit piece `1` before BPE. The proposed merge cannot cross those pieces,
+so this policy example emits two content tokens. Both paths reconstruct the
+same input bytes. Reconstruction therefore does not imply equal segmentation.
+
+<RustSource path="rust/demos/practical-ch03-scalable-bpe-tokenizer/src/gpt2_contrast.rs"
+  region="gpt2-pretoken-boundaries"
+  caption="Split text with the published GPT-2 pattern, reuse the course rank engine inside each piece, and map the resulting fragments to the tiny vocabulary."
+  label="Rust comparison: GPT-2 pretokenization restricts eligible BPE merges" />
+
+The regex engine executes the fixed published pattern; Rust owns the byte map,
+the existing rank decisions and the illustrative vocabulary IDs. The byte map
+is reversible and does not create a merge across separate pieces. Here the
+rank engine works on the pieces' raw bytes; the resulting byte fragments are
+then expressed through the map and tiny vocabulary. This demonstrates selected
+published operations rather than reproducing the pretrained tokenizer.
+Its bounded results do not establish agreement with every behavior of the
+original Python regex runtime.
+
+Freeze the training selection and tokenizer policy before constructing decoder
+token targets. Improve the implementation without changing those learned
+decisions or confusing byte reconstruction with equal segmentation.
+
+{/* chapter-section:visualization */}
+
+## Follow the changing counts and the separate boundary example
+
+<ScalableBpeTokenizerDiagram />
+
+The count tables refer to the representation immediately before each rank.
+They change after replacement. The scalar and incremental course paths reach
+the same learned payload; the letter-digit example changes the boundary policy
+and consequently the eligible merges.
+
+{/* chapter-section:exercises */}
+
+## Optional practice: inspect counts, order and boundaries
+
+1. Run the overlap test below. Explain why `aaa` has two counted `a,a`
+   occurrences but only one replacement.
+2. Run the third-rank demo test below. Explain why `(258,258)` wins the next tie
+   over `(258,259)` after the main two-rank example.
+3. Use the demo command above to inspect `gpt2_policy_contrast`. Explain why
+   reconstructing `a1` in both paths does not imply that both paths emit one
+   token.
+
+From the repository root, with Docker running and the Rust workspace setup
+available, run:
+
+```sh
+COURSE_CORPUS=false ./course run cargo test --offline --locked \
+  -p llm-from-scratch-practical --test practical_ch03_tokenizer \
+  leftmost_overlap -- --exact
+```
+
+Expect `running 1 test` and `1 passed; 0 failed`. This test compares counted
+overlaps and nonoverlapping replacement sequences using the existing scalar
+trainer.
+
+From the same working directory and setup, inspect the checked extra rank:
+
+```sh
+COURSE_CORPUS=false ./course run cargo test --offline --locked \
+  -p practical-ch03-scalable-bpe-tokenizer --lib \
+  tests::optional_third_rank_is_the_checked_course_exercise -- --exact
+```
+
+Expect `running 1 test` and `1 passed; 0 failed`. Zero selected tests means the
+requested example did not run.
+
+<details>
+<summary>Explanations for BPE counts, the third rank and pretoken boundaries</summary>
+
+1. For `aaa`, the two adjacent `a,a` occurrences start at the first and second
+   positions. Replacing the first occurrence consumes the first two bytes, so the
+   overlapping occurrence cannot also be replaced. The result is one merged `aa`
+   token followed by the remaining `a` byte token.
+2. After the two learned ranks for separate training documents `abab` and `abac`,
+   the current sequences are `[258,258]` and `[258,259]`, respectively. The
+   remaining pairs `(258,258)` and `(258,259)` each have count $1$ and left ID
+   `258`. Comparing right IDs selects `(258,258)` because `258` comes before
+   `259`. The new ID is `260`; `abab` becomes `[260]` and `abac` remains
+   `[258,259]`.
+3. For input `a1`, byte reconstruction concatenates the token fragments.
+   The course raw-byte path applies its learned `a1` merge and emits one content
+   token. The GPT-2 pattern creates separate letter piece `a` and digit piece `1`
+   before BPE, so that merge cannot cross the pieces and the example emits two
+   content tokens. Both fragment sequences concatenate to the same `a1` bytes;
+   equal reconstruction does not imply equal segmentation.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Hand frozen token sequences to batching
+
+Use the frozen course tokenizer to encode each prepared document separately.
+Held-out encoding does not fit new merges. Chapter 4 will place those token
+sequences into variable-length batches without changing tokenizer identity.
+The embedding and output layers must continue to interpret each content ID
+according to that same learned vocabulary.

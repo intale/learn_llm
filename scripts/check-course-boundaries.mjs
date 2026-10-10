@@ -8,6 +8,7 @@ import {readRegularFile,jsonFile,closed,hash} from './check-functional-step-rece
 import {parseJsonFrontmatter} from './check-site-content.mjs';
 import {readLocaleConfiguration} from './locale-config.mjs';
 import {validateCourseBoundaries,courseById,PRACTICAL_COURSE_ID,validateCourseChapterIdentity} from './lib/course-boundaries.mjs';
+import {verifyPracticalLinkAmendment} from './lib/practical-link-amendment.mjs';
 import {canonicalJson,verifyEvidence,verifyAdjudication} from '../.agents/skills/author-llm-course-english/scripts/english-review.mjs';
 
 export function readCourseConfiguration(root) {
@@ -66,15 +67,16 @@ export function readPracticalBuildScope(root,{buildRole=process.env.COURSE_BUILD
   return scope;
 }
 
-export function readPracticalPublication(root) {
+export function readPracticalPublication(root,{parserRoot=root}={}) {
   // A present current head is authoritative, including malformed/nonregular
   // entries. An invalid current candidate never falls back to historical proof.
   const profile=hasRepositoryEntry(root,PRACTICAL_CURRENT_PUBLICATION_RECEIPT)?CURRENT_PROFILE:
     hasRepositoryEntry(root,PRACTICAL_PUBLICATION_RECEIPT)?FOUNDATION_PROFILE:null;
   if (!profile) return null;
   const receipt=jsonFile(root,profile.receiptPath,65536,true);
-  closed(receipt,['schemaVersion','courseId','chapters','sourceHashes','english'],'practical publication');
-  if (receipt.schemaVersion!==1 || receipt.courseId!==PRACTICAL_COURSE_ID ||
+  const mechanical=receipt.schemaVersion===2;
+  closed(receipt,['schemaVersion','courseId','chapters','sourceHashes','english',...(mechanical?['mechanicalAmendment']:[])],'practical publication');
+  if ((receipt.schemaVersion!==1 && !(mechanical && profile===CURRENT_PROFILE)) || receipt.courseId!==PRACTICAL_COURSE_ID ||
       matchingProfile(receipt.chapters)!==profile)
     throw new Error('invalid practical publication');
   const course=courseById(readCourseConfiguration(root),PRACTICAL_COURSE_ID);
@@ -97,6 +99,14 @@ export function readPracticalPublication(root) {
   if (receipt.english.specPath!==profile.auditRoot+'/spec.json' ||
       Object.values(receipt.english).some(path=>typeof path!=='string'||!path.startsWith(profile.auditRoot+'/')))
     throw new Error('historical or foreign audit namespace cannot admit this practical profile');
+  if (mechanical) {
+    // Original judgments verify only their original exact-byte candidate. The
+    // current publication is admitted through a separately closed mechanical delta.
+    verifyPracticalLinkAmendment(root,receipt,{verifyBaseline:readPracticalPublication,parserRoot});
+    for (const [index,chapter] of receipt.chapters.entries())
+      validatePracticalChapterSource(root,course,chapter,index,receipt.sourceHashes[course.contentDirectory+'/en/'+chapter.chapterId+'.mdx'],'published practical');
+    return receipt;
+  }
   const spec=jsonFile(root,receipt.english.specPath);
   for (const [index,chapter] of receipt.chapters.entries()) {
     const path=validatePracticalChapterSource(root,course,chapter,index,receipt.sourceHashes[course.contentDirectory+'/en/'+chapter.chapterId+'.mdx'],'published practical');
@@ -116,7 +126,7 @@ export function readPracticalPublication(root) {
   }
   // Full maintained exact-byte verification is mandatory. A receipt status field
   // or a renamed old review cannot admit this current course.
-  const options={...receipt.english,root,parserRoot:root};
+  const options={...receipt.english,root,parserRoot};
   verifyEvidence(options);
   verifyAdjudication(options);
   return receipt;

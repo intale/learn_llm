@@ -65,7 +65,13 @@ function sealedPublicationFixture(t,{current=false}={}){
   t.after(()=>rmSync(root,{recursive:true,force:true}));
   const origin=resolve((current?process.env.COURSE_BOUNDARY_CURRENT_ROOT:process.env.COURSE_BOUNDARY_FOUNDATION_ROOT)??project);
   const receiptPath=current?PRACTICAL_CURRENT_PUBLICATION_RECEIPT:PRACTICAL_PUBLICATION_RECEIPT;
-  const receiptBytes=readFileSync(resolve(origin,receiptPath));
+  let receiptBytes=readFileSync(resolve(origin,receiptPath));
+  const currentHead=JSON.parse(receiptBytes);
+  let amendment;
+  if(currentHead.schemaVersion===2){
+    amendment=JSON.parse(readFileSync(resolve(origin,currentHead.mechanicalAmendment.path)));
+    receiptBytes=readFileSync(resolve(origin,amendment.baselineReceipt.path));
+  }
   if(!current)assert.equal(sha(receiptBytes),'756404dc7021af73b2f329d36c0ca026cbe48789395e222d1ecfab7dd3026ce4','foundation fixture must retain the exact accepted receipt');
   const receipt=JSON.parse(receiptBytes);
   assert.deepEqual(receipt.chapters.map(chapter=>chapter.chapterId),current?CURRENT_CHAPTER_IDS:FOUNDATION_CHAPTER_IDS);
@@ -73,7 +79,7 @@ function sealedPublicationFixture(t,{current=false}={}){
   const auditRoot=current?PRACTICAL_CURRENT_ENGLISH_AUDIT_ROOT:PRACTICAL_ENGLISH_AUDIT_ROOT;
   assert.equal(receipt.english.specPath,auditRoot+'/spec.json');
   for(const [path,digest] of Object.entries(receipt.sourceHashes)){
-    const bytes=readFileSync(resolve(origin,path));
+    const bytes=readFileSync(resolve(origin,amendment?.baselineFiles?.[path]?.path??path));
     assert.equal(sha(bytes),digest,'immutable publication fixture drift: '+path);
     write(root,path,bytes);
   }

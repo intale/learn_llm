@@ -1,0 +1,529 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/ci/site/node_modules/.bin/playwright",
+      "test",
+      "--project=firefox",
+      "tests/e2e/practical-links.spec.ts",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=line,json"
+    ],
+    "configFile": "/ci/site/playwright.config.ts",
+    "rootDir": "/ci/site/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/ci/site/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/ci/site/tests/e2e",
+        "testIgnore": [
+          "**/ch40-reference-core-handoff.spec.ts",
+          "**/ch41-corpus-preparation.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "practical-links.spec.ts",
+      "file": "practical-links.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "00-course-structure: LLM from scratch reaches its destination at 1364px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"LLM from scratch\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:37.514Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"LLM from scratch\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-b254c567c8bd79b82d7e",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "00-course-structure: Chapter 39 reaches its destination at 1364px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"Chapter 39\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/39-end-to-end-llm/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:38.937Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"Chapter 39\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/39-end-to-end-llm/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-e6d16e0be44275500fe0",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "00-course-structure: practical course index reaches its destination at 1364px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"practical course index\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 383,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:39.479Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"practical course index\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-0823e1490a23678d8151",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "03-scalable-bpe-tokenizer: Chapter 3 reaches its destination at 1364px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"Chapter 3\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/03-learn-bpe-merges/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 528,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:39.872Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"Chapter 3\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/03-learn-bpe-merges/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-c6b1b29b7512fed2b351",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "03-scalable-bpe-tokenizer: Chapter 4 reaches its destination at 1364px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"Chapter 4\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/04-apply-bpe-tokenizer/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 505,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:40.407Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":1364,\"height\":900},\"label\":\"Chapter 4\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/04-apply-bpe-tokenizer/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-f1aceb5f091f97bae120",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "00-course-structure: LLM from scratch reaches its destination at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"LLM from scratch\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 387,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:40.919Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"LLM from scratch\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-3797b1fa821654a9e3c4",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "00-course-structure: Chapter 39 reaches its destination at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"Chapter 39\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/39-end-to-end-llm/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 491,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:41.311Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"Chapter 39\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../../course/39-end-to-end-llm/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/39-end-to-end-llm/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-b432c5d90d7800f10b29",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "00-course-structure: practical course index reaches its destination at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"practical course index\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:41.808Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"00-course-structure\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"practical course index\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/00-course-structure/\",\"href\":\"../\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-262ba87ddb3604002639",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "03-scalable-bpe-tokenizer: Chapter 3 reaches its destination at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"Chapter 3\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/03-learn-bpe-merges/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:42.190Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"Chapter 3\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/03-learn-bpe-merges/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/03-learn-bpe-merges/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-5b76812b9961d8fa4daf",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "03-scalable-bpe-tokenizer: Chapter 4 reaches its destination at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "navigation-observation",
+                  "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"Chapter 4\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/04-apply-bpe-tokenizer/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1122,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T07:59:42.793Z",
+                  "annotations": [
+                    {
+                      "type": "navigation-observation",
+                      "description": "{\"chapter\":\"03-scalable-bpe-tokenizer\",\"viewport\":{\"width\":390,\"height\":844},\"label\":\"Chapter 4\",\"sourceUrl\":\"http://127.0.0.1:64173/en/practical-llm-in-rust/03-scalable-bpe-tokenizer/\",\"href\":\"../../course/04-apply-bpe-tokenizer/\",\"resolvedUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\",\"observedDestinationUrl\":\"http://127.0.0.1:64173/en/course/04-apply-bpe-tokenizer/\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0a5a1c9edb1632b32170-a700f1bb269576ea3097",
+          "file": "practical-links.spec.ts",
+          "line": 16,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T07:59:36.150Z",
+    "duration": 8070.171000000001,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

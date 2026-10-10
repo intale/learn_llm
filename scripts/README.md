@@ -710,3 +710,18 @@ automatic retries, implicit Referer headers and proxies; configured HTTPS
 destination checks precede following redirects. The retained cache fixture uses
 memory readers and a memory store, not learner retrieval examples. Approved raw
 acquisition evidence remains historical; synthetic verification is not a download.
+
+
+The practical course's current receipt may use schema 2 for the explicit
+20261010T072100Z-01 link-only mechanical amendment. `check-course-boundaries.mjs`
+verifies its closed source/rendered delta, current hashes and recorded root/Pages
+static plus sole-Firefox destinations through `lib/practical-link-amendment.mjs`.
+The unchanged original English chain is verified in an exact-byte temporary
+baseline using the maintained verifier and locked parser; it remains a judgment
+of the original teaching candidate. A malformed present current head never falls
+back. This is not a new content/language verdict or a general hash bypass.
+
+Run from the repository root with the existing provisioned site dependencies:
+`node --test scripts/tests/practical-link-amendment.test.mjs scripts/tests/course-boundaries.test.mjs`.
+The tests select the original sealed chain plus current amendment admission and
+reject forbidden source/rendered/evidence/head changes. No downloads are required.

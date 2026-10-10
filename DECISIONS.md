@@ -33496,3 +33496,105 @@ Earlier seven-command shorthand combines these six reported checks with the
 additional regression; it does not describe seven commands in the user log.
 Frozen intermediate artifacts and completed-run records remain unchanged.
 Affected step: repair-gh-actions-site-dependency-layout.
+
+
+### 2026-10-10T07:31:38.703566+00:00 — Correct five practical lesson destinations for GitHub Pages
+
+The user supplies a fresh failing Actions log at checkout936e61d. Read-only curl
+retrieves its exact429191bytes, digest613a4531, before signed access expiration.
+The prior dependency-layout repair succeeds; the next failure rejects exactly five
+practical0/3 Markdown links outside SITE_BASE=/learn_llm/. Prior offline validation
+used SITE_BASE=/; preserve those results as their actual measured configuration.
+
+The owner selects the existing relative-URL convention: ../../course/ destinations
+and ../ for the practical index. Only two practical lesson sources change, with
+P0revision3 and P3revision2 metadata synchronized. First-course implementation,
+wording, shared renderers, Rust/math/traces, Russian source and old sealed evidence
+are protected. No new link API, library or LLM algorithm is introduced. A present
+current practical head controls all four practical routes; one fresh successor
+English chain must pass both reviews and both same-role adjudications before
+publication. The new namespace is20261010T072100Z-01, candidate
+practical.ch03.en.20261010.01, scope practical.ch03.en; original chains stay history.
+
+Declare project-base before/after reproduction with the actual Actions SITE_URL
+https://intale.github.io/learn_llm and root build validation, sole-Firefox navigation
+and no screenshots. Cached network-none runtime15a6cf79 is inspected; no package
+provisioning, image download, push or remote run is authorized or claimed. Metadata,
+operational admission bindings, automated regression and frozen successor packaging
+are machinery-owned; commitment and role decisions remain owner-supplied.
+Affected step: repair-gh-pages-practical-relative-links.
+
+
+### 2026-10-10T07:44:01.111045+00:00 — Use configured project path for Firefox preview readiness
+
+Staged Pages checks pass formatting, Astro diagnostics, content/functional, parity,
+production build and static links; all six selected deployment tests pass. Firefox
+launch attempt fails before selecting any test because its existing readiness URL
+probes / instead of the configured /learn_llm/ preview. Preserve failed attempt01;
+no browser pass or root-build result is claimed. The owner authorizes the necessary
+test-only site/playwright.config.ts scope addition before mutation. Reuse the
+existing base normalizer and preview-origin value for readiness, retaining sole
+Firefox, JavaScript, server commands, ports and reuseExistingServer:false. It
+changes no learner content or renderer and will be tested at both configured bases.
+Affected step: repair-gh-pages-practical-relative-links.
+
+
+### 2026-10-10T08:21:57.518743+00:00 — User authorizes exact link-only publication amendments
+
+The user explicitly removes fresh technical, wording and other independent review
+requirements for this link-only repair and asks that the exception be durable.
+The owner supplies the exact rule now recorded in AGENTS.md, with operational
+cross-references in SKILLS.md and the English authoring skill to remove direct
+conflicts with their ordinary review sequence. The exception permits only href
+destinations and necessary revision/provenance metadata, preserving displayed
+wording/labels, formulas, examples, algorithms, roles, order and isolation.
+
+This supersedes the current step's earlier fresh-review plan, not historical plans
+or judgments. The reserved technical review is interrupted and the isolated review
+remains READY without canonical task delivery. Preserve routing attempts as
+operational history; no response supplies acceptance. The original sealed English
+chain remains exact evidence only for practical.ch03.en.20261009.02.
+
+The owner approves a narrow mechanical amendment using the provenance-checked
+f2d02cb command-only baseline-verification pattern and maintained APIs. Verify
+the complete original four-judgment chain against exact original publications in
+an isolated baseline root, then independently fail closed on any non-permitted
+current source/rendered change. Keep malformed-present-head refusal and no
+fallback; no old review is rebound or relabeled, no source-hash bypass and no
+fresh verdict is invented. Bind the current exact five hrefs, P0 revision3/P3
+revision2, current production bytes and measured both-base static/Firefox evidence.
+Applicable validation and local scoped commit remain required; no remote push or
+Actions rerun is authorized or claimed.
+
+
+### 2026-10-10T08:45:33.394890+00:00 — Complete base-safe practical links through exact mechanical proof
+
+The current schema2 practical receipt is an explicit link-only overlay of the
+unchanged originally reviewed practical.ch03.en.20261009.02 teaching candidate.
+Its original receipt hash4acdeebf, exact11 preimages and retained four original
+judgments verify through the unchanged maintained English verifier in an exact
+original-byte baseline. Old judgments are not rebound; no new audit or judgment
+record is published. User-cancelled fresh routing and all failed attempts remain
+operational history and do not supply acceptance.
+
+Five href destinations and five necessary source revision fields are the only
+teaching-source changes. Current HTML permits exactly five href attributes and
+four physical revision digits, which appear in ten extracted-unit values; every
+other root publication byte stays exact. The supported sole-Firefox test records
+20 actual destinations at desktop/narrow widths across both bases. Current
+production builds at SITE_BASE=/ and at /learn_llm/ with exact Pages
+SITE_URL=https://intale.github.io/learn_llm pass static links,90 pages each, and
+exact identity of all six admitted English routes with the measured builds.
+
+The30 selected admission regressions pass without skips. Canonical44-file
+manifest equality,499 protected tracked sources,52 retained Russian bindings and
+388 required Docker-context files pass. The original English verifier and all
+old audit bytes remain unchanged. Authored-source whitespace passes; preserve
+two pre-existing Astro-generated trailing spaces instead of normalizing frozen
+HTML. No .build path is required by the production context.
+
+Mark the repair run succeeded and its step completed, then persist only declared
+validated outputs in the stable-step local commit. The upstream Docker provisioning
+stages, remote Actions/deployment, dependency installation, downloads, screenshots,
+GPU/full-corpus training and pushes were not run; existing separate full-data
+gates stay unchanged.

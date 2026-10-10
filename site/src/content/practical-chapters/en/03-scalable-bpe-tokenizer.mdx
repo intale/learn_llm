@@ -2,7 +2,7 @@
 {
   "chapter_id":"03-scalable-bpe-tokenizer",
   "locale":"en",
-  "content_revision":1,
+  "content_revision":2,
   "order":3,
   "concept_id":"scalable-bpe-tokenizer",
   "title":"Extend BPE with bounded local updates",
@@ -57,8 +57,8 @@ import ScalableBpeTokenizerDiagram from "../../../components/chapters/ScalableBp
 
 Our byte-pair encoding trainer counts adjacent token pairs, selects one pair,
 replaces its occurrences and repeats. The first course's
-[Chapter 3](/en/course/03-learn-bpe-merges/) implemented that scalar trainer;
-[Chapter 4](/en/course/04-apply-bpe-tokenizer/) applied its frozen ranks and
+[Chapter 3](../../course/03-learn-bpe-merges/) implemented that scalar trainer;
+[Chapter 4](../../course/04-apply-bpe-tokenizer/) applied its frozen ranks and
 decoded the resulting tokens. Both are already in the practical course's
 starting crate. Here we extend the existing `BpeTrainer` and `BpeTokenizer`.
 
