@@ -1,0 +1,205 @@
+{
+  "complete_window_contrast": {
+    "context_length": 4,
+    "scope": "existing complete-window selection excludes the short document; variable examples explicitly select both full documents",
+    "stride": 4,
+    "valid_targets": 4,
+    "windows": 1
+  },
+  "decoder_probe": {
+    "absolute_tolerance": 1e-10,
+    "heads": 2,
+    "layers": 1,
+    "maximum_absolute_difference": "0.000000000000",
+    "model_width": 4,
+    "relative_tolerance": 1e-9,
+    "scope": "identical untrained parameters, padded versus separate valid logits; not trained-model quality",
+    "seed": 42,
+    "valid_logits_compared": 1596
+  },
+  "loss_probe": {
+    "constructed_gold_probabilities": [
+      0.5,
+      0.25,
+      0.5,
+      0.5,
+      0.25,
+      0.5
+    ],
+    "excluded_logit_gradients_exactly_zero": true,
+    "excluded_nan_storage_preserves_loss": true,
+    "loss_sum_nats": "5.545177",
+    "mean_nats_per_valid_target": "0.924196",
+    "stored_cells": 8,
+    "valid_targets": 6,
+    "wrong_mean_per_stored_cell": "0.693147",
+    "wrong_unweighted_document_mean": "0.953077"
+  },
+  "no_segment": -1,
+  "pad_cell": -1,
+  "rows": [
+    {
+      "allowed_keys": [
+        [
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [],
+        []
+      ],
+      "document_id": "short",
+      "encoded_document": [
+        0,
+        99,
+        1
+      ],
+      "encoded_length": 3,
+      "example_id": "short/full",
+      "inputs": [
+        0,
+        99,
+        -1,
+        -1
+      ],
+      "loss_mask": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "loss_sum_nats": "2.079442",
+      "mean_nats_per_valid_target": "1.039721",
+      "positions": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "prediction_length": 2,
+      "segments": [
+        0,
+        0,
+        -1,
+        -1
+      ],
+      "source_range": [
+        0,
+        3
+      ],
+      "targets": [
+        99,
+        1,
+        -1,
+        -1
+      ],
+      "valid_targets": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "valid_tokens": [
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "allowed_keys": [
+        [
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "document_id": "long",
+      "encoded_document": [
+        0,
+        100,
+        101,
+        102,
+        1
+      ],
+      "encoded_length": 5,
+      "example_id": "long/full",
+      "inputs": [
+        0,
+        100,
+        101,
+        102
+      ],
+      "loss_mask": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "loss_sum_nats": "3.465736",
+      "mean_nats_per_valid_target": "0.866434",
+      "positions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prediction_length": 4,
+      "segments": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "source_range": [
+        0,
+        5
+      ],
+      "targets": [
+        100,
+        101,
+        102,
+        1
+      ],
+      "valid_targets": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "valid_tokens": [
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  ],
+  "scope": "bounded manually prepared fixture; no full-corpus or GPU execution",
+  "shape": [
+    2,
+    4
+  ],
+  "tokenizer": {
+    "layout_version": 1,
+    "pad_vocabulary_token": null,
+    "payload_sha256": "3908f4b26ed19cc1c027bb8628a563eb8f284f1d0ec474a91501c7e2867ff616",
+    "split_receipt_sha256": "2504631c2431a0cf42bc493635dc8f10d621da0a7c7fcb5bd4d34df3372d0cf0",
+    "vocabulary_size": 266
+  }
+}

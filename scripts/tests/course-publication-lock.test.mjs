@@ -28,7 +28,7 @@ test('required product head admits the current courses without local process his
   assert.deepEqual(verifyProductLock(root),lock);
   assert.equal(lock.courses[0].chapters.length,40);
   assert.deepEqual(lock.courses[0].activeLocales,['en','ru']);
-  assert.deepEqual(lock.courses[1].chapters.map(c=>c.contentRevision),[3,1,1,2]);
+  assert.deepEqual(lock.courses[1].chapters.map(c=>c.contentRevision),[3,1,1,2,1]);
   assert.deepEqual(lock.courses[1].activeLocales,['en']);
   assert.deepEqual(readPracticalPublication(root).chapters.map(c=>c.chapterId),lock.courses[1].chapters.map(c=>c.chapterId));
   assert.equal(Object.hasOwn(lock,'status'),false);
@@ -90,7 +90,7 @@ test('explicit CLI capture cannot overwrite a head or weaken the frozen first cr
   assert.throws(()=>runProductLockCli(['verify','--root',root,'--root',root]),/closed/);
   assert.throws(()=>runProductLockCli(['capture','--root',root,'--out','outside.json']),/closed/);
   assert.throws(()=>runProductLockCli(['verify','--root',root,'--out',PRODUCT_LOCK_PATH]),/closed/);
-  const result=runProductLockCli(['verify','--root',root]);assert.equal(result.courses[1].chapters,4);
+  const result=runProductLockCli(['verify','--root',root]);assert.equal(result.courses[1].chapters,5);
   rmSync(resolve(root,PRODUCT_LOCK_PATH));
   writeFileSync(resolve(root,'rust/crates/llm-from-scratch/src/tokenizer/bpe.rs'),'changed\n');
   assert.throws(()=>runProductLockCli(['capture','--root',root,'--out',PRODUCT_LOCK_PATH,'--history-root',root]),/baseline bytes changed/);

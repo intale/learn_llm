@@ -8,7 +8,7 @@ import {getCheatSheetCopy,paginateCheatSheetTerms,sortCheatSheetTerms} from '../
 import {expectNoPageOverflow,expectOnlySharedDiagramClientScript,expectOrderedChapterNavigation,expectSeoDescription,expectStackedDiagramText,expectVisualizationDecision} from './chapter-helpers';
 
 const prefix='/en/practical-llm-in-rust/';
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -16,15 +16,20 @@ const reference=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-c
 const corpusTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/corpus-preparation-trace.json',import.meta.url),'utf8'));
 // This path is populated from actual Rust execution by the current run. No private predicted trace is used.
 const tokenizerTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/scalable-bpe-tokenizer-trace.json',import.meta.url),'utf8'));
+const paddedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/padded-variable-batches-trace.json',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:4+tokenizerTrace.rounds.length,
+  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
-const figureGeometry=(figure:Locator)=>figure.evaluate(node=>({clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+const figureGeometry=(figure:Locator)=>figure.evaluate(node=>({clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight,
+ rootFontSize:getComputedStyle(document.documentElement).fontSize,containerType:getComputedStyle(node).containerType,
+ grids:[...node.querySelectorAll<HTMLElement>('.course-diagram__grid')].map(grid=>({className:grid.className,width:grid.getBoundingClientRect().width,height:grid.getBoundingClientRect().height,columns:getComputedStyle(grid).gridTemplateColumns,containerType:getComputedStyle(grid).containerType})),
+ cards:[...node.querySelectorAll<HTMLElement>('[data-diagram-box]')].map(card=>({tag:card.tagName,id:card.id,sourceDocument:card.getAttribute('data-source-document'),width:card.getBoundingClientRect().width,height:card.getBoundingClientRect().height})),
+ captionHeight:node.querySelector('figcaption')?.getBoundingClientRect().height}));
 const controlValues=async(toggle:Locator)=>({outerHTML:await toggle.evaluate(node=>node.outerHTML),text:await toggle.textContent(),ariaLabel:await toggle.getAttribute('aria-label'),title:await toggle.getAttribute('title'),ariaKeyshortcuts:await toggle.getAttribute('aria-keyshortcuts'),ariaSnapshot:await toggle.ariaSnapshot()});
 
 async function auditOrdinaryLayout(container:Locator) {
@@ -63,19 +68,19 @@ async function auditOrdinaryLayout(container:Locator) {
    if(!ink||!owner){errors.push('inline formula has no painted HTML or containing text box');continue;}
    const box=owner.getBoundingClientRect(),formulaBox=formula.getBoundingClientRect(),style=getComputedStyle(formula);
    const horizontalTravel=formula.clientWidth>0&&formula.scrollWidth>formula.clientWidth+2;
-   const walker=document.createTreeWalker(ink,NodeFilter.SHOW_TEXT);let paintedRects=0;
+   const walker=document.createTreeWalker(ink,NodeFilter.SHOW_TEXT);let paintedRects=0;const overflowRects:unknown[]=[];
    while(walker.nextNode()){
     const range=document.createRange();range.selectNodeContents(walker.currentNode);
     for(const rect of range.getClientRects())if(rect.width>0&&rect.height>0){
      paintedRects++;
-     if(rect.top<box.top-2||rect.bottom>box.bottom+2)errors.push('inline formula ink outside its vertical text box');
+     if(rect.top<box.top-2||rect.bottom>box.bottom+2){errors.push('inline formula ink outside its vertical text box');overflowRects.push({text:walker.currentNode.textContent,rect:rect.toJSON()});}
      if(!horizontalTravel&&(rect.left<box.left-2||rect.right>box.right+2))errors.push('inline formula ink outside its horizontal text box');
     }
    }
    if(horizontalTravel&&!['auto','scroll'].includes(style.overflowX))errors.push('inline formula horizontal travel lacks a scroll owner');
    if(paintedRects===0)errors.push('inline formula has no painted text');
    if(formulaBox.height===0||formulaBox.width===0||(formula.clientHeight>0&&formula.scrollHeight>formula.clientHeight+2&&['auto','scroll','hidden','clip'].includes(style.overflowY)))errors.push('inline formula has unreadable vertical clipping');
-   records.push({kind:'inline-formula',display:style.display,boxWidth:formulaBox.width,boxHeight:formulaBox.height,horizontalTravel,clientWidth:formula.clientWidth,scrollWidth:formula.scrollWidth,clientHeight:formula.clientHeight,scrollHeight:formula.scrollHeight,paintedRects});
+   records.push({kind:'inline-formula',tex:formula.querySelector('annotation[encoding="application/x-tex"]')?.textContent,owner:{tag:owner.tagName,id:owner.id,text:owner.textContent,box:box.toJSON()},overflowRects,display:style.display,boxWidth:formulaBox.width,boxHeight:formulaBox.height,horizontalTravel,clientWidth:formula.clientWidth,scrollWidth:formula.scrollWidth,clientHeight:formula.clientHeight,scrollHeight:formula.scrollHeight,paintedRects});
   }
   for(const command of root.querySelectorAll<HTMLElement>('pre[data-language="sh"]')){
    const box=command.getBoundingClientRect(),style=getComputedStyle(command);
@@ -106,7 +111,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="/en/course/40-"]')).toHaveCount(0);
  await page.goto('/en/course/39-end-to-end-llm/');await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -124,12 +129,13 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
  await expect(article.locator('.lesson-header .eyebrow')).toHaveText('Chapter 00 · '+home.contentRevisionLabel+' '+document.data.content_revision);
  await expect(article.locator('figure,.katex,pre.rust-source-code,[data-cheat-sheet-open],[data-cheat-sheet-dialog]')).toHaveCount(0);
  const links=article.locator('.lesson-body ol a');
- expect(await links.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).toEqual(ids.slice(1).map(id=>'../'+id+'/'));
+ expect(await links.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).toEqual(ids.slice(1,4).map(id=>'../'+id+'/'));
  await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
 });
 
-for(const lesson of lessons){
- test('Practical '+lesson.id+' built metadata formulas sources and evidence',async({page,request})=>{
+ for(const lesson of lessons){
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':'');
+ test(testLabel+' built metadata formulas sources and evidence',async({page,request})=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');expect(html).toContain('application/x-tex');
   for(const term of lesson.sheet.terms){expect(html).toContain(term.term);}
@@ -151,7 +157,7 @@ for(const lesson of lessons){
   await expect(page.locator('head link[hreflang="ru"]')).toHaveCount(0);
   if(lesson.id===ids[1]){for(const value of [reference.reference_identity,String(reference.model.parameters),String(reference.evaluation.window_target_slots),String(reference.evaluation.document_transition_occurrences),JSON.stringify(reference.generation.token_ids)])await expect(figure).toContainText(value);}
   else if(lesson.id===ids[2]){expect(await figure.locator('annotation[encoding="application/x-tex"]').textContent()).toBe('\\frac{'+corpusTrace.documents.prepared+'}{'+corpusTrace.documents.input+'}');for(const role of ['train','validation','test']){const card=figure.locator('[data-corpus-role="'+role+'"]');await expect(card).toContainText(String(corpusTrace.splits[role].documents)+' fixture document');await expect(card).toContainText(String(corpusTrace.splits[role].decoded_text_utf8_bytes)+' decoded text bytes');}}
-  else {
+  else if(lesson.id===ids[3]) {
    // Check only rendering of the executed own-course trace. Historical policy behavior has no assertion or oracle here.
    const tables=figure.locator('table[data-diagram-table][data-bpe-rank]');await expect(tables).toHaveCount(tokenizerTrace.rounds.length);
    for(const [rank,round] of tokenizerTrace.rounds.entries()){
@@ -161,10 +167,25 @@ for(const lesson of lessons){
    }
    for(const value of [tokenizerTrace.payloads.scalar_sha256,tokenizerTrace.payloads.incremental_sha256,JSON.stringify(tokenizerTrace.heldout.content_tokens),JSON.stringify(tokenizerTrace.heldout.document_tokens)])await expect(figure).toContainText(value);
    expect(await figure.locator('annotation[encoding="application/x-tex"]').textContent()).toBe('\\frac{'+tokenizerTrace.efficiency.content_tokens+'}{'+tokenizerTrace.efficiency.input_bytes+'}='+tokenizerTrace.efficiency.content_tokens/tokenizerTrace.efficiency.input_bytes);
+  } else {
+   for(const row of paddedTrace.rows){
+    const card=figure.locator('article[data-source-document="'+row.document_id+'"]');
+    await expect(card).toHaveCount(1);await expect(card).toContainText(JSON.stringify(row.encoded_document));
+    const fields=card.locator('tbody tr');await expect(fields).toHaveCount(7);
+    for(const [index,values] of [row.inputs,row.targets,row.positions,row.segments].entries())
+     expect(await fields.nth(index).locator('td code').allTextContents()).toEqual(values.map(String));
+    for(const [index,values] of [row.valid_tokens,row.valid_targets,row.loss_mask].entries())
+     expect(await fields.nth(index+4).locator('td').allTextContents()).toEqual(values.map((value:boolean)=>value?'Yes':'No'));
+    const keyLists=card.locator('ul li code');expect(await keyLists.allTextContents()).toEqual(row.allowed_keys.map((keys:number[])=>JSON.stringify(keys)));
+   }
+   const annotations=await figure.locator('annotation[encoding="application/x-tex"]').allTextContents();
+   expect(annotations).toContain('\\approx '+paddedTrace.loss_probe.loss_sum_nats);
+   expect(annotations).toContain(String(paddedTrace.loss_probe.valid_targets));
+   expect(annotations).toContain('\\approx '+paddedTrace.loss_probe.mean_nats_per_valid_target);
   }
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
-  test('Practical '+lesson.id+' formula and nearest-box containment '+viewport.width,async({page},testInfo)=>{
+  test(testLabel+' formula and nearest-box containment '+viewport.width,async({page},testInfo)=>{
    await page.setViewportSize(viewport);await page.goto(lesson.path);await page.locator('article[data-chapter-root] details').evaluateAll(nodes=>nodes.forEach(node=>(node as HTMLDetailsElement).open=true));await page.evaluate(()=>document.fonts.ready);
    await expectNoPageOverflow(page);const figure=figureFor(page,lesson.figureId);const diagram=await auditDiagramContainment(figure),geometry=await figureGeometry(figure);
    await expectStackedDiagramText(figure.locator('figcaption'),'h3','.course-diagram__description');
@@ -174,7 +195,7 @@ for(const lesson of lessons){
    expect(diagram.errors).toEqual([]);expect(layout.errors).toEqual([]);
   });
  }
- test('Practical '+lesson.id+' full view keyboard tree focus and bounded travel',async({page},testInfo)=>{
+ test(testLabel+' full view keyboard tree focus and bounded travel',async({page},testInfo)=>{
   const viewport={width:1280,height:900};await page.setViewportSize(viewport);await page.goto(lesson.path);await page.evaluate(()=>document.fonts.ready);
   const figure=figureFor(page,lesson.figureId),toggle=figure.locator('[data-diagram-full-view-toggle]');await expect(toggle).toHaveCount(1);
   const before=await figure.evaluate(node=>({text:[...node.querySelectorAll('figcaption,[data-diagram-box]')].map(element=>element.textContent),font:parseFloat(getComputedStyle(node).fontSize)}));
@@ -192,11 +213,11 @@ for(const lesson of lessons){
   const restoredControl=await controlValues(toggle);expect(restoredControl).toEqual(ordinaryControl);
   await testInfo.attach('programmatic-full-view-controls',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,viewport,states:{inline:ordinaryControl,fullView:expandedControl,restored:restoredControl}}),contentType:'application/json'});
  });
- test('Practical '+lesson.id+' no-API state has no usable enhancement',async({page})=>{
+ test(testLabel+' no-API state has no usable enhancement',async({page})=>{
   await page.addInitScript(()=>{Object.defineProperty(document,'fullscreenEnabled',{get:()=>false,configurable:true});});
   await page.setViewportSize({width:1280,height:900});await page.goto(lesson.path);await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
  });
- test('Practical '+lesson.id+' forced colors and RTL keep ordinary and expanded evidence',async({page},testInfo)=>{
+ test(testLabel+' forced colors and RTL keep ordinary and expanded evidence',async({page},testInfo)=>{
   const viewport={width:1280,height:900};await page.setViewportSize(viewport);await page.emulateMedia({forcedColors:'active'});await page.goto(lesson.path);await page.locator('html').evaluate(node=>node.setAttribute('dir','rtl'));await page.evaluate(()=>document.fonts.ready);
   const figure=figureFor(page,lesson.figureId),ordinary={diagram:await auditDiagramContainment(figure),geometry:await figureGeometry(figure),layout:await auditOrdinaryLayout(page.locator('main'))};
   await testInfo.attach('programmatic-direction-geometry-inline',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,state:'inline',viewport,direction:'rtl',forcedColors:'active',...ordinary}),contentType:'application/json'});
@@ -208,7 +229,7 @@ for(const lesson of lessons){
   await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toBeFocused();
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:480}]){
-  test('Practical '+lesson.id+' glossary keyboard scrolling and focus '+viewport.width,async({page},testInfo)=>{
+  test(testLabel+' glossary keyboard scrolling and focus '+viewport.width,async({page},testInfo)=>{
    await page.setViewportSize(viewport);await page.goto(lesson.path);
    const trigger=page.locator('[data-cheat-sheet-open]'),dialog=page.locator('[data-cheat-sheet-dialog]'),close=dialog.locator('[data-cheat-sheet-close]');
    await expect(page.locator('[data-cheat-sheet]')).toHaveCount(1);await expect(trigger).toHaveCount(1);await expect(dialog).toHaveCount(1);

@@ -1,0 +1,402 @@
+---
+{
+  "chapter_id":"04-padded-variable-batches","locale":"en","content_revision":1,"order":4,"concept_id":"padded-variable-batches",
+  "title":"Pad variable-length batches without adding predictions",
+  "description":"Extend the Rust batch and decoder APIs with right padding, valid attention prefixes and a loss averaged over real targets.",
+  "objective":"Extend the existing batch and decoder APIs to right-pad unequal document-local examples while excluding padding from embedding, attention, targets and token-weighted loss.",
+  "worked_inputs":"The controlled documents [0,99,1] and [0,100,101,102,1] have three and five encoded tokens, producing two and four predictions. Their two-by-four batch stores eight cells but has six valid targets. Constructed gold probabilities give a summed loss of eight times the natural logarithm of two, divided by six valid targets.",
+  "formula":{
+    "latex":"L=-\\frac{\\sum_{b,t}m_{b,t}\\log p(y_{b,t}\\mid x_{b,\\le t})}{\\sum_{b,t}m_{b,t}}",
+    "symbols":[
+      {"symbol":"L","meaning":"mean negative log likelihood, measured in nats per valid target"},
+      {"symbol":"b","meaning":"the zero-based batch row index, selecting one document-local example"},
+      {"symbol":"t","meaning":"the zero-based prediction column within that row"},
+      {"symbol":"m_{b,t}","meaning":"loss eligibility: one for a supervised real target and zero for padding storage"},
+      {"symbol":"y_{b,t}","meaning":"the immediate next source token at an eligible prediction cell"},
+      {"symbol":"x_{b,\\le t}","meaning":"the valid input prefix of row b ending at prediction column t"},
+      {"symbol":"p(y_{b,t}\\mid x_{b,\\le t})","meaning":"the model probability assigned to that real target given its own row's valid prefix"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"training-practice",
+      "limitation":"Rectangular training batches allocate storage for their longest row, so shorter examples leave padding that supplies no training target.",
+      "later_advance":"Packing work on BERT addressed padding waste with changes to attention and masked-language-model loss; later Orca work addressed unequal generation lifetimes through iteration-level scheduling.",
+      "modern_llm_role":"Preserve each example's valid causal predictions and token-weighted objective before changing its storage arrangement or execution schedule.",
+      "sources":[
+        {"role":"earlier","year":2021,"name":"Packing: Towards 2x NLP BERT Acceleration","source_url":"https://arxiv.org/abs/2107.02027v1","claim":"The authors identify padding waste in BERT pretraining and describe packing with additional attention masking and a modified masked-language-model loss."},
+        {"role":"later","year":2022,"name":"Orca: A Distributed Serving System for Transformer-Based Generative Models","source_url":"https://www.usenix.org/conference/osdi22/presentation/yu","claim":"Orca schedules generation at iteration granularity so the batch of requests can change between model iterations."}
+      ]
+    },
+    "approach":"Reuse the existing complete-window batch builder to show that selecting only full windows differs from retaining unequal full-document examples.",
+    "summary":"Padding changes storage capacity; it must not create targets or attended keys. Packing and request scheduling address different sources of wasted work and require their own correctness rules.",
+    "rust_source":"rust/demos/practical-ch04-padded-variable-batches/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/training/sequence_example.rs","region":"document-range-pair","purpose":"Validate one source document and reuse its existing shifted-window iterator for an explicit range."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/training/variable_batch.rs","region":"right-padded-batch","purpose":"Derive aligned batch storage and separate validity fields from checked examples."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/embedding.rs","region":"sentinel-safe-embedding","purpose":"Exclude padding before unsigned ID conversion and skip its existing gather reads and pullbacks."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/autograd/model_ops.rs","region":"padding-aware-causal-softmax","purpose":"Normalize only real causal query prefixes and leave inactive query weights zero."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/training/variable_batch.rs","region":"valid-target-loss","purpose":"Gather only eligible prediction rows before the existing indexed NLL calculation."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/decoder.rs","region":"padded-decoder-entry","purpose":"Pass checked padding metadata into the same decoder block loop."},
+    {"path":"rust/demos/practical-ch04-padded-variable-batches/src/lib.rs","region":"fixed-window-contrast","purpose":"Reuse the old complete-window selection policy for the historical Rust contrast."},
+    {"path":"rust/demos/practical-ch04-padded-variable-batches/src/main.rs","region":"padded-variable-batches-example","purpose":"Print the bounded batch, loss and valid-logit evidence."}
+  ],
+  "visualization":{"decision":"useful","id":"padded-variable-batches","rationale":"Aligned input, target, position, segment and validity rows show which of eight storage cells represent the six real predictions. Per-query key lists make inactive queries and the loss denominator visible."},
+  "decoder_connection":"The decoder consumes checked padded examples with its existing weights and vocabulary. Chapter 5 will pack multiple examples into a row while preserving their source ranges, local positions, attention boundaries and valid-target loss count."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import PaddedVariableBatchesDiagram from "../../../components/chapters/PaddedVariableBatchesDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+## The problem: equal storage widths, unequal evidence
+
+Tokenizing documents separately preserves their boundaries, but does not make
+their lengths equal. A rectangular batch needs equally wide rows. When a shorter
+example shares storage with a longer one, the extra cells have no source token
+and no next-token target. Treating those cells as ordinary predictions changes
+the training objective.
+
+The practical crate already has complete causal windows, deterministic batching,
+causal attention and a mean next-token loss. We will extend those APIs with
+explicit right padding and validity metadata. A padding marker will occupy
+storage without becoming a vocabulary token, an attended key or a loss target.
+
+### Shift two documents, then align their rows
+
+Use two controlled encoded documents: `[0,99,1]` and `[0,100,101,102,1]`.
+The existing tokenizer layout assigns `0` to BOS, `1` to EOS, and `99`, `100`,
+`101`, `102` to the bytes `a`, `b`, `c`, `d`. These are supplied valid sequences;
+the chapter's small vocabulary fixture has $266$ entries. We are studying
+batching, rather than learning another tokenizer policy.
+
+The short document has $3$ encoded tokens. Shifting by one produces inputs
+`[0,99]` and targets `[99,1]`: $2$ predictions. The long document has $5$
+encoded tokens, giving inputs `[0,100,101,102]` and targets `[100,101,102,1]`:
+$4$ predictions. EOS is a real next-token target. No target joins one document
+to the other.
+
+Preserve the supplied order and right-pad to the longest prediction length.
+The batch has $B=2$ rows and $T=4$ prediction columns. Its input rows are
+`[0,99,-1,-1]` and `[0,100,101,102]`; its target rows are
+`[99,1,-1,-1]` and `[100,101,102,1]`.
+
+The value `-1` is `PAD_CELL`, a batch-domain marker. The tokenizer has no PAD
+ID or PAD embedding row. BOS and EOS retain their meanings; neither substitutes
+for padding. Branch on the marker before converting to an unsigned token ID or
+performing an embedding or target lookup.
+
+The short row's positions are `[0,1,0,0]` and segment IDs are `[0,0,-1,-1]`.
+The long row's positions are `[0,1,2,3]` and segment IDs are `[1,1,1,1]`.
+Here a segment identifies one example within the batch; `NO_SEGMENT` is `-1`.
+Padding's stored position `0` is unused. For an explicitly selected source range,
+positions restart at zero within that example.
+
+Keep three fields distinct. Token validity says an input exists; target validity
+says its immediate successor exists; loss eligibility says that target is
+supervised. We supervise every real target in this chapter, so all three short-row
+fields are `[true,true,false,false]`, and all three long-row fields are
+`[true,true,true,true]`. The rectangle has $8$ storage cells and $6$ valid targets.
+
+### Attention also needs validity
+
+A valid query can attend only to valid keys in its own row, at positions no
+later than the query. The short row's allowed key lists are `[0]`, `[0,1]`,
+`[]`, `[]`. Its last two queries are inactive. The long row's lists are `[0]`,
+`[0,1]`, `[0,1,2]`, `[0,1,2,3]`.
+
+An inactive query skips softmax and produces a zero attention mixture. Applying
+softmax to an entirely masked row would leave no finite normalization reference.
+Carry validity through every attention layer so padding never becomes an attended
+key. A later bias or residual could produce a nonzero padded hidden state;
+the required invariant is its lack of influence on valid predictions.
+
+{/* chapter-section:formula */}
+
+## Average over the targets that exist
+
+$$
+L=-\frac{\sum_{b,t}m_{b,t}\log p(y_{b,t}\mid x_{b,\le t})}{\sum_{b,t}m_{b,t}}
+$$
+
+Use the natural logarithm. The numerator sums negative log likelihood over
+eligible next-token targets; the denominator counts those targets. For our batch
+the denominator is $6$, rather than the $8$ storage cells or the $2$ documents.
+This is a token-weighted mean: each real target gets the same weight.
+
+The notation expresses the intended objective. The implementation excludes a
+cell before converting its target or reading its logits. Computing an invalid
+loss and then multiplying it by zero does not safely exclude it: a NaN value
+would still contaminate the sum. Zero valid targets is an error, not meaningful
+zero loss, and the loss adapter performs no optimizer update.
+
+{/* chapter-section:symbol-glossary */}
+
+## What the loss symbols mean
+
+<div id="padded-loss-symbols">
+
+- $L$ is mean negative log likelihood, measured in nats per valid target.
+- $b$ is the zero-based batch row index, selecting one document-local example.
+- $t$ is the zero-based prediction column within that row.
+- $m_{b,t}$ is loss eligibility: $1$ for a supervised real target, $0$ for padding.
+- $y_{b,t}$ is the immediate next source token at an eligible prediction cell.
+- $x_{b,\le t}$ is that row's valid input prefix ending at column $t$.
+- $p(y_{b,t}\mid x_{b,\le t})$ is the model probability of that real target given
+  its own row's prefix.
+
+</div>
+
+### A constructed loss probe exposes two wrong denominators
+
+Assign gold probabilities $[1/2,1/4]$ to the short row and
+$[1/2,1/2,1/4,1/2]$ to the long row. These probabilities are constructed for
+the loss probe; they are not trained-decoder predictions. Their negative log
+likelihood sums are $3\ln2$ and $5\ln2$ nats. The correct combined mean is
+$8\ln2/6=(4/3)\ln2\approx0.924196$ nats per valid target.
+
+Dividing the numerator by $8$ storage cells gives
+$\ln2\approx0.693147$ nats per stored cell. Averaging the two document means
+equally gives $(11/8)\ln2\approx0.953077$ nats per target under a different
+document weighting. Both calculations differ from our six-target objective.
+To combine separately computed document means, multiply each by its valid-target
+count, add those raw sums, and divide once by the total count. Apply the same
+weighting to their parameter gradients.
+
+The probe uses finite full-vocabulary logits. For vocabulary size $V=266$ and
+desired gold probability $0<q<1$, set nongold logits to zero and the gold logit to
+$z_y=\ln((V-1)q/(1-q))$. Softmax then assigns the gold class probability $q$
+in ideal arithmetic. The Rust calculation uses `f64`; padded-versus-separate comparisons
+allow absolute error $10^{-10}$ plus relative error $10^{-9}$.
+
+{/* chapter-section:rust-implementation */}
+
+## Extend the existing owners
+
+`SequenceExample` validates the full document using the existing tokenizer's
+framing and bounded decoding. It then asks `CausalWindowConfig` for one shifted
+pair from the explicitly selected range. It retains the example ID, source
+document, partition, range, tokenizer payload identity and split-receipt identity.
+A receipt digest identifies caller-accepted evidence; it does not approve
+the evidence by itself.
+
+Full-document examples reject empty content. Selected ranges need at least two
+source tokens to produce a prediction. A row exceeding the configured prediction
+width fails. The adapter does not truncate, split or join documents silently;
+an upstream caller may select an explicit range using the existing window policy.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/sequence_example.rs"
+  captionId="padded-rust-document-range"
+  region="document-range-pair" caption="Validate a document, retain its selected source range and reuse the existing causal-window iterator."
+  label="Rust source: checked document-range predictions" />
+
+`VariableBatch` derives its private arrays together from those examples. It uses
+the longest real row in each batch and retains the supplied order. The final
+batch has its actual row count; no extra all-padding rows are added. Lengths and
+validity define attention eligibility without allocating a separate dense mask
+for every batch row and attention head. The reference decoder still computes
+rectangular score tensors; these changes establish correct padding semantics.
+This example makes no speedup claim.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/variable_batch.rs"
+  captionId="padded-rust-batch-storage"
+  region="right-padded-batch" caption="Build aligned input, target, position and segment arrays with separate validity and loss fields."
+  label="Rust source: bounded right-padded batch storage" />
+
+The embedding adapter excludes `PAD_CELL` before conversion. It adds exclusion
+bits to the existing row-gather plan, which skips those reads and their backward
+scatter. Rotary position application likewise skips inactive positions.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/embedding.rs"
+  captionId="padded-rust-embedding"
+  region="sentinel-safe-embedding" caption="Keep padding outside the vocabulary and reuse the existing gather kernel without reading or updating a padding row."
+  label="Rust source: embedding lookup that excludes padding" />
+
+The existing causal softmax loop accepts one valid prefix length per score grid.
+It normalizes only real queries; untouched inactive query rows remain zero.
+Multi-head attention passes the same row length to each head in every layer.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/autograd/model_ops.rs"
+  captionId="padded-rust-softmax"
+  region="padding-aware-causal-softmax" caption="Reuse causal softmax over real query prefixes and skip inactive-query normalization."
+  label="Rust source: padding-aware causal softmax" />
+
+The loss adapter gathers eligible logit rows and targets before invoking the
+existing stable indexed NLL. The existing gather pullback scatters gradients to
+selected positions only; excluded logit positions receive exactly zero.
+For a valid position, its logit derivative is
+$(p_v-\mathbf{1}[v=y])/N_{\mathrm{valid}}$, where $v$ is a vocabulary class,
+$p_v$ its probability, $y$ the gold class and $N_{\mathrm{valid}}$ the batch's
+valid-target count.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/variable_batch.rs"
+  captionId="padded-rust-loss"
+  region="valid-target-loss" caption="Select real prediction rows before the existing NLL and expose their mean, raw loss sum and count."
+  label="Rust source: valid-target loss reduction" />
+
+The new padded entry point calls the same decoder block loop as the old API.
+Its vocabulary size and exact batch binding must agree with the declared inputs.
+The padded path does not change the old rectangular loss method's behavior.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/decoder.rs"
+  captionId="padded-rust-decoder"
+  region="padded-decoder-entry" caption="Validate the batch binding and pass valid lengths into the existing decoder assembly."
+  label="Rust source: padded decoder entry point" />
+
+Ignoring padding does not freeze actual vocabulary parameters. The decoder ties
+its input embedding table to the output vocabulary projection. Real vocabulary
+rows can receive output-normalization gradients even when they are not selected
+as input tokens. There is no PAD vocabulary row to freeze here.
+
+With Docker running, use the repository's Rust workspace setup to run the
+supplied CPU example from the repository root:
+
+```sh
+COURSE_CORPUS=false ./course run cargo run --offline --locked \
+  -p practical-ch04-padded-variable-batches
+```
+
+The JSON trace includes both shifted and padded rows, all validity fields,
+allowed-key lists, six valid targets and the constructed mean `0.924196`.
+It also compares all $1596$ valid vocabulary logits from padded and separate
+execution with identical untrained parameters. The fixture demonstrates
+correctness; it makes no claim about trained-model quality, full-corpus
+throughput or GPU execution.
+
+<RustSource path="rust/demos/practical-ch04-padded-variable-batches/src/main.rs"
+  captionId="padded-rust-example"
+  region="padded-variable-batches-example" caption="Print the batch metadata, controlled loss probe and valid-logit comparison."
+  label="Rust example: run practical Chapter 4 padded-batch evidence" />
+
+{/* chapter-section:history */}
+
+## History: different kinds of wasted work
+
+Rectangular training batches allocate storage for their longest row, so shorter
+examples leave padding that supplies no training target. Packing work on BERT
+addressed padding waste with changes to attention and masked-language-model loss;
+later Orca work addressed unequal generation lifetimes through iteration-level
+scheduling.
+
+The 2021 paper
+[Packing: Towards 2x NLP BERT Acceleration](https://arxiv.org/abs/2107.02027v1)
+studied BERT pretraining. The authors identify padding waste in BERT pretraining
+and describe packing with additional attention masking and a modified
+masked-language-model loss.
+Those BERT results do not establish performance for our causal decoder.
+
+The 2022 [Orca](https://www.usenix.org/conference/osdi22/presentation/yu) paper
+examines autoregressive serving. Orca schedules generation at iteration granularity
+so the batch of requests can change between model iterations. Unequal request lifetimes in serving and
+unequal target lengths in training are different problems. Orca's scheduling
+does not supply our training loss mask or token denominator.
+
+Preserve each example's valid causal predictions and token-weighted objective
+before changing its storage arrangement or execution schedule. This chapter
+adds correct padded storage; Chapter 5 will address packing. Padding changes
+storage capacity and must not create targets or attended keys. Packing and
+request scheduling address different sources of wasted work and require their
+own correctness rules.
+
+The runnable contrast reuses `MiniBatchEpoch` with context length $4$ and stride
+$4$. That API selects complete windows only: the long document supplies one
+four-target window and the short document supplies none. Our explicit
+full-document variable examples supply six targets. The difference comes from
+example selection, not an alternative loss formula or a newly implemented
+batching algorithm.
+
+<RustSource path="rust/demos/practical-ch04-padded-variable-batches/src/lib.rs"
+  captionId="padded-rust-window-contrast"
+  region="fixed-window-contrast" caption="Call the existing complete-window builder and distinguish its four admitted targets from the six explicit full-document predictions."
+  label="Rust contrast: complete windows and unequal full-document examples" />
+
+{/* chapter-section:visualization */}
+
+## See the storage and prediction boundaries together
+
+The aligned rows make each storage cell's input, target, position, segment and
+eligibility visible. The legal-key lists distinguish inactive queries from
+real queries, and the loss count keeps the six-target denominator beside the
+eight-cell rectangle.
+
+<PaddedVariableBatchesDiagram labels={{
+  title: "Eight storage cells, six next-token targets",
+  description: "The short document [0,99,1] produces inputs [0,99] and targets [99,1]; the long document [0,100,101,102,1] produces inputs [0,100,101,102] and targets [100,101,102,1]. Short-row columns 2 and 3 are padding, with inactive queries and no allowed keys. BOS 0 and EOS 1 remain real controls. Only the six real targets enter the constructed loss sum and denominator; padding adds no vocabulary token.",
+  document: "Source document", encoded: "Encoded document tokens", predictions: "Real next-token predictions",
+  columns: "Prediction columns", field: "Batch field", input: "Input ID", target: "Target ID", position: "Local position", segment: "Segment ID",
+  tokenValid: "Input exists", targetValid: "Target exists", lossEligible: "Target supervised", yes: "Yes", no: "No",
+  pad: "PAD storage", noSegment: "No segment", rowTable: "Aligned prediction cells for document", keys: "Allowed keys by query column",
+  realQuery: "Real query", inactiveQuery: "Inactive padding query",
+  lossTitle: "Constructed loss, counted by real targets", numerator: "Loss sum in nats", denominator: "Valid-target count", mean: "Mean nats per valid target",
+  lossNote: "The gold probabilities are constructed for this probe. The two excluded storage cells contribute neither a target nor a loss.",
+  paddingTitle: "Padding stays outside the vocabulary", paddingNote: "The batch marker -1 is not a token ID. BOS 0 and EOS 1 remain real controls. An inactive query skips normalization and produces a zero attention mixture."
+}} />
+
+{/* chapter-section:exercises */}
+
+## Optional practice: inspect the count and compare execution
+
+<div id="padded-practice-prompts">
+
+1. Reproduce the two rows and inspect the short row's three validity fields and
+   allowed-key lists. Explain why its EOS target is included and its padding
+   cells are excluded.
+2. Inspect the constructed loss sum and compare the six-target mean with
+   division by eight cells and with an unweighted average of document means.
+3. Run the seeded comparisons and inspect their full-gradient coverage. They
+   use identical parameters for padded and separate examples; no optimizer
+   update is needed.
+
+</div>
+
+From the repository root, with the same Docker setup as the example, run:
+
+```sh
+COURSE_CORPUS=false ./course run cargo test --offline --locked \
+  -p llm-from-scratch-practical --test practical_ch04_variable_batches
+```
+
+The smaller CPU example has $1$ decoder layer, model width $4$, $2$ heads,
+feed-forward width $4$ and a maximum prediction length of $4$. The second has
+$2$ layers, model width $8$, $2$ heads, feed-forward width $16$ and a maximum
+prediction length of $16$. Both use the $266$-entry fixture vocabulary. Within
+each comparison, padded and separate execution use identical parameters.
+
+Expect a nonzero test count and `0 failed`. The suite includes exact metadata,
+the loss denominator, rejected inputs, explicit ranges, future-token isolation
+and $100$ fixed seeds in each of the two CPU model profiles. Each seeded
+comparison checks every valid logit, token-summed loss and every parameter-gradient
+coordinate within the declared `f64` tolerance.
+
+<details>
+<summary id="padded-practice-answer-summary">Explanations for padding eligibility, normalization and gradient comparison</summary>
+
+1. The short document supplies two immediate next-token pairs: BOS to `a`, then
+   `a` to EOS. Both have real targets. Its final two storage cells have no source
+   pair, so all three validity fields are false and their query key lists are empty.
+2. The raw sums are $3\ln2$ and $5\ln2$ nats. Adding and dividing by six gives
+   $(4/3)\ln2$ nats per valid target. Eight-cell division lowers the value by
+   counting padding; an unweighted document mean gives a short document the
+   same total weight as a long one. Neither preserves equal weight per target.
+3. Multiply each separate document mean and parameter-gradient vector by its
+   valid-target count before combining, then divide once by the total count.
+   The padded loss already uses that total. Comparing full vectors checks each
+   parameter's contribution; a shared gradient norm would not establish it.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Carry example identity into packing
+
+The decoder now consumes checked padded examples with its existing weights
+and vocabulary. Each example retains its source range, partition and tokenizer
+and split identities. Its valid positions keep the same causal prefixes and
+target weighting as separate execution.
+
+Chapter 5 will place multiple examples in one packed row. It must preserve their
+source ranges, local positions, attention boundaries and valid-target count.
+Simply concatenating rows would let a later document attend to an earlier one
+and change the examples we just preserved.

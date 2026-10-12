@@ -9,4 +9,4 @@ export function getStaticPaths() {
 const courseEntries=await getCollection('practicalChapters');
 ---
 
-<CourseIndex {...Astro.props} courseEntries={courseEntries} />
+<CourseIndex {...Astro.props} courseEntries={courseEntries} chapterCardIds={true} />

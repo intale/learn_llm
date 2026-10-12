@@ -1,0 +1,91 @@
+---
+import trace from '../../data/course/padded-variable-batches-trace.json';
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string; document: string; encoded: string; predictions: string;
+  columns: string; field: string; input: string; target: string; position: string; segment: string;
+  tokenValid: string; targetValid: string; lossEligible: string; yes: string; no: string;
+  pad: string; noSegment: string; rowTable: string; keys: string; realQuery: string; inactiveQuery: string;
+  lossTitle: string; numerator: string; denominator: string; mean: string; lossNote: string;
+  paddingTitle: string; paddingNote: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const label of Object.values(labels)) {
+  if (typeof label !== 'string' || label.trim() === '') throw new Error('Padded batch diagram labels must be nonempty.');
+}
+const columns = trace.rows[0].inputs.map((_, index) => index);
+const booleanLabel = (value: boolean) => value ? labels.yes : labels.no;
+---
+<figure class="course-diagram padded-variable-diagram" data-diagram-style="course-v1"
+  data-visualization-id="padded-variable-batches" tabindex="0"
+  aria-labelledby="padded-variable-title" aria-describedby="padded-variable-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="padded-variable-title">{labels.title}</h3>
+    <p id="padded-variable-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+  <div class="course-diagram__grid padded-row-panels">
+    {trace.rows.map((row) => <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-source-document={row.document_id}>
+      <div data-document-summary={row.document_id}>
+      <div class="course-diagram__card-heading"><h4>{labels.document}: <bdi dir="ltr"><code>{row.document_id}</code></bdi></h4></div>
+      <dl>
+        <div><dt>{labels.encoded}</dt><dd><bdi dir="ltr"><code>{JSON.stringify(row.encoded_document)}</code></bdi> · <InlineMath latex={`${row.encoded_length}`} /></dd></div>
+        <div><dt>{labels.predictions}</dt><dd><InlineMath latex={`${row.prediction_length}`} /></dd></div>
+      </dl>
+      </div>
+      <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0" aria-label={`${labels.rowTable} ${row.document_id}`}>
+        <table data-diagram-table data-source-document={row.document_id}>
+          <caption>{labels.columns}: <bdi dir="ltr"><code>{row.document_id}</code></bdi></caption>
+          <thead><tr><th scope="col">{labels.field}</th>{columns.map(column => <th scope="col"><InlineMath latex={`t=${column}`} /></th>)}</tr></thead>
+          <tbody>
+            <tr><th scope="row">{labels.input}</th>{row.inputs.map(id => <td><bdi dir="ltr"><code>{id}</code></bdi>{id === trace.pad_cell && <span> · {labels.pad}</span>}</td>)}</tr>
+            <tr><th scope="row">{labels.target}</th>{row.targets.map(id => <td><bdi dir="ltr"><code>{id}</code></bdi>{id === trace.pad_cell && <span> · {labels.pad}</span>}</td>)}</tr>
+            <tr><th scope="row">{labels.position}</th>{row.positions.map(position => <td><bdi dir="ltr"><code>{position}</code></bdi></td>)}</tr>
+            <tr><th scope="row">{labels.segment}</th>{row.segments.map(segment => <td><bdi dir="ltr"><code>{segment}</code></bdi>{segment === trace.no_segment && <span> · {labels.noSegment}</span>}</td>)}</tr>
+            <tr><th scope="row">{labels.tokenValid}</th>{row.valid_tokens.map(value => <td>{booleanLabel(value)}</td>)}</tr>
+            <tr><th scope="row">{labels.targetValid}</th>{row.valid_targets.map(value => <td>{booleanLabel(value)}</td>)}</tr>
+            <tr><th scope="row">{labels.lossEligible}</th>{row.loss_mask.map(value => <td>{booleanLabel(value)}</td>)}</tr>
+          </tbody>
+        </table>
+      </div>
+      <div data-query-document={row.document_id}>
+        <h4>{labels.keys}</h4>
+        <ul>{row.allowed_keys.map((keys, query) => <li><InlineMath latex={`t=${query}`} /> · {row.valid_tokens[query] ? labels.realQuery : labels.inactiveQuery}: <bdi dir="ltr"><code>{JSON.stringify(keys)}</code></bdi></li>)}</ul>
+      </div>
+    </article>)}
+  </div>
+  <div class="course-diagram__grid padded-accounting">
+    <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-batch-accounting="loss">
+      <div class="course-diagram__card-heading"><h4>{labels.lossTitle}</h4></div>
+      <dl>
+        <div><dt>{labels.numerator}</dt><dd><InlineMath latex={String.raw`\approx ${trace.loss_probe.loss_sum_nats}`} /></dd></div>
+        <div><dt>{labels.denominator}</dt><dd><InlineMath latex={`${trace.loss_probe.valid_targets}`} /></dd></div>
+        <div><dt>{labels.mean}</dt><dd><InlineMath latex={String.raw`\approx ${trace.loss_probe.mean_nats_per_valid_target}`} /></dd></div>
+      </dl>
+      <p>{labels.lossNote}</p>
+    </article>
+    <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-batch-accounting="padding">
+      <div class="course-diagram__card-heading"><h4>{labels.paddingTitle}</h4></div>
+      <p>{labels.paddingNote}</p>
+    </article>
+  </div>
+</figure>
+
+<style>
+  .padded-row-panels, .padded-accounting { grid-template-columns: minmax(0, 1fr); }
+  .padded-variable-diagram table {
+    min-inline-size: 27rem;
+    --diagram-cell-padding-block: 0.4rem;
+  }
+  .padded-variable-diagram dl { margin-block: 0; }
+  [data-document-summary] { display: grid; gap: 0.5rem; }
+  [data-query-document] h4 { margin-block: 0 0.35rem; }
+  [data-query-document] ul { margin-block: 0; padding-inline-start: 1.25rem; }
+  @container (min-width: 48rem) {
+    .padded-accounting { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container (min-width: 58rem) {
+    .padded-row-panels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

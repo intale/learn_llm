@@ -7,7 +7,7 @@ import {getMessages,validateMessageCatalog} from '../src/i18n';
 import {COURSE_HOME_MESSAGE_KEYS,COURSE_INDEX_MESSAGE_KEYS,courseMessageKeys,hasCourseHomeMessages,hasCourseIndexMessages,hasCourseMessages} from '../src/i18n/messages';
 import {practicalCourse} from '../src/lib/course-configuration';
 
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches'] as const;
 const read=(path:string)=>readFileSync(new URL('../../'+path,import.meta.url),'utf8');
 const documents=ids.map(id=>({id,
   lesson:parseJsonFrontmatter(read('site/src/content/practical-chapters/en/'+id+'.mdx'),id),
@@ -39,11 +39,11 @@ describe('independent optional course message groups',()=>{
   });
 });
 
-describe('current practical Chapters 0–3 source bindings',()=>{
+describe('current practical Chapters 0–4 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
-    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([3,1,1,2]);
+    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([3,1,1,2,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);
@@ -65,7 +65,7 @@ describe('current practical Chapters 0–3 source bindings',()=>{
     expect(lesson.data.rust_sources).toEqual([]);expect(lesson.data.visualization).toMatchObject({decision:'not-useful',id:null});
     expect(contract.terminology).toEqual([]);
     expect(existsSync(new URL('../src/content/practical-cheat-sheets/en/'+ids[0]+'.json',import.meta.url))).toBe(false);
-    expect([...new Set([...lesson.body.matchAll(/\[Chapter [123](?::[^\]]+)?\]\(\.\.\/([^/]+)\/\)/g)].map(match=>match[1]))]).toEqual(ids.slice(1));
+    expect([...new Set([...lesson.body.matchAll(/\[Chapter [123](?::[^\]]+)?\]\(\.\.\/([^/]+)\/\)/g)].map(match=>match[1]))]).toEqual(ids.slice(1,4));
   });
   it('binds the new concept formula, registered figure and glossary to their existing contract fields',()=>{
     const {id,lesson,contract}=documents[3];
@@ -100,5 +100,27 @@ describe('current practical Chapters 0–3 source bindings',()=>{
     expect(body.split('Expect `running 1 test` and `1 passed; 0 failed`')).toHaveLength(3);
     expect(read('rust/crates/llm-from-scratch-practical/tests/practical_ch03_tokenizer.rs')).toContain('fn leftmost_overlap(');
     expect(read('rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs')).toContain('fn optional_third_rank_is_the_checked_course_exercise(');
+  });
+  it('binds the padded-batch lesson formula, exact executed stdout and source regions',()=>{
+    const {id,lesson,contract}=documents[4];
+    expect(lesson.data.concept_id).toBe('padded-variable-batches');
+    expect(contract.formula.latex).toBe(lesson.data.formula.latex);
+    expect(contract.formula.symbols.map((symbol:{symbol:string;en:string})=>({symbol:symbol.symbol,meaning:symbol.en}))).toEqual(lesson.data.formula.symbols);
+    expect(lesson.data.visualization).toMatchObject({decision:'useful',id:'padded-variable-batches'});
+    const expected=read('rust/demos/practical-ch04-padded-variable-batches/expected.txt');
+    expect(read('site/src/data/course/padded-variable-batches-trace.json')).toBe(expected);
+    expect(contract.rust.expected_output).toBe(expected);
+    expect(lesson.data.rust_sources.length).toBeGreaterThan(0);
+    for(const entry of lesson.data.rust_sources){
+      expect(contract.rust.sources).toContain(entry.path);
+      const source=read(entry.path);
+      expect(source.split('// region:'+entry.region)).toHaveLength(2);
+      expect(source.split('// endregion:'+entry.region)).toHaveLength(2);
+      expect(lesson.body.split('region="'+entry.region+'"')).toHaveLength(2);
+    }
+    const sheet=JSON.parse(read('site/src/content/practical-cheat-sheets/en/'+id+'.json'));
+    expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');
+    expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
+    for(const url of ['https://arxiv.org/abs/2107.02027v1','https://www.usenix.org/conference/osdi22/presentation/yu'])expect(lesson.body).toContain(']('+url+')');
   });
 });

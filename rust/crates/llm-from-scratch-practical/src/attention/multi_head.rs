@@ -4,7 +4,8 @@ use std::error::Error;
 use std::fmt;
 
 use super::causal_mask::{
-    CausalMaskingError, causal_scaled_dot_product_self_attention_with_context,
+    CausalMaskingError, causal_attention_with_lengths,
+    causal_scaled_dot_product_self_attention_with_context,
 };
 use super::qkv::{QkvError, QkvProjections};
 use super::rope::{RopeError, RotaryEmbedding};
@@ -585,6 +586,16 @@ impl MultiHeadAttention {
         input: &TensorValue,
         position_offset: usize,
     ) -> Result<MultiHeadAttentionForward, MultiHeadAttentionError> {
+        self.forward_with_optional_lengths(context, input, position_offset, None)
+    }
+
+    pub(crate) fn forward_with_optional_lengths(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+    ) -> Result<MultiHeadAttentionForward, MultiHeadAttentionError> {
         let shape = input.shape();
         if shape.len() != 3 {
             return Err(MultiHeadAttentionError::InputRank { rank: shape.len() });
@@ -612,6 +623,56 @@ impl MultiHeadAttention {
             });
         }
 
+        let lanes =
+            shape[0]
+                .checked_mul(self.heads)
+                .ok_or(MultiHeadAttentionError::BatchHeadOverflow {
+                    batch: shape[0],
+                    heads: self.heads,
+                })?;
+        let lane_lengths = if let Some(lengths) = lengths {
+            if lengths.len() != shape[0] {
+                return Err(MultiHeadAttentionError::CausalAttention(
+                    CausalMaskingError::Autodiff {
+                        stage: super::causal_mask::CausalMaskingStage::MaskedSoftmax,
+                        source: crate::autograd::model_ops::ModelOpError::CausalLengthCount {
+                            expected: shape[0],
+                            actual: lengths.len(),
+                        }
+                        .into(),
+                    },
+                ));
+            }
+            for (grid, &length) in lengths.iter().enumerate() {
+                if length > shape[1] {
+                    return Err(MultiHeadAttentionError::CausalAttention(
+                        CausalMaskingError::Autodiff {
+                            stage: super::causal_mask::CausalMaskingStage::MaskedSoftmax,
+                            source:
+                                crate::autograd::model_ops::ModelOpError::CausalLengthOutOfBounds {
+                                    grid,
+                                    length,
+                                    tokens: shape[1],
+                                }
+                                .into(),
+                        },
+                    ));
+                }
+            }
+            let mut lane_lengths = Vec::new();
+            lane_lengths.try_reserve_exact(lanes).map_err(|_| {
+                MultiHeadAttentionError::CausalAttention(CausalMaskingError::MaskAllocationFailed {
+                    elements: lanes,
+                })
+            })?;
+            for &length in lengths {
+                lane_lengths.extend(std::iter::repeat_n(length, self.heads));
+            }
+            Some(lane_lengths)
+        } else {
+            None
+        };
+
         let projected = self
             .qkv
             .forward_with_context(context, input)
@@ -626,20 +687,23 @@ impl MultiHeadAttention {
                 .map_err(head_layout(MultiHeadInput::Value))?;
         let rotated_query_heads = self
             .rope
-            .rotate_with_context(context, &projected_query_heads, position_offset)
+            .rotate_with_optional_lengths(
+                context,
+                &projected_query_heads,
+                position_offset,
+                lane_lengths.as_deref(),
+            )
             .map_err(rotary_error(MultiHeadInput::Query))?;
         let rotated_key_heads = self
             .rope
-            .rotate_with_context(context, &projected_key_heads, position_offset)
+            .rotate_with_optional_lengths(
+                context,
+                &projected_key_heads,
+                position_offset,
+                lane_lengths.as_deref(),
+            )
             .map_err(rotary_error(MultiHeadInput::Key))?;
 
-        let lanes =
-            shape[0]
-                .checked_mul(self.heads)
-                .ok_or(MultiHeadAttentionError::BatchHeadOverflow {
-                    batch: shape[0],
-                    heads: self.heads,
-                })?;
         let lane_shape = [lanes, shape[1], self.head_width];
         let query_lanes = rotated_query_heads
             .reshape_with_context(context, &lane_shape)
@@ -650,12 +714,21 @@ impl MultiHeadAttention {
         let value_lanes = projected_value_heads
             .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::ValueLanes))?;
-        let attended = causal_scaled_dot_product_self_attention_with_context(
-            context,
-            &query_lanes,
-            &key_lanes,
-            &value_lanes,
-        )
+        let attended = match lane_lengths {
+            Some(ref lengths) => causal_attention_with_lengths(
+                context,
+                &query_lanes,
+                &key_lanes,
+                &value_lanes,
+                lengths,
+            ),
+            None => causal_scaled_dot_product_self_attention_with_context(
+                context,
+                &query_lanes,
+                &key_lanes,
+                &value_lanes,
+            ),
+        }
         .map_err(MultiHeadAttentionError::CausalAttention)?;
         let attention_weights = attended
             .weights()

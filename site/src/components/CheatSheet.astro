@@ -9,9 +9,10 @@ import {
 
 interface Props {
   sheet: CheatSheetData;
+  termIdPrefix?: string;
 }
 
-const { sheet } = Astro.props;
+const { sheet, termIdPrefix } = Astro.props;
 const copy = getCheatSheetCopy(sheet.locale);
 if (!copy) {
   throw new Error(`Missing cheat-sheet interface copy for ${sheet.locale}.`);
@@ -102,8 +103,8 @@ const pageStatuses = termPages.map((page, pageIndex) =>
               hidden={pageIndex !== 0}
             >
               <dl class="cheat-sheet-terms">
-                {page.map(({ term, definition }) => (
-                  <div class="cheat-sheet-term">
+                {page.map(({ term, definition }, termIndex) => (
+                  <div class="cheat-sheet-term" id={termIdPrefix ? `${termIdPrefix}-${pageIndex * CHEAT_SHEET_PAGE_SIZE + termIndex + 1}` : undefined}>
                     <dt>{term}</dt>
                     <dd>{definition}</dd>
                   </div>

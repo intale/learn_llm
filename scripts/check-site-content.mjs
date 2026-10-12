@@ -1612,14 +1612,21 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
   const component = nodes[1];
   if (component.type !== 'component' || component.name !== 'CourseChapter' ||
       component.children.length !== 0 ||
-      (component.attributes.length !== 1 && component.attributes.length !== 2) ||
+      (component.attributes.length < 1 || component.attributes.length > 3) ||
       component.attributes[0].type !== 'attribute' ||
       component.attributes[0].kind !== 'spread' ||
       component.attributes[0].name !== 'Astro.props') {
-    throw new ContentValidationError([sourceName + ': practical presentation must be exactly CourseChapter with the Astro.props spread and optional authored Chapter label map']);
+    throw new ContentValidationError([sourceName + ': practical presentation must be exactly CourseChapter with the Astro.props spread and authorized optional label and term-anchor props']);
   }
-  if (component.attributes.length === 2) {
-    const label = component.attributes[1];
+  const extras = component.attributes.slice(1);
+  const names = extras.map(attribute => attribute.name);
+  if (new Set(names).size !== names.length ||
+      names.some(name => name !== 'chapterLabelByLocale' && name !== 'cheatSheetTermIdPrefix') ||
+      (names.length === 2 && names[0] !== 'chapterLabelByLocale')) {
+    throw new ContentValidationError([sourceName + ': practical presentation permits only authored label and term-anchor props in declared order']);
+  }
+  const label = extras.find(attribute => attribute.name === 'chapterLabelByLocale');
+  if (label) {
     if (label.type !== 'attribute' || label.kind !== 'expression' ||
         label.name !== 'chapterLabelByLocale' || typeof label.value !== 'string') {
       throw new ContentValidationError([sourceName + ': practical presentation permits only the authored literal Chapter label map']);
@@ -1637,6 +1644,30 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
         !ts.isStringLiteral(property.initializer) || property.initializer.text !== 'Chapter') {
       throw new ContentValidationError([sourceName + ': practical presentation permits only the authored literal Chapter label map']);
     }
+  }
+  const termAnchor = extras.find(attribute => attribute.name === 'cheatSheetTermIdPrefix');
+  if (termAnchor) {
+    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the Chapter4 term-anchor conditional']); };
+    if (termAnchor.type !== 'attribute' || termAnchor.kind !== 'expression' ||
+        typeof termAnchor.value !== 'string') reject();
+    const anchorProgram = ts.createSourceFile(sourceName + '.term-anchor.ts', `(${termAnchor.value});`,
+      ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const statement = anchorProgram.statements[0];
+    const expression = statement && ts.isExpressionStatement(statement) && statement.expression;
+    const conditional = expression && ts.isParenthesizedExpression(expression) && expression.expression;
+    if (anchorProgram.parseDiagnostics.length !== 0 || anchorProgram.statements.length !== 1 ||
+        !conditional || !ts.isConditionalExpression(conditional) ||
+        !ts.isBinaryExpression(conditional.condition) ||
+        conditional.condition.operatorToken.kind !== ts.SyntaxKind.EqualsEqualsEqualsToken ||
+        !ts.isStringLiteral(conditional.condition.right) || conditional.condition.right.text !== '04-padded-variable-batches' ||
+        !ts.isStringLiteral(conditional.whenTrue) || conditional.whenTrue.text !== 'padded-variable-term' ||
+        !ts.isIdentifier(conditional.whenFalse) || conditional.whenFalse.text !== 'undefined') reject();
+    let access = conditional.condition.left;
+    for (const field of ['chapter_id', 'data', 'entry', 'props']) {
+      if (!ts.isPropertyAccessExpression(access) || access.name.text !== field) reject();
+      access = access.expression;
+    }
+    if (!ts.isIdentifier(access) || access.text !== 'Astro') reject();
   }
   const program = ts.createSourceFile(sourceName + '.ts', frontmatter.value,
     ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);

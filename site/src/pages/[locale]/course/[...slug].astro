@@ -44,8 +44,9 @@ interface Props {
   cheatSheet: CollectionEntry<'cheatSheets'> | CollectionEntry<'practicalCheatSheets'> | null;
   course?: CourseConfiguration;
   chapterLabelByLocale?: Partial<Record<Locale, string>>;
+  cheatSheetTermIdPrefix?: string;
 }
-const { entry, previous, next, equivalentLocales, cheatSheet, course = firstCourse, chapterLabelByLocale } = Astro.props;
+const { entry, previous, next, equivalentLocales, cheatSheet, course = firstCourse, chapterLabelByLocale, cheatSheetTermIdPrefix } = Astro.props;
 const { Content } = await render(entry);
 const locale = entry.data.locale;
 const copy = getMessages(locale);
@@ -83,7 +84,7 @@ const routeSuffix = '/' + course.route + '/' + entry.data.chapter_id + '/';
         <strong>{copy.chapterObjectiveLabel}</strong>
         <p>{entry.data.objective}</p>
       </aside>
-      {cheatSheet && <CheatSheet sheet={cheatSheet.data} />}
+      {cheatSheet && <CheatSheet sheet={cheatSheet.data} termIdPrefix={cheatSheetTermIdPrefix} />}
     </header>
 
     <div class="lesson-body">

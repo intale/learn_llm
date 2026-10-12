@@ -16,6 +16,41 @@ use crate::nn::linear::LinearError;
 use crate::nn::rmsnorm::{RmsNorm, RmsNormError, RmsNormForward};
 use crate::nn::swiglu::{SwiGlu, SwiGluError, SwiGluProjection};
 use crate::tensor::storage::Tensor;
+use crate::training::sequence_example::BatchBinding;
+use crate::training::variable_batch::{MaskedLoss, VariableBatch, VariableBatchError};
+
+/// Rejections from the additional padded entry points preserve old error types.
+#[derive(Debug)]
+pub enum PaddedDecoderError {
+    Model(DecoderModelError),
+    Batch(VariableBatchError),
+}
+impl fmt::Display for PaddedDecoderError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Model(e) => e.fmt(f),
+            Self::Batch(e) => e.fmt(f),
+        }
+    }
+}
+impl Error for PaddedDecoderError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Model(e) => Some(e),
+            Self::Batch(e) => Some(e),
+        }
+    }
+}
+impl From<DecoderModelError> for PaddedDecoderError {
+    fn from(e: DecoderModelError) -> Self {
+        Self::Model(e)
+    }
+}
+impl From<VariableBatchError> for PaddedDecoderError {
+    fn from(e: VariableBatchError) -> Self {
+        Self::Batch(e)
+    }
+}
 
 const BLOCK_PARAMETER_SUFFIXES: [&str; 9] = [
     "attention_norm.gain",
@@ -819,6 +854,53 @@ impl DecoderModel {
             .embedding
             .forward_with_context(context, token_ids, token_shape)
             .map_err(DecoderModelError::Embedding)?;
+        self.forward_from_embedding(context, embedding, None)
+    }
+
+    // region:padded-decoder-entry
+    pub fn forward_padded(
+        &self,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+    ) -> Result<DecoderModelForward, PaddedDecoderError> {
+        self.forward_padded_with_context(AutogradContext::recording(), batch, expected)
+    }
+
+    /// A checked batch owns validity. Padding never becomes an unsigned ID.
+    pub fn forward_padded_with_context(
+        &self,
+        context: AutogradContext,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+    ) -> Result<DecoderModelForward, PaddedDecoderError> {
+        batch.ensure_binding(expected)?;
+        if expected.vocabulary_size() != self.config.vocabulary_size {
+            return Err(VariableBatchError::Invalid(
+                "batch vocabulary differs from the decoder vocabulary",
+            )
+            .into());
+        }
+        if batch.shape()[1] > self.config.max_positions {
+            return Err(DecoderModelError::ContextLengthExceeded {
+                tokens: batch.shape()[1],
+                max_positions: self.config.max_positions,
+            }
+            .into());
+        }
+        let embedding = self
+            .embedding
+            .forward_padded_with_context(context, batch.inputs(), &batch.shape())
+            .map_err(DecoderModelError::Embedding)?;
+        Ok(self.forward_from_embedding(context, embedding, Some(batch.lengths()))?)
+    }
+    // endregion:padded-decoder-entry
+
+    fn forward_from_embedding(
+        &self,
+        context: AutogradContext,
+        embedding: TensorValue,
+        lengths: Option<&[usize]>,
+    ) -> Result<DecoderModelForward, DecoderModelError> {
         let mut current = embedding.clone();
         let mut block_forwards = Vec::new();
         block_forwards
@@ -828,7 +910,7 @@ impl DecoderModel {
             })?;
         for (layer, block) in self.blocks.iter().enumerate() {
             let forward = block
-                .forward_with_context(context, &current, 0)
+                .forward_with_optional_lengths(context, &current, 0, lengths)
                 .map_err(|source| DecoderModelError::Block { layer, source })?;
             current = forward.output().clone();
             block_forwards.push(forward);
@@ -908,6 +990,25 @@ impl DecoderModel {
             .into_logits()
             .indexed_mean_nll_with_context(context, 2, &target_indices)
             .map_err(autodiff_error(DecoderModelStage::IndexedMeanLoss))
+    }
+
+    pub fn loss_padded(
+        &self,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+    ) -> Result<MaskedLoss, PaddedDecoderError> {
+        self.loss_padded_with_context(AutogradContext::recording(), batch, expected)
+    }
+
+    /// Reuse the same decoder and NLL; only valid prediction rows enter the loss.
+    pub fn loss_padded_with_context(
+        &self,
+        context: AutogradContext,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+    ) -> Result<MaskedLoss, PaddedDecoderError> {
+        let forward = self.forward_padded_with_context(context, batch, expected)?;
+        Ok(batch.loss_with_context(context, forward.logits())?)
     }
 
     fn validate_tokens(

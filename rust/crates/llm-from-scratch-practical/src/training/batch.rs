@@ -486,7 +486,7 @@ impl MiniBatchEpoch {
     }
 }
 
-fn validate_documents(
+pub(crate) fn validate_documents(
     partition: Partition,
     documents: &[BatchDocument<'_>],
 ) -> Result<(), BatchError> {

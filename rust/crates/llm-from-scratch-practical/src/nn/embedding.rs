@@ -32,6 +32,10 @@ pub enum EmbeddingError {
     IndexAllocationFailed {
         elements: usize,
     },
+    NegativeTokenId {
+        position: usize,
+        id: i32,
+    },
 }
 
 impl fmt::Display for EmbeddingError {
@@ -67,6 +71,10 @@ impl fmt::Display for EmbeddingError {
             Self::IndexAllocationFailed { elements } => write!(
                 formatter,
                 "could not reserve {elements} converted embedding indices"
+            ),
+            Self::NegativeTokenId { position, id } => write!(
+                formatter,
+                "batch input {id} at position {position} is neither padding nor a vocabulary ID"
             ),
         }
     }
@@ -227,6 +235,60 @@ impl Embedding {
 // endregion:embedding-forward-boundary
 
 impl Embedding {
+    // region:sentinel-safe-embedding
+    /// Batch padding has no embedding row. Exclude it before converting IDs;
+    /// the existing gather kernel skips excluded rows in forward and backward.
+    pub fn forward_padded_with_context(
+        &self,
+        context: AutogradContext,
+        token_ids: &[i32],
+        token_shape: &[usize],
+    ) -> Result<TensorValue, EmbeddingError> {
+        let (_, expected) =
+            checked_row_major_layout(token_shape).map_err(EmbeddingError::TokenShape)?;
+        if expected != token_ids.len() {
+            return Err(EmbeddingError::TokenCountMismatch {
+                expected,
+                actual: token_ids.len(),
+            });
+        }
+        let mut indices = Vec::new();
+        let mut active = Vec::new();
+        indices
+            .try_reserve_exact(expected)
+            .map_err(|_| EmbeddingError::IndexAllocationFailed { elements: expected })?;
+        active
+            .try_reserve_exact(expected)
+            .map_err(|_| EmbeddingError::IndexAllocationFailed { elements: expected })?;
+        for (position, &id) in token_ids.iter().enumerate() {
+            if id == crate::training::variable_batch::PAD_CELL {
+                indices.push(0);
+                active.push(false);
+                continue;
+            }
+            let unsigned =
+                u32::try_from(id).map_err(|_| EmbeddingError::NegativeTokenId { position, id })?;
+            let index = usize::try_from(unsigned)
+                .ok()
+                .filter(|&index| index < self.vocabulary_size)
+                .ok_or(EmbeddingError::TokenIdOutOfBounds {
+                    position,
+                    id: unsigned,
+                    vocabulary_size: self.vocabulary_size,
+                })?;
+            indices.push(index);
+            active.push(true);
+        }
+        self.table
+            .tensor()
+            .gather_rows_with_plan_and_context(context, move |table| {
+                RowGatherPlan::from_validated_indices(table, indices, token_shape.to_vec())?
+                    .with_active_rows(active)
+            })
+            .map_err(EmbeddingError::Autodiff)
+    }
+    // endregion:sentinel-safe-embedding
+
     /// Returns the table with its stable external name and trainable leaf.
     pub const fn table(&self) -> &NamedParameter {
         &self.table
@@ -333,6 +395,7 @@ mod tests {
             .find_map(|edge| match &edge.saved {
                 TensorSavedContext::Model(ModelSavedContext::GatherRows {
                     indices,
+                    active: None,
                     index_shape,
                     input_shape,
                     output_shape,

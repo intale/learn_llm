@@ -331,6 +331,16 @@ impl RotaryEmbedding {
         input: &TensorValue,
         position_offset: usize,
     ) -> Result<TensorValue, RopeError> {
+        self.rotate_with_optional_lengths(context, input, position_offset, None)
+    }
+
+    pub(crate) fn rotate_with_optional_lengths(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+    ) -> Result<TensorValue, RopeError> {
         let shape = input.shape();
         if shape.len() < 2 {
             return Err(RopeError::InputRank { rank: shape.len() });
@@ -374,9 +384,13 @@ impl RotaryEmbedding {
         let table_shape = [tokens, pairs];
         let cosines = copy_table_slice(&self.cosines.as_slice()[start..end], &table_shape)?;
         let sines = copy_table_slice(&self.sines.as_slice()[start..end], &table_shape)?;
-        input
-            .rotary_pairs_with_context(context, &cosines, &sines)
-            .map_err(Into::into)
+        match lengths {
+            Some(lengths) => {
+                input.rotary_pairs_with_optional_lengths(context, &cosines, &sines, Some(lengths))
+            }
+            None => input.rotary_pairs_with_context(context, &cosines, &sines),
+        }
+        .map_err(Into::into)
     }
     // endregion:rope-rotation
 

@@ -1,0 +1,14 @@
+{
+  "chapter_id":"04-padded-variable-batches",
+  "locale":"en",
+  "title":"Padded batches and valid targets",
+  "description":"Terms for excluding batch storage without changing causal predictions or their token-weighted loss.",
+  "terms":[
+    {"term":"Padding","definition":"Extra batch storage used to align unequal rows. The marker -1 has no vocabulary ID or embedding row and supplies neither an attended key nor a training target."},
+    {"term":"Prediction length","definition":"The number of immediate next-token pairs in an example. A selected range with three source tokens supplies two predictions; its final source token appears as a target."},
+    {"term":"Valid target","definition":"A real source token immediately following an example's input token. EOS can be a valid target; padding storage cannot."},
+    {"term":"Causal mask","definition":"The attention rule allowing a real query to use only real keys in its own example at positions no later than the query. Inactive queries skip normalization."},
+    {"term":"Loss mask","definition":"The explicit selection of supervised targets. This chapter includes every real target and excludes padding before target lookup and loss arithmetic."},
+    {"term":"Token-weighted mean","definition":"Raw loss sums divided once by the total number of valid targets. When combining document means, weight each by its valid-target count first."}
+  ]
+}

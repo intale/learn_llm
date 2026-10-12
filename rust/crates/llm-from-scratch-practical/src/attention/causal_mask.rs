@@ -181,13 +181,37 @@ pub fn causal_scaled_dot_product_self_attention_with_context(
     key: &TensorValue,
     value: &TensorValue,
 ) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
+    causal_attention_with_optional_lengths(context, query, key, value, None)
+}
+
+/// Right-padded prefix validity uses the same score, softmax and mixture kernels.
+pub fn causal_attention_with_lengths(
+    context: AutogradContext,
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+    lengths: &[usize],
+) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
+    causal_attention_with_optional_lengths(context, query, key, value, Some(lengths))
+}
+
+fn causal_attention_with_optional_lengths(
+    context: AutogradContext,
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+    lengths: Option<&[usize]>,
+) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
     let prepared = scaled_self_attention_scores_with_context(context, query, key, value)?;
     let tokens = query.shape()[1];
     let additive_mask = causal_additive_mask(tokens)?;
-    let weights = prepared
-        .scaled_scores
-        .causal_softmax_with_context(context)
-        .map_err(autodiff_error(CausalMaskingStage::MaskedSoftmax))?;
+    let weights = match lengths {
+        Some(lengths) => prepared
+            .scaled_scores
+            .causal_softmax_with_lengths(context, lengths),
+        None => prepared.scaled_scores.causal_softmax_with_context(context),
+    }
+    .map_err(autodiff_error(CausalMaskingStage::MaskedSoftmax))?;
     let output = weights
         .matmul_with_context(context, value)
         .map_err(autodiff_error(CausalMaskingStage::ValueMixture))?;

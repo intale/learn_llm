@@ -35,6 +35,16 @@ pub enum ModelOpError {
         keys: usize,
     },
     CausalSoftmaxEmptyTokens,
+    CausalLengthCount {
+        expected: usize,
+        actual: usize,
+    },
+    CausalLengthOutOfBounds {
+        grid: usize,
+        length: usize,
+        tokens: usize,
+    },
+    InvalidRotaryLengths,
     OutputAllocationFailed {
         elements: usize,
     },
@@ -72,6 +82,20 @@ impl fmt::Display for ModelOpError {
             Self::CausalSoftmaxEmptyTokens => formatter.write_str(
                 "causal softmax needs at least one token so every row has an allowed key",
             ),
+            Self::CausalLengthCount { expected, actual } => write!(
+                formatter,
+                "causal softmax needs {expected} valid lengths, received {actual}"
+            ),
+            Self::CausalLengthOutOfBounds {
+                grid,
+                length,
+                tokens,
+            } => write!(
+                formatter,
+                "valid length {length} for grid {grid} exceeds its {tokens} positions"
+            ),
+            Self::InvalidRotaryLengths => formatter
+                .write_str("rotary prefix lengths must match the token grids and fit their widths"),
             Self::OutputAllocationFailed { elements } => write!(
                 formatter,
                 "cannot allocate model-operation output for {elements} f64 values"
@@ -99,6 +123,7 @@ pub enum ModelSavedContext {
     },
     GatherRows {
         indices: Vec<usize>,
+        active: Option<Vec<bool>>,
         index_shape: Vec<usize>,
         input_shape: Vec<usize>,
         output_shape: Vec<usize>,
@@ -126,6 +151,7 @@ pub enum ModelSavedContext {
     RotaryPairs {
         cosines: Tensor,
         sines: Tensor,
+        lengths: Option<Vec<usize>>,
         input_shape: Vec<usize>,
     },
     IndexedMeanNll {
@@ -143,6 +169,7 @@ pub enum ModelSavedContext {
 #[derive(Debug)]
 pub(crate) struct RowGatherPlan {
     indices: Vec<usize>,
+    active: Option<Vec<bool>>,
     index_shape: Vec<usize>,
     input_shape: [usize; 2],
     output_shape: Vec<usize>,
@@ -200,6 +227,7 @@ impl RowGatherPlan {
         let (_, output_len) = checked_row_major_layout(&output_shape)?;
         Ok(Self {
             indices,
+            active: None,
             index_shape,
             input_shape,
             output_shape,
@@ -210,6 +238,7 @@ impl RowGatherPlan {
     fn into_saved_context(self) -> ModelSavedContext {
         let Self {
             indices,
+            active,
             index_shape,
             input_shape,
             output_shape,
@@ -217,10 +246,27 @@ impl RowGatherPlan {
         } = self;
         ModelSavedContext::GatherRows {
             indices,
+            active,
             index_shape,
             input_shape: input_shape.to_vec(),
             output_shape,
         }
+    }
+
+    /// Reuse the existing plan, but exclude padded rows from reads and pullbacks.
+    pub(crate) fn with_active_rows(
+        mut self,
+        active: Vec<bool>,
+    ) -> Result<Self, TensorAutodiffError> {
+        if active.len() != self.indices.len() {
+            return Err(ModelOpError::GatherIndexCountMismatch {
+                expected: self.indices.len(),
+                actual: active.len(),
+            }
+            .into());
+        }
+        self.active = Some(active);
+        Ok(self)
     }
 }
 // endregion:model-row-gather-plan
@@ -415,13 +461,30 @@ impl TensorValue {
         &self,
         context: AutogradContext,
     ) -> Result<Self, TensorAutodiffError> {
+        self.causal_softmax_with_optional_lengths(context, None)
+    }
+
+    /// One valid prefix length per query-key grid. Inactive queries remain zero.
+    pub fn causal_softmax_with_lengths(
+        &self,
+        context: AutogradContext,
+        lengths: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.causal_softmax_with_optional_lengths(context, Some(lengths))
+    }
+
+    fn causal_softmax_with_optional_lengths(
+        &self,
+        context: AutogradContext,
+        lengths: Option<&[usize]>,
+    ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation_with_context(
             context,
             TensorOperation::CausalSoftmax,
             [self],
             |primals| {
                 let input = primals[0];
-                let probabilities = causal_softmax_forward(input)?;
+                let probabilities = causal_softmax_forward_with_lengths(input, lengths)?;
                 let tokens = input.shape()[input.rank() - 1];
                 Ok((
                     probabilities.clone(),
@@ -447,6 +510,16 @@ impl TensorValue {
         cosines: &Tensor,
         sines: &Tensor,
     ) -> Result<Self, TensorAutodiffError> {
+        self.rotary_pairs_with_optional_lengths(context, cosines, sines, None)
+    }
+
+    pub(crate) fn rotary_pairs_with_optional_lengths(
+        &self,
+        context: AutogradContext,
+        cosines: &Tensor,
+        sines: &Tensor,
+        lengths: Option<&[usize]>,
+    ) -> Result<Self, TensorAutodiffError> {
         let cosines = cosines.clone();
         let sines = sines.clone();
         Self::model_operation_with_context(
@@ -455,12 +528,13 @@ impl TensorValue {
             [self],
             move |primals| {
                 let input = primals[0];
-                let value = rotary_pairs_forward(input, &cosines, &sines, false)?;
+                let value = rotary_pairs_forward(input, &cosines, &sines, false, lengths)?;
                 Ok((
                     value,
                     [ModelSavedContext::RotaryPairs {
                         cosines,
                         sines,
+                        lengths: lengths.map(<[usize]>::to_vec),
                         input_shape: input.shape().to_vec(),
                     }],
                 ))
@@ -544,6 +618,9 @@ fn gather_rows_forward(
     let width = plan.input_shape[1];
     let mut values = output_buffer(plan.output_len)?;
     for (position, &index) in plan.indices.iter().enumerate() {
+        if plan.active.as_ref().is_some_and(|active| !active[position]) {
+            continue;
+        }
         let source = index * width;
         let destination = position * width;
         values[destination..destination + width]
@@ -553,7 +630,11 @@ fn gather_rows_forward(
 }
 
 // region:causal-softmax-forward
-fn causal_softmax_forward(input: &Tensor) -> Result<Tensor, TensorAutodiffError> {
+// region:padding-aware-causal-softmax
+fn causal_softmax_forward_with_lengths(
+    input: &Tensor,
+    lengths: Option<&[usize]>,
+) -> Result<Tensor, TensorAutodiffError> {
     if input.rank() < 2 {
         return Err(ModelOpError::CausalSoftmaxRank { rank: input.rank() }.into());
     }
@@ -566,10 +647,31 @@ fn causal_softmax_forward(input: &Tensor) -> Result<Tensor, TensorAutodiffError>
         return Err(ModelOpError::CausalSoftmaxEmptyTokens.into());
     }
 
-    let mut probabilities = zeros(input.shape())?;
     let grids = input.len() / (queries * keys);
+    if let Some(lengths) = lengths {
+        if lengths.len() != grids {
+            return Err(ModelOpError::CausalLengthCount {
+                expected: grids,
+                actual: lengths.len(),
+            }
+            .into());
+        }
+        for (grid, &length) in lengths.iter().enumerate() {
+            if length > queries {
+                return Err(ModelOpError::CausalLengthOutOfBounds {
+                    grid,
+                    length,
+                    tokens: queries,
+                }
+                .into());
+            }
+        }
+    }
+    let mut probabilities = zeros(input.shape())?;
     for grid in 0..grids {
-        for query in 0..queries {
+        let valid = lengths.map_or(queries, |lengths| lengths[grid]);
+        // Skip inactive queries before maximum, exponentiation or division.
+        for query in 0..valid {
             let row_start = (grid * queries + query) * keys;
             let allowed = &input.as_slice()[row_start..=row_start + query];
             let maximum = allowed.iter().copied().fold(f64::NEG_INFINITY, f64::max);
@@ -594,6 +696,7 @@ fn causal_softmax_forward(input: &Tensor) -> Result<Tensor, TensorAutodiffError>
     }
     Ok(probabilities)
 }
+// endregion:padding-aware-causal-softmax
 // endregion:causal-softmax-forward
 
 // region:rotary-pairs-forward
@@ -602,6 +705,7 @@ fn rotary_pairs_forward(
     cosines: &Tensor,
     sines: &Tensor,
     inverse: bool,
+    lengths: Option<&[usize]>,
 ) -> Result<Tensor, TensorAutodiffError> {
     debug_assert!(input.rank() >= 2);
     debug_assert_eq!(cosines.shape(), sines.shape());
@@ -618,8 +722,17 @@ fn rotary_pairs_forward(
     }
 
     let rows = input.len() / width;
+    if let Some(lengths) = lengths
+        && (lengths.len() != rows / tokens || lengths.iter().any(|&length| length > tokens))
+    {
+        return Err(ModelOpError::InvalidRotaryLengths.into());
+    }
     for row in 0..rows {
         let token = row % tokens;
+        // Inactive queries have no position lookup, in either direction.
+        if lengths.is_some_and(|lengths| token >= lengths[row / tokens]) {
+            continue;
+        }
         for pair in 0..pairs {
             let feature = row * width + pair * 2;
             let table = token * pairs + pair;
@@ -671,6 +784,7 @@ pub(crate) fn apply_model_vjp(
         // region:model-row-gather-vjp
         ModelSavedContext::GatherRows {
             indices,
+            active,
             input_shape,
             output_shape,
             ..
@@ -679,6 +793,9 @@ pub(crate) fn apply_model_vjp(
             let width = input_shape[1];
             let mut table_gradient = zeros(input_shape)?;
             for (position, &index) in indices.iter().enumerate() {
+                if active.as_ref().is_some_and(|active| !active[position]) {
+                    continue;
+                }
                 let source = position * width;
                 let destination = index * width;
                 for feature in 0..width {
@@ -758,10 +875,11 @@ pub(crate) fn apply_model_vjp(
         ModelSavedContext::RotaryPairs {
             cosines,
             sines,
+            lengths,
             input_shape,
         } => {
             debug_assert_eq!(upstream.shape(), input_shape);
-            rotary_pairs_forward(upstream, cosines, sines, true)
+            rotary_pairs_forward(upstream, cosines, sines, true, lengths.as_deref())
         }
         ModelSavedContext::IndexedMeanNll {
             probabilities,
@@ -1164,6 +1282,36 @@ mod tests {
     }
 
     #[test]
+    fn inactive_gather_rows_skip_bogus_storage_indices_and_upstream_values() {
+        let table = parameter(&[3, 2], &[9.0, 8.0, 1.0, 2.0, 3.0, 4.0]);
+        let result = table
+            .gather_rows_with_plan_and_context(AutogradContext::recording(), |table| {
+                RowGatherPlan::from_validated_indices(
+                    table,
+                    vec![1, usize::MAX, 2, usize::MAX],
+                    vec![2, 2],
+                )?
+                .with_active_rows(vec![true, false, true, false])
+            })
+            .unwrap();
+        assert_eq!(
+            result.value().as_slice(),
+            &[1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0]
+        );
+        let upstream = tensor(
+            &[2, 2, 2],
+            &[0.25, 0.5, 1e100, -1e100, 2.0, 4.0, -17.0, 29.0],
+        );
+        result
+            .backward_with_seed(&upstream.view(), GraphRetention::Release)
+            .unwrap();
+        assert_eq!(
+            table.gradient().unwrap().as_slice(),
+            &[0.0, 0.0, 0.25, 0.5, 2.0, 4.0]
+        );
+    }
+
+    #[test]
     fn gather_rejects_rank_count_and_first_bad_id_in_order() {
         let rank_one = constant(&[2], &[1.0, 2.0]);
         assert_eq!(
@@ -1470,6 +1618,7 @@ mod tests {
             .find_map(|edge| match &edge.saved {
                 TensorSavedContext::Model(ModelSavedContext::GatherRows {
                     indices,
+                    active: None,
                     index_shape,
                     input_shape,
                     output_shape,

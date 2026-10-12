@@ -355,10 +355,6 @@ dependencies = [
  "llm-from-scratch",
 ]
 
-
-
-
-
 [[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
@@ -975,6 +971,14 @@ name = "practical-ch03-scalable-bpe-tokenizer"
 version = "0.1.0"
 dependencies = [
  "fancy-regex",
+ "llm-from-scratch-practical",
+ "serde_json",
+]
+
+[[package]]
+name = "practical-ch04-padded-variable-batches"
+version = "0.1.0"
+dependencies = [
  "llm-from-scratch-practical",
  "serde_json",
 ]

@@ -2137,7 +2137,7 @@ describe("cheat-sheet integration contract", () => {
     );
     expect(route).toContain("await getCollection('cheatSheets')");
     expect(practicalRoute).toContain("await getCollection('practicalCheatSheets')");
-    expect(route).toContain("<CheatSheet sheet={cheatSheet.data} />");
+    expect(route).toContain("<CheatSheet sheet={cheatSheet.data} termIdPrefix={cheatSheetTermIdPrefix} />");
     expect(component).toContain("<dialog");
     expect(component).toContain("aria-labelledby={titleId}");
     expect(component).toContain("aria-describedby={descriptionId}");

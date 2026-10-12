@@ -1,0 +1,13 @@
+[package]
+name = "practical-ch04-padded-variable-batches"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch-practical = { path = "../../crates/llm-from-scratch-practical" }
+serde_json = "1.0"
+
+[lints]
+workspace = true

@@ -21,8 +21,9 @@ interface Props {
   locale: Locale;
   course?: CourseConfiguration;
   courseEntries?: (CollectionEntry<'chapters'> | CollectionEntry<'practicalChapters'>)[];
+  chapterCardIds?: boolean;
 }
-const { locale, course = firstCourse, courseEntries } = Astro.props;
+const { locale, course = firstCourse, courseEntries, chapterCardIds } = Astro.props;
 const chapterModules = import.meta.glob(
   '../../../content/chapters/**/*.{md,mdx}',
 );
@@ -65,7 +66,7 @@ const indexEyebrow = course.id === firstCourse.id ? copy.courseEyebrow : copy.pr
       >
         {chapters.map((chapter) => (
           <li>
-            <article class="feature-card">
+            <article class="feature-card" data-chapter-id={chapterCardIds ? chapter.data.chapter_id : undefined}>
               <span class="feature-number" aria-hidden="true">
                 {String(chapter.data.order).padStart(2, '0')}
               </span>

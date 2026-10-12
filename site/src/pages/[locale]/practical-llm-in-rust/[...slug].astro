@@ -12,4 +12,5 @@ export async function getStaticPaths() {
 }
 ---
 
-<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }} />
+<CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }}
+  cheatSheetTermIdPrefix={Astro.props.entry.data.chapter_id === '04-padded-variable-batches' ? 'padded-variable-term' : undefined} />
