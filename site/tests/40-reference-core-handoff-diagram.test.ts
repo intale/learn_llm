@@ -18,7 +18,7 @@ describe('Chapter40 static shared diagram', () => {
     expect(source).not.toMatch(/<(?:script|style|dialog|button)\b|client:|overflow:\s*(?:hidden|clip)/);
   });
   it('renders the actual structured golden values, not a second trace or inferred score', () => {
-    expect(source).toContain("ch40-reference-core-handoff/expected.txt?raw");
+    expect(source).toContain("practical-ch01-reference-core-handoff/expected.txt?raw");
     for (const expression of ['trace.reference_identity', 'trace.model.parameters', 'trace.evaluation.window_target_slots', 'trace.evaluation.document_transition_occurrences', 'JSON.stringify(trace.generation.token_ids)']) expect(source).toContain(`{${expression}}`);
     expect(source.match(/<bdi dir="ltr">/g)).toHaveLength(2);
   });

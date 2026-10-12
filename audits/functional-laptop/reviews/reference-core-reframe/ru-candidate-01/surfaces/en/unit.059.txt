@@ -1,1 +1,0 @@
-cargo run --quiet --locked -p ch39-end-to-end-llm

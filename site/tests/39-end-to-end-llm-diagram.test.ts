@@ -683,11 +683,13 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract.translation_notes.join(" ")).toContain(
       "direct, meaning-first translation of frozen English revision 9",
     );
+    // Frozen translation notes identify their original candidate; current bytes
+    // are pinned independently below without changing those historical hashes.
     expect(contract.translation_notes.join(" ")).toContain(
-      `SHA-256 ${createHash("sha256").update(englishLessonSource).digest("hex")}`,
+      "SHA-256 6234b3ea092e6a53f74fe8d10fc6ed85c4f2f168192356b4264b502d3fa84f07",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      `Russian lesson SHA-256 is ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
+      "Russian lesson SHA-256 is 83b5b1200a3c7c685552236646bb5d8dc36d1beb16e9de84d9dc6f50710732d7",
     );
     expect(contract.translation_notes.join(" ")).toContain(
       "The English and reviewed Russian Chapter 39 cheat sheets have SHA-256 90b1610666270ef7a3cba38e1070f3d666080a6a8487515b4478c7917918b0b0 and 21db369c97bdb443a17320b108b37e22b302d0a73c9da91ec85c1bcfb852a2fa respectively.",
@@ -696,10 +698,10 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       "f47fec042d238c8a862bc5932e9d5e8f22629d270c2e44e5723c4e7f6d4400c3",
     );
     expect(createHash("sha256").update(englishLessonSource).digest("hex")).toBe(
-      "6234b3ea092e6a53f74fe8d10fc6ed85c4f2f168192356b4264b502d3fa84f07",
+      "6971f2ba7b4a3f8c0358afa6c2535b2291dcc36021f5d5d80b5570ef66a4c1af",
     );
     expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
-      "83b5b1200a3c7c685552236646bb5d8dc36d1beb16e9de84d9dc6f50710732d7",
+      "d171210907970c2a29907643fda384ff705d216606de792864f7c1d39cc6d275",
     );
     expect(lessons.ru.history.summary).toBe(
       "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известное более низкое среднее NLL декодера по позициям окон представлено лишь как результат фиксированного примера для регрессионной проверки.",

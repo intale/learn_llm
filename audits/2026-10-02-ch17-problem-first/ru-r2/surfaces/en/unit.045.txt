@@ -1,1 +1,0 @@
-Check the Transformer paper’s initializer boundary and distinguish it from attention-score or embedding forward scaling.

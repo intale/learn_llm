@@ -1,1 +1,0 @@
-Rust source for the sampled projection and its two seed comparisons

@@ -1,1 +1,0 @@
-Uniform bound The endpoint magnitude of the zero-centered uniform interval used to sample weights.

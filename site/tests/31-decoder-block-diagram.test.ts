@@ -22,7 +22,6 @@ const componentSource = read('site/src/components/chapters/DecoderBlockDiagram.a
 const contractSource = read('curriculum/chapters/31-decoder-block.md');
 const lessonSource = read('site/src/content/chapters/en/31-decoder-block.mdx');
 const russianLessonSource = read('site/src/content/chapters/ru/31-decoder-block.mdx');
-const coursePlanSource = read('curriculum/course-plan.md');
 const blockSource = read(
   'rust/crates/llm-from-scratch/src/models/decoder_block.rs',
 );
@@ -446,11 +445,7 @@ describe('Chapter 31 static diagram and content boundary', () => {
         );
       }
     }
-    expect(
-      coursePlanSource.replace(/\r?\n/g, ''),
-    ).toContain(
-      "x'=x+\\operatorname{MHA}(\\operatorname{RMSNorm}(x)),\\quad y=x'+\\operatorname{FFN}(\\operatorname{RMSNorm}(x'))",
-    );
+
 
     const normalizedLesson = lessonSource.replace(/\s+/g, ' ');
     for (const source of lesson.history.llm_evolution.sources) {
@@ -470,18 +465,23 @@ describe('Chapter 31 static diagram and content boundary', () => {
 
     expect(blockSource).toContain('region:decoder-block-errors');
     expect(blockSource).toContain('region:decoder-block-layer');
-    expect(blockSource).toMatch(
-      /\.attention_norm\s*\.forward_with_intermediates\(input\)/,
+    expect(blockSource).toContain(
+      'self.forward_with_context(AutogradContext::recording(), input, position_offset)',
     );
     expect(blockSource).toMatch(
-      /\.attention\s*\.forward\(attention_norm\.output\(\), position_offset\)/,
+      /\.attention_norm\s*\.forward_with_intermediates_and_context\(context, input\)/,
     );
     expect(blockSource).toMatch(
-      /\.feed_forward_norm\s*\.forward_with_intermediates\(&after_attention\)/,
+      /\.attention\s*\.forward_with_context\(context, attention_norm\.output\(\), position_offset\)/,
     );
     expect(blockSource).toMatch(
-      /\.feed_forward\s*\.forward_with_intermediates\(feed_forward_norm\.output\(\)\)/,
+      /\.feed_forward_norm\s*\.forward_with_intermediates_and_context\(context, &after_attention\)/,
     );
+    expect(blockSource).toMatch(
+      /\.feed_forward\s*\.forward_with_intermediates_and_context\(context, feed_forward_norm\.output\(\)\)/,
+    );
+    expect(blockSource).toContain('residual_add_with_context(context, input, attention.output())');
+    expect(blockSource).toContain('residual_add_with_context(context, &after_attention, feed_forward.output())');
     expect(demoSource).toContain('region:historical-block-order-contrast');
     expect(demoSource).toContain('region:learner-report');
     expect(traceRustSource).toContain('region:decoder-block-trace');

@@ -1,1 +1,0 @@
-Next chapter → Start trainable weights at a reproducible scale

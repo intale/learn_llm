@@ -10,8 +10,8 @@ import { parseArgs } from 'node:util';
 
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROLES = ['bilingual', 'target-only'];
-const SCHEMA = '.agents/skills/localize-llm-course/references/review-record.schema.json';
-const TOOL = '.agents/skills/localize-llm-course/scripts/localization-review.mjs';
+const SCHEMA = 'scripts/reviews/localization/references/review-record.schema.json';
+const TOOL = 'scripts/reviews/localization/scripts/localization-review.mjs';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const fail = message => { throw new Error(message); };
 function closed(value, fields, label) {

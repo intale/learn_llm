@@ -1,1 +1,0 @@
-Inspect equal gradients and construction guarantees

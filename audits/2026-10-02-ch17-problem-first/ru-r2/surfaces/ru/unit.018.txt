@@ -1,1 +1,0 @@
-Выбрать масштаб по ширинам до получения одного числа для каждого построчно записанного веса rust/crates/llm-from-scratch/src/nn/init.rs#xavier-initialization

@@ -62,38 +62,25 @@ structure unless separately revised.
 
 ## Review an unpublished chapter
 
-Agents stage candidate files under `.build/runs/<run-id>/publish/`. Review a
-candidate as a real static site instead of reading its MDX and source files:
+Retrieve the applicable workflow, candidate context and review instructions from
+concurrentDevelopmentMCP before staging a change. [AGENTS.md](AGENTS.md) points
+to the server and installation repository. Maintained review tooling and its
+explicit exported-checkpoint interfaces are documented in
+[scripts/README.md](scripts/README.md).
+
+The Docker host interface accepts a selected staged run:
 
 ```bash
-./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01
+./course review RUN_ID
+./course review RUN_ID --port 4400
+./course review RUN_ID --check
 ```
 
-The command validates the run ID, verifies its source manifest when present,
-overlays the staged files through a Docker build context, runs the content,
-parity, type, static-build, and link gates in Docker, and prints direct URLs for
-every staged lesson. For the current Chapter 6 candidate it prints:
-
-- <http://127.0.0.1:4321/en/course/06-bigram-baseline/>
-- <http://127.0.0.1:4321/ru/course/06-bigram-baseline/>
-
-Press `Ctrl+C` to stop the review server. To use another loopback port:
-
-```bash
-./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01 --port 4400
-```
-
-For an automated render check without starting a server:
-
-```bash
-./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01 --check
-```
-
-Review builds never publish the candidate or modify its `publish/` tree. Their
-images and build cache remain in the Docker daemon. Record the reviewed run and
-cover every active localized page, including captions and accessible labels. The
-build does not pause for human approval; the user reviews the completed change
-after delivery.
+The command validates the run ID and supplied manifest, overlays its staged
+files, and runs content, parity, type, static-build and link checks. It prints
+URLs for staged lessons. `--check` completes those checks without starting a
+server; otherwise `Ctrl+C` stops the loopback server. The command does not
+publish or modify the staged candidate.
 
 ## Export a static release
 
@@ -230,13 +217,10 @@ schema-checked `site/src/i18n/catalogs/<locale>.json` files. A chapter publishes
 only when every locale active for that chapter has one same-revision lesson and
 the shared formula, Rust-source, visualization, and order metadata agree.
 
-Read the [chapter delivery playbook](SKILLS.md) and the
-[localized curriculum workflow](curriculum/README.md) before authoring or
-translating a lesson. Translation is meaning-first: establish terminology,
-rewrite naturally in the target language, compare critical claims, perform an
-anti-calque and monolingual pass, inspect the rendered page, and record the exact
-review findings before publication. User review follows delivery instead of
-pausing the build.
+Authoring, localization and review instructions, recorded decisions and
+checkpoint evidence are in concurrentDevelopmentMCP. Retrieve the matching
+current context before changing course content; the [maintained tool
+documentation](scripts/README.md) describes local executable interfaces.
 
 Adding another spoken language is one atomic activation step. It extends the
 locale registry, message catalog, localized fields in every implemented chapter
@@ -250,9 +234,7 @@ case.
 - `site/` — Astro/MDX static site, localized lessons, and browser/unit tests;
 - `rust/demos/` — runnable deterministic chapter examples;
 - `rust/crates/llm-from-scratch/` — cumulative model implementation;
-- `curriculum/` — reviewed chapter contracts, course plan, and workflow;
+- `curriculum/` — live chapter requirements for both courses;
 - `scripts/` — deterministic content, dependency, link, CLI, and host checks;
-- `.build/runs/` — ignored run-specific staging, manifests, and review evidence;
-- `BUILD_STATE.yaml` — ordered build and checkpoint ledger;
-- `DECISIONS.md` — durable architecture and process decisions; and
+- concurrentDevelopmentMCP — development context, skills, history and decisions; and
 - `course` — the Docker-only host interface.

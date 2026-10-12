@@ -32,7 +32,6 @@ const lessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/33-training-selection.mdx",
 );
-const coursePlanSource = read("curriculum/course-plan.md");
 const trainerSource = read(
   "rust/crates/llm-from-scratch/src/training/trainer.rs",
 );
@@ -513,9 +512,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
         );
       }
     }
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
-    );
+
     expect(contract.content_revision).toBe(12);
     expect(lesson.content_revision).toBe(12);
     expect(russianLesson.content_revision).toBe(12);
@@ -528,7 +525,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
       "3d609072eca9afa081a76e025d281925a668a3bc921ef97408f87a2eb4317ca8",
     );
-    expect(coursePlanSource).not.toContain("s^\\*");
+
     expect(contractSource).not.toContain("s^\\*");
     expect(lessonSource).not.toContain("s^\\*");
 
@@ -559,9 +556,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(russianLessonSource).not.toMatch(
       /byte for byte|final newline|page parses|static diagram|implementation languages/i,
     );
-    expect(coursePlanSource).toContain(
-      "Content revision 4 defines stable parameter names, list order, and component shapes as one reusable borrowed decoder-layout contract",
-    );
+
     for (const fragment of [
       "The layout check neither copies a tensor buffer nor creates component handles",
       "Passing it means that the leaf list has a valid layout; it does not yet mean that live decoder aliases exist",

@@ -12,13 +12,13 @@ ARG COURSE_CORPUS
 ENV COURSE_CORPUS=${COURSE_CORPUS}
 COPY --from=corpus-tools /source-build/target/release/course-asset-fetch /source-build/course-asset-fetch
 COPY configs/functional-corpus-assets.json /source-build/assets.json
-COPY artifacts/functional-laptop/acquisition/tinystories/source-metadata/ /source-build/inputs/artifacts/functional-laptop/acquisition/tinystories/source-metadata/
+COPY scripts/data/tinystories/ /source-build/inputs/artifacts/functional-laptop/acquisition/tinystories/source-metadata/
 RUN /source-build/course-asset-fetch
 COPY Dockerfile /source-private/producer-inputs/Dockerfile
 COPY Cargo.lock /source-private/producer-inputs/Cargo.lock
 COPY configs/functional-corpus-assets.json /source-private/producer-inputs/functional-corpus-assets.json
 COPY rust/tools/course-asset-fetch/ /source-private/producer-inputs/course-asset-fetch/
-COPY artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json /source-private/producer-inputs/source-metadata-inventory.json
+COPY configs/course-source-metadata-v1.json /source-private/producer-inputs/source-metadata-inventory.json
 RUN cp /source-build/course-asset-fetch /source-private/producer-inputs/course-asset-fetch.bin
 
 FROM node:22.12.0-bookworm AS source

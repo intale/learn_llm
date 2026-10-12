@@ -192,19 +192,17 @@ describe('course-wide diagram full-view contract', () => {
   });
 
   it('documents the shared rule and leaves diagram tables under their named scrollers', () => {
-    const agents = read('AGENTS.md');
-    const playbook = read('SKILLS.md');
     const lessonRoute = read('site/src/pages/[locale]/course/[...slug].astro');
     const layout = read('site/src/layouts/BaseLayout.astro');
     const diagramStyles = read('site/src/styles/diagram.module.css');
     const globalStyles = read('site/src/styles/global.css');
 
-    expect(agents).toContain('### Diagram presentation');
-    expect(agents).toContain('Do not implement chapter-specific full-view behavior.');
-    expect(agents).toContain('regardless of its content size, measured overflow');
-    expect(playbook).toMatch(/layout-level diagram full-view\s+controller/);
-    expect(playbook).toContain('no chapter-local client script');
-    expect(playbook).toContain('including compact diagrams with');
+
+
+
+
+
+
     expect(layout).toContain("import diagramStyles from '../styles/diagram.module.css';");
     expect(layout).toContain('<body class={diagramStyles.host}>');
     expect(diagramStyles).toContain("course-diagram[data-diagram-style='course-v1']");

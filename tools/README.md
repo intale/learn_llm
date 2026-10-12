@@ -2,8 +2,8 @@
 
 These tools move deterministic verification and raster assembly out of agent
 context. They do not select work, grant network access, launch a browser, or
-authorize writes outside the invoking run. `AGENTS.md`, `BUILD_STATE.yaml`, and
-the selected step remain authoritative.
+authorize writes outside the invoking run. Retrieve the applicable development context and declared scope from
+concurrentDevelopmentMCP; `AGENTS.md` provides its installation pointer.
 
 ## Commands
 
@@ -34,7 +34,7 @@ change.
   "authorities": {
     "files": [
       {
-        "path": "AGENTS.md",
+        "path": "configs/course-publication-v1.json",
         "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
       }
     ],
@@ -55,9 +55,8 @@ change.
   },
   "scope": {
     "declaredOutputs": [
-      "BUILD_STATE.yaml",
-      "DECISIONS.md",
-      "tools/example.mjs"
+      "scripts/example.mjs",
+      "site/src/components/Example.astro"
     ]
   }
 }
@@ -120,9 +119,8 @@ JavaScript explicitly enabled, DOM snapshots, and present screencast resources.
 The tool records trace and image inventories, exact tool versions, a SHA
 manifest, and deterministic PNG contact sheets. It writes `summary.json` last;
 only `"complete": true` is a completion marker. Source traces and images remain
-unchanged. Contact sheets are navigation aids for a visual reviewer; they do
-not replace inspection of raw frames, accessibility/geometry assertions, or
-Terra's visual judgment.
+unchanged. Contact sheets index the supplied frames. They do not provide a publication
+verdict or replace the automated accessibility and geometry checks.
 
 ## Runtime boundary
 

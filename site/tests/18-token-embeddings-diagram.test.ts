@@ -246,7 +246,7 @@ describe('Chapter 18 labels and static component', () => {
       'EmbeddingError::TokenIdOutOfBounds',
       'try_reserve_exact(expected)',
       'for &id in token_ids',
-      '.gather_rows_with_plan(move |table|',
+      '.gather_rows_with_plan_and_context(context, move |table|',
       'RowGatherPlan::from_validated_indices',
     ].map((fragment) => forwardBoundary.indexOf(fragment));
     expect(ordered.every((position) => position >= 0)).toBe(true);
@@ -257,6 +257,9 @@ describe('Chapter 18 labels and static component', () => {
       /RowGatherPlan::from_validated_indices\(\s*table,\s*indices,\s*token_shape\.to_vec\(\),?\s*\)/s,
     );
     expect(forwardBoundary).not.toContain('.gather_rows(');
+    expect(forwardBoundary).toContain(
+      'self.forward_with_context(AutogradContext::recording(), token_ids, token_shape)',
+    );
     expect(forwardBoundary).not.toContain('RowGatherPlan::checked');
     expect(forwardBoundary).not.toContain('indices.to_vec()');
     expect(forwardBoundary).not.toMatch(
@@ -265,7 +268,7 @@ describe('Chapter 18 labels and static component', () => {
 
     const publicGatherStart = modelOperationsSource.indexOf('pub fn gather_rows(');
     const trustedGatherStart = modelOperationsSource.indexOf(
-      'pub(crate) fn gather_rows_with_plan(',
+      'pub(crate) fn gather_rows_with_plan_and_context(',
       publicGatherStart,
     );
     expect(publicGatherStart).toBeGreaterThanOrEqual(0);

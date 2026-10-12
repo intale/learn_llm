@@ -31,7 +31,6 @@ const lessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/34-final-evaluation.mdx",
 );
-const coursePlanSource = read("curriculum/course-plan.md");
 const evaluationSource = read("rust/crates/llm-from-scratch/src/evaluation.rs");
 const bigramSource = read("rust/crates/llm-from-scratch/src/bigram.rs");
 const selectionSource = read("rust/demos/ch33-training-selection/src/lib.rs");
@@ -607,9 +606,7 @@ describe("Chapter 34 static diagram and content boundary", () => {
     );
     expect(proofCards![3]).toContain("trace.provenance.target_fingerprint");
     expect(proofCards![3]).not.toContain("provenance_assertions_match");
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
-    );
+
     expect(contract.content_revision).toBe(7);
     expect(lesson.content_revision).toBe(7);
     expect(russianLesson.content_revision).toBe(7);
@@ -1072,14 +1069,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     ]) {
       expect(russianLessonSource.replace(/\s+/g, " ")).not.toMatch(staleClaim);
     }
-    const normalizedCoursePlan = coursePlanSource.replace(/\s+/g, " ");
-    expect(normalizedCoursePlan).toContain(
-      "caller-supplied provenance assertions",
-    );
-    expect(normalizedCoursePlan).toContain("facts checked mechanically");
-    expect(normalizedCoursePlan).toContain(
-      "the concrete fixture has the intended training and selection history",
-    );
+
+
+
     expect(selectionSource).toContain("fixture_training_documents");
     expect(selectionSource).toContain("pub fn learner_evidence");
     const fixtureTrainingSource = selectionSource.match(

@@ -1,47 +1,18 @@
 #!/usr/bin/env node
 // Hash/path orchestration only. Full maintained semantic verifiers remain
 // mandatory and no status field in this receipt can approve publication.
-import {createHash} from 'node:crypto';
-import {existsSync, lstatSync, readFileSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import {resolve, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
-import {canonicalJson} from '../.agents/skills/author-llm-course-english/scripts/english-review.mjs';
+import {parseArgs} from 'node:util';
+import {canonicalJson,closed,hash,jsonFile,readRegularFile,MAX_INPUT_FILE_BYTES} from './lib/bound-files.mjs';
+export {closed,hash,jsonFile,readRegularFile,MAX_INPUT_FILE_BYTES};
 import {FUNCTIONAL_CHAPTER_IDS, functionalChapterSignature} from '../site/src/lib/functional-course-publication.mjs';
 import {parseJsonFrontmatter} from './check-site-content.mjs';
 import {validateContractLesson,localizedContractProjection} from './check-chapter-contract.mjs';
 
 export const MAX_RECEIPT_BYTES = 32768;
-export const MAX_INPUT_FILE_BYTES = 16 * 1024 * 1024;
-export const hash = bytes => createHash('sha256').update(bytes).digest('hex');
-export function closed(value, keys, label) {
-  if (!value || typeof value !== 'object' || Array.isArray(value) ||
-      JSON.stringify(Object.keys(value).sort()) !== JSON.stringify([...keys].sort()))
-    throw new Error(label + ': exact closed keys required');
-}
-export function readRegularFile(root, path, limit = MAX_INPUT_FILE_BYTES) {
-  if (typeof path !== 'string' || !path || !/^[A-Za-z0-9_./\[\]-]+$/.test(path) ||
-      path.startsWith('/') || path.split('/').some(p => !p || p === '.' || p === '..'))
-    throw new Error('unsafe repository-relative path');
-  const parts = path.split('/');
-  let current = resolve(root);
-  for (let i = 0; i < parts.length; i++) {
-    current = resolve(current, parts[i]);
-    const stat = lstatSync(current);
-    if (stat.isSymbolicLink() || (i === parts.length - 1 ? !stat.isFile() : !stat.isDirectory()))
-      throw new Error('symlink/nonregular input: ' + path);
-    if (i === parts.length - 1 && stat.size > limit) throw new Error('oversized input: ' + path);
-  }
-  return readFileSync(current);
-}
-export function jsonFile(root, path, limit = MAX_INPUT_FILE_BYTES, canonical = false) {
-  const bytes = readRegularFile(root, path, limit);
-  const value = JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(bytes));
-  if (canonical && !bytes.equals(Buffer.from(canonicalJson(value))))
-    throw new Error('noncanonical/duplicate JSON input: ' + path);
-  return value;
-}
-
 function publicationRevision(chapterId, contentRevision) {
   if (!Number.isSafeInteger(contentRevision) || contentRevision < 1 ||
       (chapterId === '40-reference-core-handoff' && contentRevision > 2))
@@ -82,7 +53,7 @@ export function publicationInputPaths(chapterId, activeLocales, contentRevision 
   ].sort();
 }
 
-export function languageVerifierInvocations(chapterId, activeLocales, root, contentRevision = 1) {
+export function languageVerifierInvocations(chapterId, activeLocales, root, contentRevision = 1, {toolRoot=root,parserRoot=root}={}) {
   publicationInputPaths(chapterId, activeLocales, contentRevision);
   const base = 'audits/functional-laptop/reviews/' + chapterId;
   // Chapter40's immutable routed artifacts retain their original relative
@@ -96,15 +67,16 @@ export function languageVerifierInvocations(chapterId, activeLocales, root, cont
   const adjudicationRouting = english + (isChapter40 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
   const russian = base + (current40 ? '/ru-r02' : '/ru');
   const commands = [{executable: process.execPath, args: [
-    resolve(root, '.agents/skills/author-llm-course-english/scripts/english-review.mjs'),
+    resolve(toolRoot, 'scripts/reviews/english/scripts/english-review.mjs'),
     'verify', '--spec', english + '/spec.json', '--bundle', english + '/bundle',
     '--review-routing', reviewRouting, '--review-seals', english + '/review-seals',
     '--adjudication-bundle', english + '/adjudication-bundle',
     '--adjudication-routing', adjudicationRouting,
     '--adjudication-seals', english + '/adjudication-seals', '--root', root,
+    ...(parserRoot!==root?['--parser-root',parserRoot]:[]),
   ]}];
   if (activeLocales.includes('ru')) commands.push({executable: process.execPath, args: [
-    resolve(root, '.agents/skills/localize-llm-course/scripts/localization-review.mjs'),
+    resolve(toolRoot, 'scripts/reviews/localization/scripts/localization-review.mjs'),
     'verify', '--spec', russian + '/spec.json', '--bundle', russian + '/bundle',
     '--bilingual-record', russian + '/bilingual.raw.json',
     '--target-only-record', russian + '/target-only.raw.json', '--root', root,
@@ -149,7 +121,7 @@ export function verifySharedEnglishProjection(root, chapterId, contentRevision, 
 }
 
 
-export function verifyPublicationReceipt(root, chapter, {run = spawnSync, contentRevision = 1} = {}) {
+export function verifyPublicationReceipt(root, chapter, {run = spawnSync, contentRevision = 1,toolRoot=root,parserRoot=root} = {}) {
   const receiptPath = publicationReceiptPath(chapter.chapterId, contentRevision);
   const receipt = jsonFile(root, receiptPath, MAX_RECEIPT_BYTES, true);
   closed(receipt, ['schemaVersion','chapterId','contentRevision','files'], 'publication receipt');
@@ -195,7 +167,7 @@ export function verifyPublicationReceipt(root, chapter, {run = spawnSync, conten
         sheet.terms.length < 5) throw new Error('sheet identity/terms drift');
   }
   verifySharedEnglishProjection(root, chapter.chapterId, receipt.contentRevision, contract);
-  for (const invocation of languageVerifierInvocations(chapter.chapterId, chapter.activeLocales, root, receipt.contentRevision)) {
+  for (const invocation of languageVerifierInvocations(chapter.chapterId, chapter.activeLocales, root, receipt.contentRevision,{toolRoot,parserRoot})) {
     const result = run(invocation.executable, invocation.args, {cwd:root, encoding:'utf8', shell:false});
     if (result.error || result.status !== 0)
       throw new Error('maintained language verifier refused: ' + (result.error?.message ?? result.stderr ?? result.status));
@@ -217,11 +189,14 @@ export function readPublicationEvidence(root, configuration) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-    const chapterId = process.argv[2];
+    const {values,positionals}=parseArgs({options:{'history-root':{type:'string'},'parser-root':{type:'string'}},allowPositionals:true,strict:true});
+    if(positionals.length!==1 || !values['history-root'])throw new Error('usage: <chapter-id> --history-root EXPORTED_CHECKPOINT [--parser-root CURRENT_REPOSITORY]');
+    const toolRoot=resolve(dirname(fileURLToPath(import.meta.url)), '..');
+    const root = resolve(values['history-root']);
+    const chapterId = positionals[0];
     const source = parseJsonFrontmatter(readRegularFile(root, 'site/src/content/chapters/en/' + chapterId + '.mdx').toString());
     const chapter = {chapterId,order:Number(chapterId?.slice(0,2)),activeLocales:chapterId?.startsWith('40-') && source.data.content_revision === 1?['en','ru']:['en']};
-    verifyPublicationReceipt(root, chapter, {contentRevision: source.data.content_revision});
+    verifyPublicationReceipt(root, chapter, {contentRevision: source.data.content_revision,toolRoot,parserRoot:resolve(values['parser-root']??toolRoot)});
     console.log('Functional publication receipt verified: ' + chapterId);
   } catch (error) {console.error(error.message);process.exitCode=1;}
 }

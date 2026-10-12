@@ -1,1 +1,0 @@
-Fixed-fixture regression evidence A known result reproduced on unchanged data to detect changed behavior, rather than an independent estimate of generalization.

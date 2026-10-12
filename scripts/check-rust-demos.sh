@@ -33,6 +33,7 @@ import {
   readdirSync,
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const [repositoryRoot, metadataPath] = process.argv.slice(2).map((value) =>
   resolve(value),
@@ -64,6 +65,37 @@ function parseContract(path) {
 function duplicate(values, label) {
   if (new Set(values).size !== values.length) fail(`duplicate ${label}`);
 }
+
+const { verifyProductLock } = await import(pathToFileURL(
+  join(repositoryRoot, 'scripts/lib/course-publication-lock.mjs'),
+).href);
+const { readChapterContractSummaries } = await import(pathToFileURL(
+  join(repositoryRoot, 'scripts/check-site-content.mjs'),
+).href);
+const { readCourseConfiguration } = await import(pathToFileURL(
+  join(repositoryRoot, 'scripts/check-course-boundaries.mjs'),
+).href);
+const lock = verifyProductLock(repositoryRoot);
+const practicalCourse = readCourseConfiguration(repositoryRoot).courses.find(
+  (course) => course.id === 'practical-llm-in-rust',
+);
+const practicalLock = lock.courses.find(
+  (course) => course.courseId === practicalCourse.id,
+);
+const practicalDemoNames = readChapterContractSummaries(repositoryRoot, {
+  course: practicalCourse,
+}).flatMap(({ data }) => {
+  if (!practicalLock.chapters.some(
+    (chapter) => chapter.chapterId === data.chapter_id && chapter.order === data.order,
+  )) fail('Practical contract is outside the current product lock');
+  if (data.order === 0 && data.rust === null) return [];
+  const packageName = `practical-ch${data.chapter_id}`;
+  if (data.rust?.package !== packageName) fail('Practical demo contract/package mismatch');
+  return [packageName];
+}).sort();
+duplicate(practicalDemoNames, 'Practical demo registration');
+if (practicalDemoNames.length !== 3) fail('expected exactly three registered Practical demos');
+console.error(`Registered Practical demo directories: ${practicalDemoNames.join(', ')}`);
 
 const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
@@ -126,6 +158,13 @@ for (const entry of readdirSync(demoRoot, { withFileTypes: true })) {
     continue;
   }
   if (!packagePattern.test(entry.name)) {
+    if (practicalDemoNames.includes(entry.name)) {
+      const stats = lstatSync(path);
+      if (!entry.isDirectory() || stats.isSymbolicLink()) {
+        fail(`${path}: registered Practical demo must be a real immediate directory`);
+      }
+      continue;
+    }
     if (existsSync(join(path, 'expected.txt'))) {
       fail(`${path}: only chapter demo directories may contain expected.txt`);
     }
@@ -351,6 +390,11 @@ while IFS= read -r -d '' package_name && \
     trace_checked=$((trace_checked + 1))
   fi
 done <"${demo_manifest_path}"
+
+if [[ ${checked} -ne 39 ]]; then
+  echo "Rust demo check failed: expected 39 checked chapter demos, got ${checked}." >&2
+  exit 1
+fi
 
 if [[ ${trace_checked} -ne 34 ]]; then
   echo "Rust demo check failed: expected 34 checked diagram traces, got ${trace_checked}." >&2

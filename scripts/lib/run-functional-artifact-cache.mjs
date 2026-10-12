@@ -5,6 +5,7 @@ import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {pathToFileURL,fileURLToPath} from 'node:url';
 import {parseArgs} from 'node:util';
+import {verifySourceMetadata,verifySourceProductionHistory} from './source-metadata-inputs.mjs';
 import {ownedPath,bridgeRequest,selectedPolicy,runtimeMountPlan,runtimeSelection,freezeRuntime,checkRuntimeUnchanged} from './functional-artifact-cache-boundary.mjs';
 import {createCacheFixture} from '../tests/fixtures/artifact-cache-fixture.mjs';
 const SHA=/^[0-9a-f]{64}$/;
@@ -28,11 +29,12 @@ export function image(config,opts){
 }
 export function parseCacheArguments(args){
  const [mode,...rest]=args,p={mode};if(mode==='--help'){if(args.length!==1)fail();return p;}
- const {values,tokens}=parseArgs({args:rest,options:Object.fromEntries(['run-id','step','target','input','receipt','runtime-image','expected-image-id'].map(name=>[name,{type:'string'}])),strict:true,allowPositionals:false,tokens:true});
+ const {values,tokens}=parseArgs({args:rest,options:Object.fromEntries(['run-id','step','target','input','receipt','history-root','runtime-image','expected-image-id'].map(name=>[name,{type:'string'}])),strict:true,allowPositionals:false,tokens:true});
  if(new Set(tokens.map(token=>token.name)).size!==tokens.length||Object.values(values).some(value=>!value))fail();Object.assign(p,values);
  const selection=runtimeSelection('learn-llm-workspace:local',{runtimeImage:p['runtime-image'],expectedImageId:p['expected-image-id']});
  if(!/^[0-9]{8}T[0-9]{6}Z-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p['run-id']??''))fail();
  const keys=mode==='build-tools'?['mode','run-id']:['self-test','publish-generated'].includes(mode)?['mode','run-id','step','target']:['publish','verify'].includes(mode)?['mode','run-id','step','target','input']:mode==='replay'?['mode','run-id','step','target','receipt']:[];
+ if(['publish','verify','replay'].includes(mode))keys.push('history-root');
  if(selection.selection==='explicit')keys.push('runtime-image','expected-image-id');
  if(Object.keys(p).sort().join()!==keys.sort().join())fail();return p;
 }
@@ -58,7 +60,7 @@ function bridge(root,run,id,request,mounts,policyPath,layoutPath,{expectSuccess=
  for(const mount of [{source:binary,target:'/tool',readOnly:true},{source:policyPath,target:'/policy/content-policy.json',readOnly:true},{source:layoutPath,target:'/layout/storage-layout.json',readOnly:true},...mounts]){if(mount.source.includes(',')||mount.target.includes(','))fail();argv.push('--mount',`type=bind,source=${mount.source},target=${mount.target}${mount.readOnly?',readonly':''}`);}
  const result=spawnSync('docker',[...argv,'--entrypoint','/tool',id],{input:JSON.stringify(request)+'\n',encoding:'utf8',maxBuffer:2097152});if(result.error||result.signal||(expectSuccess&&result.status!==0))fail();let output;try{output=JSON.parse(result.stdout);}catch{fail();}return {status:result.status,output,argv,tool_binary_sha256:receipt.binary.sha256};
 }
-export function metadata(root,config){const inventory=parse(join(root,config.metadata_inventory));if(inventory.step_id!=='capture-functional-tinystories-source-metadata')fail();for(const f of inventory.files){const b=readFileSync(join(root,f.path));if(b.length!==f.bytes||sha(b)!==f.sha256)fail();}}
+export function metadata(root){return verifySourceMetadata(root);}
 function selfTest(root,run,config,opts,id,runtime){
  const attempt=readdirSync(run).filter(name=>/^cache-self-test-v2-[0-9]+$/.test(name)).length+1;
  const directory=join(run,`cache-self-test-v2-${attempt}`);if(existsSync(directory))fail();mkdirSync(directory,{mode:0o700});
@@ -75,18 +77,15 @@ function selfTest(root,run,config,opts,id,runtime){
  const receipt={schema_version:2,step_id:opts.step,target_id:opts.target,evidence_kind:policyKind,image_id:id,runtime_identity:runtimeIdentity,tool_build_receipt_sha256:sha(readFileSync(tool(root,run,id).receiptPath)),artifact_id:digest,verified_bundle:replay.output,producer_receipt_sha256:sha(readFileSync(join(directory,'producer-receipt.json'))),checks:{actual_publication:true,actual_readonly_replay:true,consumer_write_refused:true,generated_fixture_handoff:true,corrupt_payload_refused:true,symlink_refused:true,wrong_mode_refused:true,wrong_uid_refused:true},network:'none'};save(join(run,`artifact-cache-receipt-v2-${attempt}.json`),receipt);return receipt;
 }
 export function runCacheCommand(args,{root=process.cwd()}={}){
- const opts=parseCacheArguments(args);if(opts.mode==='--help'){console.log('Offline v2 cache: build-tools --run-id RUN; self-test --run-id RUN --step STEP --target TARGET; publish/verify add --input; replay adds --receipt. Optional paired --runtime-image REF --expected-image-id sha256:ID selects an existing local image; otherwise the public workspace default remains. Independently selected policy and explicit physical layout.');return 0;}
+ const opts=parseCacheArguments(args);if(opts.mode==='--help'){console.log('Offline v2 cache: build-tools --run-id RUN; self-test --run-id RUN --step STEP --target TARGET; publish/verify add --input; replay adds --receipt; publish/verify/replay also require --history-root EXPORTED_CHECKPOINT for complete original source provenance. Optional paired --runtime-image REF --expected-image-id sha256:ID selects an existing local image; otherwise the public workspace default remains. Independently selected policy and explicit physical layout.');return 0;}
  // No current bulk-preparation executable is frozen yet. Never route the
  // external NeMo job through removed Rust filtering machinery.
  if(opts.mode==='publish-generated')fail();
  const run=resolve(root,'.build/runs',opts['run-id']);ownedPath(run,{root:resolve(root,'.build/runs')});const config=parse(input(root,run,'configs/functional-artifact-cache-targets.json'));if(config.schema_version!==2)fail();const runtime=image(config,opts),id=runtime.image_id;if(opts.mode==='build-tools'){buildTools(root,run,id,{runtime});return 0;}
  const target=config.targets[opts.target];if(!target||target.step_id!==opts.step||!target.modes.includes(opts.mode)||target.validator!=='rust-dataset-v2')fail();metadata(root,config);if(opts.mode==='self-test'){selfTest(root,run,config,opts,id,runtime);return 0;}
- if(target.policy_kind!=='production-source-policy')fail();const envelope=parse(input(root,run,target.asset_config)),asset=envelope.assets?.[target.asset_id];if(envelope.schema_version!==2||envelope.default_asset!==target.asset_id||!asset)fail();
- // Only the closed registry selects an accepted frozen acquisition binding.
- // No caller-supplied binding path or untrusted manifest value is authoritative.
- const accepted=parse(join(root,target.production_binding));if(accepted.schema_version!==2||accepted.step_id!==opts.step||accepted.target_id!==opts.target||accepted.metadata_inventory_sha256!==sha(readFileSync(join(root,config.metadata_inventory)))||accepted.binding?.selected_asset_sha256!==sha(Buffer.from(JSON.stringify(asset)+'\n')))fail();
- if(!Array.isArray(accepted.producer_inputs)||accepted.producer_inputs.length===0)fail();for(const record of accepted.producer_inputs){const b=readFileSync(join(root,record.path));if(b.length!==record.bytes||sha(b)!==record.sha256)fail();}
- const policy=selectedPolicy(asset,accepted.binding);for(const [contentId,path] of Object.entries(asset.metadata_files)){const expected=policy.manifest.payload.find(p=>p.id===contentId),b=readFileSync(join(root,path));if(!expected||b.length!==expected.bytes||sha(b)!==expected.sha256)fail();}
+ if(target.policy_kind!=='production-source-policy')fail();
+ const {asset,accepted}=verifySourceProductionHistory(root,resolve(opts['history-root']),{stepId:opts.step,targetId:opts.target});
+ const policy=selectedPolicy(asset,accepted.binding);
  const policyPath=join(run,'selected-content-policy-v2.json'),layoutPath=join(run,'selected-storage-layout-v2.json');for(const [p,value] of [[policyPath,policy],[layoutPath,asset.storage]]){const b=Buffer.from(JSON.stringify(value)+'\n');if(existsSync(p)){if(!readFileSync(p).equals(b))fail();}else writeFileSync(p,b,{flag:'wx',mode:0o600});}
  const cache=resolve(root,config.cache_parent);mkdirSync(cache,{recursive:true,mode:0o700});ownedPath(cache,{root:resolve(root,'.build/artifact-cache/functional-v2')});let selected,digest;
  if(opts.mode==='replay'){const receipt=parse(ownedPath(resolve(opts.receipt),{root:run,directory:false,privateMode:true}));if(receipt.step_id!==opts.step||receipt.target_id!==opts.target||!SHA.test(receipt.artifact_id))fail();digest=receipt.artifact_id;selected=ownedPath(join(cache,asset.storage.cache.entry_prefix+digest),{root:cache});}else selected=ownedPath(resolve(opts.input),{root:run,privateMode:true});

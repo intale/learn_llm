@@ -1,1 +1,0 @@
-Shared equal-width bins include their left endpoint; only the last includes its right endpoint. \Delta=0.10

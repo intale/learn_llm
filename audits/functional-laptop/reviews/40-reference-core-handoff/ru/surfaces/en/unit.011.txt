@@ -1,1 +1,0 @@
-The problem: changes need a fixed comparison point

@@ -1,1 +1,0 @@
-Uniform: twice the Xavier bound

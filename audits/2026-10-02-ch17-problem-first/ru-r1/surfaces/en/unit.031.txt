@@ -1,1 +1,0 @@
-Rust source for the typed parameter-construction and collection errors

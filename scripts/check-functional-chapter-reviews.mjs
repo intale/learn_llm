@@ -2,11 +2,12 @@
 import { spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {parseArgs} from 'node:util';
 
 
 const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ENGLISH_VERIFIER = '.agents/skills/author-llm-course-english/scripts/english-review.mjs';
-const RUSSIAN_VERIFIER = '.agents/skills/localize-llm-course/scripts/localization-review.mjs';
+const ENGLISH_VERIFIER = 'scripts/reviews/english/scripts/english-review.mjs';
+const RUSSIAN_VERIFIER = 'scripts/reviews/localization/scripts/localization-review.mjs';
 
 const REVIEW_ROOTS = Object.freeze({
   'ch41-corpus-preparation': 'audits/functional-laptop/reviews/41-corpus-preparation',
@@ -14,10 +15,11 @@ const REVIEW_ROOTS = Object.freeze({
   'measured-postgresql-v1': 'audits/functional-laptop/reviews/85-persistence-scale-decision-measured-postgresql-v1',
 });
 
-export function verifierInvocations(scope, root = REPOSITORY_ROOT) {
+export function verifierInvocations(scope, root, {toolRoot=root,parserRoot=root}={}) {
+  if(typeof root!=='string' || !root)throw new Error('explicit exported history root required');
   if (!Object.hasOwn(REVIEW_ROOTS, scope)) throw new Error('scope must be reference-core, measured-postgresql-v1 or ch41-corpus-preparation');
   if(scope==='ch41-corpus-preparation')return [{executable:process.execPath,
-    args:[resolve(root,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation']}];
+    args:[resolve(toolRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation','--history-root',root,'--parser-root',parserRoot]}];
   const reviewRoot = REVIEW_ROOTS[scope];
   const english = `${reviewRoot}/${scope === 'reference-core' ? 'english-candidate-01' : 'english'}`;
   const russian = `${reviewRoot}/${scope === 'reference-core' ? 'ru-candidate-01' : 'ru'}`;
@@ -25,7 +27,7 @@ export function verifierInvocations(scope, root = REPOSITORY_ROOT) {
     {
       executable: process.execPath,
       args: [
-        resolve(root, ENGLISH_VERIFIER),
+        resolve(toolRoot, ENGLISH_VERIFIER),
         'verify',
         '--spec', `${english}/spec.json`,
         '--bundle', `${english}/bundle`,
@@ -35,12 +37,13 @@ export function verifierInvocations(scope, root = REPOSITORY_ROOT) {
         '--adjudication-routing', `${english}/adjudication-routing.json`,
         '--adjudication-seals', `${english}/adjudication-seals`,
         '--root', root,
+        ...(parserRoot!==root?['--parser-root',parserRoot]:[]),
       ],
     },
     {
       executable: process.execPath,
       args: [
-        resolve(root, RUSSIAN_VERIFIER),
+        resolve(toolRoot, RUSSIAN_VERIFIER),
         'verify',
         '--spec', `${russian}/spec.json`,
         '--bundle', `${russian}/bundle`,
@@ -52,8 +55,8 @@ export function verifierInvocations(scope, root = REPOSITORY_ROOT) {
   ];
 }
 
-export function dispatchVerifiers(scope, { root = REPOSITORY_ROOT, run = spawnSync } = {}) {
-  for (const invocation of verifierInvocations(scope, root)) {
+export function dispatchVerifiers(scope, { root, toolRoot=root,parserRoot=root,run = spawnSync } = {}) {
+  for (const invocation of verifierInvocations(scope, root,{toolRoot,parserRoot})) {
     const result = run(invocation.executable, invocation.args, {
       cwd: root,
       stdio: 'inherit',
@@ -66,11 +69,12 @@ export function dispatchVerifiers(scope, { root = REPOSITORY_ROOT, run = spawnSy
 }
 
 function main(argv) {
-  if (argv.length !== 1 || !Object.hasOwn(REVIEW_ROOTS, argv[0])) {
-    process.stderr.write('usage: node scripts/check-functional-chapter-reviews.mjs <reference-core|measured-postgresql-v1|ch41-corpus-preparation>\n');
+  const {values,positionals}=parseArgs({args:argv,options:{'history-root':{type:'string'},'parser-root':{type:'string'}},allowPositionals:true,strict:true});
+  if (positionals.length !== 1 || !Object.hasOwn(REVIEW_ROOTS, positionals[0]) || !values['history-root']) {
+    process.stderr.write('usage: node scripts/check-functional-chapter-reviews.mjs <reference-core|measured-postgresql-v1|ch41-corpus-preparation> --history-root EXPORTED_CHECKPOINT [--parser-root CURRENT_REPOSITORY]\n');
     return 2;
   }
-  return dispatchVerifiers(argv[0]);
+  return dispatchVerifiers(positionals[0],{root:resolve(values['history-root']),toolRoot:REPOSITORY_ROOT,parserRoot:resolve(values['parser-root']??REPOSITORY_ROOT)});
 }
 
 if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {

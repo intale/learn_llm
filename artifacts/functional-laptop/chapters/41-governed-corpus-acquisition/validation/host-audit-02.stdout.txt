@@ -1,1 +1,0 @@
-host artifact audit passed (site/dist is the intentional static-release exception)

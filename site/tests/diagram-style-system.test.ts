@@ -110,7 +110,7 @@ const fixture = `
 
 describe("course diagram design system", () => {
   it("applies one complete source contract to every current diagram", () => {
-    expect(components).toHaveLength(44);
+    expect(components).toHaveLength(47);
     expect(validateDiagramComponents(repositoryRoot)).toBe(components.length);
 
     for (const component of components) {
@@ -313,23 +313,5 @@ describe("course diagram design system", () => {
     expect(qkv).not.toMatch(/^\s*:global\(\[data-inline-math\]\)\s*\{/m);
   });
 
-  it("keeps the permanent rules in both authoring sources of truth", () => {
-    const agents = read("AGENTS.md");
-    const skills = read("SKILLS.md");
 
-    expect(agents).toContain("site/src/styles/diagram.module.css");
-    expect(agents).toContain("Never use `overflow: hidden`, `overflow: clip`");
-    expect(agents).toMatch(
-      /Use the shared\s+container, not the browser viewport/,
-    );
-    expect(agents).toContain("an ancestor scroller owns travel");
-    expect(agents).toContain("complete four-sided computed borders");
-    expect(skills).toContain('data-diagram-style="course-v1"');
-    expect(skills).toContain("data-diagram-card");
-    expect(skills).toContain("data-diagram-scroll");
-    expect(skills).toContain("A named ancestor scroller never");
-    expect(skills).toContain("complete four-sided computed borders");
-    expect(skills).toContain("--diagram-scroll-inline-size");
-    expect(skills).toContain("painted text");
-  });
 });

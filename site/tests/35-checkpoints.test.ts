@@ -13,7 +13,6 @@ const repositoryRoot = resolve(process.cwd(), "..");
 const read = (path: string) =>
   readFileSync(resolve(repositoryRoot, path), "utf8");
 const contractSource = read("curriculum/chapters/35-checkpoints.md");
-const coursePlanSource = read("curriculum/course-plan.md");
 const englishLessonSource = read(
   "site/src/content/chapters/en/35-checkpoints.mdx",
 );
@@ -100,9 +99,7 @@ describe("Chapter 35 checkpoint ownership contract", () => {
       expect(source.match(/<RustSource\b/g)).toHaveLength(10);
       expect(source).not.toMatch(/<[A-Za-z]+Diagram\b/);
     }
-    expect(coursePlanSource).toContain(
-      "Content revision 5 preserves wire version 1 while replacing the free model/optimizer/step constructor with a sealed trainer-issued selected-state capture",
-    );
+
     expect(normalizedEnglishLessonSource).toContain(
       "The shared decoder-layout validator reads each name and tensor through a scoped reference",
     );

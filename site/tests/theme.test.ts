@@ -4,6 +4,11 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import {
+  messageKeys,
+  COURSE_HOME_MESSAGE_KEYS,
+  COURSE_INDEX_MESSAGE_KEYS,
+} from '../src/i18n/messages';
 
 import {
   COLOR_THEMES,
@@ -64,7 +69,25 @@ describe('shared color theme', () => {
 
     expect(english.darkThemeLabel).toBe('Dark theme');
     expect(russian.darkThemeLabel).toBe('Тёмная тема');
-    expect(Object.keys(russian).sort()).toEqual(Object.keys(english).sort());
+    expect(Object.keys(english).sort()).toEqual(
+      [...messageKeys, ...COURSE_HOME_MESSAGE_KEYS, ...COURSE_INDEX_MESSAGE_KEYS].sort(),
+    );
+    expect(Object.keys(russian).sort()).toEqual(
+      [...messageKeys, ...COURSE_HOME_MESSAGE_KEYS].sort(),
+    );
+    for (const key of [...messageKeys, ...COURSE_HOME_MESSAGE_KEYS]) {
+      expect(english[key].trim()).not.toBe('');
+      expect(russian[key].trim()).not.toBe('');
+    }
+    for (const key of COURSE_INDEX_MESSAGE_KEYS) {
+      expect(english[key].trim()).not.toBe('');
+      expect(russian).not.toHaveProperty(key);
+    }
+    const boundaries = JSON.parse(read('configs/course-boundaries-v1.json'));
+    const registeredLocales = Object.keys(JSON.parse(read('site/src/i18n/locales.json')).locales);
+    expect(boundaries.courses[0].activeLocales).toEqual(registeredLocales);
+    expect(boundaries.courses[1].activeLocales).toEqual(['en']);
+    expect(boundaries.courses[1].referenceLocale).toBe('en');
     expect(layout).toContain('<ThemeToggle label={copy.darkThemeLabel} />');
     expect(layout).toContain('<ThemeBootstrap />');
     expect(rootPage).toContain('<ThemeBootstrap />');

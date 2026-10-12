@@ -29,7 +29,6 @@ const lessonSource = read("site/src/content/chapters/en/32-decoder-model.mdx");
 const russianLessonSource = read(
   "site/src/content/chapters/ru/32-decoder-model.mdx",
 );
-const coursePlanSource = read("curriculum/course-plan.md");
 const modelSource = read("rust/crates/llm-from-scratch/src/models/decoder.rs");
 const demoSource = read("rust/demos/ch32-decoder-model/src/lib.rs");
 const traceRustSource = read(
@@ -446,9 +445,7 @@ describe("Chapter 32 static diagram and content boundary", () => {
         );
       }
     }
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "\\ell=\\operatorname{RMSNorm}(B_N(\\cdots B_1(E[z])\\cdots))E^\\top",
-    );
+
 
     const normalizedLesson = lessonSource.replace(/\s+/g, " ");
     for (const source of lesson.history.llm_evolution.sources) {
@@ -483,15 +480,14 @@ describe("Chapter 32 static diagram and content boundary", () => {
       "успешная проверка означает только, что список имеет требуемую схему",
       "выбор строк и выходная проекция обращаются к одному и тому же узлу эмбеддинга",
     ]) expect(normalizedRussianLesson).toContain(fragment);
-    expect(coursePlanSource).toContain(
-      "Content revision 4 defines stable parameter names, list order, and component shapes as one reusable borrowed decoder-layout contract",
-    );
+
 
     expect(modelSource).toContain("region:decoder-model-errors");
     expect(modelSource).toContain("region:decoder-model-config");
     expect(modelSource).toContain("region:decoder-model-layer");
     expect(modelSource).toContain(".transpose(0, 1)");
-    expect(modelSource).toContain(".indexed_mean_nll(2, &target_indices)");
+    expect(modelSource).toContain(".indexed_mean_nll_with_context(context, 2, &target_indices)");
+    expect(modelSource).toContain("self.forward_with_context(context, token_ids, token_shape)?");
     const parameterRebuildSource = sourceRegion(
       modelSource,
       "decoder-parameter-rebuild",

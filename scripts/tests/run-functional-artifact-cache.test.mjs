@@ -47,7 +47,7 @@ test('shared runtime selection validates expected ID and before/after snapshots 
 });
 test('cache optional runtime flags stay paired and closed for every existing mode',()=>{
  const vectors=[['build-tools'],['self-test','--step','s','--target','t'],['publish','--step','s','--target','t','--input','/input'],['verify','--step','s','--target','t','--input','/input'],['replay','--step','s','--target','t','--receipt','/receipt']];
- for(const [mode,...args] of vectors){const base=[mode,'--run-id',runId,...args];assert.equal(parseCacheArguments(base).mode,mode);assert.equal(parseCacheArguments([...base,'--runtime-image',reference,'--expected-image-id',image])['runtime-image'],reference);}
+ for(const [mode,...args] of vectors){const base=[mode,'--run-id',runId,...args,...(['publish','verify','replay'].includes(mode)?['--history-root','/exported-original-checkpoint']:[])];assert.equal(parseCacheArguments(base).mode,mode);assert.equal(parseCacheArguments([...base,'--runtime-image',reference,'--expected-image-id',image])['runtime-image'],reference);}
  for(const extra of [['--runtime-image',reference],['--expected-image-id',image],['--runtime-image',reference,'--expected-image-id','bad'],['--runtime-image','','--expected-image-id',image],['--runtime-image=--option','--expected-image-id',image],['--runtime-image',reference,'--runtime-image',reference,'--expected-image-id',image],['--run-id',runId],['--ignored','x'],['positional']])assert.throws(()=>parseCacheArguments(['build-tools','--run-id',runId,...extra]));
 });
 function cacheFixture({drift=false,missing=false}={}){

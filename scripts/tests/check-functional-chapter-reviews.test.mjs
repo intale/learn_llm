@@ -5,8 +5,8 @@ import { spawnSync } from 'node:child_process';
 import { dispatchVerifiers, verifierInvocations } from '../check-functional-chapter-reviews.mjs';
 
 const repositoryRoot = resolve(process.cwd());
-const englishVerifier = resolve(repositoryRoot, '.agents/skills/author-llm-course-english/scripts/english-review.mjs');
-const russianVerifier = resolve(repositoryRoot, '.agents/skills/localize-llm-course/scripts/localization-review.mjs');
+const englishVerifier = resolve(repositoryRoot, 'scripts/reviews/english/scripts/english-review.mjs');
+const russianVerifier = resolve(repositoryRoot, 'scripts/reviews/localization/scripts/localization-review.mjs');
 
 function expected(root, reviewRoot, corrective = false) {
   const english = `${reviewRoot}/${corrective ? 'english-candidate-01' : 'english'}`;
@@ -103,7 +103,7 @@ test('Chapter41 dispatch uses current publication evidence and its baseline-chai
   const invocations=verifierInvocations('ch41-corpus-preparation',repositoryRoot);
   assert.deepEqual(invocations,[{
     executable:process.execPath,
-    args:[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation'],
+    args:[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation','--history-root',repositoryRoot,'--parser-root',repositoryRoot],
   }]);
   assert.ok(!invocations[0].args.some(a=>a.includes('/ru/')));
 });
@@ -112,6 +112,6 @@ test('Chapter41 propagates real verifier refusal without another locale dispatch
   assert.equal(dispatchVerifiers('ch41-corpus-preparation',{root:repositoryRoot,
     run(executable,args,options){calls.push({executable,args,options});return {status:3};}}),3);
   assert.equal(calls.length,1);
-  assert.deepEqual(calls[0].args,[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation']);
+  assert.deepEqual(calls[0].args,[resolve(repositoryRoot,'scripts/check-functional-step-receipt.mjs'),'41-corpus-preparation','--history-root',repositoryRoot,'--parser-root',repositoryRoot]);
   assert.equal(calls[0].options.shell,false);
 });

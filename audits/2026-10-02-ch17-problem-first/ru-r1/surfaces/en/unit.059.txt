@@ -1,1 +1,0 @@
-i | The input coordinate selected by a weight’s row.

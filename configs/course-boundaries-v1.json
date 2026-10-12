@@ -34,7 +34,7 @@
   ],
   "firstCrateBaseline": {
     "revision": "9f38a060903c472c4d571efd8e52da1f17e553ff",
-    "inventory": "artifacts/practical-llm-in-rust/foundation/first-core-inventory.json",
+    "inventory": "configs/first-course-core-v1.json",
     "sha256": "6bd9c5d4634f9850c3b53f8768afd270433ea89cc77160db65563ce39be60fb1"
   }
 }

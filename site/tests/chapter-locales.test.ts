@@ -1,8 +1,3 @@
-// @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { readFileSync } from 'node:fs';
-// @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { resolve } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
 
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
@@ -24,8 +19,6 @@ interface FixtureChapter {
   order: number;
   activeLocales: string[];
 }
-
-declare const process: { cwd(): string };
 
 interface FixtureManifest {
   schemaVersion: number;
@@ -59,21 +52,7 @@ function fixtureManifest(
 }
 
 describe('chapter-locale manifest', () => {
-  it('keeps all authoring guides aligned with the current bilingual range', () => {
-    const repositoryRoot = resolve(process.cwd(), '..');
-    const normalized = (path: string) =>
-      readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
-    expect(normalized('curriculum/README.md')).toContain(
-      'activates English and Russian for every chapter from 0 through 39',
-    );
-    expect(normalized('curriculum/chapter-template.md')).toContain(
-      'bilingual example above matches the current active set for Chapters 0–39',
-    );
-    expect(normalized('SKILLS.md')).toContain(
-      'every chapter from 0 through 39 uses English and Russian',
-    );
-  });
 
   it('projects the canonical 40-chapter policy at all activation boundaries', () => {
     expect(chapterLocaleConfiguration.chapters).toHaveLength(40);

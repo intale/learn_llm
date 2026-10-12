@@ -7,8 +7,8 @@ import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { prepareRouting, verifyRouting, runCli } from '../localization-routing.mjs';
 const repository = resolve(process.cwd());
-const toolPath = '.agents/skills/localize-llm-course/scripts/localization-review.mjs';
-const schemaPath = '.agents/skills/localize-llm-course/references/review-record.schema.json';
+const toolPath = 'scripts/reviews/localization/scripts/localization-review.mjs';
+const schemaPath = 'scripts/reviews/localization/references/review-record.schema.json';
 const { canonicalJson, prepareEvidence } = await import(pathToFileURL(resolve(repository, toolPath)).href);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 function fixture() {
@@ -19,6 +19,7 @@ function fixture() {
   const author = { contextId: 'fixture.author', model: 'fixture.user-selection', reasoning: 'fixture.configuration' };
   put('author.json', author);
   put(toolPath, readFileSync(resolve(repository, toolPath)));
+  put('scripts/lib/bound-files.mjs',readFileSync(resolve(repository,'scripts/lib/bound-files.mjs')));
   put(schemaPath, readFileSync(resolve(repository, schemaPath)));
   put('bilingual-prompt.txt', 'Synthetic fixture prompt bytes, not a language judgment.\n');
   put('target-only-prompt.txt', 'Synthetic fixture prompt bytes, not a language judgment.\n');

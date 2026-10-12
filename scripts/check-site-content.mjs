@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { parse as parseAstro } from '@astrojs/compiler/sync';
 import ts from 'typescript';
+import {ContentValidationError,parseJsonFrontmatter} from './lib/chapter-frontmatter.mjs';
+export {ContentValidationError,parseJsonFrontmatter};
 
 import {
   REFERENCE_LOCALE,
@@ -106,13 +108,6 @@ const LEARNER_BUILD_META_PATTERNS = Object.freeze([
   },
 ]);
 
-export class ContentValidationError extends Error {
-  constructor(issues, heading = 'Content validation failed') {
-    super(heading + ':\n- ' + issues.join('\n- '));
-    this.name = 'ContentValidationError';
-    this.issues = issues;
-  }
-}
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -317,37 +312,6 @@ export function extractRustRegion(source, region, sourceName = 'Rust source') {
   return lines.slice(starts[0] + 1, ends[0]).join('\n');
 }
 
-export function parseJsonFrontmatter(source, sourceName = 'document') {
-  const normalized = source.replace(/^\uFEFF/, '');
-  const match = normalized.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
-
-  if (!match) {
-    throw new ContentValidationError([
-      sourceName +
-        ': expected JSON-shaped YAML frontmatter between opening and closing --- lines',
-    ]);
-  }
-
-  let data;
-  try {
-    data = JSON.parse(match[1]);
-  } catch (error) {
-    throw new ContentValidationError([
-      sourceName +
-        ': frontmatter must be valid JSON (which is also valid YAML): ' +
-        error.message,
-    ]);
-  }
-
-  if (!isObject(data)) {
-    throw new ContentValidationError([sourceName + ': frontmatter root must be an object']);
-  }
-
-  return {
-    data,
-    body: normalized.slice(match[0].length),
-  };
-}
 
 export function extractChapterSectionMarkers(body) {
   return [...body.matchAll(/\{\/\*\s*chapter-section:([a-z-]+)\s*\*\/\}/g)].map(

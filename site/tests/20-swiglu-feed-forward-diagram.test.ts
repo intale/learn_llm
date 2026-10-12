@@ -27,8 +27,6 @@ const lessonSource = read(
   "site/src/content/chapters/en/20-swiglu-feed-forward.mdx",
 );
 const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
-const agentsSource = read("AGENTS.md");
-const playbookSource = read("SKILLS.md");
 const rustTraceSource = read(
   "rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs",
 );
@@ -516,16 +514,10 @@ describe("Chapter 20 contract and lesson projection", () => {
   });
 
   it("codifies formula rendering while retaining code formatting for program artifacts", () => {
-    expect(agentsSource).toContain(
-      "Every learner-facing mathematical expression or equation must use the site",
-    );
-    expect(agentsSource).toContain(
-      "use `$...$` for inline notation and `$$...$$`",
-    );
-    expect(agentsSource).toContain(
-      "Do not present mathematics as ordinary text or a code span.",
-    );
-    expect(playbookSource).toContain("Route every learner-facing mathematical");
+
+
+
+
     expect(lessonBody).toContain("`SwiGlu`");
     expect(lessonBody).toContain("`Linear`");
     expect(lessonBody).toContain(

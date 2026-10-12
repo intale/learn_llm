@@ -5,7 +5,7 @@ repository_root=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 readonly repository_root
 
 # Supporting crates must be listed explicitly after their rationale is recorded
-# in DECISIONS.md. Every transitive package is checked too.
+# in concurrentDevelopmentMCP decisions. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
   aho-corasick
   atomic-waker
@@ -201,7 +201,7 @@ fi
 if ((${#undeclared_dependencies[@]} > 0)); then
   printf 'error: Rust dependencies are not allowlisted: %s\n' \
     "${undeclared_dependencies[*]}" >&2
-  printf 'record supporting-library rationale in DECISIONS.md before allowlisting\n' >&2
+  printf 'record supporting-library rationale in concurrentDevelopmentMCP before allowlisting\n' >&2
   exit 1
 fi
 

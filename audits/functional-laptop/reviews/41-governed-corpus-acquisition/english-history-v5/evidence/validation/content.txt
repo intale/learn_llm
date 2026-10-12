@@ -1,1 +1,0 @@
-Content check passed: 1 localized source(s), 0 publishable locale set(s), 33 catalog key(s), 45 shared-full-view diagram component(s).

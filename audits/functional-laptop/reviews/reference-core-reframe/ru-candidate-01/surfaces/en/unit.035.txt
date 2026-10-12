@@ -1,1 +1,0 @@
-Follow one tied vocabulary table through the scalar reference decoder

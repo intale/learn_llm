@@ -3,6 +3,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {parseArgs} from 'node:util';
 
 import {
   LOCALE_CONFIGURATION,
@@ -1051,16 +1052,12 @@ function readImplementedContracts(root) {
     });
 }
 
-function argumentValue(name, fallback) {
-  const index = process.argv.indexOf(name);
-  return index === -1 ? fallback : process.argv[index + 1];
-}
-
 function main() {
-  const scriptDir = dirname(fileURLToPath(import.meta.url));
-  const root = resolve(scriptDir, "..");
-  const planPath = resolve(root, argumentValue("--plan", "curriculum/course-plan.md"));
-  const statePath = resolve(root, argumentValue("--state", "BUILD_STATE.yaml"));
+  const {values}=parseArgs({options:{'history-root':{type:'string'},plan:{type:'string'},state:{type:'string'}},strict:true,allowPositionals:false});
+  if(!values['history-root'])throw new Error('explicit --history-root EXPORTED_CHECKPOINT is required');
+  const root = resolve(values['history-root']);
+  const planPath = resolve(root, values.plan??"curriculum/course-plan.md");
+  const statePath = resolve(root, values.state??"BUILD_STATE.yaml");
   const metadata = validateCoursePlanText(readFileSync(planPath, "utf8"), planPath);
   validateChapterLocaleProjectionAgainstPlan(
     CHAPTER_LOCALE_CONFIGURATION,

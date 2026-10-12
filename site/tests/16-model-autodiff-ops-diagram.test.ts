@@ -277,10 +277,13 @@ describe('Chapter 16 Rust trace parser', () => {
       expect(trusted).not.toContain(rawValidation);
     }
 
-    expect(operation).toContain('pub(crate) fn gather_rows_with_plan(');
+    expect(operation).toContain('pub(crate) fn gather_rows_with_plan_and_context(');
     expect(operation).toContain(
-      'self.gather_rows_with_plan(|table| RowGatherPlan::checked(table, indices, index_shape))',
+      'self.gather_rows_with_context(AutogradContext::recording(), indices, index_shape)',
     );
+    expect(operation).toContain('self.gather_rows_with_plan_and_context(context, |table|');
+    expect(operation).toContain('RowGatherPlan::checked(table, indices, index_shape)');
+    expect(operation).toContain('Self::model_operation_with_context(');
     expect(operation).toContain('let plan = build_plan(table)?;');
     expect(operation).toContain('gather_rows_forward(table, &plan)?');
     expect(operation).toContain('plan.into_saved_context()');

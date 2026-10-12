@@ -4,7 +4,6 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
-import { parse } from 'yaml';
 
 declare const process: { cwd(): string };
 
@@ -172,12 +171,7 @@ function liveStatePolicy(state: unknown): Array<[string, string]> {
 
 function canonicalPolicyPaths(): string[] {
   const explicit = [
-    'AGENTS.md',
-    'SKILLS.md',
-    '.agents/skills/localize-llm-course/SKILL.md',
     'README.md',
-    'curriculum/README.md',
-    'curriculum/course-plan.md',
     'site/package.json',
     'site/playwright.config.ts',
   ];
@@ -200,13 +194,6 @@ describe('Firefox-only JavaScript-enabled browser policy', () => {
     const violations = canonicalPolicyPaths().flatMap((path) =>
       policyViolations(path, readFileSync(resolve(repositoryRoot, path), 'utf8')),
     );
-    const state = parse(
-      readFileSync(resolve(repositoryRoot, 'BUILD_STATE.yaml'), 'utf8'),
-    );
-    for (const [location, source] of liveStatePolicy(state)) {
-      violations.push(...policyViolations(location, source));
-    }
-
     expect(
       violations,
       violations

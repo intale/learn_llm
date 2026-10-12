@@ -1,1 +1,0 @@
-Inspect the invalid-name, zero-fan, and duplicate calls; explain why caller state is unchanged and identify the duplicate indices.

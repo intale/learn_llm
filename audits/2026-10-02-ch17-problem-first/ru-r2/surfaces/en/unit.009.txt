@@ -1,1 +1,0 @@
-Separate measured weights from expected linear variance

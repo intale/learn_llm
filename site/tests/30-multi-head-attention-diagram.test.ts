@@ -25,7 +25,6 @@ const componentSource = read(
 const contractSource = read('curriculum/chapters/30-multi-head-attention.md');
 const lessonSource = read('site/src/content/chapters/en/30-multi-head-attention.mdx');
 const russianLessonSource = read('site/src/content/chapters/ru/30-multi-head-attention.mdx');
-const coursePlanSource = read('curriculum/course-plan.md');
 const multiHeadSource = read(
   'rust/crates/llm-from-scratch/src/attention/multi_head.rs',
 );
@@ -344,9 +343,7 @@ describe('Chapter 30 static diagram and content boundary', () => {
     });
     expect(lesson.content_revision).toBe(2);
     expect(russianLesson.content_revision).toBe(2);
-    expect(coursePlanSource).toContain(
-      '\\operatorname{MHA}(X)=\\operatorname{Concat}(H_1,\\ldots,H_h)W_O',
-    );
+
     expect(lesson.description).toMatch(/query, key, and value.*rotary causal attention heads/i);
     expect(lessonSource).toContain('W_Q=[W_1^Q\\;W_2^Q');
     expect(lessonSource).toContain('A_i=\\operatorname{softmax}_{j}');

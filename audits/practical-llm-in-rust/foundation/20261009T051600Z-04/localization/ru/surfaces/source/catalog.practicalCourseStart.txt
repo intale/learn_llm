@@ -1,1 +1,0 @@
-Start Practical LLM in Rust

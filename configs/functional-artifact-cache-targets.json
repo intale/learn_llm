@@ -2,7 +2,7 @@
   "schema_version": 2,
   "runtime_tag": "learn-llm-workspace:local",
   "cache_parent": ".build/artifact-cache/functional-v2/sha256",
-  "metadata_inventory": "artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json",
+  "operational_metadata_manifest": "configs/course-source-metadata-v1.json",
   "fixture_policy_config": "configs/functional-artifact-cache-fixture-policy.json",
   "fixture_layout": "configs/functional-artifact-cache-fixture-layout.json",
   "targets": {

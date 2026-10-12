@@ -525,7 +525,7 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
     String.raw`[B,H,C,d_h]`,
     String.raw`[B,H,t,d_h]`,
     String.raw`10^{-12}`,
-    String.raw`[B,H,1,t+1]`,
+    String.raw`[B,H,1,t]`,
     String.raw`1+2+3=6`,
     String.raw`1+1+1=3`,
   ],

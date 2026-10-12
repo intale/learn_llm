@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {canonicalJson} from '../../.agents/skills/author-llm-course-english/scripts/english-review.mjs';
+import {canonicalJson} from '../../scripts/reviews/english/scripts/english-review.mjs';
 import {readPrivateBuildScope} from '../check-functional-site-content.mjs';
 import {hash,readPublicationEvidence} from '../check-functional-step-receipt.mjs';
 import {productionEvidenceConfiguration} from '../../site/src/lib/functional-course-publication.mjs';

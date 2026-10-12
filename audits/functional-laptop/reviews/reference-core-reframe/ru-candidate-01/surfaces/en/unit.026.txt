@@ -1,1 +1,0 @@
-Open the scalar reference decoder and follow its chapters

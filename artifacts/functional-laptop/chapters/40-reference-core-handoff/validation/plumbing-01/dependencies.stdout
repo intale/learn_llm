@@ -1,1 +1,0 @@
-Rust dependency policy passed: every external crate is allowlisted; concept denylist clear.

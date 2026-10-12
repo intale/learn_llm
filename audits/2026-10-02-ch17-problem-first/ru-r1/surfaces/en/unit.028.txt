@@ -1,1 +1,0 @@
-Rust source connecting fan widths, Xavier scale fields, and sampled weights

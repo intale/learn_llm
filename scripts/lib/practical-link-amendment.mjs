@@ -3,7 +3,7 @@ import {mkdtempSync,mkdirSync,writeFileSync,cpSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve,dirname} from 'node:path';
 import {readRegularFile,jsonFile,closed,hash} from '../check-functional-step-receipt.mjs';
-import {loadParse5,canonicalJson} from '../../.agents/skills/author-llm-course-english/scripts/english-review.mjs';
+import {loadParse5,canonicalJson} from '../../scripts/reviews/english/scripts/english-review.mjs';
 
 export const LINK_AMENDMENT_ROOT='artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/link-amendments/20261010T072100Z-01';
 export const LINK_AMENDMENT_PATH=LINK_AMENDMENT_ROOT+'/amendment.json';

@@ -8,7 +8,7 @@ import {validateDiagramComponentSource} from '../../scripts/check-site-content.m
 declare const process:{cwd():string};
 const read=(path:string)=>readFileSync(resolve(process.cwd(),'..',path),'utf8');
 const component=read('site/src/components/chapters/CorpusPreparationDiagram.astro');
-const trace=JSON.parse(read('artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json'));
+const trace=JSON.parse(read('site/src/data/course/corpus-preparation-trace.json'));
 describe('Chapter41 actual two-producer static figure evidence',()=>{
  it('matches recorded external and Rust counts without implying a bulk result',()=>{
   expect(trace.documents).toEqual({input:6,after_quality:4,prepared:3});

@@ -340,19 +340,19 @@ const expectedSheets = {
   "17-parameter-initialization": {
     file: "17-parameter-initialization.json",
     lesson: "17-parameter-initialization.mdx",
-    title: "Initialize trainable weights reproducibly",
+    title: "Start trainable weights at a reproducible scale",
     entries: [
-      ["Parameter initialization", "Initialize a projection of shape"],
-      ["Hidden-unit symmetry", "preserves the hidden units' equality"],
+      ["Parameter initialization", "Use a projection of shape"],
+      ["Hidden-unit symmetry", "Applying equal updates then keeps the units identical"],
       ["Fan-in", "fan-in"],
       ["Fan-out", "fan-out"],
       ["Xavier-style initialization", "Xavier-style rule"],
       ["Target variance", "target variance"],
       ["Uniform bound", "uniform bound"],
-      ["Seed", "The seed is the raw state"],
+      ["Seed", "Its seed is the raw `u64` state before the first increment"],
       [
         "Reproducibility",
-        "The same seed, shape, fan values, and construction order",
+        "Exact replay needs the same generator state, shape, fan values, and construction order",
       ],
       ["Pseudorandom generator", "deterministic pseudorandom"],
     ],
@@ -367,13 +367,13 @@ const expectedSheets = {
       ["Vocabulary size", "vocabulary size"],
       ["Embedding width", "embedding width"],
       ["Token ID", "integer token ID"],
-      ["Direct row lookup", "direct row lookup"],
+      ["Direct row lookup", "performs direct lookup"],
       ["One-hot vector", "One-hot vectors make token identity explicit"],
       [
         "Gather operation",
         "The forward half copies one selected row into each output position",
       ],
-      ["Repeated-token gradient", "repeated-token gradients add"],
+      ["Repeated-token gradient", "their upstream vectors add feature by feature into that one shared parameter row"],
       ["Scatter-add", "reverse scatter-add"],
     ],
   },
@@ -1216,7 +1216,7 @@ const exactDefinitions = {
     "Complete-prefix reference":
       "An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation.",
     "Newest-logit equivalence":
-      "Agreement within a specified numerical tolerance between cached and complete-prefix logits at the newest token position. The chapter checks selected tokens separately on fixed examples, with the same selection policy and initial random-generator state. Close logits alone do not guarantee the same selected token.",
+      "Agreement within tolerance between cached and complete-prefix logits at the newest position, preserving the same next-token decision under the same policy.",
     "Retained prefix length":
       "The current number of token positions exposed by every coherent layer cache and therefore the number of keys read by the newest cached query.",
     "Attention-score work":
@@ -1297,6 +1297,21 @@ function canonicalTermRecordsSha256(
 function readSheet(fileName: string) {
   return readLocalizedSheet("en", fileName);
 }
+
+const acceptedEnglishSourcePins: Record<string, { lesson: string; sheet: string }> = {
+  "17-parameter-initialization": {
+    lesson: "c93bb0af9bb3a9a0e44521807c63f6c4dede7e7fe7cba478d3486508c5c88927",
+    sheet: "8f3d002a034a853773378423856a8bf9e46fd25eeaa6129343ca4233d6411d0f",
+  },
+  "18-token-embeddings": {
+    lesson: "271f8863dd59ec168d8346b2880ba36ef86ca800f506dded3ecfd5d6a9ca8aae",
+    sheet: "ae6ae474c0c4022f0210a30418ded869029f4f253f942536b9be4bb6663e02c1",
+  },
+  "38-cached-generation": {
+    lesson: "754f11e4dfdc440fdc41dec54206ed3943fce512fdd99afa90b6ea14f09e00ee",
+    sheet: "b69c6bc21d0daf1111309c71fd6a0f99a4309e54bf59a87685024e01028e86cb",
+  },
+};
 
 describe("English chapter cheat-sheet content", () => {
   it("publishes exactly the independently checkpointed English records", () => {
@@ -1631,6 +1646,11 @@ describe("English chapter cheat-sheet content", () => {
       const normalizedLesson = lesson
         .replace(/<\/?code>/g, "")
         .replace(/\s+/g, " ");
+      const pins = acceptedEnglishSourcePins[chapterId];
+      if (pins) {
+        expect(createHash("sha256").update(lesson).digest("hex")).toBe(pins.lesson);
+        expect(localizedSheetSha256("en", expected.file)).toBe(pins.sheet);
+      }
 
       expect(sheet.chapter_id).toBe(chapterId);
       expect(sheet.locale).toBe("en");
@@ -2097,6 +2117,10 @@ describe("cheat-sheet integration contract", () => {
       resolve(root, "src/pages/[locale]/course/[...slug].astro"),
       "utf8",
     );
+    const practicalRoute = readFileSync(
+      resolve(root, "src/pages/[locale]/practical-llm-in-rust/[...slug].astro"),
+      "utf8",
+    );
     const component = readFileSync(
       resolve(root, "src/components/CheatSheet.astro"),
       "utf8",
@@ -2104,12 +2128,15 @@ describe("cheat-sheet integration contract", () => {
 
     expect(config).toContain("pattern: '**/*.json'");
     expect(config).toContain("const cheatSheets = defineCollection");
+    expect(config).toContain("const practicalChapters = defineCollection");
+    expect(config).toContain("const practicalCheatSheets = defineCollection");
     expect(config).toContain("terms: z.array(cheatSheetTerm).min(5),");
     expect(config).not.toContain(".max(12)");
     expect(config).toContain(
-      "export const collections = { chapters, cheatSheets }",
+      "export const collections = { chapters, cheatSheets, practicalChapters, practicalCheatSheets }",
     );
     expect(route).toContain("await getCollection('cheatSheets')");
+    expect(practicalRoute).toContain("await getCollection('practicalCheatSheets')");
     expect(route).toContain("<CheatSheet sheet={cheatSheet.data} />");
     expect(component).toContain("<dialog");
     expect(component).toContain("aria-labelledby={titleId}");

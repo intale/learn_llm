@@ -31,7 +31,6 @@ const lessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/36-temperature-top-k.mdx",
 );
-const coursePlanSource = read("curriculum/course-plan.md");
 const generationSource = read(
   "rust/crates/llm-from-scratch/src/generation/sampling.rs",
 );
@@ -525,16 +524,12 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect([
       ...new Set(lesson.rust_sources.map(({ path }: { path: string }) => path)),
     ]).toEqual(contract.rust.sources);
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
-    );
+
     expect(contract.formula.latex).toContain("\\lvert K_k\\rvert=k");
     expect(contract.formula.latex).toContain(
       "S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k",
     );
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "\\lvert K_k\\rvert=k,\\quad S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k",
-    );
+
     expect(contract.content_revision).toBe(6);
     expect(lesson.content_revision).toBe(6);
     expect(russianLesson.content_revision).toBe(6);

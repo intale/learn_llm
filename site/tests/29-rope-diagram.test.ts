@@ -26,7 +26,6 @@ const lessonSource = read('site/src/content/chapters/en/29-rope.mdx');
 const russianLessonSource = read('site/src/content/chapters/ru/29-rope.mdx');
 const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 const russianLessonBody = russianLessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
-const coursePlanSource = read('curriculum/course-plan.md');
 const ropeSource = read('rust/crates/llm-from-scratch/src/attention/rope.rs');
 const modelOpsSource = read('rust/crates/llm-from-scratch/src/autograd/model_ops.rs');
 const tensorCoreSource = read('rust/crates/llm-from-scratch/src/autograd/tensor_core.rs');
@@ -329,9 +328,7 @@ describe('Chapter 29 static diagram and content boundary', () => {
         meaning: en,
       })),
     });
-    expect(coursePlanSource).toContain(
-      '\\left(\\operatorname{RoPE}(x_m)\\right)_{2k:2k+2}=R(m\\theta_k)(x_m)_{2k:2k+2}',
-    );
+
     expect(lesson.description).toMatch(/rotary position embeddings.*query and key.*relative offsets.*Rust/i);
     expect(lessonSource).toContain('R(\\phi)=');
     expect(lessonSource).toContain('R(\\alpha)^\\top R(\\beta)=R(\\beta-\\alpha)');
@@ -394,9 +391,7 @@ describe('Chapter 29 static diagram and content boundary', () => {
       'Память под таблицы при этом не выделяется',
       'не создавая временную таблицу',
     ]) expect(normalizedRussianLesson).toContain(normalize(fragment));
-    expect(coursePlanSource).toContain(
-      'Content revision 3 separates deterministic RoPE table-specification validation from allocation and table ownership',
-    );
+
 
     for (const region of ['rope-tables', 'rope-rotation']) {
       expect(ropeSource).toContain(`region:${region}`);

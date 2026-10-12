@@ -22,8 +22,6 @@ const componentSource = read('site/src/components/chapters/LinearLayersDiagram.a
 const contractSource = read('curriculum/chapters/19-linear-layers.md');
 const lessonSource = read('site/src/content/chapters/en/19-linear-layers.mdx');
 const lessonBodySource = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
-const agentsSource = read('AGENTS.md');
-const playbookSource = read('SKILLS.md');
 const rustTraceSource = read('rust/demos/ch19-linear-layers/src/diagram_trace.rs');
 
 function frontmatter(source: string) {
@@ -430,16 +428,7 @@ describe('Chapter 19 contract and lesson projection', () => {
     expect(lessonBodySource).toContain('<details>');
   });
 
-  it('codifies math delimiters and keeps code formatting for program artifacts', () => {
-    expect(agentsSource).toContain(
-      'Every learner-facing mathematical expression or equation must use the site',
-    );
-    expect(agentsSource).toContain('use `$...$` for inline notation and `$$...$$`');
-    expect(agentsSource).toContain('Do not present mathematics as ordinary text or a code span.');
-    expect(playbookSource).toContain('Route every learner-facing mathematical');
-    expect(playbookSource).toContain('inline notation in `$...$` and display notation in `$$...$$`');
-    expect(playbookSource).toContain('Source tests must reject math-shaped code spans');
-  });
+
 
   it('publishes every declared Rust region and byte-exact learner output', () => {
     const sourcePaths = [...new Set(lesson.rust_sources.map((source: { path: string }) => source.path))].sort();

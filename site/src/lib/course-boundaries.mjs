@@ -8,7 +8,7 @@ const identities = [
   [FIRST_COURSE_ID,'course','chapters','cheatSheets','site/src/content/chapters','site/src/content/cheat-sheets','curriculum/chapters','rust/crates/llm-from-scratch','00-llm-parts',39],
   [PRACTICAL_COURSE_ID,'practical-llm-in-rust','practicalChapters','practicalCheatSheets','site/src/content/practical-chapters','site/src/content/practical-cheat-sheets','curriculum/practical/chapters','rust/crates/llm-from-scratch-practical','00-course-structure',44],
 ];
-export function validateCourseBoundaries(value, registeredLocales = ['en','ru']) {
+export function validateCourseBoundaries(value, registeredLocales = ['en','ru'], {historical=false}={}) {
   if (!exactKeys(value,['schemaVersion','courses','firstCrateBaseline']) || value.schemaVersion !== 1 ||
       !Array.isArray(value.courses) || value.courses.length !== identities.length ||
       !Array.isArray(registeredLocales) || !registeredLocales.includes('en') || new Set(registeredLocales).size !== registeredLocales.length)
@@ -28,7 +28,7 @@ export function validateCourseBoundaries(value, registeredLocales = ['en','ru'])
   });
   if (!exactKeys(value.firstCrateBaseline,['revision','inventory','sha256']) ||
       value.firstCrateBaseline.revision !== '9f38a060903c472c4d571efd8e52da1f17e553ff' ||
-      value.firstCrateBaseline.inventory !== 'artifacts/practical-llm-in-rust/foundation/first-core-inventory.json' ||
+      value.firstCrateBaseline.inventory !== (historical?'artifacts/practical-llm-in-rust/foundation/first-core-inventory.json':'configs/first-course-core-v1.json') ||
       value.firstCrateBaseline.sha256 !== '6bd9c5d4634f9850c3b53f8768afd270433ea89cc77160db65563ce39be60fb1')
     throw new Error('first course baseline drift');
   return Object.freeze({...value,courses:Object.freeze(courses),firstCrateBaseline:Object.freeze({...value.firstCrateBaseline})});

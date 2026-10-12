@@ -31,7 +31,6 @@ const lessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/37-incremental-attention.mdx",
 );
-const coursePlanSource = read("curriculum/course-plan.md");
 const incrementalSource = read(
   "rust/crates/llm-from-scratch/src/attention/incremental.rs",
 );
@@ -306,9 +305,7 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect([
       ...new Set(lesson.rust_sources.map(({ path }: { path: string }) => path)),
     ]).toEqual(contract.rust.sources);
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
-    );
+
     expect(contract.content_revision).toBe(6);
     expect(lesson.content_revision).toBe(6);
     expect(russianLesson.content_revision).toBe(6);

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "chapterId": "41-governed-corpus-acquisition",
-  "locale": "en",
-  "contentRevision": 5,
-  "title": "Verify a corpus together with its provenance",
-  "description": "Verify selected corpus bytes and source provenance as one complete bundle, independently of retrieval and storage, using a small offline Rust example.",
-  "objective": "Admit a corpus bundle only when an independently selected provenance record and every supplied payload agree, without making retrieval or storage layout part of the content rules."
-}

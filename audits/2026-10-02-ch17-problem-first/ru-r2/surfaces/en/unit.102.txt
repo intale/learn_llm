@@ -1,1 +1,0 @@
-Hidden-unit symmetry Identical hidden units receive equal gradients under equal downstream treatment; equal updates keep them identical.

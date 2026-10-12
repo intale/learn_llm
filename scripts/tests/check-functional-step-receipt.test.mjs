@@ -4,7 +4,7 @@ import {mkdtempSync,mkdirSync,writeFileSync,rmSync,symlinkSync,readFileSync} fro
 import {tmpdir} from 'node:os';
 import {join,dirname} from 'node:path';
 import {publicationInputPaths,publicationReceiptPath,languageVerifierInvocations,readRegularFile,jsonFile,verifyPublicationReceipt,readPublicationEvidence,verifySharedEnglishProjection,hash} from '../check-functional-step-receipt.mjs';
-import {canonicalJson} from '../../.agents/skills/author-llm-course-english/scripts/english-review.mjs';
+import {canonicalJson} from '../../scripts/reviews/english/scripts/english-review.mjs';
 import {localizedContractProjection} from '../check-chapter-contract.mjs';
 import {parseJsonFrontmatter} from '../check-site-content.mjs';
 test('Chapter40 preserves actual maintained English and Russian verifier routes',()=>{
@@ -12,7 +12,7 @@ test('Chapter40 preserves actual maintained English and Russian verifier routes'
   assert.equal(commands.length,2);
   const english='audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-03';
   assert.deepEqual(commands[0].args,[
-    '/fixture/.agents/skills/author-llm-course-english/scripts/english-review.mjs',
+    '/fixture/scripts/reviews/english/scripts/english-review.mjs',
     'verify','--spec',english+'/spec.json','--bundle',english+'/bundle',
     '--review-routing',english+'/review-routing/review-routing.json',
     '--review-seals',english+'/review-seals',
@@ -106,7 +106,7 @@ test('live revision2 configuration does not reuse original40receipt when current
 test('shared40English projection checks exact scope/source paths/bytes, never review substance',()=>{
   const root=mkdtempSync(join(tmpdir(),'functional-shared-projection-'));
   try{
-    const contract=parseJsonFrontmatter(readFileSync('curriculum/chapters/40-reference-core-handoff.md','utf8')).data;
+    const contract=parseJsonFrontmatter(readFileSync('curriculum/practical/chapters/01-reference-core-handoff.md','utf8')).data;
     const english='audits/functional-laptop/reviews/41-corpus-preparation/english';
     const paths={
       'source.ch40.contract':english+'/contract-projections/40.en.json',

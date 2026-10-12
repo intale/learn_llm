@@ -6,10 +6,11 @@ import {createHash} from 'node:crypto';
 import {spawn,spawnSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 import {parseArgs} from 'node:util';
+import {verifySourceMetadata,SOURCE_METADATA_MANIFEST} from './lib/source-metadata-inputs.mjs';
 import {ownedPath,runtimeSelection,freezeRuntime,checkRuntimeUnchanged} from './lib/functional-artifact-cache-boundary.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const refused=()=>{throw Error('fixed source image boundary refused');};
-const INPUTS=['Dockerfile','Cargo.toml','Cargo.lock','configs/functional-corpus-assets.json','artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json'];
+const INPUTS=['Dockerfile','Cargo.toml','Cargo.lock','configs/functional-corpus-assets.json',SOURCE_METADATA_MANIFEST];
 function imageId(tag){const result=spawnSync('docker',['image','inspect','--format','{{.Id}}',tag],{encoding:'utf8',maxBuffer:65536});const id=result.stdout?.trim();if(result.status!==0||!/^sha256:[a-f0-9]{64}$/.test(id))refused();return id;}
 export function parseSourceBuildArguments(args){
  const {values,tokens}=parseArgs({args,options:{'run-id':{type:'string'},corpus:{type:'string'},'runtime-image':{type:'string'},'expected-image-id':{type:'string'}},strict:true,allowPositionals:false,tokens:true});
@@ -31,9 +32,8 @@ export async function buildSourceImage({root=process.cwd(),runId,corpus='true',r
  function copyNew(path){if(!existsSync(join(run,'publish',path)))return;for(const entry of readdirSync(join(run,'publish',path),{withFileTypes:true})){const selected=join(path,entry.name);if(entry.isDirectory())copyNew(selected);else if(entry.isFile()&&!records.some(r=>r.path===selected))copy(selected);else if(entry.isSymbolicLink())refused();}}
  copyNew('rust');
  copyNew('configs');
- const inventory=JSON.parse(readFileSync(join(context,INPUTS.at(-1)),'utf8'));
- if(inventory.step_id!=='capture-functional-tinystories-source-metadata')refused();
- for(const file of inventory.files){const bytes=readFileSync(join(root,file.path));if(bytes.length!==file.bytes||sha(bytes)!==file.sha256)refused();copy(file.path);}
+ const {manifest}=verifySourceMetadata(root);
+ for(const file of manifest.files)copy(file.path);
  records.sort((a,b)=>Buffer.compare(Buffer.from(a.path),Buffer.from(b.path)));
  const base=runtime.image_id,tag=corpus==='true'?'learn-llm-tinystories:local':'learn-llm-tinystories-disabled:local';
  // Official supporting-crate provisioning belongs to image BUILD. False

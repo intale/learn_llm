@@ -40,10 +40,10 @@ describe('independent optional course message groups',()=>{
 });
 
 describe('current practical Chapters 0–3 source bindings',()=>{
-  it('retains the English-only course and the orientation revision2 in its ordered profile',()=>{
+  it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
     expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([2,1,1,1]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([3,1,1,2]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);

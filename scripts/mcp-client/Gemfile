@@ -1,0 +1,12 @@
+source 'https://rubygems.org'
+
+ruby '>= 3.2'
+
+gem 'base64', '0.3.0'
+gem 'mcp', '1.2.0'
+gem 'faraday', '2.14.1'
+gem 'json_schemer', '2.5.0'
+
+group :test do
+  gem 'minitest', '5.27.0'
+end

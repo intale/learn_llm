@@ -13,9 +13,9 @@ const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
 const reference=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch01-reference-core-handoff/expected.txt',import.meta.url),'utf8'));
-const corpusTrace=JSON.parse(readFileSync(new URL('../../../artifacts/functional-laptop/chapters/41-corpus-preparation/corpus-preparation-trace.json',import.meta.url),'utf8'));
+const corpusTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/corpus-preparation-trace.json',import.meta.url),'utf8'));
 // This path is populated from actual Rust execution by the current run. No private predicted trace is used.
-const tokenizerTrace=JSON.parse(readFileSync(new URL('../../../artifacts/practical-llm-in-rust/chapters/03-scalable-bpe-tokenizer/scalable-bpe-tokenizer-trace.json',import.meta.url),'utf8'));
+const tokenizerTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/scalable-bpe-tokenizer-trace.json',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
@@ -121,7 +121,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
  const document=documents[0];await page.goto(document.path);
  await expect(page.locator('h1')).toHaveText(document.data.title);await expectSeoDescription(page,document.data.description);
  const article=page.locator('article[data-chapter-root]');await expect(article).toHaveAttribute('data-chapter-id',document.id);
- await expect(article.locator('.lesson-header .eyebrow')).toHaveText('Chapter 00 · '+home.contentRevisionLabel+' 2');
+ await expect(article.locator('.lesson-header .eyebrow')).toHaveText('Chapter 00 · '+home.contentRevisionLabel+' '+document.data.content_revision);
  await expect(article.locator('figure,.katex,pre.rust-source-code,[data-cheat-sheet-open],[data-cheat-sheet-dialog]')).toHaveCount(0);
  const links=article.locator('.lesson-body ol a');
  expect(await links.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).toEqual(ids.slice(1).map(id=>'../'+id+'/'));
