@@ -332,17 +332,31 @@ impl DecoderBlock {
         position_offset: usize,
         lengths: Option<&[usize]>,
     ) -> Result<DecoderBlockForward, DecoderBlockError> {
+        self.forward_with_layout(context, input, position_offset, lengths, None, None)
+    }
+
+    pub(crate) fn forward_with_layout(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
+    ) -> Result<DecoderBlockForward, DecoderBlockError> {
         let attention_norm = self
             .attention_norm
             .forward_with_intermediates_and_context(context, input)
             .map_err(DecoderBlockError::AttentionNorm)?;
         let attention = self
             .attention
-            .forward_with_optional_lengths(
+            .forward_with_layout(
                 context,
                 attention_norm.output(),
                 position_offset,
                 lengths,
+                starts,
+                positions,
             )
             .map_err(DecoderBlockError::Attention)?;
         let after_attention = residual_add_with_context(context, input, attention.output())

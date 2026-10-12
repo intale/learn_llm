@@ -8,7 +8,7 @@ import {getCheatSheetCopy,paginateCheatSheetTerms,sortCheatSheetTerms} from '../
 import {expectNoPageOverflow,expectOnlySharedDiagramClientScript,expectOrderedChapterNavigation,expectSeoDescription,expectStackedDiagramText,expectVisualizationDecision} from './chapter-helpers';
 
 const prefix='/en/practical-llm-in-rust/';
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -17,6 +17,7 @@ const corpusTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course
 // This path is populated from actual Rust execution by the current run. No private predicted trace is used.
 const tokenizerTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/scalable-bpe-tokenizer-trace.json',import.meta.url),'utf8'));
 const paddedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/padded-variable-batches-trace.json',import.meta.url),'utf8'));
+const packedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/packed-sequence-masks-trace.json',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
@@ -111,7 +112,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="/en/course/40-"]')).toHaveCount(0);
  await page.goto('/en/course/39-end-to-end-llm/');await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -134,7 +135,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request})=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');expect(html).toContain('application/x-tex');
@@ -167,7 +168,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    }
    for(const value of [tokenizerTrace.payloads.scalar_sha256,tokenizerTrace.payloads.incremental_sha256,JSON.stringify(tokenizerTrace.heldout.content_tokens),JSON.stringify(tokenizerTrace.heldout.document_tokens)])await expect(figure).toContainText(value);
    expect(await figure.locator('annotation[encoding="application/x-tex"]').textContent()).toBe('\\frac{'+tokenizerTrace.efficiency.content_tokens+'}{'+tokenizerTrace.efficiency.input_bytes+'}='+tokenizerTrace.efficiency.content_tokens/tokenizerTrace.efficiency.input_bytes);
-  } else {
+  } else if(lesson.id===ids[4]) {
    for(const row of paddedTrace.rows){
     const card=figure.locator('article[data-source-document="'+row.document_id+'"]');
     await expect(card).toHaveCount(1);await expect(card).toContainText(JSON.stringify(row.encoded_document));
@@ -182,6 +183,32 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    expect(annotations).toContain('\\approx '+paddedTrace.loss_probe.loss_sum_nats);
    expect(annotations).toContain(String(paddedTrace.loss_probe.valid_targets));
    expect(annotations).toContain('\\approx '+paddedTrace.loss_probe.mean_nats_per_valid_target);
+  } else if(lesson.id===ids[5]) {
+   await expect(figure.locator('table[data-diagram-table]')).toHaveCount(4);
+   await expect(figure.locator('[data-diagram-scroll][role="region"][tabindex="0"]')).toHaveCount(4);
+   for(const row of packedTrace.main.rows){
+    const card=figure.locator('article[data-packed-row="'+row.row+'"]');await expect(card).toHaveCount(1);
+    const metadata=card.locator('table[data-packed-metadata-row="'+row.row+'"]');
+    await expect(metadata.locator('tbody tr')).toHaveCount(7);
+    for(const [field,values] of [['input',row.inputs],['target',row.targets],['position',row.positions],['segment',row.segments]] as const)
+     expect(await metadata.locator('tr[data-packed-field="'+field+'"] td code').allTextContents()).toEqual(values.map(String));
+    for(const [field,values] of [['input-valid',row.valid_tokens],['target-valid',row.valid_targets],['loss-eligible',row.loss_mask]] as const)
+     expect(await metadata.locator('tr[data-packed-field="'+field+'"] td').allTextContents()).toEqual(values.map((value:boolean)=>value?'Yes':'No'));
+    const permissions=card.locator('table[data-packed-permission-row="'+row.row+'"]');
+    await expect(permissions.locator('tbody tr')).toHaveCount(packedTrace.main.capacity_prediction_pairs);
+    await expect(permissions.locator('td[data-query][data-key][data-permission]')).toHaveCount(packedTrace.main.capacity_prediction_pairs**2);
+    for(const [query,keys] of row.allowed_keys.entries())for(let key=0;key<packedTrace.main.capacity_prediction_pairs;key++){
+     const cell=permissions.locator('td[data-query="'+query+'"][data-key="'+key+'"]');
+     const value=String(keys.includes(key)?1:0);await expect(cell).toHaveAttribute('data-permission',value);await expect(cell.locator('code')).toHaveText(value);
+    }
+   }
+   for(const occurrence of packedTrace.main.occurrences){
+    const item=figure.locator('[data-packed-occurrence="'+occurrence.ordinal+'"]');await expect(item).toHaveCount(1);
+    const codes=await item.locator('code').allTextContents();
+    expect(codes).toEqual([occurrence.example_id,String(occurrence.segment),JSON.stringify(occurrence.encoded_document),'['+occurrence.source_range.join(',')+')','['+occurrence.columns.join(',')+')']);
+   }
+   const counts=figure.locator('[data-packed-accounting="counts"]');
+   expect(await counts.locator('annotation[encoding="application/x-tex"]').allTextContents()).toEqual([String(packedTrace.main.stored_cells),String(packedTrace.main.valid_targets),String(packedTrace.main.stored_cells-packedTrace.main.valid_targets),String(packedTrace.main.allowed_edges_per_head)]);
   }
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){

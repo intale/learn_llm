@@ -9,7 +9,7 @@ use super::tensor_core::{
 use crate::nn::probability::{indexed_mean_nll_forward, log_softmax_forward};
 use crate::tensor::matmul::{matmul, matmul_with_transpose};
 use crate::tensor::ops::{map_binary, map_unary, sum_axis as tensor_sum_axis};
-use crate::tensor::storage::{Tensor, checked_row_major_layout};
+use crate::tensor::storage::{Tensor, TensorError, checked_row_major_layout};
 
 // region:model-op-errors
 /// A rejected model-specific shape, selector, or allocation.
@@ -43,6 +43,15 @@ pub enum ModelOpError {
         grid: usize,
         length: usize,
         tokens: usize,
+    },
+    CausalRangeCount {
+        expected: usize,
+        actual: usize,
+    },
+    CausalRangeStart {
+        grid: usize,
+        query: usize,
+        start: usize,
     },
     InvalidRotaryLengths,
     OutputAllocationFailed {
@@ -96,6 +105,14 @@ impl fmt::Display for ModelOpError {
             ),
             Self::InvalidRotaryLengths => formatter
                 .write_str("rotary prefix lengths must match the token grids and fit their widths"),
+            Self::CausalRangeCount { expected, actual } => write!(
+                formatter,
+                "causal softmax needs {expected} range starts, received {actual}"
+            ),
+            Self::CausalRangeStart { grid, query, start } => write!(
+                formatter,
+                "range start {start} excludes the self key for grid {grid}, query {query}"
+            ),
             Self::OutputAllocationFailed { elements } => write!(
                 formatter,
                 "cannot allocate model-operation output for {elements} f64 values"
@@ -147,6 +164,8 @@ pub enum ModelSavedContext {
         probabilities: Tensor,
         input_shape: Vec<usize>,
         tokens: usize,
+        lengths: Option<Vec<usize>>,
+        starts: Option<Vec<usize>>,
     },
     RotaryPairs {
         cosines: Tensor,
@@ -461,7 +480,7 @@ impl TensorValue {
         &self,
         context: AutogradContext,
     ) -> Result<Self, TensorAutodiffError> {
-        self.causal_softmax_with_optional_lengths(context, None)
+        self.causal_softmax_with_optional_layout(context, None, None)
     }
 
     /// One valid prefix length per query-key grid. Inactive queries remain zero.
@@ -470,13 +489,24 @@ impl TensorValue {
         context: AutogradContext,
         lengths: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
-        self.causal_softmax_with_optional_lengths(context, Some(lengths))
+        self.causal_softmax_with_optional_layout(context, Some(lengths), None)
     }
 
-    fn causal_softmax_with_optional_lengths(
+    /// Each real query normalizes only over its own contiguous causal interval.
+    pub fn causal_softmax_with_ranges(
+        &self,
+        context: AutogradContext,
+        lengths: &[usize],
+        starts: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.causal_softmax_with_optional_layout(context, Some(lengths), Some(starts))
+    }
+
+    fn causal_softmax_with_optional_layout(
         &self,
         context: AutogradContext,
         lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
     ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation_with_context(
             context,
@@ -484,7 +514,7 @@ impl TensorValue {
             [self],
             |primals| {
                 let input = primals[0];
-                let probabilities = causal_softmax_forward_with_lengths(input, lengths)?;
+                let probabilities = causal_softmax_forward_with_lengths(input, lengths, starts)?;
                 let tokens = input.shape()[input.rank() - 1];
                 Ok((
                     probabilities.clone(),
@@ -492,6 +522,8 @@ impl TensorValue {
                         probabilities,
                         input_shape: input.shape().to_vec(),
                         tokens,
+                        lengths: lengths.map(<[usize]>::to_vec),
+                        starts: starts.map(<[usize]>::to_vec),
                     }],
                 ))
             },
@@ -634,6 +666,7 @@ fn gather_rows_forward(
 fn causal_softmax_forward_with_lengths(
     input: &Tensor,
     lengths: Option<&[usize]>,
+    starts: Option<&[usize]>,
 ) -> Result<Tensor, TensorAutodiffError> {
     if input.rank() < 2 {
         return Err(ModelOpError::CausalSoftmaxRank { rank: input.rank() }.into());
@@ -647,7 +680,10 @@ fn causal_softmax_forward_with_lengths(
         return Err(ModelOpError::CausalSoftmaxEmptyTokens.into());
     }
 
-    let grids = input.len() / (queries * keys);
+    let grid_cells = queries
+        .checked_mul(keys)
+        .ok_or(TensorError::ShapeOverflow)?;
+    let grids = input.len() / grid_cells;
     if let Some(lengths) = lengths {
         if lengths.len() != grids {
             return Err(ModelOpError::CausalLengthCount {
@@ -667,13 +703,35 @@ fn causal_softmax_forward_with_lengths(
             }
         }
     }
+    if let Some(starts) = starts {
+        let expected = grids
+            .checked_mul(queries)
+            .ok_or(TensorError::ShapeOverflow)?;
+        if starts.len() != expected {
+            return Err(ModelOpError::CausalRangeCount {
+                expected,
+                actual: starts.len(),
+            }
+            .into());
+        }
+        for grid in 0..grids {
+            let valid = lengths.map_or(queries, |lengths| lengths[grid]);
+            for query in 0..valid {
+                let start = starts[grid * queries + query];
+                if start > query {
+                    return Err(ModelOpError::CausalRangeStart { grid, query, start }.into());
+                }
+            }
+        }
+    }
     let mut probabilities = zeros(input.shape())?;
     for grid in 0..grids {
         let valid = lengths.map_or(queries, |lengths| lengths[grid]);
         // Skip inactive queries before maximum, exponentiation or division.
         for query in 0..valid {
             let row_start = (grid * queries + query) * keys;
-            let allowed = &input.as_slice()[row_start..=row_start + query];
+            let start = starts.map_or(0, |starts| starts[grid * queries + query]);
+            let allowed = &input.as_slice()[row_start + start..=row_start + query];
             let maximum = allowed.iter().copied().fold(f64::NEG_INFINITY, f64::max);
             let mut exponential_tail = 0.0;
             let mut skipped_one_maximum = false;
@@ -689,7 +747,7 @@ fn causal_softmax_forward_with_lengths(
             let denominator = 1.0 + exponential_tail;
             for (key, &score) in allowed.iter().enumerate() {
                 let probability = (score - maximum).exp() / denominator;
-                probabilities.as_mut_slice()[row_start + key] =
+                probabilities.as_mut_slice()[row_start + start + key] =
                     if probability == 0.0 { 0.0 } else { probability };
             }
         }
@@ -709,12 +767,12 @@ fn rotary_pairs_forward(
 ) -> Result<Tensor, TensorAutodiffError> {
     debug_assert!(input.rank() >= 2);
     debug_assert_eq!(cosines.shape(), sines.shape());
-    debug_assert_eq!(cosines.rank(), 2);
+    debug_assert!(cosines.rank() == 2 || cosines.rank() == 3);
 
     let width = input.shape()[input.rank() - 1];
     let tokens = input.shape()[input.rank() - 2];
     let pairs = width / 2;
-    debug_assert_eq!(cosines.shape(), [tokens, pairs]);
+    debug_assert_eq!(&cosines.shape()[cosines.rank() - 2..], [tokens, pairs]);
 
     let mut output = zeros(input.shape())?;
     if input.is_empty() {
@@ -735,7 +793,8 @@ fn rotary_pairs_forward(
         }
         for pair in 0..pairs {
             let feature = row * width + pair * 2;
-            let table = token * pairs + pair;
+            let table_row = if cosines.rank() == 2 { token } else { row };
+            let table = table_row * pairs + pair;
             let left = input.as_slice()[feature];
             let right = input.as_slice()[feature + 1];
             let cosine = cosines.as_slice()[table];
@@ -848,20 +907,26 @@ pub(crate) fn apply_model_vjp(
             probabilities,
             input_shape,
             tokens,
+            lengths,
+            starts,
         } => {
             debug_assert_eq!(upstream.shape(), input_shape);
             let tokens = *tokens;
             let mut result = zeros(input_shape)?;
             let grids = upstream.len() / (tokens * tokens);
             for grid in 0..grids {
-                for query in 0..tokens {
+                let valid = lengths.as_ref().map_or(tokens, |lengths| lengths[grid]);
+                for query in 0..valid {
                     let row_start = (grid * tokens + query) * tokens;
+                    let start = starts
+                        .as_ref()
+                        .map_or(0, |starts| starts[grid * tokens + query]);
                     let mut weighted_upstream = 0.0;
-                    for key in 0..=query {
+                    for key in start..=query {
                         weighted_upstream += upstream.as_slice()[row_start + key]
                             * probabilities.as_slice()[row_start + key];
                     }
-                    for key in 0..=query {
+                    for key in start..=query {
                         let offset = row_start + key;
                         let gradient = probabilities.as_slice()[offset]
                             * (upstream.as_slice()[offset] - weighted_upstream);

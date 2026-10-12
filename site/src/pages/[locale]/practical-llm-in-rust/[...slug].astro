@@ -13,4 +13,4 @@ export async function getStaticPaths() {
 ---
 
 <CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }}
-  cheatSheetTermIdPrefix={Astro.props.entry.data.chapter_id === '04-padded-variable-batches' ? 'padded-variable-term' : undefined} />
+  cheatSheetTermIdPrefix={Astro.props.entry.data.chapter_id === '04-padded-variable-batches' ? 'padded-variable-term' : Astro.props.entry.data.chapter_id === '05-packed-sequence-masks' ? 'packed-sequence-term' : undefined} />

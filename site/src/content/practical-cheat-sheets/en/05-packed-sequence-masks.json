@@ -1,0 +1,14 @@
+{
+  "chapter_id":"05-packed-sequence-masks",
+  "locale":"en",
+  "title":"Packed sequences and separate contexts",
+  "description":"Terms for sharing token storage while preserving each example's attention, positions, targets and loss weight.",
+  "terms":[
+    {"term":"Sequence packing","definition":"Placing complete input-target pair sequences into shared storage rows. Moving the pairs does not add cross-example targets or attention relationships."},
+    {"term":"Segment","definition":"One occurrence of a supplied example inside a packed row. Repeated uses of the same source range receive distinct occurrence segment IDs."},
+    {"term":"Block-causal permission","definition":"A real query may use only real keys from its own occurrence segment at local positions no later than the query. Inactive padding queries skip normalization."},
+    {"term":"Position reset","definition":"Numbering prediction positions from zero within each occurrence, independently of its storage column in the packed row."},
+    {"term":"Valid target","definition":"The immediate next source token in a selected example's input-target pair. EOS can be a valid target; a join between examples and a padding cell supply no target."},
+    {"term":"Token-weighted loss","definition":"The raw loss summed over supervised real targets and divided once by their total count. Averaging unequal row or document means without count weights changes this objective."}
+  ]
+}

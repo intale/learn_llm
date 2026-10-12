@@ -1,0 +1,525 @@
+---
+{
+  "chapter_id":"05-packed-sequence-masks","locale":"en","content_revision":1,"order":5,"concept_id":"packed-sequence-masks",
+  "title":"Pack sequences without joining their contexts",
+  "description":"Use next-fit placement, occurrence segments and reset positions to preserve document-local attention, targets and token-weighted loss.",
+  "objective":"Extend the existing batch and decoder APIs with whole-example next-fit packing that preserves each occurrence's source pairs, local positions, causal context and valid-target loss weight.",
+  "worked_inputs":"The controlled documents A [0,99,100,1], B [0,101,1] and C [0,102,103,104,1] supply three, two and four prediction pairs. Next-fit capacity six places A and B in row zero and C in row one, with nine valid targets, twelve storage cells and nineteen permitted attention edges per head.",
+  "formula":{
+    "latex":"M_{ij}=v_i v_j\\mathbf{1}[s_i=s_j\\land p_j\\le p_i]",
+    "symbols":[
+      {"symbol":"M_{ij}","meaning":"binary permission for query column i to use key column j within the same storage row"},
+      {"symbol":"i","meaning":"the zero-based query column in that row"},
+      {"symbol":"j","meaning":"the zero-based key column in that row"},
+      {"symbol":"v_i","meaning":"input validity at the query: one for a real input and zero for padding storage"},
+      {"symbol":"v_j","meaning":"input validity at the key: one for a real input and zero for padding storage"},
+      {"symbol":"s_i","meaning":"the occurrence segment containing the query"},
+      {"symbol":"s_j","meaning":"the occurrence segment containing the key"},
+      {"symbol":"p_i","meaning":"the zero-based prediction position local to the query's occurrence"},
+      {"symbol":"p_j","meaning":"the zero-based prediction position local to the key's occurrence"},
+      {"symbol":"\\mathbf{1}","meaning":"an indicator equal to one when its bracketed condition holds and zero otherwise"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"training-practice",
+      "limitation":"Rectangular Transformer training batches allocate padding to accommodate unequal sequence lengths, leaving some stored positions without real tokens.",
+      "later_advance":"Later attention work addressed the cost of moving data during the attention calculation.",
+      "modern_llm_role":"For a causal decoder, packing preserves each example's prediction and attention boundaries.",
+      "sources":[
+        {"role":"earlier","year":2021,"name":"Packing: Towards 2x NLP BERT Acceleration","source_url":"https://arxiv.org/abs/2107.02027v1","claim":"The authors study BERT pretraining and compare two deterministic methods based on sequence-length histograms. Using multiple sequences in one sample requires additional attention masking and a change to the masked-language-model loss."},
+        {"role":"later","year":2022,"name":"FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness","source_url":"https://arxiv.org/abs/2205.14135v2","claim":"The 2022 version-two FlashAttention paper describes an exact, IO-aware attention algorithm that uses tiling to reduce transfers between GPU high-bandwidth memory and on-chip SRAM."}
+      ]
+    },
+    "approach":"The runnable Rust contrast counts padded and packed storage, then visits the same permitted edge inventory in query order and in tiles of width two.",
+    "summary":"A later attention execution strategy must preserve each example's permitted context. The tiny Rust traversal illustrates edge ordering without reproducing FlashAttention or establishing a speedup.",
+    "rust_source":"rust/demos/practical-ch05-packed-sequence-masks/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/training/packer.rs","region":"stable-next-fit-packing","purpose":"Place whole prediction-pair examples in input order under the declared next-fit policy."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/training/packed_batch.rs","region":"packed-occurrence-storage","purpose":"Retain occurrence ordinals and placed segments around the shared prediction-storage owner."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/training/variable_batch.rs","region":"implicit-padding-mask","purpose":"Expose row-local permission with both validity guards, occurrence segment equality and local causality."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/attention/causal_mask.rs","region":"segment-causal-attention","purpose":"Pass checked segment starts into the existing attention and range-aware softmax owners."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/decoder.rs","region":"packed-decoder-entry","purpose":"Reuse padded decoder and eligible-target loss entries through the packed storage wrapper."},
+    {"path":"rust/demos/practical-ch05-packed-sequence-masks/src/lib.rs","region":"packed-constructed-loss","purpose":"Construct finite logits for the specified per-occurrence gold probabilities."},
+    {"path":"rust/demos/practical-ch05-packed-sequence-masks/src/main.rs","region":"packed-sequence-example","purpose":"Print exact metadata, loss, model comparison, storage accounting and edge-traversal evidence."},
+    {"path":"rust/demos/practical-ch05-packed-sequence-masks/src/lib.rs","region":"permitted-edge-traversal","purpose":"Enumerate the same permitted edges in query and width-two tile order for a bounded historical illustration."}
+  ],
+  "visualization":{"decision":"useful","id":"packed-sequence-masks","rationale":"The figure places each row's input, target, occurrence segment, local position and validity fields beside its permission matrix. A matrix row selects a query column and a matrix column selects a key column. The matrices expose B's separate causal block even though A and B share storage."},
+  "decoder_connection":"Packed rows retain the same selected source pairs, occurrence-local causal prefixes and token weighting as separate examples. The decoder consumes their checked local positions and key ranges through its existing block loop. The next chapter addresses deeper configurable decoder blocks."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import PackedSequenceMasksDiagram from "../../../components/chapters/PackedSequenceMasksDiagram.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+
+{/* chapter-section:worked-example */}
+
+## The problem: shared storage can change context
+
+Right padding preserves unequal examples, but short rows can leave unused
+storage. Placing several short examples in one row can fill those cells. An
+ordinary causal mask, however, lets each query use every earlier key in that
+row. A later example would then receive the earlier example as additional
+context. Shifting concatenated source documents would also create next-token
+targets across their boundaries.
+
+We need to preserve the examples while moving their storage. Sequence packing
+places complete, already formed input-target pairs into shared rows. Each
+occurrence keeps its own segment identity and local positions, so storage
+adjacency creates neither an attention edge nor a new target.
+
+### Form pairs inside each source range
+
+Use three supplied encoded documents:
+
+<table id="packed-source-pair-table">
+  <thead>
+    <tr><th>Example</th><th>Encoded token IDs</th><th>Input IDs</th><th>Target IDs</th><th>Prediction pairs</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>A</td><td><code>[0,99,100,1]</code></td><td><code>[0,99,100]</code></td><td><code>[99,100,1]</code></td><td><InlineMath latex="3" /></td></tr>
+    <tr><td>B</td><td><code>[0,101,1]</code></td><td><code>[0,101]</code></td><td><code>[101,1]</code></td><td><InlineMath latex="2" /></td></tr>
+    <tr><td>C</td><td><code>[0,102,103,104,1]</code></td><td><code>[0,102,103,104]</code></td><td><code>[102,103,104,1]</code></td><td><InlineMath latex="4" /></td></tr>
+  </tbody>
+</table>
+
+The existing layout uses `0` for BOS and `1` for EOS. These arrays are controlled
+valid-ID examples in the $266$-entry fixture vocabulary. Their token counts
+are $4$, $3$ and $5$; their prediction lengths are $3$, $2$ and $4$. A selected
+range supplies one fewer next-token pair than source tokens.
+
+Form each pair before packing. A's final input `100` still predicts its own
+EOS `1`; it does not predict B's BOS. Globally shifting the concatenated source
+documents would add an EOS-to-BOS pair at each join. Those targets do not belong
+to the examples we selected. An explicitly selected interior range follows the
+same rule: retain its existing neighboring pairs without adding BOS or EOS.
+
+### Fill only the current row
+
+Capacity $6$ means six prediction pairs per storage row. Our next-fit policy
+reads examples in their supplied order. A fills columns zero through two, B
+fills columns three and four, and the last cell is padding. C does not fit in
+that one remaining cell, so it starts a new row and leaves two padding cells.
+The packer never revisits an earlier row, sorts by length or splits an example.
+
+The two input rows are `[0,99,100,0,101,-1]` and
+`[0,102,103,104,-1,-1]`. Their targets are `[99,100,1,101,1,-1]` and
+`[102,103,104,1,-1,-1]`. The rectangle stores $12$ cells and contains $9$ real
+targets. `PAD_CELL` is `-1`, a storage marker rather than a vocabulary ID.
+
+A, B and C receive occurrence segment IDs `0`, `1` and `2`. The segment rows
+are `[0,0,0,1,1,-1]` and `[2,2,2,2,-1,-1]`, with `NO_SEGMENT` also `-1`.
+The position rows are `[0,1,2,0,1,0]` and `[0,1,2,3,0,0]`. B therefore begins
+at local position zero even though its storage column is three. Padding's
+stored position zero is unused.
+
+An occurrence is one supplied use of an example. Two uses of the identical
+source document and range still receive distinct occurrence ordinals and
+segments. Their source IDs, example IDs and ranges may match; their causal
+contexts remain separate.
+
+Input validity, target validity and loss eligibility keep the meanings from
+Chapter 4. Every real target is supervised here, so the three row-zero fields
+are <code style="overflow-wrap: anywhere;">[true,true,true,true,true,false]</code>; the row-one fields are
+<code style="overflow-wrap: anywhere;">[true,true,true,true,false,false]</code>. Input validity says an input exists, target
+validity says its immediate successor exists, and loss eligibility says that
+target is supervised. Their agreement in this fixture does not make the fields
+interchangeable.
+
+{/* chapter-section:formula */}
+
+## Permission depends on the example
+
+$$
+M_{ij}=v_i v_j\mathbf{1}[s_i=s_j\land p_j\le p_i]
+$$
+
+The relation applies within one row. A query may use a key only when both
+positions are valid, both belong to the same occurrence segment, and the key's
+local position is no later than the query's. A binary value of one means
+permitted; it is not an attention probability.
+
+This is block-causal permission: the allowed entries form one causal block per
+occurrence.
+
+For B's first query, storage column three, the only permitted key is column
+three. The earlier keys in columns zero through two belong to A and are
+excluded. B's next query permits columns three and four. Merely checking that
+the key precedes the query in storage would admit A incorrectly.
+
+Both validity checks matter. Padding cells share segment `-1` and stored
+position zero, so segment equality and local causality alone would allow
+padding-to-padding edges. An inactive query instead skips softmax and produces
+a zero attention mixture. A later bias or residual may produce a nonzero
+padded hidden state; validity must prevent that state from influencing real
+predictions or loss.
+
+{/* chapter-section:symbol-glossary */}
+
+## What the permission symbols mean
+
+<div id="packed-permission-symbols">
+
+- $M_{ij}$ is binary permission for query column $i$ to use key column $j$
+  within the same storage row.
+- $i$ is the zero-based query column in that row.
+- $j$ is the zero-based key column in that row.
+- $v_i$ is query input validity: $1$ for a real input and $0$ for padding.
+- $v_j$ is key input validity: $1$ for a real input and $0$ for padding.
+- $s_i$ identifies the occurrence segment containing the query.
+- $s_j$ identifies the occurrence segment containing the key.
+- $p_i$ is the zero-based prediction position local to the query's occurrence.
+- $p_j$ is the zero-based prediction position local to the key's occurrence.
+- $\mathbf{1}$ is an indicator: $1$ when its bracketed condition holds and $0$
+  otherwise.
+
+</div>
+
+For a contiguous segment, the allowed keys form an inclusive range from its
+first storage column through the query column. B's segment starts at column
+three, so its two ranges are `[3,4)` and `[3,5)` in Rust's half-open notation.
+The checked start and valid length represent the permission relation without
+allocating a separate dense mask for every row and attention head.
+
+Position reset and segment isolation are separate requirements. Assigning B
+row-global positions `[3,4]` violates its local-position metadata. It does not
+necessarily change rotary attention scores: with fixed unrotated queries and
+keys, a common offset applied to all their positions in an isolated segment
+preserves ideal relative rotary dot products. We check the local positions
+directly. Resetting positions alone also cannot exclude A's keys.
+
+### Keep the same nine-target objective
+
+Packing retains the raw loss sum and valid-target count from Chapter 4. The
+token-weighted loss gives every eligible target equal weight and conditions on
+its own permitted segment prefix. Specify gold
+probability $1/2$ for all three A targets, $1/4$ for both B targets and $1/2$
+for all four C targets. These are constructed loss-probe probabilities,
+rather than model predictions.
+
+The negative log likelihood sums are $3\ln2$, $4\ln2$ and $4\ln2$ nats.
+Adding them and dividing once gives $11\ln2/9=(11/9)\ln2$ nats per valid
+target, printed as `0.847180` by the probe. The rows contain five and four
+targets: averaging their means equally would give $(6/5)\ln2$, printed as
+`0.831777`. Averaging the three document means equally would give
+$(4/3)\ln2$, printed as `0.924196`. Both change the weight assigned to
+individual targets.
+
+The finite-logit probe uses vocabulary size $V=266$. For desired gold
+probability $0<q<1$, give each nongold class logit zero and the gold class
+logit $z_y=\ln((V-1)q/(1-q))$. Softmax assigns gold probability $q$ in ideal
+arithmetic. The Rust calculation uses `f64`, with rounding and the declared
+comparison tolerance.
+
+In ideal arithmetic, for eligible target $i$ and vocabulary class $c$, the mean-loss logit
+derivative is $(p_{ic}-\mathbf{1}[c=y_i])/N$, where $p_{ic}$ is that class's
+probability, $y_i$ is the gold class and $N$ is the total eligible-target count.
+Here $i$ indexes eligible targets across all rows. Excluded logit cells have
+zero contribution. The loss adapter skips them before target conversion or
+arithmetic; multiplying an already computed NaN by zero would not exclude it
+safely. Zero eligible targets is an error because the mean has no denominator.
+
+{/* chapter-section:rust-implementation */}
+
+## Extend the existing storage and decoder
+
+`PackConfig` declares prediction capacity, maximum rows per model call, cell
+capacity and metadata budget. `pack_examples` validates the existing
+`SequenceExample` inputs and their shared binding, then assigns whole examples
+to the current row. An oversized example fails instead of being silently split
+or truncated. An exact fill creates no extra empty row, and the final model call
+retains its actual smaller row count.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/packer.rs"
+  captionId="packed-rust-next-fit" region="stable-next-fit-packing"
+  caption="Place complete prediction-pair examples in input order, filling only the current row."
+  label="Rust source: stable next-fit sequence packing" />
+
+`PackedBatch` adds occurrence placement records around the existing
+`VariableBatch`. The shared storage builder retains source and example IDs,
+source ranges, partition, tokenizer identity and split-receipt identity. Its
+private arrays derive positions, segment starts, validity and targets together.
+The packed wrapper reuses the same valid-target loss methods. A receipt digest
+identifies the caller's accepted evidence; it does not approve that evidence.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/packed_batch.rs"
+  captionId="packed-rust-occurrences" region="packed-occurrence-storage"
+  caption="Retain each occurrence's ordinal, segment and placed interval around the shared prediction storage."
+  label="Rust source: packed occurrence provenance" />
+
+The row-local `allowed_key` method exposes the full binary rule. The model
+receives a valid prefix length per row and a segment start per query. The
+existing causal-softmax loops use those ranges in forward and backward
+calculation; the same boundary reaches every attention head and layer.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/variable_batch.rs"
+  captionId="packed-rust-permission" region="implicit-padding-mask"
+  caption="Require valid query and key cells, one occurrence segment and local causality before admitting an edge."
+  label="Rust source: implicit segment-causal permission" />
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/causal_mask.rs"
+  captionId="packed-rust-attention" region="segment-causal-attention"
+  caption="Pass checked segment starts into the existing attention calculation and range-aware softmax."
+  label="Rust source: attention with occurrence-local key ranges" />
+
+The existing causal-only additive report still has shape $[T,T]$, where $T$
+is row capacity. It describes future columns but does not describe the segment
+boundaries. The range-aware softmax enforces those boundaries. Dense score
+and attention-weight tensors remain in this scalar decoder; an implicit
+permission rule does not eliminate their rectangular work.
+
+`forward_packed` delegates to the existing padded decoder entry with the shared
+storage. The embedding gather excludes `PAD_CELL`, rotary lookup uses local
+positions, and the decoder runs its existing blocks and tied vocabulary
+projection. `loss_packed` reuses the existing eligible-row gather and indexed
+NLL. Packing adds no tokenizer token, probability kernel or second decoder.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/decoder.rs"
+  captionId="packed-rust-decoder" region="packed-decoder-entry"
+  caption="Reuse the padded decoder and valid-target loss through the packed storage wrapper."
+  label="Rust source: packed decoder and loss entry points" />
+
+<RustSource path="rust/demos/practical-ch05-packed-sequence-masks/src/lib.rs"
+  captionId="packed-rust-logits" region="packed-constructed-loss"
+  caption="Construct finite full-vocabulary logits with the declared gold probabilities for the loss probe."
+  label="Rust source: constructed packed-target loss probe" />
+
+### Run the bounded example
+
+With Docker running and the repository's Rust workspace setup available, run
+from the repository root. The command uses the bundled Chapter 4 prepared
+fixture and split receipt; it needs no corpus download:
+
+```sh
+COURSE_CORPUS=false ./course run cargo run --offline --locked \
+  -p practical-ch05-packed-sequence-masks
+```
+
+The JSON trace contains both packed rows and occurrence records, the allowed-key
+lists, nine valid targets, and the constructed loss sum `7.624619` nats and mean
+`0.847180` nats per target. It separately compares a decoder with identical
+untrained parameters across separate, padded and packed execution. Those model
+loss sums are each printed as `50.551553` nats; the constructed loss probabilities
+do not describe this decoder's predictions.
+
+The model has width $8$, $2$ heads, feed-forward width $16$, $2$ layers,
+maximum prediction length $16$ and $3448$ parameter coordinates, with seed
+`42`. Across the nine targets, $2394$ valid vocabulary logits and all $3448$
+named parameter-gradient coordinates are checked for each comparison against
+separate execution: $4788$ logit comparisons and $6896$ gradient comparisons
+in total. Both printed maximum absolute differences round to
+`0.000000000000`; the individual comparisons still use the stated `f64`
+tolerance. No optimizer update or trained-model quality result is implied.
+
+<RustSource path="rust/demos/practical-ch05-packed-sequence-masks/src/main.rs"
+  captionId="packed-rust-example" region="packed-sequence-example"
+  caption="Print the packed metadata, constructed loss, decoder comparisons, storage accounting and edge traversals."
+  label="Rust example: practical Chapter 5 packed-sequence evidence" />
+
+### Count storage and attention separately
+
+For $B$ rows of width $T$, token storage has $BT$ cells, while dense attention
+has $BT^2$ query-key score positions per head. A causal segment of prediction
+length $l$ permits $l(l+1)/2$ semantic edges. A permission edge says which
+relationship is legal; it does not say whether the implementation computes
+other score positions before masking.
+
+<table id="packed-storage-accounting-table">
+  <thead>
+    <tr><th>Prediction lengths; capacity six</th><th>Padded token cells</th><th>Packed token cells</th><th>Padded dense scores per head</th><th>Packed dense scores per head</th><th>Permitted edges per head in either layout</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><InlineMath latex="3,2,4" /></td><td><InlineMath latex="12" /></td><td><InlineMath latex="12" /></td><td><InlineMath latex="48" /></td><td><InlineMath latex="72" /></td><td><InlineMath latex="19" /></td></tr>
+    <tr><td><InlineMath latex="4,2,4,2" /></td><td><InlineMath latex="16" /></td><td><InlineMath latex="12" /></td><td><InlineMath latex="64" /></td><td><InlineMath latex="72" /></td><td><InlineMath latex="26" /></td></tr>
+  </tbody>
+</table>
+
+The main example has $75\%$ valid density in either layout. The second rises
+from $75\%$ to $100\%$, but its packed rectangle has more dense score
+positions. These counts establish storage and shape differences. They do not
+establish a speedup.
+
+{/* chapter-section:history */}
+
+## History: packing and the cost of moving attention data
+
+Rectangular Transformer training batches allocate padding to accommodate
+unequal sequence lengths, leaving some stored positions without real tokens. The original
+2021 version of
+[Packing: Towards 2x NLP BERT Acceleration](https://arxiv.org/abs/2107.02027v1)
+examines that problem. The authors study BERT pretraining and compare two deterministic methods based
+on sequence-length histograms. Using multiple sequences in one sample requires
+additional attention masking and a change to the masked-language-model loss.
+Those methods and BERT results do not specify our input-order next-fit policy,
+causal targets or decoder performance.
+
+Later attention work addressed the cost of moving data during the attention
+calculation. The 2022 version-two FlashAttention paper describes an exact,
+IO-aware attention algorithm that uses tiling to reduce transfers between GPU
+high-bandwidth memory and on-chip SRAM.
+[FlashAttention, version 2](https://arxiv.org/abs/2205.14135v2)
+
+Changing the computation order is a
+different decision from deciding which examples may attend to one another.
+Neither an execution tile nor shared storage permits a cross-segment edge.
+
+The runnable Rust contrast counts padded and packed storage, then visits the
+same permitted edge inventory in query order and in tiles of width two. Sorting
+copies of the inventories checks that the traversal order retains the same
+relationships. The tile traversal is an illustration; it implements neither
+FlashAttention's numerical kernel nor its GPU memory strategy and provides no
+timing benchmark.
+
+<RustSource path="rust/demos/practical-ch05-packed-sequence-masks/src/lib.rs"
+  captionId="packed-rust-traversal" region="permitted-edge-traversal"
+  caption="Visit the same permitted edges in query order and width-two tile order, then compare sorted inventories."
+  label="Rust contrast: two traversals of one allowed-edge inventory" />
+
+For a causal decoder, packing preserves each example's prediction and attention
+boundaries. A later attention execution strategy must preserve each example's
+permitted context. The tiny Rust traversal illustrates edge ordering without
+reproducing FlashAttention or establishing a speedup.
+
+{/* chapter-section:visualization */}
+
+## Read the aligned cells and permission matrices
+
+The figure places each row's input, target, occurrence segment, local position
+and validity fields beside its permission matrix. A matrix row selects a query
+column and a matrix column selects a key column. The matrices expose B's
+separate causal block even though A and B share storage.
+
+<PackedSequenceMasksDiagram labels={{
+  title: "Shared rows, separate causal contexts",
+  description: "Row 0 holds A in columns 0 through 2 and B in columns 3 and 4; row 1 holds C in columns 0 through 3. Each occurrence restarts its local positions at zero and keeps its own next-token pairs, including its EOS target. A and B share storage but cannot attend across their boundary. Matrix rows are queries and columns are keys: one permits an edge and zero prohibits it; neither value is an attention probability. Nine targets enter loss. Three padding cells marked -1 have no segment and inactive queries. The three causal blocks permit nineteen edges per attention head.",
+  row: "Packed row", occurrences: "Occurrences in this row", example: "Example",
+  sourceRange: "Source token range, end excluded", encoded: "Encoded source token IDs", predictionLength: "Prediction pairs",
+  placement: "Packed columns, end excluded", metadataCaption: "Prediction columns and aligned fields",
+  metadataRegion: "Aligned input, target, position, segment and validity cells for packed row", field: "Batch field",
+  input: "Input ID", target: "Target ID", position: "Local position", segment: "Occurrence segment",
+  tokenValid: "Input exists", targetValid: "Target exists", lossEligible: "Target supervised", yes: "Yes", no: "No",
+  pad: "PAD", noSegment: "No segment", matrixCaption: "Binary attention permission",
+  matrixRegion: "Query-by-key attention permission for packed row", queryAxis: "Query column", keyAxis: "Key column",
+  matrixMeaning: "Matrix rows select query columns; matrix columns select key columns. One means permitted and zero means prohibited. These are permissions, not attention probabilities.",
+  paddingTitle: "Padding has no context or target",
+  paddingNote: "The marker -1 is outside the vocabulary and belongs to no occurrence. Inactive queries skip normalization and produce zero attention mixtures. Later biases or residuals need not leave all padded hidden states zero.",
+  accountingTitle: "Count the preserved predictions", storage: "Stored token cells", targets: "Valid targets",
+  padding: "Padding cells", edges: "Permitted edges per head"
+}} />
+
+{/* chapter-section:exercises */}
+
+## Optional practice: inspect the preserved relationships
+
+<div id="packed-practice-prompts">
+
+1. Reproduce A, B and C with the example command above. Inspect their
+   input-target pairs, occurrence segments, local positions and allowed-key
+   lists. Explain why row-zero query three excludes key two and why each
+   final content token still predicts its own EOS.
+2. Inspect the example's constructed raw loss sum and nine-target mean.
+   Explain why an unweighted average of row means or document means changes
+   target weighting.
+3. Compare its storage counts for lengths three, two, four and for lengths four,
+   two, four, two. Explain why fewer token cells need not mean fewer dense
+   attention scores. Inspect the four, four, two, two case to distinguish
+   next-fit from a policy that revisits earlier rows.
+4. Run the seeded model comparisons with the first test command below.
+   Inspect the valid-logit and full parameter-gradient counts, using the same
+   parameters and source examples across separate, padded and packed execution.
+5. Run the two selected activation tests with the second command. Inspect
+   B-only loss and gradient independence when A's input states change, and
+   the zero derivatives into future or padding states for a selected query.
+
+</div>
+
+From the repository root, with the same Docker setup and bundled inputs as
+the example, run the bounded CPU comparisons:
+
+```sh
+COURSE_CORPUS=false ./course run cargo test --offline --locked \
+  -p llm-from-scratch-practical --test practical_ch05_packed_sequence_masks \
+  -- --nocapture
+```
+
+The integration suite runs $13$ tests and prints counts for $100$ fixed seeds
+in each CPU model profile. The smaller profile has width $4$, $2$ heads,
+feed-forward width $4$, one layer and maximum prediction length $4$. The
+larger profile has width $8$, $2$ heads, feed-forward width $16$, two layers
+and maximum prediction length $16$. Both use the $266$-entry vocabulary. The
+complete capacity-six example uses the larger profile.
+
+Expect `13 passed` and `0 failed`. Within each case, the comparisons check
+every valid vocabulary logit, the raw token-summed loss and every named
+parameter-gradient coordinate across the three representations. Each finite
+comparison must satisfy absolute tolerance $10^{-10}$ plus relative tolerance
+$10^{-9}$ times the larger absolute value. The displayed maximum differences
+are rounded to twelve decimal places; a displayed zero does not prove exact
+equality. The tests use untrained parameters and take no optimizer step.
+
+With the same working directory and setup, run the activation tests:
+
+```sh
+COURSE_CORPUS=false ./course run cargo test --offline --locked \
+  -p llm-from-scratch-practical --lib packing_tests -- --nocapture
+```
+
+Expect `2 passed` and `0 failed`. The first test perturbs independent A activations
+while holding parameters, shapes, B inputs and the B-only objective fixed.
+B's logits, B-only loss and all $3448$ named parameter-gradient coordinates
+remain within the same tolerance; derivatives into A and padding are exactly
+zero. Removing the segment range guard admits A's influence. The second test
+checks exact zero derivatives into future and padding activations for B's first
+query. Changing A can still change the whole-batch parameter gradient because
+A's own loss contributes to it. Shared-parameter learning and an illegal
+cross-example context dependency are different relationships.
+
+<details>
+<summary id="packed-practice-answer-summary">Explanations for segment boundaries, target weighting, storage and independent gradients</summary>
+
+1. Row-zero inputs and targets are `[0,99,100,0,101,-1]` and
+   `[99,100,1,101,1,-1]`. Row-one inputs and targets are
+   `[0,102,103,104,-1,-1]` and `[102,103,104,1,-1,-1]`. Their segment rows
+   are `[0,0,0,1,1,-1]` and `[2,2,2,2,-1,-1]`; positions are
+   `[0,1,2,0,1,0]` and `[0,1,2,3,0,0]`. The three validity fields are
+   <code style="overflow-wrap: anywhere;">[true,true,true,true,true,false]</code> and <code style="overflow-wrap: anywhere;">[true,true,true,true,false,false]</code>.
+   Query three in row zero belongs to B, while key two belongs to A, so their
+   edge is prohibited. Its allowed-key list is `[3]`; query four's is `[3,4]`.
+   B's local positions are `[0,1]`, even though its storage columns are three
+   and four. Packing retains each source-local EOS target and never adds an
+   EOS-to-BOS join. Inactive padding queries have empty allowed-key lists.
+2. Add $3\ln2$, $4\ln2$ and $4\ln2$, then divide by $9$, obtaining
+   $(11/9)\ln2$ nats per target. The five-target and four-target rows must
+   carry weights five and four when combining their means. The three documents
+   similarly carry weights three, two and four. Equal row or document weights
+   describe different objectives.
+3. The main example uses twelve token cells either way, with $48$ padded versus
+   $72$ packed dense score positions per head and nineteen permitted edges.
+   The supplementary example uses sixteen padded versus twelve packed token
+   cells, $64$ versus $72$ dense scores and twenty-six permitted edges.
+   Next-fit on lengths four, four, two, two yields `[4]`, `[4,2]`, `[2]`.
+   Filling the first row later would change the declared policy.
+4. Join outputs by occurrence ordinal and local position before comparison.
+   Multiply each separate mean loss and mean-gradient vector by its valid-target
+   count to recover raw sums. Aggregate the sums and divide once by the total
+   count when comparing the global mean. Comparing every gradient coordinate
+   checks information that equality of gradient norms alone would miss.
+5. The activation fixtures change A's per-position input states rather than a
+   shared embedding parameter. B-only loss excludes A's own target losses, so
+   unchanged B gradients test the context boundary. The selected-query test
+   additionally separates B's current position from its later position and
+   padding, whose input derivatives are exactly zero.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Keep the example contract as decoder depth grows
+
+Packed rows retain the same selected source pairs, occurrence-local causal
+prefixes and token weighting as separate examples. The decoder consumes their
+checked local positions and key ranges through its existing block loop.
+The next chapter addresses deeper configurable decoder blocks. More layers
+must retain these boundaries at every attention operation; depth does not
+repair an incorrectly joined context or target.

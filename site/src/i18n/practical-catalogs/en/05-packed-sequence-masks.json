@@ -1,0 +1,9 @@
+{
+  "schemaVersion":1,
+  "chapterId":"05-packed-sequence-masks",
+  "locale":"en",
+  "contentRevision":1,
+  "title":"Pack sequences without joining their contexts",
+  "description":"Use next-fit placement, occurrence segments and reset positions to preserve document-local attention, targets and token-weighted loss.",
+  "objective":"Extend the existing batch and decoder APIs with whole-example next-fit packing that preserves each occurrence's source pairs, local positions, causal context and valid-target loss weight."
+}

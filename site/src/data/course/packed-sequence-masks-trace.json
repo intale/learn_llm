@@ -1,0 +1,576 @@
+{
+  "binding": {
+    "pad_vocabulary_token": null,
+    "payload_sha256": "3908f4b26ed19cc1c027bb8628a563eb8f284f1d0ec474a91501c7e2867ff616",
+    "split_receipt_sha256": "2504631c2431a0cf42bc493635dc8f10d621da0a7c7fcb5bd4d34df3372d0cf0",
+    "vocabulary_size": 266
+  },
+  "decoder_probe": {
+    "absolute_tolerance": 1e-10,
+    "ff_width": 16,
+    "heads": 2,
+    "layers": 2,
+    "max_positions": 16,
+    "maximum_logit_absolute_difference": "0.000000000000",
+    "maximum_parameter_gradient_absolute_difference": "0.000000000000",
+    "named_parameter_gradient_coordinates_compared": 6896,
+    "packed_loss_sum_nats": "50.551553",
+    "padded_loss_sum_nats": "50.551553",
+    "parameters": 3448,
+    "profile": "bridge-ci",
+    "relative_tolerance": 1e-9,
+    "scope": "identical untrained parameters; all valid logits, raw token sums and every named parameter gradient; no optimizer step or quality claim",
+    "seed": 42,
+    "separate_loss_sum_nats": "50.551553",
+    "valid_logits_compared": 4788,
+    "valid_targets": 9,
+    "vocabulary_size": 266,
+    "width": 8
+  },
+  "history_traversal": {
+    "edge_coordinates": "[row, query_column, key_column]",
+    "equal_sorted_edges": true,
+    "query_order_edges": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        1
+      ],
+      [
+        0,
+        2,
+        0
+      ],
+      [
+        0,
+        2,
+        1
+      ],
+      [
+        0,
+        2,
+        2
+      ],
+      [
+        0,
+        3,
+        3
+      ],
+      [
+        0,
+        4,
+        3
+      ],
+      [
+        0,
+        4,
+        4
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        2,
+        0
+      ],
+      [
+        1,
+        2,
+        1
+      ],
+      [
+        1,
+        2,
+        2
+      ],
+      [
+        1,
+        3,
+        0
+      ],
+      [
+        1,
+        3,
+        1
+      ],
+      [
+        1,
+        3,
+        2
+      ],
+      [
+        1,
+        3,
+        3
+      ]
+    ],
+    "scope": "two traversals of the same semantic edges; illustration only, not FlashAttention, a tiled attention kernel or a benchmark",
+    "tile_order_edges": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        1
+      ],
+      [
+        0,
+        2,
+        0
+      ],
+      [
+        0,
+        2,
+        1
+      ],
+      [
+        0,
+        2,
+        2
+      ],
+      [
+        0,
+        3,
+        3
+      ],
+      [
+        0,
+        4,
+        3
+      ],
+      [
+        0,
+        4,
+        4
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        2,
+        0
+      ],
+      [
+        1,
+        2,
+        1
+      ],
+      [
+        1,
+        3,
+        0
+      ],
+      [
+        1,
+        3,
+        1
+      ],
+      [
+        1,
+        2,
+        2
+      ],
+      [
+        1,
+        3,
+        2
+      ],
+      [
+        1,
+        3,
+        3
+      ]
+    ],
+    "tile_width": 2
+  },
+  "loss_probe": {
+    "constructed_gold_probabilities_by_occurrence": [
+      0.5,
+      0.25,
+      0.5
+    ],
+    "excluded_logit_gradients_exactly_zero": true,
+    "excluded_nan_storage_preserves_loss": true,
+    "loss_sum_nats": "7.624619",
+    "mean_nats_per_valid_target": "0.847180",
+    "scope": "constructed finite logits; gold probabilities are specified, not learned",
+    "valid_targets": 9,
+    "wrong_unweighted_document_mean": "0.924196",
+    "wrong_unweighted_row_mean": "0.831777"
+  },
+  "main": {
+    "allowed_edges_per_head": 19,
+    "capacity_prediction_pairs": 6,
+    "metadata_budget_scope": "checked Vec buffers and provenance, planner overlap and 64-byte per-allocation policy allowance; not a measured allocator or process peak",
+    "metadata_peak_budget_bytes": 2730,
+    "no_segment": -1,
+    "occurrences": [
+      {
+        "columns": [
+          0,
+          3
+        ],
+        "encoded_document": [
+          0,
+          99,
+          100,
+          1
+        ],
+        "example_id": "A",
+        "ordinal": 0,
+        "prediction_length": 3,
+        "row": 0,
+        "segment": 0,
+        "source_id": "A",
+        "source_range": [
+          0,
+          4
+        ]
+      },
+      {
+        "columns": [
+          3,
+          5
+        ],
+        "encoded_document": [
+          0,
+          101,
+          1
+        ],
+        "example_id": "B",
+        "ordinal": 1,
+        "prediction_length": 2,
+        "row": 0,
+        "segment": 1,
+        "source_id": "B",
+        "source_range": [
+          0,
+          3
+        ]
+      },
+      {
+        "columns": [
+          0,
+          4
+        ],
+        "encoded_document": [
+          0,
+          102,
+          103,
+          104,
+          1
+        ],
+        "example_id": "C",
+        "ordinal": 2,
+        "prediction_length": 4,
+        "row": 1,
+        "segment": 2,
+        "source_id": "C",
+        "source_range": [
+          0,
+          5
+        ]
+      }
+    ],
+    "pad_cell": -1,
+    "rows": [
+      {
+        "allowed_keys": [
+          [
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          []
+        ],
+        "inputs": [
+          0,
+          99,
+          100,
+          0,
+          101,
+          -1
+        ],
+        "loss_mask": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "positions": [
+          0,
+          1,
+          2,
+          0,
+          1,
+          0
+        ],
+        "range_starts": [
+          0,
+          0,
+          0,
+          3,
+          3,
+          0
+        ],
+        "row": 0,
+        "segments": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          -1
+        ],
+        "targets": [
+          99,
+          100,
+          1,
+          101,
+          1,
+          -1
+        ],
+        "valid_length": 5,
+        "valid_targets": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "valid_tokens": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      {
+        "allowed_keys": [
+          [
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            0,
+            1,
+            2,
+            3
+          ],
+          [],
+          []
+        ],
+        "inputs": [
+          0,
+          102,
+          103,
+          104,
+          -1,
+          -1
+        ],
+        "loss_mask": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "positions": [
+          0,
+          1,
+          2,
+          3,
+          0,
+          0
+        ],
+        "range_starts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "row": 1,
+        "segments": [
+          2,
+          2,
+          2,
+          2,
+          -1,
+          -1
+        ],
+        "targets": [
+          102,
+          103,
+          104,
+          1,
+          -1,
+          -1
+        ],
+        "valid_length": 4,
+        "valid_targets": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "valid_tokens": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ]
+      }
+    ],
+    "shape": [
+      2,
+      6
+    ],
+    "stored_cells": 12,
+    "valid_targets": 9
+  },
+  "next_fit_discriminator": {
+    "calls": 2,
+    "capacity": 6,
+    "hypothetical_first_fit_rows": 2,
+    "prediction_lengths": [
+      4,
+      4,
+      2,
+      2
+    ],
+    "row_valid_lengths": [
+      4,
+      6,
+      2
+    ],
+    "rows": 3
+  },
+  "policy": "stable input-order next-fit; whole prediction-pair examples; no sorting, splitting or dropping",
+  "schema_version": 1,
+  "scope": "bounded prepared-corpus fixture; CPU only; full-data and training gates are separate",
+  "storage_comparison": {
+    "main": {
+      "allowed_edges_per_head": 19,
+      "packed_capacity": 6,
+      "packed_dense_scores_per_head": 72,
+      "packed_rows": 2,
+      "packed_stored_cells": 12,
+      "packed_utilization_percent": "75.0",
+      "padded_dense_scores_per_head": 48,
+      "padded_shape": [
+        3,
+        4
+      ],
+      "padded_stored_cells": 12,
+      "padded_utilization_percent": "75.0",
+      "prediction_lengths": [
+        3,
+        2,
+        4
+      ],
+      "scope": "storage cells and dense score counts are accounting, not timings or a speed claim",
+      "valid_targets": 9
+    },
+    "supplementary": {
+      "allowed_edges_per_head": 26,
+      "packed_capacity": 6,
+      "packed_dense_scores_per_head": 72,
+      "packed_rows": 2,
+      "packed_stored_cells": 12,
+      "packed_utilization_percent": "100.0",
+      "padded_dense_scores_per_head": 64,
+      "padded_shape": [
+        4,
+        4
+      ],
+      "padded_stored_cells": 16,
+      "padded_utilization_percent": "75.0",
+      "prediction_lengths": [
+        4,
+        2,
+        4,
+        2
+      ],
+      "scope": "storage cells and dense score counts are accounting, not timings or a speed claim",
+      "valid_targets": 12
+    }
+  }
+}

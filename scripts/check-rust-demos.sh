@@ -94,7 +94,7 @@ const practicalDemoNames = readChapterContractSummaries(repositoryRoot, {
   return [packageName];
 }).sort();
 duplicate(practicalDemoNames, 'Practical demo registration');
-if (practicalDemoNames.length !== 4) fail('expected exactly four registered Practical demos');
+if (practicalDemoNames.length !== 5) fail('expected exactly five registered Practical demos');
 console.error(`Registered Practical demo directories: ${practicalDemoNames.join(', ')}`);
 
 const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })

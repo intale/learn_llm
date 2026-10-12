@@ -110,6 +110,7 @@ pub struct CausalSelfAttentionForward {
     scale: f64,
     key_width: usize,
     value_width: usize,
+    range_starts: Option<Vec<usize>>,
 }
 
 impl CausalSelfAttentionForward {
@@ -125,10 +126,16 @@ impl CausalSelfAttentionForward {
         &self.scaled_scores
     }
 
-    /// The plain additive mask. It is intentionally not a tape value because
-    /// its blocked cells contain negative infinity.
+    /// The causal-only additive report. Prefix and segment restrictions are
+    /// enforced separately; this is not their complete eligibility mask.
+    /// It is not a tape value because blocked cells contain negative infinity.
     pub const fn additive_mask(&self) -> &Tensor {
         &self.additive_mask
+    }
+
+    /// Additional row-local restrictions, stored without a dense head mask.
+    pub fn range_starts(&self) -> Option<&[usize]> {
+        self.range_starts.as_deref()
     }
 
     pub fn weights(&self) -> &TensorValue {
@@ -202,14 +209,49 @@ fn causal_attention_with_optional_lengths(
     value: &TensorValue,
     lengths: Option<&[usize]>,
 ) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
+    causal_attention_with_layout(context, query, key, value, lengths, None)
+}
+
+// region:segment-causal-attention
+pub fn causal_attention_with_ranges(
+    context: AutogradContext,
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+    lengths: &[usize],
+    starts: &[usize],
+) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
+    causal_attention_with_layout(context, query, key, value, Some(lengths), Some(starts))
+}
+
+fn causal_attention_with_layout(
+    context: AutogradContext,
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+    lengths: Option<&[usize]>,
+    starts: Option<&[usize]>,
+) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
     let prepared = scaled_self_attention_scores_with_context(context, query, key, value)?;
     let tokens = query.shape()[1];
     let additive_mask = causal_additive_mask(tokens)?;
-    let weights = match lengths {
-        Some(lengths) => prepared
+    let weights = match (lengths, starts) {
+        (Some(lengths), Some(starts)) => prepared
+            .scaled_scores
+            .causal_softmax_with_ranges(context, lengths, starts),
+        (Some(lengths), None) => prepared
             .scaled_scores
             .causal_softmax_with_lengths(context, lengths),
-        None => prepared.scaled_scores.causal_softmax_with_context(context),
+        (None, None) => prepared.scaled_scores.causal_softmax_with_context(context),
+        (None, Some(_)) => {
+            return Err(autodiff_error(CausalMaskingStage::MaskedSoftmax)(
+                crate::autograd::model_ops::ModelOpError::CausalLengthCount {
+                    expected: query.shape()[0],
+                    actual: 0,
+                }
+                .into(),
+            ));
+        }
     }
     .map_err(autodiff_error(CausalMaskingStage::MaskedSoftmax))?;
     let output = weights
@@ -225,8 +267,10 @@ fn causal_attention_with_optional_lengths(
         scale: prepared.scale,
         key_width: prepared.key_width,
         value_width: prepared.value_width,
+        range_starts: starts.map(<[usize]>::to_vec),
     })
 }
+// endregion:segment-causal-attention
 // endregion:causal-self-attention-forward
 
 #[cfg(test)]

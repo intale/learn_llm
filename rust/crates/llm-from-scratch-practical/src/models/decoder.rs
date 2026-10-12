@@ -17,6 +17,10 @@ use crate::nn::rmsnorm::{RmsNorm, RmsNormError, RmsNormForward};
 use crate::nn::swiglu::{SwiGlu, SwiGluError, SwiGluProjection};
 use crate::tensor::storage::Tensor;
 use crate::training::sequence_example::BatchBinding;
+
+#[cfg(test)]
+#[path = "decoder_packing_tests.rs"]
+mod packing_tests;
 use crate::training::variable_batch::{MaskedLoss, VariableBatch, VariableBatchError};
 
 /// Rejections from the additional padded entry points preserve old error types.
@@ -854,7 +858,7 @@ impl DecoderModel {
             .embedding
             .forward_with_context(context, token_ids, token_shape)
             .map_err(DecoderModelError::Embedding)?;
-        self.forward_from_embedding(context, embedding, None)
+        self.forward_from_embedding(context, embedding, None, None, None)
     }
 
     // region:padded-decoder-entry
@@ -891,7 +895,13 @@ impl DecoderModel {
             .embedding
             .forward_padded_with_context(context, batch.inputs(), &batch.shape())
             .map_err(DecoderModelError::Embedding)?;
-        Ok(self.forward_from_embedding(context, embedding, Some(batch.lengths()))?)
+        Ok(self.forward_from_embedding(
+            context,
+            embedding,
+            Some(batch.lengths()),
+            Some(batch.range_starts()),
+            Some(batch.positions()),
+        )?)
     }
     // endregion:padded-decoder-entry
 
@@ -900,6 +910,8 @@ impl DecoderModel {
         context: AutogradContext,
         embedding: TensorValue,
         lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
     ) -> Result<DecoderModelForward, DecoderModelError> {
         let mut current = embedding.clone();
         let mut block_forwards = Vec::new();
@@ -910,7 +922,7 @@ impl DecoderModel {
             })?;
         for (layer, block) in self.blocks.iter().enumerate() {
             let forward = block
-                .forward_with_optional_lengths(context, &current, 0, lengths)
+                .forward_with_layout(context, &current, 0, lengths, starts, positions)
                 .map_err(|source| DecoderModelError::Block { layer, source })?;
             current = forward.output().clone();
             block_forwards.push(forward);
@@ -1010,6 +1022,42 @@ impl DecoderModel {
         let forward = self.forward_padded_with_context(context, batch, expected)?;
         Ok(batch.loss_with_context(context, forward.logits())?)
     }
+
+    // region:packed-decoder-entry
+    pub fn forward_packed(
+        &self,
+        batch: &crate::training::packed_batch::PackedBatch,
+        expected: &BatchBinding,
+    ) -> Result<DecoderModelForward, PaddedDecoderError> {
+        self.forward_packed_with_context(AutogradContext::recording(), batch, expected)
+    }
+
+    pub fn forward_packed_with_context(
+        &self,
+        context: AutogradContext,
+        batch: &crate::training::packed_batch::PackedBatch,
+        expected: &BatchBinding,
+    ) -> Result<DecoderModelForward, PaddedDecoderError> {
+        self.forward_padded_with_context(context, batch.storage(), expected)
+    }
+
+    pub fn loss_packed(
+        &self,
+        batch: &crate::training::packed_batch::PackedBatch,
+        expected: &BatchBinding,
+    ) -> Result<MaskedLoss, PaddedDecoderError> {
+        self.loss_packed_with_context(AutogradContext::recording(), batch, expected)
+    }
+
+    pub fn loss_packed_with_context(
+        &self,
+        context: AutogradContext,
+        batch: &crate::training::packed_batch::PackedBatch,
+        expected: &BatchBinding,
+    ) -> Result<MaskedLoss, PaddedDecoderError> {
+        self.loss_padded_with_context(context, batch.storage(), expected)
+    }
+    // endregion:packed-decoder-entry
 
     fn validate_tokens(
         &self,

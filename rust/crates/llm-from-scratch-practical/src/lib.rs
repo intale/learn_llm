@@ -35,6 +35,8 @@ pub mod models {
 pub mod training {
     pub mod adamw;
     pub mod batch;
+    pub mod packed_batch;
+    pub mod packer;
     pub mod sequence_example;
     pub mod trainer;
     pub mod variable_batch;

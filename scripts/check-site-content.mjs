@@ -1647,7 +1647,7 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
   }
   const termAnchor = extras.find(attribute => attribute.name === 'cheatSheetTermIdPrefix');
   if (termAnchor) {
-    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the Chapter4 term-anchor conditional']); };
+    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the declared Chapter4/5 term-anchor conditionals']); };
     if (termAnchor.type !== 'attribute' || termAnchor.kind !== 'expression' ||
         typeof termAnchor.value !== 'string') reject();
     const anchorProgram = ts.createSourceFile(sourceName + '.term-anchor.ts', `(${termAnchor.value});`,
@@ -1656,18 +1656,25 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
     const expression = statement && ts.isExpressionStatement(statement) && statement.expression;
     const conditional = expression && ts.isParenthesizedExpression(expression) && expression.expression;
     if (anchorProgram.parseDiagnostics.length !== 0 || anchorProgram.statements.length !== 1 ||
-        !conditional || !ts.isConditionalExpression(conditional) ||
-        !ts.isBinaryExpression(conditional.condition) ||
-        conditional.condition.operatorToken.kind !== ts.SyntaxKind.EqualsEqualsEqualsToken ||
-        !ts.isStringLiteral(conditional.condition.right) || conditional.condition.right.text !== '04-padded-variable-batches' ||
-        !ts.isStringLiteral(conditional.whenTrue) || conditional.whenTrue.text !== 'padded-variable-term' ||
-        !ts.isIdentifier(conditional.whenFalse) || conditional.whenFalse.text !== 'undefined') reject();
-    let access = conditional.condition.left;
-    for (const field of ['chapter_id', 'data', 'entry', 'props']) {
-      if (!ts.isPropertyAccessExpression(access) || access.name.text !== field) reject();
-      access = access.expression;
+        !conditional || !ts.isConditionalExpression(conditional)) reject();
+    const pairs = [['04-padded-variable-batches', 'padded-variable-term'],
+      ['05-packed-sequence-masks', 'packed-sequence-term']];
+    let branch = conditional;
+    for (const [chapterId, prefix] of pairs) {
+      if (!ts.isConditionalExpression(branch) || !ts.isBinaryExpression(branch.condition) ||
+          branch.condition.operatorToken.kind !== ts.SyntaxKind.EqualsEqualsEqualsToken ||
+          !ts.isStringLiteral(branch.condition.right) || branch.condition.right.text !== chapterId ||
+          !ts.isStringLiteral(branch.whenTrue) || branch.whenTrue.text !== prefix) reject();
+      let access = branch.condition.left;
+      for (const field of ['chapter_id', 'data', 'entry', 'props']) {
+        if (!ts.isPropertyAccessExpression(access) || access.name.text !== field) reject();
+        access = access.expression;
+      }
+      if (!ts.isIdentifier(access) || access.text !== 'Astro') reject();
+      branch = branch.whenFalse;
+      if (ts.isIdentifier(branch) && branch.text === 'undefined') break;
     }
-    if (!ts.isIdentifier(access) || access.text !== 'Astro') reject();
+    if (!ts.isIdentifier(branch) || branch.text !== 'undefined') reject();
   }
   const program = ts.createSourceFile(sourceName + '.ts', frontmatter.value,
     ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);

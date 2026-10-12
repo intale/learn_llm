@@ -29,6 +29,7 @@ pub enum VariableBatchError {
     BindingMismatch,
     TooLong { length: usize, maximum: usize },
     Capacity { cells: usize, maximum: usize },
+    MetadataCapacity { bytes: usize, maximum: usize },
 }
 
 impl fmt::Display for VariableBatchError {
@@ -51,6 +52,10 @@ impl fmt::Display for VariableBatchError {
             Self::Capacity { cells, maximum } => write!(
                 f,
                 "{cells} batch cells exceed the declared capacity {maximum}"
+            ),
+            Self::MetadataCapacity { bytes, maximum } => write!(
+                f,
+                "{bytes} budgeted metadata bytes exceed the declared capacity {maximum}"
             ),
         }
     }
@@ -143,7 +148,7 @@ impl VariableBatchConfig {
     }
 }
 
-fn reserve<T>(count: usize) -> Result<Vec<T>, VariableBatchError> {
+pub(crate) fn reserve<T>(count: usize) -> Result<Vec<T>, VariableBatchError> {
     let mut values = Vec::new();
     values
         .try_reserve_exact(count)
@@ -157,6 +162,25 @@ fn validate_examples(
     expected: &BatchBinding,
     config: VariableBatchConfig,
 ) -> Result<(), VariableBatchError> {
+    validate_examples_inner(partition, examples, expected, config, true)
+}
+
+pub(crate) fn validate_pack_examples(
+    partition: Partition,
+    examples: &[SequenceExample<'_>],
+    expected: &BatchBinding,
+    config: VariableBatchConfig,
+) -> Result<(), VariableBatchError> {
+    validate_examples_inner(partition, examples, expected, config, false)
+}
+
+fn validate_examples_inner(
+    partition: Partition,
+    examples: &[SequenceExample<'_>],
+    expected: &BatchBinding,
+    config: VariableBatchConfig,
+    require_unique_ids: bool,
+) -> Result<(), VariableBatchError> {
     if examples.is_empty() {
         return Err(VariableBatchError::Invalid(
             "a batch traversal needs at least one example",
@@ -168,7 +192,7 @@ fn validate_examples(
         if example.binding() != expected {
             return Err(VariableBatchError::BindingMismatch);
         }
-        if !ids.insert(example.id()) {
+        if require_unique_ids && !ids.insert(example.id()) {
             return Err(VariableBatchError::Invalid(
                 "example IDs must be unique in this traversal",
             ));
@@ -183,6 +207,35 @@ fn validate_examples(
     Ok(())
 }
 
+/// A source occurrence and its contiguous interval, before any token copying.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct BatchPlacement {
+    pub occurrence: usize,
+    pub row: usize,
+    pub start: usize,
+}
+
+pub(crate) const ALLOCATION_ALLOWANCE: usize = 64;
+
+pub(crate) fn checked_metadata_add(left: usize, right: usize) -> Result<usize, VariableBatchError> {
+    left.checked_add(right).ok_or(VariableBatchError::Invalid(
+        "metadata byte count overflows usize",
+    ))
+}
+
+pub(crate) fn checked_metadata_mul(left: usize, right: usize) -> Result<usize, VariableBatchError> {
+    left.checked_mul(right).ok_or(VariableBatchError::Invalid(
+        "metadata byte count overflows usize",
+    ))
+}
+
+pub(crate) fn enforce_metadata(bytes: usize, maximum: usize) -> Result<(), VariableBatchError> {
+    if bytes > maximum {
+        return Err(VariableBatchError::MetadataCapacity { bytes, maximum });
+    }
+    Ok(())
+}
+
 /// All arrays are derived together from checked examples; callers cannot inject masks.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct VariableBatch {
@@ -193,6 +246,7 @@ pub struct VariableBatch {
     inputs: Vec<i32>,
     targets: Vec<i32>,
     positions: Vec<usize>,
+    range_starts: Vec<usize>,
     segments: Vec<i32>,
     valid_tokens: Vec<bool>,
     valid_targets: Vec<bool>,
@@ -201,6 +255,7 @@ pub struct VariableBatch {
     example_ids: Vec<String>,
     source_ranges: Vec<std::ops::Range<usize>>,
     valid_target_count: usize,
+    metadata_budget_bytes: usize,
 }
 
 impl VariableBatch {
@@ -212,6 +267,15 @@ impl VariableBatch {
         config: VariableBatchConfig,
     ) -> Result<Self, VariableBatchError> {
         validate_examples(partition, examples, expected, config)?;
+        Self::build_checked(partition, examples, expected, config)
+    }
+
+    fn build_checked(
+        partition: Partition,
+        examples: &[SequenceExample<'_>],
+        expected: &BatchBinding,
+        config: VariableBatchConfig,
+    ) -> Result<Self, VariableBatchError> {
         if examples.len() > config.batch_size() {
             return Err(VariableBatchError::Invalid("too many rows for this batch"));
         }
@@ -235,41 +299,194 @@ impl VariableBatch {
         if rows > i32::MAX as usize + 1 {
             return Err(VariableBatchError::Invalid("segment IDs must fit i32"));
         }
+        let mut placements = reserve(rows)?;
+        for row in 0..rows {
+            placements.push(BatchPlacement {
+                occurrence: row,
+                row,
+                start: 0,
+            });
+        }
+        Self::build_placed(
+            partition,
+            examples,
+            expected,
+            [rows, columns],
+            &placements,
+            0..rows,
+        )
+    }
+    // endregion:right-padded-batch
+
+    /// Retain repeated immutable example IDs; each input occurrence owns its row.
+    pub fn build_occurrences(
+        partition: Partition,
+        examples: &[SequenceExample<'_>],
+        expected: &BatchBinding,
+        config: VariableBatchConfig,
+    ) -> Result<Self, VariableBatchError> {
+        validate_pack_examples(partition, examples, expected, config)?;
+        Self::build_checked(partition, examples, expected, config)
+    }
+
+    /// One allocation model for the shared padded and packed storage owner.
+    /// The allowance is a budgeting policy, not an allocator-size observation.
+    pub(crate) fn budget_placed(
+        shape: [usize; 2],
+        examples: &[SequenceExample<'_>],
+        occurrences: std::ops::Range<usize>,
+    ) -> Result<usize, VariableBatchError> {
+        use std::mem::size_of;
+        let cells = checked_metadata_mul(shape[0], shape[1])?;
+        let per_cell = 3 * size_of::<i32>() + 2 * size_of::<usize>() + 3 * size_of::<bool>();
+        let mut bytes =
+            checked_metadata_add(size_of::<Self>(), checked_metadata_mul(cells, per_cell)?)?;
+        bytes = checked_metadata_add(bytes, checked_metadata_mul(shape[0], size_of::<usize>())?)?;
+        let selected = examples
+            .get(occurrences)
+            .ok_or(VariableBatchError::Invalid(
+                "occurrence span is outside its input",
+            ))?;
+        bytes = checked_metadata_add(
+            bytes,
+            checked_metadata_mul(
+                selected.len(),
+                2 * size_of::<String>() + size_of::<std::ops::Range<usize>>(),
+            )?,
+        )?;
+        // Nine cell/length buffers and three provenance buffers, plus two strings per occurrence.
+        bytes = checked_metadata_add(bytes, checked_metadata_mul(12, ALLOCATION_ALLOWANCE)?)?;
+        for example in selected {
+            bytes = checked_metadata_add(bytes, example.id().len())?;
+            bytes = checked_metadata_add(bytes, example.document().id().len())?;
+            bytes = checked_metadata_add(bytes, 2 * ALLOCATION_ALLOWANCE)?;
+        }
+        Ok(bytes)
+    }
+
+    // region:shared-prediction-storage
+    pub(crate) fn build_placed(
+        partition: Partition,
+        examples: &[SequenceExample<'_>],
+        expected: &BatchBinding,
+        shape: [usize; 2],
+        placements: &[BatchPlacement],
+        occurrences: std::ops::Range<usize>,
+    ) -> Result<Self, VariableBatchError> {
+        let [rows, columns] = shape;
+        if rows == 0 || columns == 0 || placements.is_empty() {
+            return Err(VariableBatchError::Invalid(
+                "placed storage needs real rows and predictions",
+            ));
+        }
+        let cells = checked_metadata_mul(rows, columns)?;
+        let metadata_budget_bytes = Self::budget_placed(shape, examples, occurrences.clone())?;
+        if placements.len() != occurrences.end.saturating_sub(occurrences.start) {
+            return Err(VariableBatchError::Invalid(
+                "placements must cover their occurrence span exactly",
+            ));
+        }
+        let mut checked_row = 0;
+        let mut filled = 0usize;
+        for (ordinal, placement) in occurrences.clone().zip(placements) {
+            if placement.occurrence != ordinal {
+                return Err(VariableBatchError::Invalid(
+                    "placement occurrence IDs must be unique and preserve input order",
+                ));
+            }
+            let example = &examples[ordinal];
+            validate_documents(partition, &[example.document()])?;
+            if example.binding() != expected {
+                return Err(VariableBatchError::BindingMismatch);
+            }
+            if placement.row != checked_row {
+                if placement.row != checked_row + 1 || filled == 0 {
+                    return Err(VariableBatchError::Invalid(
+                        "placed rows must be contiguous and nonempty",
+                    ));
+                }
+                checked_row = placement.row;
+                filled = 0;
+            }
+            if placement.row >= rows || placement.start != filled || example.is_empty() {
+                return Err(VariableBatchError::Invalid(
+                    "segments must fill contiguous prediction intervals",
+                ));
+            }
+            filled = filled
+                .checked_add(example.len())
+                .ok_or(BatchError::TokenCountOverflow)?;
+            if filled > columns
+                || ordinal > i32::MAX as usize
+                || example.len() > i32::MAX as usize + 1
+            {
+                return Err(VariableBatchError::Invalid(
+                    "placed segment, position or interval is out of bounds",
+                ));
+            }
+        }
+        if checked_row + 1 != rows || filled == 0 {
+            return Err(VariableBatchError::Invalid(
+                "placed storage must not contain an all-padding row",
+            ));
+        }
         let mut inputs = reserve(cells)?;
         let mut targets = reserve(cells)?;
         let mut positions = reserve(cells)?;
+        let mut range_starts = reserve(cells)?;
         let mut segments = reserve(cells)?;
         let mut valid_tokens = reserve(cells)?;
         let mut valid_targets = reserve(cells)?;
         let mut loss_mask = reserve(cells)?;
         let mut lengths = reserve(rows)?;
-        let mut source_ids = reserve(rows)?;
-        let mut example_ids = reserve(rows)?;
-        let mut source_ranges = reserve(rows)?;
+        let mut source_ids = reserve(placements.len())?;
+        let mut example_ids = reserve(placements.len())?;
+        let mut source_ranges = reserve(placements.len())?;
         let mut valid_target_count = 0usize;
-        for (row, example) in examples.iter().enumerate() {
-            lengths.push(example.len());
-            source_ids.push(example.document().id().to_owned());
-            example_ids.push(example.id().to_owned());
-            source_ranges.push(example.source_range());
-            valid_target_count = valid_target_count
-                .checked_add(example.len())
-                .ok_or(BatchError::TokenCountOverflow)?;
+        let mut placement_cursor = 0;
+        for row in 0..rows {
+            let first = placement_cursor;
+            while placement_cursor < placements.len() && placements[placement_cursor].row == row {
+                placement_cursor += 1;
+            }
+            let last = placements[placement_cursor - 1];
+            let length = last.start + examples[last.occurrence].len();
+            lengths.push(length);
+            for placement in &placements[first..placement_cursor] {
+                let example = &examples[placement.occurrence];
+                source_ids.push(example.document().id().to_owned());
+                example_ids.push(example.id().to_owned());
+                source_ranges.push(example.source_range());
+                valid_target_count = valid_target_count
+                    .checked_add(example.len())
+                    .ok_or(BatchError::TokenCountOverflow)?;
+            }
+            let mut segment = first;
             for column in 0..columns {
-                let active = column < example.len();
+                let active = column < length;
                 if active {
-                    inputs.push(i32::try_from(example.inputs()[column]).map_err(|_| {
+                    while segment + 1 < placement_cursor && column >= placements[segment + 1].start
+                    {
+                        segment += 1;
+                    }
+                    let placement = placements[segment];
+                    let example = &examples[placement.occurrence];
+                    let local = column - placement.start;
+                    inputs.push(i32::try_from(example.inputs()[local]).map_err(|_| {
                         VariableBatchError::Invalid("input token ID does not fit i32")
                     })?);
-                    targets.push(i32::try_from(example.targets()[column]).map_err(|_| {
+                    targets.push(i32::try_from(example.targets()[local]).map_err(|_| {
                         VariableBatchError::Invalid("target token ID does not fit i32")
                     })?);
-                    positions.push(column);
-                    segments.push(i32::try_from(row).expect("checked segment range"));
+                    positions.push(local);
+                    range_starts.push(placement.start);
+                    segments
+                        .push(i32::try_from(placement.occurrence).expect("checked segment range"));
                 } else {
                     inputs.push(PAD_CELL);
                     targets.push(PAD_CELL);
                     positions.push(0);
+                    range_starts.push(0);
                     segments.push(NO_SEGMENT);
                 }
                 valid_tokens.push(active);
@@ -285,6 +502,7 @@ impl VariableBatch {
             inputs,
             targets,
             positions,
+            range_starts,
             segments,
             valid_tokens,
             valid_targets,
@@ -293,9 +511,10 @@ impl VariableBatch {
             example_ids,
             source_ranges,
             valid_target_count,
+            metadata_budget_bytes,
         })
     }
-    // endregion:right-padded-batch
+    // endregion:shared-prediction-storage
 
     pub const fn partition(&self) -> Partition {
         self.partition
@@ -317,6 +536,12 @@ impl VariableBatch {
     }
     pub fn positions(&self) -> &[usize] {
         &self.positions
+    }
+    pub fn range_starts(&self) -> &[usize] {
+        &self.range_starts
+    }
+    pub const fn metadata_budget_bytes(&self) -> usize {
+        self.metadata_budget_bytes
     }
     pub fn segments(&self) -> &[i32] {
         &self.segments
@@ -356,7 +581,12 @@ impl VariableBatch {
                 "attention coordinate is outside this batch",
             ));
         }
-        Ok(query < self.lengths[row] && key < self.lengths[row] && key <= query)
+        let q = row * self.shape[1] + query;
+        let k = row * self.shape[1] + key;
+        Ok(self.valid_tokens[q]
+            && self.valid_tokens[k]
+            && self.segments[q] == self.segments[k]
+            && self.positions[k] <= self.positions[q])
     }
     // endregion:implicit-padding-mask
 

@@ -1,0 +1,127 @@
+---
+import trace from '../../data/course/packed-sequence-masks-trace.json';
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string; row: string; occurrences: string;
+  example: string; sourceRange: string; encoded: string; predictionLength: string;
+  placement: string; metadataCaption: string; metadataRegion: string; field: string;
+  input: string; target: string; position: string; segment: string;
+  tokenValid: string; targetValid: string; lossEligible: string; yes: string; no: string;
+  pad: string; noSegment: string; matrixCaption: string; matrixRegion: string;
+  queryAxis: string; keyAxis: string; matrixMeaning: string;
+  paddingTitle: string; paddingNote: string; accountingTitle: string;
+  storage: string; targets: string; padding: string; edges: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const label of Object.values(labels)) {
+  if (typeof label !== 'string' || label.trim() === '') throw new Error('Packed sequence diagram labels must be nonempty.');
+}
+const columns = Array.from({ length: trace.main.capacity_prediction_pairs }, (_, column) => column);
+const booleanLabel = (value: boolean) => value ? labels.yes : labels.no;
+---
+<figure class="course-diagram packed-sequence-diagram" data-diagram-style="course-v1"
+  data-visualization-id="packed-sequence-masks" tabindex="0"
+  aria-labelledby="packed-sequence-title" aria-describedby="packed-sequence-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="packed-sequence-title">{labels.title}</h3>
+    <p id="packed-sequence-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+  <div class="course-diagram__grid packed-row-panels">
+    {trace.main.rows.map(row => <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-packed-row={row.row}>
+      <div class="course-diagram__card-heading"><h4 id={`packed-row-heading-${row.row}`}>{labels.row} <InlineMath latex={`${row.row}`} /></h4></div>
+      <div data-packed-occurrence-summary={row.row}>
+        <h5>{labels.occurrences}</h5>
+        <ul>
+          {trace.main.occurrences.filter(occurrence => occurrence.row === row.row).map(occurrence => <li data-packed-occurrence={occurrence.ordinal}>
+            <span>{labels.example} <bdi dir="ltr"><code>{occurrence.example_id}</code></bdi> · {labels.segment} <bdi dir="ltr"><code>{occurrence.segment}</code></bdi></span>
+            <span>{labels.encoded}: <bdi dir="ltr"><code>{JSON.stringify(occurrence.encoded_document)}</code></bdi></span>
+            <span>{labels.sourceRange}: <bdi dir="ltr"><code>[{occurrence.source_range[0]},{occurrence.source_range[1]})</code></bdi> · {labels.predictionLength}: <InlineMath latex={`${occurrence.prediction_length}`} /></span>
+            <span>{labels.placement}: <bdi dir="ltr"><code>[{occurrence.columns[0]},{occurrence.columns[1]})</code></bdi></span>
+          </li>)}
+        </ul>
+      </div>
+      <div class="course-diagram__grid packed-table-pair" data-packed-table-pair={row.row}>
+      <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0" aria-label={`${labels.metadataRegion} ${row.row}`}>
+        <table data-diagram-table data-packed-metadata-row={row.row}>
+          <caption>{labels.metadataCaption}: {labels.row} <InlineMath latex={`${row.row}`} /></caption>
+          <thead><tr><th scope="col">{labels.field}</th>{columns.map(column => <th scope="col"><InlineMath latex={`${column}`} /></th>)}</tr></thead>
+          <tbody>
+            <tr data-packed-field="input"><th scope="row">{labels.input}</th>{row.inputs.map(id => <td><bdi dir="ltr"><code>{id}</code></bdi>{id === trace.main.pad_cell && <small>{labels.pad}</small>}</td>)}</tr>
+            <tr data-packed-field="target"><th scope="row">{labels.target}</th>{row.targets.map(id => <td><bdi dir="ltr"><code>{id}</code></bdi>{id === trace.main.pad_cell && <small>{labels.pad}</small>}</td>)}</tr>
+            <tr data-packed-field="position"><th scope="row">{labels.position}</th>{row.positions.map(position => <td><bdi dir="ltr"><code>{position}</code></bdi></td>)}</tr>
+            <tr data-packed-field="segment"><th scope="row">{labels.segment}</th>{row.segments.map(segment => <td><bdi dir="ltr"><code>{segment}</code></bdi>{segment === trace.main.no_segment && <small>{labels.noSegment}</small>}</td>)}</tr>
+            <tr data-packed-field="input-valid"><th scope="row">{labels.tokenValid}</th>{row.valid_tokens.map(value => <td>{booleanLabel(value)}</td>)}</tr>
+            <tr data-packed-field="target-valid"><th scope="row">{labels.targetValid}</th>{row.valid_targets.map(value => <td>{booleanLabel(value)}</td>)}</tr>
+            <tr data-packed-field="loss-eligible"><th scope="row">{labels.lossEligible}</th>{row.loss_mask.map(value => <td>{booleanLabel(value)}</td>)}</tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0" aria-label={`${labels.matrixRegion} ${row.row}`}>
+        <table data-diagram-table data-packed-permission-row={row.row} aria-describedby={`packed-permission-meaning-${row.row}`}>
+          <caption>
+            <span>{labels.matrixCaption}: {labels.row} <InlineMath latex={`${row.row}`} /></span>
+            <p id={`packed-permission-meaning-${row.row}`} data-packed-permission-meaning={row.row}>{labels.matrixMeaning}</p>
+          </caption>
+          <thead><tr><th scope="col">{labels.queryAxis} / {labels.keyAxis}</th>{columns.map(key => <th scope="col"><InlineMath latex={`j=${key}`} /></th>)}</tr></thead>
+          <tbody>{row.allowed_keys.map((keys, query) => <tr>
+            <th scope="row"><InlineMath latex={`i=${query}`} /></th>
+            {columns.map(key => {
+              const permission = keys.includes(key) ? 1 : 0;
+              return <td data-query={query} data-key={key} data-permission={permission}><bdi dir="ltr"><code>{permission}</code></bdi></td>;
+            })}
+          </tr>)}</tbody>
+        </table>
+      </div>
+      </div>
+    </article>)}
+  </div>
+  <div class="course-diagram__grid packed-accounting">
+    <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-packed-accounting="counts">
+      <div class="course-diagram__card-heading"><h4>{labels.accountingTitle}</h4></div>
+      <dl>
+        <div><dt>{labels.storage}</dt><dd><InlineMath latex={`${trace.main.stored_cells}`} /></dd></div>
+        <div><dt>{labels.targets}</dt><dd><InlineMath latex={`${trace.main.valid_targets}`} /></dd></div>
+        <div><dt>{labels.padding}</dt><dd><InlineMath latex={`${trace.main.stored_cells - trace.main.valid_targets}`} /></dd></div>
+        <div><dt>{labels.edges}</dt><dd><InlineMath latex={`${trace.main.allowed_edges_per_head}`} /></dd></div>
+      </dl>
+    </article>
+    <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-packed-accounting="padding">
+      <div class="course-diagram__card-heading"><h4>{labels.paddingTitle}</h4></div>
+      <p>{labels.paddingNote}</p>
+    </article>
+  </div>
+</figure>
+
+<style>
+  .packed-row-panels, .packed-accounting, .packed-table-pair { grid-template-columns: minmax(0, 1fr); }
+  .packed-sequence-diagram [data-packed-metadata-row] { min-inline-size: 31rem; }
+  .packed-sequence-diagram [data-packed-permission-row] { min-inline-size: 22rem; }
+  .packed-sequence-diagram table { --diagram-cell-padding-block: 0.35rem; }
+  [data-packed-occurrence-summary] h5 { margin-block: 0 0.35rem; }
+  [data-packed-occurrence-summary] ul { margin-block: 0; padding-inline-start: 1.25rem; }
+  [data-packed-occurrence] { display: grid; gap: 0.15rem; margin-block-end: 0.45rem; }
+  .packed-sequence-diagram dl { margin-block: 0; }
+  [data-packed-accounting="counts"] dl > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  @container (min-width: 48rem) {
+    .packed-accounting { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container (min-width: 68rem) {
+    .packed-row-panels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .packed-table-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .packed-sequence-diagram table { --diagram-cell-padding-block: 0.25rem; }
+    .packed-sequence-diagram [data-packed-permission-row] thead th:first-child { min-inline-size: 12rem; }
+    [data-packed-occurrence] { display: flex; flex-wrap: wrap; column-gap: 0.65rem; }
+    [data-packed-accounting="counts"] dl {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.35rem 0.65rem;
+    }
+  }
+</style>

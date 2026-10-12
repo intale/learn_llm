@@ -44,6 +44,10 @@ pub enum RopeError {
         tokens: usize,
         max_positions: usize,
     },
+    PositionCountMismatch {
+        expected: usize,
+        actual: usize,
+    },
     Tensor(TensorError),
     Autodiff(TensorAutodiffError),
 }
@@ -96,6 +100,10 @@ impl fmt::Display for RopeError {
                 offset.saturating_add(*tokens)
             ),
             Self::Tensor(error) => error.fmt(formatter),
+            Self::PositionCountMismatch { expected, actual } => write!(
+                formatter,
+                "rotary local-position table needs {expected} positions, received {actual}"
+            ),
             Self::Autodiff(error) => error.fmt(formatter),
         }
     }
@@ -393,6 +401,84 @@ impl RotaryEmbedding {
         .map_err(Into::into)
     }
     // endregion:rope-rotation
+
+    // region:segment-local-rotation
+    /// Reuse the precomputed rows and the same rotation/pullback for local positions.
+    pub fn rotate_with_positions(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        positions: &[usize],
+        lengths: &[usize],
+    ) -> Result<TensorValue, RopeError> {
+        let shape = input.shape();
+        if shape.len() < 2 {
+            return Err(RopeError::InputRank { rank: shape.len() });
+        }
+        let width = shape[shape.len() - 1];
+        if width != self.feature_width {
+            return Err(RopeError::FeatureWidthMismatch {
+                expected: self.feature_width,
+                actual: width,
+            });
+        }
+        let tokens = shape[shape.len() - 2];
+        let grids = shape[..shape.len() - 2]
+            .iter()
+            .try_fold(1usize, |n, &axis| n.checked_mul(axis))
+            .ok_or(TensorError::ShapeOverflow)?;
+        let expected = grids
+            .checked_mul(tokens)
+            .ok_or(TensorError::ShapeOverflow)?;
+        if positions.len() != expected {
+            return Err(RopeError::PositionCountMismatch {
+                expected,
+                actual: positions.len(),
+            });
+        }
+        if lengths.len() != grids || lengths.iter().any(|&length| length > tokens) {
+            return Err(RopeError::Autodiff(
+                crate::autograd::model_ops::ModelOpError::InvalidRotaryLengths.into(),
+            ));
+        }
+        for (grid, &length) in lengths.iter().enumerate() {
+            for token in 0..length {
+                let position = positions[grid * tokens + token];
+                if position >= self.max_positions {
+                    return Err(RopeError::PositionRangeExceeded {
+                        offset: position,
+                        tokens: 1,
+                        max_positions: self.max_positions,
+                    });
+                }
+            }
+        }
+        let pairs = self.feature_width / 2;
+        let elements = expected
+            .checked_mul(pairs)
+            .ok_or(TensorError::ShapeOverflow)?;
+        let mut cosines = reserved_values(elements)?;
+        let mut sines = reserved_values(elements)?;
+        for (grid, &length) in lengths.iter().enumerate() {
+            for token in 0..tokens {
+                if token >= length {
+                    cosines.extend(std::iter::repeat_n(1.0, pairs));
+                    sines.extend(std::iter::repeat_n(0.0, pairs));
+                    continue;
+                }
+                let start = positions[grid * tokens + token] * pairs;
+                cosines.extend_from_slice(&self.cosines.as_slice()[start..start + pairs]);
+                sines.extend_from_slice(&self.sines.as_slice()[start..start + pairs]);
+            }
+        }
+        let table_shape = vec![grids, tokens, pairs];
+        let cosines = Tensor::from_vec(table_shape.clone(), cosines)?;
+        let sines = Tensor::from_vec(table_shape, sines)?;
+        input
+            .rotary_pairs_with_optional_lengths(context, &cosines, &sines, Some(lengths))
+            .map_err(Into::into)
+    }
+    // endregion:segment-local-rotation
 
     pub const fn feature_width(&self) -> usize {
         self.feature_width
