@@ -19,6 +19,9 @@ use crate::tensor::storage::Tensor;
 use crate::training::sequence_example::BatchBinding;
 
 #[cfg(test)]
+#[path = "decoder_depth_tests.rs"]
+mod depth_tests;
+#[cfg(test)]
 #[path = "decoder_packing_tests.rs"]
 mod packing_tests;
 use crate::training::variable_batch::{MaskedLoss, VariableBatch, VariableBatchError};
@@ -129,6 +132,11 @@ pub enum DecoderModelError {
     },
     ParameterAllocationFailed {
         tensors: usize,
+    },
+    ParameterScalarCountOverflow,
+    ResidualSiteOutOfBounds {
+        site: usize,
+        site_count: usize,
     },
     ParameterCountMismatch {
         expected: usize,
@@ -273,6 +281,13 @@ impl fmt::Display for DecoderModelError {
                     "could not reserve {tensors} decoder parameter handles"
                 )
             }
+            Self::ParameterScalarCountOverflow => {
+                formatter.write_str("decoder parameter scalar census exceeds usize")
+            }
+            Self::ResidualSiteOutOfBounds { site, site_count } => write!(
+                formatter,
+                "residual site {site} is outside {site_count} decoder residual sites"
+            ),
             Self::ParameterCountMismatch { expected, actual } => write!(
                 formatter,
                 "decoder parameter count must be {expected}, got {actual}"
@@ -517,6 +532,24 @@ impl DecoderModelConfig {
             self.rope_base,
             self.rms_epsilon,
         )
+    }
+
+    /// Counts this owner's bias-free equal-head matrices without allocating them.
+    pub fn checked_parameter_count(self) -> Result<usize, DecoderModelError> {
+        validate_config(self)?;
+        let checked = || -> Option<usize> {
+            let d = self.model_width;
+            let attention = d.checked_mul(d)?.checked_mul(4)?;
+            let feed_forward = d.checked_mul(self.feed_forward_width)?.checked_mul(3)?;
+            let per_block = attention
+                .checked_add(feed_forward)?
+                .checked_add(d.checked_mul(2)?)?;
+            self.vocabulary_size
+                .checked_mul(d)?
+                .checked_add(self.layers.checked_mul(per_block)?)?
+                .checked_add(d)
+        };
+        checked().ok_or(DecoderModelError::ParameterScalarCountOverflow)
     }
 }
 
@@ -913,14 +946,52 @@ impl DecoderModel {
         starts: Option<&[usize]>,
         positions: Option<&[usize]>,
     ) -> Result<DecoderModelForward, DecoderModelError> {
-        let mut current = embedding.clone();
+        let (blocks, final_norm, logits) =
+            self.forward_residual_tail(context, embedding.clone(), 0, lengths, starts, positions)?;
+        Ok(DecoderModelForward {
+            embedding,
+            blocks,
+            final_norm,
+            logits,
+        })
+    }
+
+    /// The same downstream computation serves full forward and bounded diagnostics.
+    #[allow(clippy::too_many_arguments, clippy::type_complexity)]
+    fn forward_residual_tail(
+        &self,
+        context: AutogradContext,
+        mut current: TensorValue,
+        first_site: usize,
+        lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
+    ) -> Result<(Vec<DecoderBlockForward>, RmsNormForward, TensorValue), DecoderModelError> {
+        let site_count = 2 * self.blocks.len() + 1;
+        if first_site >= site_count {
+            return Err(DecoderModelError::ResidualSiteOutOfBounds {
+                site: first_site,
+                site_count,
+            });
+        }
+        let mut first_layer = first_site / 2;
+        if first_site % 2 == 1 {
+            current = self.blocks[first_layer]
+                .forward_feed_forward_path(context, &current)
+                .map_err(|source| DecoderModelError::Block {
+                    layer: first_layer,
+                    source,
+                })?
+                .2;
+            first_layer += 1;
+        }
         let mut block_forwards = Vec::new();
         block_forwards
-            .try_reserve_exact(self.blocks.len())
+            .try_reserve_exact(self.blocks.len() - first_layer)
             .map_err(|_| DecoderModelError::LayerAllocationFailed {
                 layers: self.blocks.len(),
             })?;
-        for (layer, block) in self.blocks.iter().enumerate() {
+        for (layer, block) in self.blocks.iter().enumerate().skip(first_layer) {
             let forward = block
                 .forward_with_layout(context, &current, 0, lengths, starts, positions)
                 .map_err(|source| DecoderModelError::Block { layer, source })?;
@@ -942,12 +1013,7 @@ impl DecoderModel {
             .matmul_with_context(context, &tied_weight)
             .map_err(autodiff_error(DecoderModelStage::TiedVocabularyProjection))?;
 
-        Ok(DecoderModelForward {
-            embedding,
-            blocks: block_forwards,
-            final_norm,
-            logits,
-        })
+        Ok((block_forwards, final_norm, logits))
     }
 
     /// Computes one mean next-token loss over the vocabulary axis.

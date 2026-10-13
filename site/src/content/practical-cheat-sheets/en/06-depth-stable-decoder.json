@@ -1,0 +1,15 @@
+{
+  "chapter_id":"06-depth-stable-decoder",
+  "locale":"en",
+  "title":"Projection initialization and residual observations",
+  "description":"Terms for choosing initial output projection weights and interpreting valid-feature residual RMS and completed loss adjoints.",
+  "terms":[
+    {"term":"Depth-aware initialization","definition":"A fresh construction policy that multiplies each block's stored attention output and feed-forward down weights by the inverse square root of the positive number of complete blocks. The factor is applied once; forward applies no second factor."},
+    {"term":"Residual output projection","definition":"A matrix that maps branch features back to model width before a residual addition. The selected matrices are the attention output projection and feed-forward down projection; the residual skip route is unscaled."},
+    {"term":"Xavier initialization","definition":"Initialization whose matrix scale uses fan-in and fan-out. Its ideal variance reasoning has simplified assumptions; a finite matrix's empirical variance need not equal the distribution's target variance."},
+    {"term":"Residual site","definition":"A decoder state observed at the input or after an attention or feed-forward residual addition. A block's final state is the next block's input, so that shared boundary is counted once."},
+    {"term":"Root mean square","definition":"Magnitude about zero: square the feature values at valid positions, average those squares and take the square root. Padding is skipped before arithmetic. This measure does not subtract a mean."},
+    {"term":"Completed adjoint","definition":"The fully accumulated derivative of the valid-target mean loss with respect to a residual feature. It is captured after the existing reverse pass has combined every contribution to that feature."},
+    {"term":"Same-base control","definition":"An unscaled decoder built from a copy of the same actual base parameters as the selectively initialized decoder. The copy precedes the selected weight transformation, with no resampling; each model's RMS ratios use its own normalizers."}
+  ]
+}

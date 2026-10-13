@@ -361,16 +361,8 @@ impl DecoderBlock {
             .map_err(DecoderBlockError::Attention)?;
         let after_attention = residual_add_with_context(context, input, attention.output())
             .map_err(DecoderBlockError::AttentionResidual)?;
-        let feed_forward_norm = self
-            .feed_forward_norm
-            .forward_with_intermediates_and_context(context, &after_attention)
-            .map_err(DecoderBlockError::FeedForwardNorm)?;
-        let feed_forward = self
-            .feed_forward
-            .forward_with_intermediates_and_context(context, feed_forward_norm.output())
-            .map_err(DecoderBlockError::FeedForward)?;
-        let output = residual_add_with_context(context, &after_attention, feed_forward.output())
-            .map_err(DecoderBlockError::FeedForwardResidual)?;
+        let (feed_forward_norm, feed_forward, output) =
+            self.forward_feed_forward_path(context, &after_attention)?;
 
         Ok(DecoderBlockForward {
             attention_norm,
@@ -380,6 +372,25 @@ impl DecoderBlock {
             feed_forward,
             output,
         })
+    }
+
+    /// One FFN residual path, reused by full blocks and residual-site diagnostics.
+    pub(crate) fn forward_feed_forward_path(
+        &self,
+        context: AutogradContext,
+        after_attention: &TensorValue,
+    ) -> Result<(RmsNormForward, SwiGluForward, TensorValue), DecoderBlockError> {
+        let feed_forward_norm = self
+            .feed_forward_norm
+            .forward_with_intermediates_and_context(context, after_attention)
+            .map_err(DecoderBlockError::FeedForwardNorm)?;
+        let feed_forward = self
+            .feed_forward
+            .forward_with_intermediates_and_context(context, feed_forward_norm.output())
+            .map_err(DecoderBlockError::FeedForward)?;
+        let output = residual_add_with_context(context, after_attention, feed_forward.output())
+            .map_err(DecoderBlockError::FeedForwardResidual)?;
+        Ok((feed_forward_norm, feed_forward, output))
     }
 
     pub fn attention_norm(&self) -> &RmsNorm {

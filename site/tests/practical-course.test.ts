@@ -7,7 +7,7 @@ import {getMessages,validateMessageCatalog} from '../src/i18n';
 import {COURSE_HOME_MESSAGE_KEYS,COURSE_INDEX_MESSAGE_KEYS,courseMessageKeys,hasCourseHomeMessages,hasCourseIndexMessages,hasCourseMessages} from '../src/i18n/messages';
 import {practicalCourse} from '../src/lib/course-configuration';
 
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder'] as const;
 const read=(path:string)=>readFileSync(new URL('../../'+path,import.meta.url),'utf8');
 const documents=ids.map(id=>({id,
   lesson:parseJsonFrontmatter(read('site/src/content/practical-chapters/en/'+id+'.mdx'),id),
@@ -39,11 +39,11 @@ describe('independent optional course message groups',()=>{
   });
 });
 
-describe('current practical Chapters 0–5 source bindings',()=>{
+describe('current practical Chapters 0–6 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
-    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([3,1,1,2,1,1]);
+    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([3,1,1,2,1,1,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);
@@ -101,7 +101,7 @@ describe('current practical Chapters 0–5 source bindings',()=>{
     expect(read('rust/crates/llm-from-scratch-practical/tests/practical_ch03_tokenizer.rs')).toContain('fn leftmost_overlap(');
     expect(read('rust/demos/practical-ch03-scalable-bpe-tokenizer/src/lib.rs')).toContain('fn optional_third_rank_is_the_checked_course_exercise(');
   });
-  for(const index of [4,5]) it('binds '+ids[index]+' formula, exact executed stdout and source regions',()=>{
+  for(const index of [4,5,6]) it('binds '+ids[index]+' formula, exact executed stdout and source regions',()=>{
     const {id,lesson,contract}=documents[index];
     const concept=id.slice(3);
     expect(lesson.data.concept_id).toBe(concept);
@@ -122,7 +122,7 @@ describe('current practical Chapters 0–5 source bindings',()=>{
     const sheet=JSON.parse(read('site/src/content/practical-cheat-sheets/en/'+id+'.json'));
     expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');
     expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
-    const historyUrls=index===4?['https://arxiv.org/abs/2107.02027v1','https://www.usenix.org/conference/osdi22/presentation/yu']:['https://arxiv.org/abs/2107.02027v1','https://arxiv.org/abs/2205.14135v2'];
+    const historyUrls=index===4?['https://arxiv.org/abs/2107.02027v1','https://www.usenix.org/conference/osdi22/presentation/yu']:index===5?['https://arxiv.org/abs/2107.02027v1','https://arxiv.org/abs/2205.14135v2']:['https://proceedings.mlr.press/v9/glorot10a.html','https://arxiv.org/abs/2203.00555'];
     for(const url of historyUrls)expect(lesson.body).toContain(']('+url+')');
   });
 });

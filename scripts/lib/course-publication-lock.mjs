@@ -19,10 +19,10 @@ export const PRODUCT_FILES = Object.freeze([
   'site/astro.config.mjs','site/sitemap.config.mjs','site/tsconfig.json',
 ]);
 export const PRACTICAL_CHAPTER_IDS = Object.freeze([
-  '00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks',
+  '00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder',
 ]);
 const FIRST_REVISIONS = Object.freeze([5,6,9,7,9,8,5,7,5,6,5,5,8,6,6,9,7,5,8,5,3,3,8,5,3,5,2,2,2,3,2,2,4,12,7,5,6,6,6,9]);
-const PRACTICAL_REVISIONS = Object.freeze([3,1,1,2,1,1]);
+const PRACTICAL_REVISIONS = Object.freeze([3,1,1,2,1,1,1]);
 const compare = (a,b) => Buffer.compare(Buffer.from(a),Buffer.from(b));
 
 function regularFiles(root,path) {

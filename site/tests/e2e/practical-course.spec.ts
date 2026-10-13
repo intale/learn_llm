@@ -8,7 +8,7 @@ import {getCheatSheetCopy,paginateCheatSheetTerms,sortCheatSheetTerms} from '../
 import {expectNoPageOverflow,expectOnlySharedDiagramClientScript,expectOrderedChapterNavigation,expectSeoDescription,expectStackedDiagramText,expectVisualizationDecision} from './chapter-helpers';
 
 const prefix='/en/practical-llm-in-rust/';
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -18,14 +18,21 @@ const corpusTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course
 const tokenizerTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/scalable-bpe-tokenizer-trace.json',import.meta.url),'utf8'));
 const paddedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/padded-variable-batches-trace.json',import.meta.url),'utf8'));
 const packedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/packed-sequence-masks-trace.json',import.meta.url),'utf8'));
+const depthTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/depth-stable-decoder-trace.json',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:4,
+  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
+const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
+ const cell=owner.locator('[data-depth-metric="'+metric+'"]');
+ await expect(cell).toHaveCount(1);await expect(cell).toHaveAttribute('data-depth-value',String(value));
+ await expect(cell.locator('annotation[encoding="application/x-tex"]')).toHaveText(value.toFixed(6));
+ return {metric,raw:await cell.getAttribute('data-depth-value'),notation:await cell.locator('annotation[encoding="application/x-tex"]').textContent()};
+};
 const figureGeometry=(figure:Locator)=>figure.evaluate(node=>({clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight,
  rootFontSize:getComputedStyle(document.documentElement).fontSize,containerType:getComputedStyle(node).containerType,
  grids:[...node.querySelectorAll<HTMLElement>('.course-diagram__grid')].map(grid=>({className:grid.className,width:grid.getBoundingClientRect().width,height:grid.getBoundingClientRect().height,columns:getComputedStyle(grid).gridTemplateColumns,containerType:getComputedStyle(grid).containerType})),
@@ -112,7 +119,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="/en/course/40-"]')).toHaveCount(0);
  await page.goto('/en/course/39-end-to-end-llm/');await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -135,8 +142,8 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':'');
- test(testLabel+' built metadata formulas sources and evidence',async({page,request})=>{
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':'');
+ test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');expect(html).toContain('application/x-tex');
   for(const term of lesson.sheet.terms){expect(html).toContain(term.term);}
@@ -209,6 +216,52 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    }
    const counts=figure.locator('[data-packed-accounting="counts"]');
    expect(await counts.locator('annotation[encoding="application/x-tex"]').allTextContents()).toEqual([String(packedTrace.main.stored_cells),String(packedTrace.main.valid_targets),String(packedTrace.main.stored_cells-packedTrace.main.valid_targets),String(packedTrace.main.allowed_edges_per_head)]);
+  } else if(lesson.id===ids[6]) {
+   expect(depthTrace.inclusive_ratio_bounds).toEqual([0.01,100]);
+   await expect(figure.locator('article[data-depth-fixture][data-depth-case="initialized"]')).toHaveCount(4);
+   await expect(figure.locator('[data-depth-scroll][data-diagram-scroll][role="region"][tabindex="0"]')).toHaveCount(4);
+   await expect(figure.locator('[data-diagram-scroll]:not([data-depth-scroll])[role="region"][tabindex="0"]')).toHaveCount(depthTrace.fixtures.length+1+depthTrace.synthetic_classifiers.length);
+   const associations:unknown[]=[],normalizers:unknown[]=[],controls:unknown[]=[],synthetic:unknown[]=[];let siteCount=0;
+   for(const fixture of depthTrace.fixtures){
+    const card=figure.locator('article[data-depth-fixture="'+fixture.id+'"][data-depth-case="initialized"]');await expect(card).toHaveCount(1);
+    for(const key of ['layers','width','heads','ff_width','vocabulary','max_positions','parameters'])
+     await expect(card.locator('[data-depth-metric="'+key+'"] annotation[encoding="application/x-tex"]')).toHaveText(String(fixture[key]));
+    await expectDepthScalar(card,'factor',fixture.factor);
+    normalizers.push({fixture:fixture.id,input:await expectDepthScalar(card,'input_activation_normalizer',fixture.initialized.input_activation_normalizer),terminal:await expectDepthScalar(card,'terminal_adjoint_normalizer',fixture.initialized.terminal_adjoint_normalizer)});
+    await expect(card.locator('[data-depth-metric="input_activation_normalizer"]')).toHaveAttribute('data-depth-site','0');
+    await expect(card.locator('[data-depth-metric="terminal_adjoint_normalizer"]')).toHaveAttribute('data-depth-site',String(2*fixture.layers));
+    await expect(card.locator('[data-depth-metric="within_band"]')).toHaveAttribute('data-depth-status',fixture.initialized.within_band?'within':'outside');
+    const table=card.locator('table[data-depth-sites="'+fixture.id+'"]');await expect(table).toHaveCount(1);
+    await expect(table.locator('tbody tr[data-depth-site]')).toHaveCount(2*fixture.layers+1);
+    for(const site of fixture.initialized.sites){
+     const row=table.locator('tr[data-depth-site="'+site.site+'"]');await expect(row).toHaveCount(1);
+     const metrics=[];
+     for(const metric of ['activation_rms','adjoint_rms','activation_ratio','adjoint_ratio'])metrics.push(await expectDepthScalar(row,metric,site[metric]));
+     await expect(row.locator('[data-depth-metric="activation_status"]')).toHaveAttribute('data-depth-status',site.activation_status);
+     await expect(row.locator('[data-depth-metric="adjoint_status"]')).toHaveAttribute('data-depth-status',site.adjoint_status);
+     associations.push({fixture:fixture.id,site:site.site,traceLabel:site.label,metrics,activationStatus:site.activation_status,adjointStatus:site.adjoint_status});siteCount++;
+    }
+    const row=figure.locator('table[data-depth-controls] tr[data-depth-fixture="'+fixture.id+'"][data-depth-case="same_base_unscaled_control"]');await expect(row).toHaveCount(1);
+    const control=fixture.same_base_unscaled_control;
+    const activation=control.sites.map((site:{activation_ratio:number})=>site.activation_ratio),adjoint=control.sites.map((site:{adjoint_ratio:number})=>site.adjoint_ratio);
+    const metrics=[];
+    for(const [metric,value] of [['input_activation_normalizer',control.input_activation_normalizer],['terminal_adjoint_normalizer',control.terminal_adjoint_normalizer],['activation_ratio_min',Math.min(...activation)],['activation_ratio_max',Math.max(...activation)],['adjoint_ratio_min',Math.min(...adjoint)],['adjoint_ratio_max',Math.max(...adjoint)]] as const)metrics.push(await expectDepthScalar(row,metric,value));
+    await expect(row.locator('[data-depth-metric="within_band"]')).toHaveAttribute('data-depth-status',control.within_band?'within':'outside');
+    controls.push({fixture:fixture.id,metrics,withinBand:control.within_band});
+   }
+   expect(siteCount).toBe(30);
+   await expect(figure.locator('[data-depth-synthetic]')).toHaveCount(depthTrace.synthetic_classifiers.length);
+   for(const example of depthTrace.synthetic_classifiers){
+    const region=figure.locator('[data-depth-synthetic="'+example.id+'"]');await expect(region.locator('tbody tr')).toHaveCount(example.ratios.length);
+    for(const [site,ratio] of example.ratios.entries()){
+     const row=region.locator('tr[data-depth-site="'+site+'"]');
+     await expect(row.locator('[data-depth-metric="synthetic_ratio"]')).toHaveAttribute('data-depth-value',String(ratio));
+     await expect(row.locator('[data-depth-metric="synthetic_ratio"] annotation[encoding="application/x-tex"]')).toHaveText(String(ratio));
+     await expect(row.locator('[data-depth-metric="synthetic_status"]')).toHaveAttribute('data-depth-status',example.statuses[site]);
+     synthetic.push({example:example.id,site,ratio,status:example.statuses[site]});
+    }
+   }
+   await testInfo.attach('programmatic-depth-trace-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,siteCount,associations,normalizers,controls,synthetic}),contentType:'application/json'});
   }
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
@@ -239,6 +292,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
   await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toBeFocused();await expect(figure).toHaveCount(1);
   const restoredControl=await controlValues(toggle);expect(restoredControl).toEqual(ordinaryControl);
   await testInfo.attach('programmatic-full-view-controls',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,viewport,states:{inline:ordinaryControl,fullView:expandedControl,restored:restoredControl}}),contentType:'application/json'});
+  if(lesson.id===ids[6])await testInfo.attach('programmatic-depth-full-view-names',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,bodyTemplates:await page.locator('body').evaluate(node=>({open:node.getAttribute('data-diagram-full-view-open'),close:node.getAttribute('data-diagram-full-view-close')})),states:{inline:ordinaryControl,fullView:expandedControl,restored:restoredControl},button:await toggle.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls'),title:node.getAttribute('title')}))}),contentType:'application/json'});
  });
  test(testLabel+' no-API state has no usable enhancement',async({page})=>{
   await page.addInitScript(()=>{Object.defineProperty(document,'fullscreenEnabled',{get:()=>false,configurable:true});});
@@ -269,6 +323,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    const group=dialog.locator('[data-cheat-sheet-page][role="group"]');await expect(group).toHaveAttribute('aria-label',glossaryCopy.pageStatus({currentPage:1,startTerm:1,endTerm:terms.length,totalTerms:terms.length,pageCount:pages.length}));
    const geometry=await dialog.evaluate(node=>{const errors:string[]=[],bounds=node.getBoundingClientRect();if(bounds.left<-2||bounds.right>innerWidth+2||bounds.top<-2||bounds.bottom>innerHeight+2)errors.push('dialog outside viewport');if(node.scrollWidth>node.clientWidth+2)errors.push('horizontal dialog overflow');for(const element of node.querySelectorAll<HTMLElement>('dt,dd,.cheat-sheet-term')){const box=element.getBoundingClientRect(),style=getComputedStyle(element);if([style.overflowX,style.overflowY].some(value=>value==='hidden'||value==='clip')||style.textOverflow==='ellipsis')errors.push('concealed term');const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);while(walker.nextNode()){const range=document.createRange();range.selectNodeContents(walker.currentNode);for(const rect of range.getClientRects())if(rect.width>0&&(rect.left<box.left-2||rect.right>box.right+2))errors.push('term ink outside nearest box');}}node.scrollTop=node.scrollHeight;return{errors,reachedEnd:node.scrollTop+node.clientHeight>=node.scrollHeight-2,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight};});
    await testInfo.attach('programmatic-glossary-geometry',{body:JSON.stringify({route:lesson.path,state:'dialog-open',viewport,geometry}),contentType:'application/json'});
+   if(lesson.id===ids[6])await testInfo.attach('programmatic-depth-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({ariaLabel:node.getAttribute('aria-label'),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
    expect(geometry.errors).toEqual([]);expect(geometry.reachedEnd).toBe(true);
    await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await page.keyboard.press('Enter');await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expectNoPageOverflow(page);
   });

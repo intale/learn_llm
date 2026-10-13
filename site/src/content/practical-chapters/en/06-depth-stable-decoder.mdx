@@ -1,0 +1,634 @@
+---
+{
+  "chapter_id":"06-depth-stable-decoder","locale":"en","content_revision":1,"order":6,"concept_id":"depth-stable-decoder",
+  "title":"Initialize residual projection weights for decoder depth",
+  "description":"Scale each block's two output projection weight matrices once at initialization, then inspect residual activation RMS and completed mean-loss adjoints on fixed CPU decoders.",
+  "objective":"Scale the freshly initialized weights of each block's attention output and feed-forward down projections according to the positive complete-block count, then inspect residual activations and completed mean-loss adjoints before training.",
+  "worked_inputs":"Transform the selected output coefficients [0.2,-0.4,0,0.1] at one, two and eight complete blocks while leaving the same query coefficients unchanged. Observe seed 4701 on supplied source IDs [0,99,100,101,1] in three width-four decoders and the width-sixteen CPU bridge decoder.",
+  "formula":{
+    "latex":"\\alpha=L^{-1/2},\\qquad W_{\\mathrm{stored}}=\\alpha W_{\\mathrm{base}}",
+    "symbols":[
+      {"symbol":"L","meaning":"positive number of complete decoder blocks, each containing an attention addition and a feed-forward addition"},
+      {"symbol":"\\alpha","meaning":"dimensionless factor applied once during fresh initialization to the two output-projection matrices in each block"},
+      {"symbol":"W_{\\mathrm{base}}","meaning":"one selected output-projection matrix from the existing Xavier initializer before the depth transformation"},
+      {"symbol":"W_{\\mathrm{stored}}","meaning":"that selected matrix after initialization; forward and differentiation use these stored values directly"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"model-building-practice",
+      "limitation":"Fan-in and fan-out reasoning sets a matrix's initialization scale under simplified assumptions; it does not by itself account for repeated additions in this residual decoder.",
+      "later_advance":"DeepNet introduces DeepNorm, which modifies the residual connection and accompanies it with theoretically derived initialization.",
+      "modern_llm_role":"A decoder needs an explicit initialization policy as its block count grows, together with observations that distinguish residual magnitude from loss sensitivity.",
+      "sources":[
+        {"role":"earlier","year":2010,"name":"Understanding the difficulty of training deep feedforward neural networks","source_url":"https://proceedings.mlr.press/v9/glorot10a.html","claim":"Section 4.2 derives fan-in and fan-out variance conditions in an approximately linear regime with independently initialized weights and equal input-feature variances, and gives a compromise normalized initialization."},
+        {"role":"later","year":2022,"name":"DeepNet: Scaling Transformers to 1,000 Layers","source_url":"https://arxiv.org/abs/2203.00555","claim":"DeepNet introduces DeepNorm, which modifies the residual connection and accompanies it with theoretically derived initialization. The course's selective initialization factor does not reproduce that method, its constants or its results."}
+      ]
+    },
+    "approach":"The runnable Rust contrast copies one actual Xavier-initialized parameter set into an unscaled control and selectively transforms the original preparation's output projections.",
+    "summary":"Fan-based initialization motivates checking how scale propagates. Depth-aware Transformer methods depend on their own residual architecture and assumptions; this chapter teaches one local initialization heuristic and finite-fixture observations.",
+    "rust_source":"rust/demos/practical-ch06-depth-stable-decoder/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/residual_scale.rs","region":"depth-initialization-factor","purpose":"Compute the factor for a positive number of complete blocks and identify the two selected output-projection roles."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/depth_init.rs","region":"selective-fresh-depth-initialization","purpose":"Consume fresh preparation, preserve the one-block base directly and commit RNG only after successful decoder assembly."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/depth_health.rs","region":"completed-residual-health","purpose":"Observe valid-feature RMS and fully accumulated residual-site adjoints from the existing mean-loss reverse pass."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/init.rs","region":"xavier-initialization","purpose":"Reuse the existing fan-based Xavier matrix scale and uniform initializer for fresh base weights."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/decoder.rs","region":"decoder-parameter-rebuild","purpose":"Reconstruct the existing decoder from validated stored parameters without another initialization."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/decoder_block.rs","region":"decoder-block-layer","purpose":"Reuse the existing RMSNorm, attention, SwiGLU and two residual additions as the shared block computation."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs","region":"completed-selected-adjoints","purpose":"Select completed residual-node adjoints through the existing reverse engine without retaining an edge trace."},
+    {"path":"rust/demos/practical-ch06-depth-stable-decoder/src/lib.rs","region":"depth-same-base-control","purpose":"Compare selectively initialized and unscaled decoders copied from one actual base parameter set."},
+    {"path":"rust/demos/practical-ch06-depth-stable-decoder/src/main.rs","region":"depth-stable-example","purpose":"Print the worked coefficient values, actual decoder observations, synthetic classifications and symbolic laptop entry."}
+  ],
+  "visualization":{"decision":"useful","id":"depth-stable-decoder","rationale":"Ordered residual-site tables connect each attention and feed-forward addition to its activation RMS and completed loss-adjoint RMS. Separate normalizers and a same-base unscaled control make the two dimensionless ratios and the comparison explicit."},
+  "decoder_connection":"Retain occurrence-local attention, positions and valid-target mean loss while changing fresh initialization. Chapter 7 will place decoder dimensions and construction choices in a configurable core; unequal query and key/value head counts and trained checkpoint serialization remain later work."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import DepthStableDecoderDiagram from "../../../components/chapters/DepthStableDecoderDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+## The problem: depth adds more residual contributions
+
+Each complete decoder block adds an attention output to the residual state,
+then adds a feed-forward output. Increasing the block count repeats these
+additions. The existing Xavier initializer uses a matrix's input and output
+widths to choose its scale; those widths can stay fixed while the number of
+residual additions grows. A suitable scale for one matrix therefore does not
+settle how activations and loss sensitivity behave throughout the stack.
+
+We will reduce the initial coefficients of the two projections that write
+branch outputs into the residual state. This is a local initialization
+heuristic. We will also observe the resulting decoder before training, using
+the same occurrence-local contexts and valid-target mean loss as Chapter 5.
+
+### Start with four selected coefficients
+
+Take an illustrative output-projection vector $[0.2,-0.4,0,0.1]$. For one
+complete block, keep it unchanged. For two blocks, multiply each coefficient
+once by $1/\sqrt2\approx0.707107$. In their original order, the stored
+coefficients are approximately $0.141421$, $-0.282843$, $0$ and $0.070711$.
+For eight blocks, the factor is $1/\sqrt8\approx0.353553$, giving approximately
+$0.070711$, $-0.141421$, $0$ and $0.035355$.
+
+These decimal displays are rounded to six places; the Rust demo emits the
+actual `f64` results. The vector illustrates the transformation, rather than
+estimating a distribution from four values. An unselected query-projection
+vector $[0.2,-0.4,0,0.1]$ remains unchanged at all three depths.
+
+The selected matrices are `blocks.{b}.attention.output.weight` and
+`blocks.{b}.ffn.down.weight`, where `{b}` is the zero-based block index. The
+attention output projection writes the combined attention features back to
+model width; the feed-forward down projection writes the SwiGLU features back
+to that width. Query, key and value projections, gate and up projections,
+embeddings and their tied vocabulary head, and all RMSNorm gains retain their
+base values.
+
+At fixed branch inputs, each selected projection is linear in its weights,
+so multiplying those weights by the factor multiplies that branch's output by
+the factor. In a whole decoder, later branch inputs also change. The final
+decoder output is therefore not simply the unscaled output times one factor.
+
+{/* chapter-section:formula */}
+
+## Apply the factor once, using complete blocks
+
+Use a positive number of complete decoder blocks, $L>0$, for the initialization
+rule:
+
+$$
+\alpha=L^{-1/2},\qquad W_{\mathrm{stored}}=\alpha W_{\mathrm{base}}
+$$
+
+Apply this rule to each of the two selected matrices in every block. A block
+has two residual additions, but the depth divisor remains the complete-block
+count $L$. Eight blocks have $16$ additions and use $1/\sqrt8$, rather than
+$1/\sqrt{16}$.
+
+The transformation happens before forward execution. Forward uses
+$W_{\mathrm{stored}}$ directly and adds no further factor. After initialization,
+these stored coefficients may evolve normally when a later chapter trains the
+model; they are not permanently constrained to remain a scaled base vector.
+
+One block has factor $1$. The implementation returns its base decoder directly,
+bypassing both transformation and reconstruction. It preserves parameter bits,
+names, shapes and ordering, random-number consumption, forward values, loss and
+parameter adjoints relative to the existing one-block constructor. The old
+constructor still admits zero-block models; this new policy requires positive
+depth because its factor is undefined at zero.
+
+### What the variance intuition assumes
+
+Consider a toy sum of $2L$ independent, zero-mean increments, each with variance
+$\sigma^2$. Multiplying each increment by $\alpha$ gives
+
+$$
+\operatorname{Var}\left(\sum_{k=1}^{2L}\alpha r_k\right)
+=2L\alpha^2\sigma^2=2\sigma^2.
+$$
+
+Here $r_k$ is one toy increment. Independence removes covariance terms, and
+equal variance gives the same contribution for each increment. This calculation
+motivates the depth factor. Real attention and feed-forward branches depend on
+shared residual states, and their Jacobians can be correlated. They do not
+satisfy this toy model in general, so the calculation is no proof of stable
+activations, gradients or training for the decoder.
+
+### Differentiate the coefficient actually stored
+
+For a scalar product with input $2$, write $y=2w_{\mathrm{stored}}$. Its
+derivative is
+
+$$
+\frac{\partial y}{\partial w_{\mathrm{stored}}}=2.
+$$
+
+If instead we keep a base coordinate in the graph and define
+$w_{\mathrm{stored}}=\alpha w_{\mathrm{base}}$, the chain rule gives
+
+$$
+\frac{\partial y}{\partial w_{\mathrm{base}}}=2\alpha.
+$$
+
+Our decoder stores the initialized coefficient as the parameter. Its gradient
+is with respect to that stored coefficient, so it receives no second automatic
+depth factor. The two coordinate choices do not imply equal parameter updates
+under an optimizer, nor do these derivatives imply convergence.
+
+{/* chapter-section:symbol-glossary */}
+
+## What the initialization symbols mean
+
+<div id="depth-initialization-symbols">
+
+- $L$ counts complete decoder blocks and must be positive. Each block contains
+  an attention addition followed by a feed-forward addition.
+- $\alpha$ is the dimensionless initialization factor $1/\sqrt L$.
+- $W_{\mathrm{base}}$ is one selected output-projection matrix produced by the
+  existing Xavier initializer before this transformation.
+- $W_{\mathrm{stored}}$ is that matrix after initialization. Forward and
+  parameter differentiation use its stored values directly.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+## Construct fresh parameters and observe the existing decoder
+
+`DepthScalePolicy::new` requires a positive complete-block count and computes
+the factor. Role selection is applied only after the existing decoder validator
+has checked the complete parameter names, order and shapes. This prevents a
+plausible suffix match from standing in for a valid decoder layout.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/residual_scale.rs"
+  captionId="depth-rust-factor" region="depth-initialization-factor"
+  caption="Compute the positive complete-block factor and select weights in the attention output and feed-forward down projections."
+  label="Rust source: decoder-depth initialization factor and selected roles" />
+
+<code style="overflow-wrap: anywhere; white-space: normal;">FreshDepthInitialization::prepare</code> checks the configuration's parameter count
+and position capacity against the caller's `DepthInitializationBudget` before
+allocating model arrays. It clones the caller's `SplitMix64` state and calls the
+existing `DecoderModel::new` once using that clone. Dropping the preparation
+leaves the caller's generator unchanged.
+
+`complete` first refuses parameter updates or nonzero accumulated gradients.
+This refusal precedes any weight transformation or RNG commit. Zero gradients
+from construction, or from `zero_grad` when parameters have not been updated,
+are allowed.
+
+`complete` consumes this fresh state. For depths greater than one, it stages
+the selected stored values and rebuilds through `DecoderModel::from_parameters`.
+Only after successful assembly does it commit the trial random-generator state
+to the caller. Refusal leaves the caller's state unchanged. No separate decoder,
+Xavier generator or forward multiplier is needed.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/depth_init.rs"
+  captionId="depth-rust-complete" region="selective-fresh-depth-initialization"
+  caption="Complete fresh initialization of decoder projection weights, bypass rebuilding at one block, and commit RNG after successful assembly."
+  label="Rust source: complete selective fresh decoder initialization" />
+
+The stored parameters continue through the existing block's RMSNorm, attention,
+SwiGLU and two residual additions.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/decoder_block.rs"
+  captionId="depth-rust-block" region="decoder-block-layer"
+  caption="Use stored parameters in the existing normalized attention and SwiGLU branches and their two residual additions."
+  label="Rust source: shared decoder block computation with stored parameters" />
+
+`initialize_depth_scaled` distinguishes `Fresh`, `Initialized` and `Restored`
+sources. Only `Fresh` is accepted; the other states are refused before random
+draws or mutation. Applying initialization again would change coefficients that
+already carry their initialization or training history.
+
+Restoration uses <code style="overflow-wrap: anywhere; white-space: normal;">DepthInitializedDecoder::from_initialized_parameters</code> with
+the typed construction record and the actual stored parameters. It restores
+those supplied values exactly and never rescales them. The record identifies
+the configuration, policy, base initializer and construction RNG states. It
+does not supply a trained-checkpoint wire format or optimizer state.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/decoder.rs"
+  captionId="depth-rust-rebuild" region="decoder-parameter-rebuild"
+  caption="Reconstruct the decoder from validated named stored parameters without drawing or scaling weights again."
+  label="Rust source: existing decoder reconstruction from stored parameters" />
+
+### Measure residual magnitude and completed loss sensitivity
+
+For residual values $x$ at $n$ valid token positions with $d$ features each,
+define root mean square as
+
+$$
+\operatorname{RMS}(x)
+=\sqrt{\frac{1}{nd}\sum_{t\in\mathcal V}\sum_{c=1}^{d}x_{tc}^{2}}.
+$$
+
+$\mathcal V$ is the set of valid positions and has size $n$; $c$ indexes
+features. RMS measures magnitude about zero. It does not subtract a mean and
+is not centered variance. RMSNorm also does not center activations or establish
+unit variance.
+
+Record the input residual as site $0$, then the state after each attention
+addition and each feed-forward addition in forward order. Adjacent blocks
+share a boundary, which is counted once. There are $2L+1$ sites, ending at
+site $2L$ before final model RMSNorm and the tied vocabulary head.
+
+Let $A_s$ be activation RMS at site $s$. Let $G_s$ be RMS of the fully
+accumulated derivative of the existing valid-target mean cross entropy with
+respect to that site's residual features. The mean loss uses natural logarithms
+and is reported in nats per valid target. Its derivatives describe sensitivity
+of that same objective; they are not parameter-gradient norms or partial
+contributions from one backward edge.
+
+Use two different normalizers:
+
+$$
+a_s=\frac{A_s}{A_0},\qquad g_s=\frac{G_s}{G_{2L}}.
+$$
+
+$a_s$ and $g_s$ are dimensionless ratios. Activations are compared with the
+input magnitude. Adjoint magnitudes are compared with the terminal residual
+adjoint, before the final RMSNorm and tied head; those later operations still
+contribute to that terminal derivative. The normalization fixes $a_0=1$ and
+$g_{2L}=1$. It does not fix the absolute magnitudes of either normalizer.
+
+Both normalizers must be positive and finite. Zero or nonfinite values are
+errors; the observer does not add an epsilon to make a ratio reportable. It
+includes only valid-position features, skipping padding before arithmetic, and
+uses an overflow-safe RMS reduction. Multiplying a padded NaN by zero would
+not exclude it safely. Empty validity, nonfinite valid values and missing
+completed adjoints are also errors.
+
+The observer selects residual handles by exact node identity after the existing
+reverse pass has accumulated all their contributions. RMS calculations take
+place outside the differentiation graph. Observation adds no graph operations,
+random draws or changes to weight values; the usual mean-loss reverse pass
+still produces the decoder's parameter gradients.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs"
+  captionId="depth-rust-adjoints" region="completed-selected-adjoints"
+  caption="Request completed adjoints for selected residual handles through the existing tensor reverse pass."
+  label="Rust source: completed selected adjoints from the tensor reverse engine" />
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/depth_health.rs"
+  captionId="depth-rust-health" region="completed-residual-health"
+  caption="Measure valid residual features and completed mean-loss adjoints, using input and terminal RMS as separate normalizers."
+  label="Rust source: residual activation and completed-adjoint RMS report" />
+
+Classify each finite, unrounded ratio in the inclusive band $[0.01,100]$.
+This course-local band catches large relative changes in either direction.
+It does not establish convergence or adequate absolute gradients. Branch-output
+RMS and norm-gain vectors are reported separately; they are outside this
+residual-site classification.
+
+### Run the fixed CPU example
+
+With Docker running and the repository's Rust workspace setup available, run
+from the repository root:
+
+```sh
+COURSE_CORPUS=false ./course run cargo run --offline --locked -p practical-ch06-depth-stable-decoder
+```
+
+The example uses supplied IDs and needs no corpus or model download. Seed
+`4701` initializes each fixture. Source `[0,99,100,101,1]` gives inputs
+`[0,99,100,101]` and targets `[99,100,101,1]`, with positions `[0,1,2,3]`,
+all valid in one segment. In layout-v1, `0` is BOS and `1` is EOS. These are
+controlled valid-ID examples, not a claim about trained tokenizer segmentation
+or a real corpus. RoPE base is $10000$ and RMSNorm epsilon is $10^{-6}$.
+
+The JSON output contains `worked_values`, four `fixtures`,
+`synthetic_classifiers` and a symbolic `laptop_plan`. Each fixture reports
+`initialized` and `same_base_unscaled_control`, their residual sites and
+`within_band: true`. It measures before any optimizer update.
+
+<RustSource path="rust/demos/practical-ch06-depth-stable-decoder/src/main.rs"
+  captionId="depth-rust-example" region="depth-stable-example"
+  caption="Print initialized projection coefficients, measured residual activations and adjoints, synthetic ratios and symbolic laptop metadata."
+  label="Rust example: practical Chapter 6 decoder-depth observations" />
+
+{/* chapter-section:history */}
+
+## History: fan-based scale and depth-aware residual methods
+
+Fan-in and fan-out reasoning sets a matrix's initialization scale under simplified assumptions; it does not by itself account for repeated additions in this residual decoder.
+
+[Glorot and Bengio's 2010 paper](https://proceedings.mlr.press/v9/glorot10a.html)
+studies activation and backward-gradient variance near initialization.
+
+Section 4.2 derives fan-in and fan-out variance conditions in an approximately linear regime with independently initialized weights and equal input-feature variances, and gives a compromise normalized initialization.
+
+Fan-in counts the inputs to a matrix and fan-out counts its outputs. Their
+compromise initialization targets ideal
+weight variance $2/(\mathrm{fan\_in}+\mathrm{fan\_out})$.
+
+For a $4\times4$ matrix, the existing Xavier uniform initializer therefore has
+ideal half-bound $\sqrt{3/4}$ and variance $1/4$. Multiplying a selected matrix
+by $\alpha$ multiplies its half-bound by $\alpha$ and its ideal variance by
+$\alpha^2$.
+
+<table id="depth-xavier-distribution-table" tabindex="0" aria-labelledby="depth-xavier-distribution-caption">
+  <caption id="depth-xavier-distribution-caption">Ideal uniform distribution for a selected four-by-four matrix after initialization</caption>
+  <thead>
+    <tr><th>Complete blocks</th><th>Uniform half-bound</th><th>Weight variance</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><InlineMath latex="1" /></td><td><InlineMath latex="\sqrt{3/4}" /></td><td><InlineMath latex="1/4" /></td></tr>
+    <tr><td><InlineMath latex="2" /></td><td><InlineMath latex="\sqrt{3/8}" /></td><td><InlineMath latex="1/8" /></td></tr>
+    <tr><td><InlineMath latex="8" /></td><td><InlineMath latex="\sqrt{3/32}" /></td><td><InlineMath latex="1/32" /></td></tr>
+  </tbody>
+</table>
+
+These are ideal distribution statements. The empirical variance of a finite
+matrix need not equal them, and the four illustrative coefficients earlier
+are not an empirical check of these variances. The paper's activation setting
+and simplified assumptions also differ from our residual RMSNorm/SwiGLU stack.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/init.rs"
+  captionId="depth-rust-xavier" region="xavier-initialization"
+  caption="Compute the fan-based Xavier scale and sample a fresh uniform matrix with the existing initializer."
+  label="Rust source: existing Xavier uniform matrix initialization" />
+
+Later work joined residual design and initialization choices.
+[DeepNet (2022)](https://arxiv.org/abs/2203.00555)
+
+DeepNet introduces DeepNorm, which modifies the residual connection and accompanies it with theoretically derived initialization. The course's selective initialization factor does not reproduce that method, its constants or its results.
+
+Its method depends on that Transformer setting. Our selected $1/\sqrt L$
+factor also carries no DeepNorm stability theorem.
+
+The runnable local contrast retains one actual Xavier-initialized base set.
+It copies that set into an unscaled control, then completes selective
+initialization from the same preparation. The comparison changes the chosen
+initialization policy without adding a second random sample. Neither model is
+a DeepNorm implementation.
+
+<RustSource path="rust/demos/practical-ch06-depth-stable-decoder/src/lib.rs"
+  captionId="depth-rust-control" region="depth-same-base-control"
+  caption="Copy one actual base parameter set into an unscaled control, then initialize selected decoder projection weights from the same preparation."
+  label="Rust contrast: same-base Xavier and selectively initialized decoders" />
+
+A decoder needs an explicit initialization policy as its block count grows, together with observations that distinguish residual magnitude from loss sensitivity.
+
+{/* chapter-section:visualization */}
+
+## Read the observations in residual-site order
+
+The narrow fixtures all have width $4$, one attention head, feed-forward width
+$4$ and position capacity $4$. They use one, two or eight complete blocks.
+The CPU bridge fixture has width $16$, $2$ heads, feed-forward width $20$,
+$2$ blocks and position capacity $16$. All use vocabulary size $266$ and the
+four valid positions given above. Query and key/value head counts are equal in
+these executed decoders.
+
+<table id="depth-fixture-census-table" tabindex="0" aria-labelledby="depth-fixture-census-caption">
+  <caption id="depth-fixture-census-caption">Executed decoder parameter counts and observed residual-site counts</caption>
+  <thead>
+    <tr><th>Decoder fixture</th><th>Parameter coordinates</th><th>Residual sites</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Narrow, one block</td><td><InlineMath latex="1188" /></td><td><InlineMath latex="3" /></td></tr>
+    <tr><td>Narrow, two blocks</td><td><InlineMath latex="1308" /></td><td><InlineMath latex="5" /></td></tr>
+    <tr><td>Narrow, eight blocks</td><td><InlineMath latex="2028" /></td><td><InlineMath latex="17" /></td></tr>
+    <tr><td>CPU bridge, two blocks</td><td><InlineMath latex="8304" /></td><td><InlineMath latex="5" /></td></tr>
+  </tbody>
+</table>
+
+Read site $0$ as the input, each odd site as the state after an attention
+addition, and each following even site as the state after a feed-forward
+addition. Activation ratios use the input activation RMS; adjoint ratios use
+that model's terminal residual-adjoint RMS. Each model has its own normalizers,
+so comparing ratios is not a comparison of absolute derivative magnitudes.
+
+The full trace places every initialized activation and adjoint ratio inside
+$[0.01,100]$ for these four fixtures. Every same-base unscaled control also
+lies inside the band. The tables show the maximum of each ratio over that
+model's sites, with displays rounded to six decimal places. Classification
+uses the unrounded values.
+
+<table id="depth-activation-maxima-table" tabindex="0" aria-labelledby="depth-activation-maxima-caption">
+  <caption id="depth-activation-maxima-caption">Maximum activation RMS divided by input activation RMS; fixed seed 4701</caption>
+  <thead>
+    <tr><th>Decoder fixture</th><th>Selectively initialized</th><th>Same-base unscaled</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Narrow, one block</td><td><InlineMath latex="10.582491" /></td><td><InlineMath latex="10.582491" /></td></tr>
+    <tr><td>Narrow, two blocks</td><td><InlineMath latex="7.412484" /></td><td><InlineMath latex="10.582491" /></td></tr>
+    <tr><td>Narrow, eight blocks</td><td><InlineMath latex="12.128401" /></td><td><InlineMath latex="33.368741" /></td></tr>
+    <tr><td>CPU bridge, two blocks</td><td><InlineMath latex="10.869803" /></td><td><InlineMath latex="15.782601" /></td></tr>
+  </tbody>
+</table>
+
+<table id="depth-adjoint-maxima-table" tabindex="0" aria-labelledby="depth-adjoint-maxima-caption">
+  <caption id="depth-adjoint-maxima-caption">Maximum residual-adjoint RMS divided by terminal residual-adjoint RMS; fixed seed 4701</caption>
+  <thead>
+    <tr><th>Decoder fixture</th><th>Selectively initialized</th><th>Same-base unscaled</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Narrow, one block</td><td><InlineMath latex="18.953075" /></td><td><InlineMath latex="18.953075" /></td></tr>
+    <tr><td>Narrow, two blocks</td><td><InlineMath latex="16.167999" /></td><td><InlineMath latex="20.642290" /></td></tr>
+    <tr><td>Narrow, eight blocks</td><td><InlineMath latex="10.196326" /></td><td><InlineMath latex="31.607222" /></td></tr>
+    <tr><td>CPU bridge, two blocks</td><td><InlineMath latex="18.767830" /></td><td><InlineMath latex="25.913805" /></td></tr>
+  </tbody>
+</table>
+
+In these fixed deeper fixtures, selective initialization lowers the displayed
+maximum activation and adjoint ratios compared with their same-base controls.
+One block follows the unchanged path. These observations say only what happened
+for these untrained models, supplied IDs and seed. Both policies pass this
+finite band; the results establish neither convergence nor absolute gradient
+quality, nor behavior at other seeds, depths, numeric types or backends.
+
+### Keep synthetic threshold examples separate
+
+The example also passes synthetic arrays directly to `classify_ratio`.
+Activation ratios $[1,1.2,8,101]$ have an upper failure at forward site $3$.
+Gradient ratios $[0.001,0.5,0.8,1]$ have a lower failure at site $0$.
+The boundary array $[0.01,1,100]$ is entirely within the inclusive band.
+These arrays explain the classifier; they are not measurements from an
+initialized decoder.
+
+<DepthStableDecoderDiagram labels={{
+  title: "Initialized projection weights and observed residual states",
+  description: "The factor initializes only stored attention output and feed-forward down weights. The residual skip route enters each addition without a depth multiplier. Each fixture lists the input, then the state after every attention and feed-forward addition. Between neighboring blocks, the state after one block's feed-forward addition is reused as the next block's input; that shared residual state is listed once. Activation RMS divides by input activation RMS. Fully accumulated mean-loss adjoint RMS divides by terminal residual-adjoint RMS before final RMSNorm and the tied head. The inclusive band classifies unrounded ratios. All fixed initialized fixtures and their same-base unscaled controls are within the band. The separate synthetic arrays illustrate classifier thresholds; they are not decoder measurements.",
+  topologyTitle: "Within each complete decoder block",
+  topologyNote: "The complete-block count of the whole decoder sets the factor. The base matrix comes from Xavier initialization; its transformed values are stored once before forward. The topology shows one block of the stack.",
+  policyRule: "\\alpha=L^{-1/2},\\quad L>0",
+  inputResidual: "Block input residual state",
+  inputResidualSymbol: "x_b",
+  residualRouteNote: "The residual skip route contributes its current state directly to each addition. The initialization policy applies no multiplier to that route.",
+  attentionAddition: "Attention residual addition",
+  attentionBranchNote: "The attention branch reads the normalized block input.",
+  attentionOutput: "Attention branch output",
+  selectedAttentionWeights: "Initialize the stored attention output projection weights.",
+  feedForwardAddition: "Feed-forward residual addition",
+  feedForwardBranchNote: "The feed-forward branch reads the normalized state after the attention addition.",
+  feedForwardOutput: "Feed-forward branch output",
+  selectedFeedForwardWeights: "Initialize the stored feed-forward down projection weights.",
+  storedWeightRule: "W_{\\mathrm{stored}}=\\alpha W_{\\mathrm{base}}",
+  attentionAdditionRule: "u_b=x_b+a_b",
+  feedForwardAdditionRule: "x_{b+1}=u_b+f_b",
+  unchangedParametersNote: "Query, key, value, gate and up weights, embeddings and their tied vocabulary head, and norm gains retain their base values. Forward uses the initialized stored weights directly, without a second factor.",
+  initializedTitle: "Observed initialized decoder residual sites",
+  initializedNote: "These untrained decoder measurements use the four supplied valid positions and the existing valid-target mean cross entropy, in nats per valid target. Query and key/value head counts are equal in the executed models.",
+  seed: "Initialization seed",
+  fixtureNames: {
+    "narrow-depth-1": "Narrow decoder, one complete block",
+    "narrow-depth-2": "Narrow decoder, two complete blocks",
+    "narrow-depth-8": "Narrow decoder, eight complete blocks",
+    "actual-bridge-depth-2": "CPU bridge decoder, two complete blocks"
+  },
+  blocks: "Complete decoder blocks",
+  width: "Residual features per position",
+  heads: "Equal query and key/value head count",
+  feedForwardWidth: "Feed-forward features",
+  vocabulary: "Vocabulary entries",
+  positionCapacity: "Position capacity",
+  parameters: "Stored parameter coordinates",
+  factor: "Initialization factor for stored weights",
+  inputNormalizer: "Input activation RMS normalizer",
+  terminalNormalizer: "Terminal residual-adjoint RMS normalizer",
+  activationNormalizerNote: "Activation RMS measures magnitude about zero over valid residual features. Each activation ratio divides by that model's input activation RMS and is dimensionless.",
+  adjointNormalizerNote: "Adjoint RMS uses completed derivatives of the mean loss. Each adjoint ratio divides by that model's terminal residual-adjoint RMS before final RMSNorm and the tied head, whose downstream operations contribute to that derivative. Both normalizers must be positive and finite, without epsilon repair.",
+  band: "Inclusive band for dimensionless residual ratios",
+  roundingNote: "RMS, factor and ratio displays are rounded to six decimal places. Classification uses unrounded values, including both band endpoints.",
+  diagnosticsNote: "The JSON also reports branch-output RMS and norm-gain vectors separately. Those diagnostics are outside the residual-site ratio classification.",
+  siteTableCaption: "Valid-feature residual activation and completed mean-loss adjoint observations",
+  siteTableRegion: "Residual activation and completed-adjoint values in forward-site order",
+  siteIndex: "Residual site and stage",
+  blockIndex: "Zero-based block index",
+  inputSite: "Input residual",
+  afterAttention: "After attention addition",
+  afterFeedForward: "After feed-forward addition",
+  activationRms: "Absolute activation RMS",
+  activationRatio: "Activation ratio and band classification",
+  adjointRms: "Absolute completed mean-loss adjoint RMS",
+  adjointRatio: "Adjoint ratio and band classification",
+  within: "Within band",
+  below: "Below band",
+  above: "Above band",
+  aggregateWithin: "All site ratios within band",
+  aggregateOutside: "At least one site ratio outside band",
+  controlsTitle: "Separate same-base unscaled controls",
+  controlsNote: "For each fixture, the unscaled control copies the one actual base parameter set before selected weights are transformed. No model is resampled. Each control uses its own normalizers. Every fixed control also lies within the residual ratio band; comparing ratios does not compare absolute adjoint magnitudes.",
+  controlsCaption: "Same-base unscaled normalizers and dimensionless ratio ranges over all residual sites",
+  controlsRegion: "Same-base unscaled control normalizers, residual ratio ranges and classifications",
+  decoderFixture: "Decoder fixture",
+  activationRange: "Activation ratio range",
+  adjointRange: "Adjoint ratio range",
+  rangeMinimum: "Minimum over sites",
+  rangeMaximum: "Maximum over sites",
+  classification: "Ratio-band classification",
+  syntheticTitle: "Separate synthetic threshold examples",
+  syntheticNote: "These arrays are supplied directly to the ratio classifier. They illustrate threshold decisions and are separate from initialized decoder observations. The band includes both endpoints; classification uses unrounded values.",
+  syntheticNames: {
+    "activation": "Synthetic activation ratios",
+    "gradient": "Synthetic gradient ratios",
+    "inclusive-boundaries": "Synthetic inclusive boundaries"
+  },
+  syntheticRegion: "Supplied synthetic ratios and threshold classifications",
+  syntheticSite: "Synthetic forward-site index",
+  syntheticRatio: "Supplied dimensionless ratio"
+}} />
+
+The `laptop_plan` is also separate from the executed fixtures. It contains
+only symbolic arithmetic and metadata: vocabulary $16384$, width $512$,
+$8$ blocks, $8$ query heads, $2$ key/value heads, feed-forward width $1536$
+and context $512$, giving $32514560$ parameters and factor $1/\sqrt8$.
+It allocates no model arrays and supplies no seeded execution, measured health
+or performance result. Unequal-head execution remains later work.
+
+{/* chapter-section:exercises */}
+
+## Optional practice: inspect initialization and its limits
+
+<div id="depth-practice-prompts">
+
+1. Use the fixed-example command above to inspect `worked_values` at one, two
+   and eight blocks. Explain the selected coefficients, unchanged query
+   coefficients and ideal Xavier half-bounds and variances.
+2. Inspect the eight-block fixture's ordered sites. Explain why its factor
+   uses eight blocks while its report has seventeen sites.
+3. Explain the stored-coordinate and base-coordinate derivatives for the
+   scalar product with input two, and why forward needs no second factor.
+4. Inspect `synthetic_classifiers`. Explain the upper, lower and inclusive
+   outcomes, and distinguish them from `fixtures`.
+5. Inspect the initialized and same-base unscaled reports. Explain what the
+   maximum-ratio comparisons establish, why both normalizers must be usable,
+   and why the reported ratios do not establish convergence.
+6. Explain what happens when a fresh preparation is dropped, when its budget
+   refuses construction, and when already initialized or restored parameters
+   are supplied for fresh initialization. Distinguish restoration from the
+   symbolic laptop entry.
+
+</div>
+
+<details>
+<summary id="depth-practice-answer-summary">Explanations for factors, site counts, derivatives, thresholds and construction states</summary>
+
+1. The factors are $1$, $1/\sqrt2$ and $1/\sqrt8$. Multiplying only the
+   selected vector gives the coefficient values explained above; the query
+   vector stays $[0.2,-0.4,0,0.1]$. For a selected $4\times4$ matrix, the ideal
+   half-bounds are $\sqrt{3/4}$, $\sqrt{3/8}$ and $\sqrt{3/32}$, with variances
+   $1/4$, $1/8$ and $1/32$. The variance changes by the square of the factor.
+   These are distribution properties, not a finite-sample measurement.
+2. Eight complete blocks contain $16$ residual additions. The input plus each
+   addition's output gives $17$ sites; a block's final state is the next block's
+   input and is counted once. The divisor remains $L=8$.
+3. $\partial y/\partial w_{\mathrm{stored}}=2$, while
+   $\partial y/\partial w_{\mathrm{base}}=2\alpha$ when the transformation is
+   retained in the graph. Our parameter is the stored coefficient. Multiplying
+   again in forward would change the intended initialized model.
+4. $101>100$ puts the first synthetic array's site $3$ above the band.
+   $0.001<0.01$ puts the second array's site $0$ below it. Equality at $0.01$
+   or $100$ is allowed. The actual four initialized decoder reports lie within
+   the band and are separate observations.
+5. The deeper fixed initialized fixtures have lower observed maximum ratios
+   than their same-base controls; the one-block observations coincide. All
+   controls also pass. Activation RMS divides by input RMS and adjoint RMS by
+   terminal residual-adjoint RMS, so each denominator must be positive and
+   finite. Ratios omit absolute scale and cover these fixtures before training,
+   so they establish neither adequate absolute derivatives nor convergence.
+6. Dropping preparation leaves the caller RNG unchanged, as does refusal.
+   Checked parameter and position bounds precede model-array allocation.
+   Fresh initialization refuses `Initialized` and `Restored` states before
+   draws or mutation. Restoration takes a construction record and actual
+   stored parameters and does not rescale. The laptop entry has metadata and
+   arithmetic only, with no parameter arrays or execution to restore.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Carry explicit construction choices into the decoder core
+
+Depth-aware initialization changes the starting output projections. It retains
+the selected source pairs, local positions, occurrence-local causal ranges and
+valid-target mean loss from Chapter 5. More blocks must preserve those boundaries;
+initialization cannot repair an incorrectly joined context or target.
+
+Chapter 7 will place decoder dimensions and construction choices in a configurable
+core. Carry forward the distinction between fresh initialization and exact
+restoration, along with the meaning and limits of these residual observations.
+Unequal query and key/value head counts and trained-checkpoint serialization
+remain later work.

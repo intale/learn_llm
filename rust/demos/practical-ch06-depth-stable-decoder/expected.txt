@@ -1,0 +1,1608 @@
+{
+  "chapter": "06-depth-stable-decoder",
+  "fixtures": [
+    {
+      "base_initializer_id": "splitmix64-xavier-uniform-v1",
+      "factor": 1.0,
+      "ff_width": 4,
+      "final_rng_state": "14904430010946949845",
+      "heads": 1,
+      "id": "narrow-depth-1",
+      "initial_rng_state": "4701",
+      "initialized": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.6282168170419983,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.6495529645935634
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.07906522921242769,
+        "mean_loss_nats": 5.60273262815679,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.07906522921242769,
+            "activation_status": "within",
+            "adjoint_ratio": 18.95307513269757,
+            "adjoint_rms": 0.7403192217457304,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 8.296554129432845,
+            "activation_rms": 0.6559689539169213,
+            "activation_status": "within",
+            "adjoint_ratio": 1.6231589571595346,
+            "adjoint_rms": 0.06340162572673386,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 10.582491126087461,
+            "activation_rms": 0.8367070865225871,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.03906063879146147,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.03906063879146147,
+        "valid_positions": 4,
+        "width": 4,
+        "within_band": true
+      },
+      "layers": 1,
+      "max_positions": 4,
+      "parameter_tensors": 11,
+      "parameters": 1188,
+      "policy_id": "residual-output-init-depth-v1",
+      "profile": "reference-ci",
+      "same_base_unscaled_control": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.6282168170419983,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.6495529645935634
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.07906522921242769,
+        "mean_loss_nats": 5.60273262815679,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.07906522921242769,
+            "activation_status": "within",
+            "adjoint_ratio": 18.95307513269757,
+            "adjoint_rms": 0.7403192217457304,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 8.296554129432845,
+            "activation_rms": 0.6559689539169213,
+            "activation_status": "within",
+            "adjoint_ratio": 1.6231589571595346,
+            "adjoint_rms": 0.06340162572673386,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 10.582491126087461,
+            "activation_rms": 0.8367070865225871,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.03906063879146147,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.03906063879146147,
+        "valid_positions": 4,
+        "width": 4,
+        "within_band": true
+      },
+      "selected_names": [
+        "blocks.0.attention.output.weight",
+        "blocks.0.ffn.down.weight"
+      ],
+      "transformed_tensors": 0,
+      "unselected_tensors_unchanged": 9,
+      "vocabulary": 266,
+      "width": 4
+    },
+    {
+      "base_initializer_id": "splitmix64-xavier-uniform-v1",
+      "factor": 0.7071067811865475,
+      "ff_width": 4,
+      "final_rng_state": "512404615476567045",
+      "heads": 1,
+      "id": "narrow-depth-2",
+      "initial_rng_state": "4701",
+      "initialized": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.44421637138582554,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.44636995302915916
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.6181726776380406,
+            "block": 1,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.1284705526675189
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.07906522921242769,
+        "mean_loss_nats": 5.660351086084731,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.07906522921242769,
+            "activation_status": "within",
+            "adjoint_ratio": 16.167999292730517,
+            "adjoint_rms": 0.635425607405016,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 5.990827997585583,
+            "activation_rms": 0.4736661888013333,
+            "activation_status": "within",
+            "adjoint_ratio": 1.4882805806288468,
+            "adjoint_rms": 0.05849156564228564,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 7.412483873898313,
+            "activation_rms": 0.586069736523194,
+            "activation_status": "within",
+            "adjoint_ratio": 0.7757544890839598,
+            "adjoint_rms": 0.030488266265880956,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          },
+          {
+            "activation_ratio": 6.927136435483841,
+            "activation_rms": 0.5476956300572892,
+            "activation_status": "within",
+            "adjoint_ratio": 0.9161368325213777,
+            "adjoint_rms": 0.03600549410790394,
+            "adjoint_status": "within",
+            "label": "block.1.after_attention",
+            "site": 3
+          },
+          {
+            "activation_ratio": 6.706111198573019,
+            "activation_rms": 0.5302202190392039,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.039301437110447986,
+            "adjoint_status": "within",
+            "label": "block.1.after_feed_forward",
+            "site": 4
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.039301437110447986,
+        "valid_positions": 4,
+        "width": 4,
+        "within_band": true
+      },
+      "layers": 2,
+      "max_positions": 4,
+      "parameter_tensors": 20,
+      "parameters": 1308,
+      "policy_id": "residual-output-init-depth-v1",
+      "profile": "bridge-ci",
+      "same_base_unscaled_control": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.6282168170419983,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.6495529645935634
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.8800567634693652,
+            "block": 1,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.19954301160312546
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.07906522921242769,
+        "mean_loss_nats": 5.664364307023378,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.07906522921242769,
+            "activation_status": "within",
+            "adjoint_ratio": 20.642290284242495,
+            "adjoint_rms": 0.5791907398174239,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 8.296554129432845,
+            "activation_rms": 0.6559689539169213,
+            "activation_status": "within",
+            "adjoint_ratio": 1.3389425541587263,
+            "adjoint_rms": 0.03756865724866839,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 10.582491126087461,
+            "activation_rms": 0.8367070865225871,
+            "activation_status": "within",
+            "adjoint_ratio": 0.7459821992206342,
+            "adjoint_rms": 0.020931106767113437,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          },
+          {
+            "activation_ratio": 9.660163857039914,
+            "activation_rms": 0.7637830695864702,
+            "activation_status": "within",
+            "adjoint_ratio": 0.8986651544250714,
+            "adjoint_rms": 0.0252151543492693,
+            "adjoint_status": "within",
+            "label": "block.1.after_attention",
+            "site": 3
+          },
+          {
+            "activation_ratio": 9.38393549867232,
+            "activation_rms": 0.741943011117164,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.028058453390685776,
+            "adjoint_status": "within",
+            "label": "block.1.after_feed_forward",
+            "site": 4
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.028058453390685776,
+        "valid_positions": 4,
+        "width": 4,
+        "within_band": true
+      },
+      "selected_names": [
+        "blocks.0.attention.output.weight",
+        "blocks.0.ffn.down.weight",
+        "blocks.1.attention.output.weight",
+        "blocks.1.ffn.down.weight"
+      ],
+      "transformed_tensors": 4,
+      "unselected_tensors_unchanged": 16,
+      "vocabulary": 266,
+      "width": 4
+    },
+    {
+      "base_initializer_id": "splitmix64-xavier-uniform-v1",
+      "factor": 0.35355339059327373,
+      "ff_width": 4,
+      "final_rng_state": "6393972611202028325",
+      "heads": 1,
+      "id": "narrow-depth-8",
+      "initial_rng_state": "4701",
+      "initialized": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.22210818569291277,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.19484397613055468
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.24939413357442577,
+            "block": 1,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.05459835733538564
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.41187758580754696,
+            "block": 2,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.08784993233538928
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.45398806534902814,
+            "block": 3,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.11135609054619791
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.47654879671282097,
+            "block": 4,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.12979170069802703
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.20774004104240945,
+            "block": 5,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.1768891342152403
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.2876543716213491,
+            "block": 6,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.08980497844181827
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.18054215748365465,
+            "block": 7,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.12770508663963234
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.07906522921242769,
+        "mean_loss_nats": 5.623782373309894,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.07906522921242769,
+            "activation_status": "within",
+            "adjoint_ratio": 10.196326256915105,
+            "adjoint_rms": 0.2112893937581344,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 3.248620832089673,
+            "activation_rms": 0.25685295071343756,
+            "activation_status": "within",
+            "adjoint_ratio": 2.859128122011905,
+            "adjoint_rms": 0.05924716729881298,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 3.6697256701318204,
+            "activation_rms": 0.29014770125570216,
+            "activation_status": "within",
+            "adjoint_ratio": 1.662566201989341,
+            "adjoint_rms": 0.03445187963290734,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          },
+          {
+            "activation_ratio": 2.9970210954888343,
+            "activation_rms": 0.23696015986930583,
+            "activation_status": "within",
+            "adjoint_ratio": 1.2555324844809468,
+            "adjoint_rms": 0.026017282186288546,
+            "adjoint_status": "within",
+            "label": "block.1.after_attention",
+            "site": 3
+          },
+          {
+            "activation_ratio": 2.744412229219476,
+            "activation_rms": 0.21698758195662748,
+            "activation_status": "within",
+            "adjoint_ratio": 1.1850953304561962,
+            "adjoint_rms": 0.024557675736186526,
+            "adjoint_status": "within",
+            "label": "block.1.after_feed_forward",
+            "site": 4
+          },
+          {
+            "activation_ratio": 6.467641691973513,
+            "activation_rms": 0.5113655728397394,
+            "activation_status": "within",
+            "adjoint_ratio": 0.8911870640624118,
+            "adjoint_rms": 0.018467276325444718,
+            "adjoint_status": "within",
+            "label": "block.2.after_attention",
+            "site": 5
+          },
+          {
+            "activation_ratio": 6.797025844486981,
+            "activation_rms": 0.537408406357158,
+            "activation_status": "within",
+            "adjoint_ratio": 0.887142839105651,
+            "adjoint_rms": 0.018383471451237598,
+            "adjoint_status": "within",
+            "label": "block.2.after_feed_forward",
+            "site": 6
+          },
+          {
+            "activation_ratio": 9.59871369110083,
+            "activation_rms": 0.758924498131355,
+            "activation_status": "within",
+            "adjoint_ratio": 0.7438161382060294,
+            "adjoint_rms": 0.015413439796758476,
+            "adjoint_status": "within",
+            "label": "block.3.after_attention",
+            "site": 7
+          },
+          {
+            "activation_ratio": 9.924843588813587,
+            "activation_rms": 0.7847100332470397,
+            "activation_status": "within",
+            "adjoint_ratio": 0.8762947834099847,
+            "adjoint_rms": 0.018158676848393528,
+            "adjoint_status": "within",
+            "label": "block.3.after_feed_forward",
+            "site": 8
+          },
+          {
+            "activation_ratio": 10.752315496385505,
+            "activation_rms": 0.8501342892860582,
+            "activation_status": "within",
+            "adjoint_ratio": 0.7867911991651246,
+            "adjoint_rms": 0.016303973734960772,
+            "adjoint_status": "within",
+            "label": "block.4.after_attention",
+            "site": 9
+          },
+          {
+            "activation_ratio": 11.561261515465954,
+            "activation_rms": 0.9140937917051347,
+            "activation_status": "within",
+            "adjoint_ratio": 0.8097855014229195,
+            "adjoint_rms": 0.01678046419451681,
+            "adjoint_status": "within",
+            "label": "block.4.after_feed_forward",
+            "site": 10
+          },
+          {
+            "activation_ratio": 11.37743011457891,
+            "activation_rms": 0.899559119857559,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0004688476458405,
+            "adjoint_rms": 0.020731825460138274,
+            "adjoint_status": "within",
+            "label": "block.5.after_attention",
+            "site": 11
+          },
+          {
+            "activation_ratio": 11.773067698641993,
+            "activation_rms": 0.9308402961265577,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0224147670308834,
+            "adjoint_rms": 0.02118659121453789,
+            "adjoint_status": "within",
+            "label": "block.5.after_feed_forward",
+            "site": 12
+          },
+          {
+            "activation_ratio": 11.557544879785977,
+            "activation_rms": 0.9137999350531983,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0097968562216793,
+            "adjoint_rms": 0.020925121479439635,
+            "adjoint_status": "within",
+            "label": "block.6.after_attention",
+            "site": 13
+          },
+          {
+            "activation_ratio": 12.128400622820173,
+            "activation_rms": 0.9589347752234277,
+            "activation_status": "within",
+            "adjoint_ratio": 1.118004808092008,
+            "adjoint_rms": 0.023167418555309037,
+            "adjoint_status": "within",
+            "label": "block.6.after_feed_forward",
+            "site": 14
+          },
+          {
+            "activation_ratio": 11.799161179670742,
+            "activation_rms": 0.9329033831850458,
+            "activation_status": "within",
+            "adjoint_ratio": 1.1282870688476974,
+            "adjoint_rms": 0.023380488693199072,
+            "adjoint_status": "within",
+            "label": "block.7.after_attention",
+            "site": 15
+          },
+          {
+            "activation_ratio": 11.281825505718905,
+            "activation_rms": 0.892000119544278,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.02072210994767246,
+            "adjoint_status": "within",
+            "label": "block.7.after_feed_forward",
+            "site": 16
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.02072210994767246,
+        "valid_positions": 4,
+        "width": 4,
+        "within_band": true
+      },
+      "layers": 8,
+      "max_positions": 4,
+      "parameter_tensors": 74,
+      "parameters": 2028,
+      "policy_id": "residual-output-init-depth-v1",
+      "profile": "bridge-ci",
+      "same_base_unscaled_control": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.6282168170419983,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.6495529645935634
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.8800567634693652,
+            "block": 1,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.19954301160312546
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 1.1669250940714662,
+            "block": 2,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.26896533593809857
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 1.2301252741955153,
+            "block": 3,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.259547905818302
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 1.0970418155139552,
+            "block": 4,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.31236524131359406
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.557901982184116,
+            "block": 5,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.526831474983279
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.8453281853908494,
+            "block": 6,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.29135310081611954
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.595981103720966,
+            "block": 7,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.34751368077875494
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.07906522921242769,
+        "mean_loss_nats": 5.635288510178614,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.07906522921242769,
+            "activation_status": "within",
+            "adjoint_ratio": 31.60722218402352,
+            "adjoint_rms": 0.22767169622110112,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 8.296554129432845,
+            "activation_rms": 0.6559689539169213,
+            "activation_status": "within",
+            "adjoint_ratio": 2.591058078306597,
+            "adjoint_rms": 0.018663790960840313,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 10.582491126087461,
+            "activation_rms": 0.8367070865225871,
+            "activation_status": "within",
+            "adjoint_ratio": 2.4323852479176766,
+            "adjoint_rms": 0.017520846091198816,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          },
+          {
+            "activation_ratio": 9.660163857039914,
+            "activation_rms": 0.7637830695864702,
+            "activation_status": "within",
+            "adjoint_ratio": 2.166147195608595,
+            "adjoint_rms": 0.015603092338119882,
+            "adjoint_status": "within",
+            "label": "block.1.after_attention",
+            "site": 3
+          },
+          {
+            "activation_ratio": 9.38393549867232,
+            "activation_rms": 0.741943011117164,
+            "activation_status": "within",
+            "adjoint_ratio": 1.9249326989498645,
+            "adjoint_rms": 0.01386558711581118,
+            "adjoint_status": "within",
+            "label": "block.1.after_feed_forward",
+            "site": 4
+          },
+          {
+            "activation_ratio": 19.62682375452109,
+            "activation_rms": 1.5517993188631305,
+            "activation_status": "within",
+            "adjoint_ratio": 1.1741024091254253,
+            "adjoint_rms": 0.008457240736516977,
+            "adjoint_status": "within",
+            "label": "block.2.after_attention",
+            "site": 5
+          },
+          {
+            "activation_ratio": 20.86505458190156,
+            "activation_rms": 1.6497003230478615,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0739717364773345,
+            "adjoint_rms": 0.007735984058128017,
+            "adjoint_status": "within",
+            "label": "block.2.after_feed_forward",
+            "site": 6
+          },
+          {
+            "activation_ratio": 26.584753251593217,
+            "activation_rms": 2.10192960939305,
+            "activation_status": "within",
+            "adjoint_ratio": 0.7734107225202271,
+            "adjoint_rms": 0.005570996718616178,
+            "adjoint_status": "within",
+            "label": "block.3.after_attention",
+            "site": 7
+          },
+          {
+            "activation_ratio": 27.598026228626,
+            "activation_rms": 2.182044269576906,
+            "activation_status": "within",
+            "adjoint_ratio": 0.8360356678982347,
+            "adjoint_rms": 0.0060220938589138065,
+            "adjoint_status": "within",
+            "label": "block.3.after_feed_forward",
+            "site": 8
+          },
+          {
+            "activation_ratio": 29.779415565183122,
+            "activation_rms": 2.3545163174733403,
+            "activation_status": "within",
+            "adjoint_ratio": 0.7999125831804579,
+            "adjoint_rms": 0.005761893708373786,
+            "adjoint_status": "within",
+            "label": "block.4.after_attention",
+            "site": 9
+          },
+          {
+            "activation_ratio": 31.759252828811906,
+            "activation_rms": 2.5110526045254558,
+            "activation_status": "within",
+            "adjoint_ratio": 0.8255311464585224,
+            "adjoint_rms": 0.005946428170855364,
+            "adjoint_status": "within",
+            "label": "block.4.after_feed_forward",
+            "site": 10
+          },
+          {
+            "activation_ratio": 30.75872760654618,
+            "activation_rms": 2.431945848494201,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0287382646653642,
+            "adjoint_rms": 0.007410160384239771,
+            "adjoint_status": "within",
+            "label": "block.5.after_attention",
+            "site": 11
+          },
+          {
+            "activation_ratio": 31.589978189520373,
+            "activation_rms": 2.4976688663700197,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0496586979506861,
+            "adjoint_rms": 0.007560853491783944,
+            "adjoint_status": "within",
+            "label": "block.5.after_feed_forward",
+            "site": 12
+          },
+          {
+            "activation_ratio": 31.189211048106085,
+            "activation_rms": 2.4659821204732895,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0312497246717605,
+            "adjoint_rms": 0.00742825081801211,
+            "adjoint_status": "within",
+            "label": "block.6.after_attention",
+            "site": 13
+          },
+          {
+            "activation_ratio": 33.36874133982484,
+            "activation_rms": 2.638307182563462,
+            "activation_status": "within",
+            "adjoint_ratio": 1.1116694213500933,
+            "adjoint_rms": 0.00800752629643733,
+            "adjoint_status": "within",
+            "label": "block.6.after_feed_forward",
+            "site": 14
+          },
+          {
+            "activation_ratio": 32.56891872353808,
+            "activation_rms": 2.5750690240774663,
+            "activation_status": "within",
+            "adjoint_ratio": 1.118323679321555,
+            "adjoint_rms": 0.008055457942902019,
+            "adjoint_status": "within",
+            "label": "block.7.after_attention",
+            "site": 15
+          },
+          {
+            "activation_ratio": 31.03294815024691,
+            "activation_rms": 2.453627158636656,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.0072031542315092205,
+            "adjoint_status": "within",
+            "label": "block.7.after_feed_forward",
+            "site": 16
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.0072031542315092205,
+        "valid_positions": 4,
+        "width": 4,
+        "within_band": true
+      },
+      "selected_names": [
+        "blocks.0.attention.output.weight",
+        "blocks.0.ffn.down.weight",
+        "blocks.1.attention.output.weight",
+        "blocks.1.ffn.down.weight",
+        "blocks.2.attention.output.weight",
+        "blocks.2.ffn.down.weight",
+        "blocks.3.attention.output.weight",
+        "blocks.3.ffn.down.weight",
+        "blocks.4.attention.output.weight",
+        "blocks.4.ffn.down.weight",
+        "blocks.5.attention.output.weight",
+        "blocks.5.ffn.down.weight",
+        "blocks.6.attention.output.weight",
+        "blocks.6.ffn.down.weight",
+        "blocks.7.attention.output.weight",
+        "blocks.7.ffn.down.weight"
+      ],
+      "transformed_tensors": 16,
+      "unselected_tensors_unchanged": 58,
+      "vocabulary": 266,
+      "width": 4
+    },
+    {
+      "base_initializer_id": "splitmix64-xavier-uniform-v1",
+      "factor": 0.7071067811865475,
+      "ff_width": 20,
+      "final_rng_state": "13125291522043032829",
+      "heads": 2,
+      "id": "actual-bridge-depth-2",
+      "initial_rng_state": "4701",
+      "initialized": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.5279472527574764,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.3909682834371263
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.863262781441545,
+            "block": 1,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.4055102896740426
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.08294330666194828,
+        "mean_loss_nats": 6.0151278752469075,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.08294330666194828,
+            "activation_status": "within",
+            "adjoint_ratio": 18.767830459256515,
+            "adjoint_rms": 0.4152414538132884,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 6.428974397989685,
+            "activation_rms": 0.5332403950142728,
+            "activation_status": "within",
+            "adjoint_ratio": 2.5017057390232202,
+            "adjoint_rms": 0.055350666681491405,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 6.836462983778917,
+            "activation_rms": 0.5670388457466327,
+            "activation_status": "within",
+            "adjoint_ratio": 1.7063893974877078,
+            "adjoint_rms": 0.03775415681224385,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          },
+          {
+            "activation_ratio": 10.29061985309742,
+            "activation_rms": 0.8535380382169925,
+            "activation_status": "within",
+            "adjoint_ratio": 1.184846211210986,
+            "adjoint_rms": 0.026214924754169314,
+            "adjoint_status": "within",
+            "label": "block.1.after_attention",
+            "site": 3
+          },
+          {
+            "activation_ratio": 10.869803216265511,
+            "activation_rms": 0.901577421521742,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.022125170765728355,
+            "adjoint_status": "within",
+            "label": "block.1.after_feed_forward",
+            "site": 4
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.022125170765728355,
+        "valid_positions": 4,
+        "width": 16,
+        "within_band": true
+      },
+      "layers": 2,
+      "max_positions": 16,
+      "parameter_tensors": 20,
+      "parameters": 8304,
+      "policy_id": "residual-output-init-depth-v1",
+      "profile": "bridge-ci",
+      "same_base_unscaled_control": {
+        "branches_outside_band": [
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 0.7466301650672398,
+            "block": 0,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.5254917885675666
+          },
+          {
+            "attention_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "attention_output_rms": 1.2605981814809806,
+            "block": 1,
+            "feed_forward_norm_gain": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "feed_forward_output_rms": 0.5692432935621448
+          }
+        ],
+        "final_norm_gain_outside_band": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "input_activation_normalizer": 0.08294330666194828,
+        "mean_loss_nats": 6.014106060723524,
+        "sites": [
+          {
+            "activation_ratio": 1.0,
+            "activation_rms": 0.08294330666194828,
+            "activation_status": "within",
+            "adjoint_ratio": 25.913805437109893,
+            "adjoint_rms": 0.39401118552642495,
+            "adjoint_status": "within",
+            "label": "input",
+            "site": 0
+          },
+          {
+            "activation_ratio": 9.042728011405593,
+            "activation_rms": 0.7500337625106038,
+            "activation_status": "within",
+            "adjoint_ratio": 2.4735771647300844,
+            "adjoint_rms": 0.03760995557104446,
+            "adjoint_status": "within",
+            "label": "block.0.after_attention",
+            "site": 1
+          },
+          {
+            "activation_ratio": 9.525942976406089,
+            "activation_rms": 0.7901132095362826,
+            "activation_status": "within",
+            "adjoint_ratio": 1.706830732489574,
+            "adjoint_rms": 0.02595181946678059,
+            "adjoint_status": "within",
+            "label": "block.0.after_feed_forward",
+            "site": 2
+          },
+          {
+            "activation_ratio": 14.925939266582581,
+            "activation_rms": 1.2380067578057745,
+            "activation_status": "within",
+            "adjoint_ratio": 1.1649074572784481,
+            "adjoint_rms": 0.01771204809670919,
+            "adjoint_status": "within",
+            "label": "block.1.after_attention",
+            "site": 3
+          },
+          {
+            "activation_ratio": 15.78260050430015,
+            "activation_rms": 1.309061073551187,
+            "activation_status": "within",
+            "adjoint_ratio": 1.0,
+            "adjoint_rms": 0.015204682557436384,
+            "adjoint_status": "within",
+            "label": "block.1.after_feed_forward",
+            "site": 4
+          }
+        ],
+        "terminal_adjoint_normalizer": 0.015204682557436384,
+        "valid_positions": 4,
+        "width": 16,
+        "within_band": true
+      },
+      "selected_names": [
+        "blocks.0.attention.output.weight",
+        "blocks.0.ffn.down.weight",
+        "blocks.1.attention.output.weight",
+        "blocks.1.ffn.down.weight"
+      ],
+      "transformed_tensors": 4,
+      "unselected_tensors_unchanged": 16,
+      "vocabulary": 266,
+      "width": 16
+    }
+  ],
+  "inclusive_ratio_bounds": [
+    0.01,
+    100.0
+  ],
+  "inputs": [
+    0,
+    99,
+    100,
+    101
+  ],
+  "laptop_plan": {
+    "context": 512,
+    "factor": 0.35355339059327373,
+    "ff_width": 1536,
+    "kv_heads": 2,
+    "layers": 8,
+    "measured_health": false,
+    "parameter_arrays_allocated": false,
+    "parameters": 32514560,
+    "query_heads": 8,
+    "status": "symbolic-only; unequal-head GQA execution belongs to a later chapter",
+    "vocabulary": 16384,
+    "width": 512
+  },
+  "observed_before_training": true,
+  "positions": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "rms_epsilon": 1e-6,
+  "rope_base": 10000.0,
+  "seed": 4701,
+  "segments": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "source_tokens": [
+    0,
+    99,
+    100,
+    101,
+    1
+  ],
+  "synthetic_classifiers": [
+    {
+      "id": "activation",
+      "ratios": [
+        1.0,
+        1.2,
+        8.0,
+        101.0
+      ],
+      "statuses": [
+        "within",
+        "within",
+        "within",
+        "above"
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "gradient",
+      "ratios": [
+        0.001,
+        0.5,
+        0.8,
+        1.0
+      ],
+      "statuses": [
+        "below",
+        "within",
+        "within",
+        "within"
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "inclusive-boundaries",
+      "ratios": [
+        0.01,
+        1.0,
+        100.0
+      ],
+      "statuses": [
+        "within",
+        "within",
+        "within"
+      ],
+      "synthetic": true
+    }
+  ],
+  "targets": [
+    99,
+    100,
+    101,
+    1
+  ],
+  "valid_positions": [
+    true,
+    true,
+    true,
+    true
+  ],
+  "worked_values": [
+    {
+      "base_output_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "base_parameter_product_gradient_for_input_2": 2.0,
+      "factor": 1.0,
+      "layers": 1,
+      "stored_output_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "stored_weight_product_gradient_for_input_2": 2.0,
+      "unselected_query_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "xavier_4_by_4_half_bound": 0.8660254037844386,
+      "xavier_4_by_4_ideal_variance": 0.25
+    },
+    {
+      "base_output_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "base_parameter_product_gradient_for_input_2": 1.414213562373095,
+      "factor": 0.7071067811865475,
+      "layers": 2,
+      "stored_output_weights": [
+        0.1414213562373095,
+        -0.282842712474619,
+        0.0,
+        0.07071067811865475
+      ],
+      "stored_weight_product_gradient_for_input_2": 2.0,
+      "unselected_query_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "xavier_4_by_4_half_bound": 0.6123724356957945,
+      "xavier_4_by_4_ideal_variance": 0.125
+    },
+    {
+      "base_output_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "base_parameter_product_gradient_for_input_2": 0.7071067811865475,
+      "factor": 0.35355339059327373,
+      "layers": 8,
+      "stored_output_weights": [
+        0.07071067811865475,
+        -0.1414213562373095,
+        0.0,
+        0.035355339059327376
+      ],
+      "stored_weight_product_gradient_for_input_2": 2.0,
+      "unselected_query_weights": [
+        0.2,
+        -0.4,
+        0.0,
+        0.1
+      ],
+      "xavier_4_by_4_half_bound": 0.30618621784789724,
+      "xavier_4_by_4_ideal_variance": 0.03125
+    }
+  ]
+}

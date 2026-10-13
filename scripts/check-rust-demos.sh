@@ -82,7 +82,7 @@ const practicalCourse = readCourseConfiguration(repositoryRoot).courses.find(
 const practicalLock = lock.courses.find(
   (course) => course.courseId === practicalCourse.id,
 );
-const practicalDemoNames = readChapterContractSummaries(repositoryRoot, {
+const practicalContracts = readChapterContractSummaries(repositoryRoot, {
   course: practicalCourse,
 }).flatMap(({ data }) => {
   if (!practicalLock.chapters.some(
@@ -91,10 +91,11 @@ const practicalDemoNames = readChapterContractSummaries(repositoryRoot, {
   if (data.order === 0 && data.rust === null) return [];
   const packageName = `practical-ch${data.chapter_id}`;
   if (data.rust?.package !== packageName) fail('Practical demo contract/package mismatch');
-  return [packageName];
-}).sort();
+  return [{data, packageName}];
+});
+const practicalDemoNames = practicalContracts.map(({packageName}) => packageName).sort();
 duplicate(practicalDemoNames, 'Practical demo registration');
-if (practicalDemoNames.length !== 5) fail('expected exactly five registered Practical demos');
+if (practicalDemoNames.length !== 6) fail('expected exactly six registered Practical demos');
 console.error(`Registered Practical demo directories: ${practicalDemoNames.join(', ')}`);
 
 const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })
@@ -229,9 +230,21 @@ if (JSON.stringify(metadataNames) !== JSON.stringify(contractPackages)) {
   );
 }
 
+const practicalPackages = workspacePackages.filter((pkg) =>
+  practicalDemoNames.includes(pkg.name),
+);
+const practicalMetadataNames = practicalPackages.map((pkg) => pkg.name).sort();
+duplicate(practicalMetadataNames, 'Cargo Practical package name');
+if (JSON.stringify(practicalMetadataNames) !== JSON.stringify(practicalDemoNames)) {
+  fail(
+    `Practical contract/Cargo package mismatch: contracts=[${practicalDemoNames.join(', ')}], Cargo=[${practicalMetadataNames.join(', ')}]`,
+  );
+}
+
 const runnableRecords = [];
 let traceCount = 0;
-for (const pkg of chapterPackages.sort((left, right) => left.name.localeCompare(right.name))) {
+const runnableContracts = [...contracts, ...practicalContracts];
+for (const pkg of [...chapterPackages, ...practicalPackages].sort((left, right) => left.name.localeCompare(right.name))) {
   if (!workspaceMembers.has(pkg.id)) fail(`${pkg.name}: package is not a workspace member`);
   const demoDirectory = join(demoRoot, pkg.name);
   const expectedManifest = join(demoDirectory, 'Cargo.toml');
@@ -260,9 +273,18 @@ for (const pkg of chapterPackages.sort((left, right) => left.name.localeCompare(
   if (!fixtureStats.isFile() || fixtureStats.isSymbolicLink() || fixtureStats.size === 0) {
     fail(`${pkg.name}: expected.txt must be a nonempty regular file`);
   }
-  const contract = contracts.find((candidate) => candidate.packageName === pkg.name);
+  const contract = runnableContracts.find((candidate) => candidate.packageName === pkg.name);
   if (readFileSync(fixture, 'utf8') !== contract.data.rust.expected_output) {
     fail(`${pkg.name}: expected.txt differs byte-for-byte from contract rust.expected_output`);
+  }
+  const stdinPath = pkg.name === 'practical-ch02-corpus-preparation'
+    ? join(demoDirectory, 'fixtures/prepared.jsonl')
+    : '/dev/null';
+  if (stdinPath !== '/dev/null') {
+    const inputStats = lstatSync(stdinPath);
+    if (!inputStats.isFile() || inputStats.isSymbolicLink() || inputStats.size === 0) {
+      fail(`${pkg.name}: stdin fixture must be a nonempty regular file`);
+    }
   }
 
   const traceSource = join(demoDirectory, 'examples/diagram_trace.rs');
@@ -327,6 +349,7 @@ for (const pkg of chapterPackages.sort((left, right) => left.name.localeCompare(
     fixture,
     traceTargetName,
     traceFixturePath,
+    stdinPath,
   ]);
 }
 
@@ -345,20 +368,29 @@ fi
 
 checked=0
 trace_checked=0
+original_checked=0
+practical_checked=0
 while IFS= read -r -d '' package_name && \
   IFS= read -r -d '' binary_name && \
   IFS= read -r -d '' expected_path && \
   IFS= read -r -d '' trace_target_name && \
-  IFS= read -r -d '' trace_expected_path; do
+  IFS= read -r -d '' trace_expected_path && \
+  IFS= read -r -d '' stdin_path; do
   actual_path="${temporary_directory}/${package_name}.actual.txt"
-  cargo run \
+  if cargo run \
     --quiet \
     --locked \
     --offline \
     --manifest-path "${repository_root}/Cargo.toml" \
     --package "${package_name}" \
     --bin "${binary_name}" \
-    >"${actual_path}"
+    >"${actual_path}" <"${stdin_path}"; then
+    :
+  else
+    execution_status=$?
+    echo "Rust demo check failed: execution failed for ${package_name}." >&2
+    exit "${execution_status}"
+  fi
   if ! diff -u \
     --label "${expected_path}" \
     --label "${package_name} stdout" \
@@ -368,6 +400,11 @@ while IFS= read -r -d '' package_name && \
     exit 1
   fi
   checked=$((checked + 1))
+  if [[ "${package_name}" == practical-ch* ]]; then
+    practical_checked=$((practical_checked + 1))
+  else
+    original_checked=$((original_checked + 1))
+  fi
 
   if [[ -n "${trace_target_name}" ]]; then
     actual_trace_path="${temporary_directory}/${package_name}.trace.actual.txt"
@@ -378,7 +415,7 @@ while IFS= read -r -d '' package_name && \
       --manifest-path "${repository_root}/Cargo.toml" \
       --package "${package_name}" \
       --example "${trace_target_name}" \
-      >"${actual_trace_path}"
+      >"${actual_trace_path}" </dev/null
     if ! diff -u \
       --label "${trace_expected_path}" \
       --label "${package_name} trace stdout" \
@@ -391,8 +428,13 @@ while IFS= read -r -d '' package_name && \
   fi
 done <"${demo_manifest_path}"
 
-if [[ ${checked} -ne 39 ]]; then
-  echo "Rust demo check failed: expected 39 checked chapter demos, got ${checked}." >&2
+if [[ ${original_checked} -ne 39 ]]; then
+  echo "Rust demo check failed: expected 39 checked first-course chapter demos, got ${original_checked}." >&2
+  exit 1
+fi
+
+if [[ ${practical_checked} -ne 6 ]]; then
+  echo "Rust demo check failed: expected six checked Practical chapter demos, got ${practical_checked}." >&2
   exit 1
 fi
 
@@ -401,4 +443,4 @@ if [[ ${trace_checked} -ne 34 ]]; then
   exit 1
 fi
 
-echo "Rust demo check passed: ${checked} discovered chapter demo(s), ${trace_checked} checked diagram trace(s)."
+echo "Rust demo check passed: ${original_checked} first-course chapter demo(s), ${practical_checked} Practical chapter demo(s), ${trace_checked} checked diagram trace(s)."

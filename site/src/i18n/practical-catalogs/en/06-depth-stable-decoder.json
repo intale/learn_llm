@@ -1,0 +1,9 @@
+{
+  "schemaVersion":1,
+  "chapterId":"06-depth-stable-decoder",
+  "locale":"en",
+  "contentRevision":1,
+  "title":"Initialize residual projection weights for decoder depth",
+  "description":"Scale each block's two output projection weight matrices once at initialization, then inspect residual activation RMS and completed mean-loss adjoints on fixed CPU decoders.",
+  "objective":"Scale the freshly initialized weights of each block's attention output and feed-forward down projections according to the positive complete-block count, then inspect residual activations and completed mean-loss adjoints before training."
+}

@@ -1,0 +1,326 @@
+---
+import trace from '../../data/course/depth-stable-decoder-trace.json';
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string;
+  topologyTitle: string; topologyNote: string; policyRule: string;
+  inputResidual: string; inputResidualSymbol: string; residualRouteNote: string;
+  attentionAddition: string; attentionBranchNote: string; attentionOutput: string; selectedAttentionWeights: string;
+  feedForwardAddition: string; feedForwardBranchNote: string; feedForwardOutput: string; selectedFeedForwardWeights: string;
+  storedWeightRule: string; attentionAdditionRule: string; feedForwardAdditionRule: string;
+  unchangedParametersNote: string;
+  initializedTitle: string; initializedNote: string; seed: string;
+  fixtureNames: Record<string, string>;
+  blocks: string; width: string; heads: string; feedForwardWidth: string;
+  vocabulary: string; positionCapacity: string; parameters: string; factor: string;
+  inputNormalizer: string; terminalNormalizer: string;
+  activationNormalizerNote: string; adjointNormalizerNote: string;
+  band: string; roundingNote: string; diagnosticsNote: string;
+  siteTableCaption: string; siteTableRegion: string;
+  siteIndex: string; blockIndex: string; inputSite: string;
+  afterAttention: string; afterFeedForward: string;
+  activationRms: string; activationRatio: string; adjointRms: string; adjointRatio: string;
+  within: string; below: string; above: string; aggregateWithin: string; aggregateOutside: string;
+  controlsTitle: string; controlsNote: string; controlsCaption: string; controlsRegion: string;
+  decoderFixture: string; activationRange: string; adjointRange: string;
+  rangeMinimum: string; rangeMaximum: string; classification: string;
+  syntheticTitle: string; syntheticNote: string; syntheticNames: Record<string, string>;
+  syntheticRegion: string; syntheticSite: string; syntheticRatio: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+const requireCopy = (value: unknown): void => {
+  if (typeof value === 'string') {
+    if (value.trim() === '') throw new Error('depth-diagram-copy');
+  } else if (value && typeof value === 'object') {
+    Object.values(value).forEach(requireCopy);
+  } else {
+    throw new Error('depth-diagram-copy');
+  }
+};
+requireCopy(labels);
+const fixtureName = (id: string) => {
+  const name = labels.fixtureNames[id];
+  if (!name) throw new Error('depth-fixture-copy');
+  return name;
+};
+const syntheticName = (id: string) => {
+  const name = labels.syntheticNames[id];
+  if (!name) throw new Error('depth-synthetic-copy');
+  return name;
+};
+const statusCopy = (status: string) => {
+  const copies: Record<string, string> = { within: labels.within, below: labels.below, above: labels.above };
+  const copy = copies[status];
+  if (!copy) throw new Error('depth-status-copy');
+  return copy;
+};
+const decimal = (value: number) => value.toFixed(6);
+const controls = trace.fixtures.map(fixture => {
+  const report = fixture.same_base_unscaled_control;
+  return {
+    id: fixture.id,
+    terminalSite: 2 * fixture.layers,
+    report,
+    activationMin: Math.min(...report.sites.map(site => site.activation_ratio)),
+    activationMax: Math.max(...report.sites.map(site => site.activation_ratio)),
+    adjointMin: Math.min(...report.sites.map(site => site.adjoint_ratio)),
+    adjointMax: Math.max(...report.sites.map(site => site.adjoint_ratio)),
+  };
+});
+---
+<figure class="course-diagram depth-stable-diagram" data-diagram-style="course-v1"
+  data-visualization-id="depth-stable-decoder" tabindex="0"
+  aria-labelledby="depth-stable-title" aria-describedby="depth-stable-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="depth-stable-title">{labels.title}</h3>
+    <p id="depth-stable-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section class="course-diagram__scroll" data-diagram-box data-diagram-scroll data-depth-scroll
+    data-depth-section="topology" role="region" tabindex="0" aria-labelledby="depth-topology-title">
+    <h4 id="depth-topology-title">{labels.topologyTitle}</h4>
+    <p>{labels.topologyNote}</p>
+    <p data-depth-policy><InlineMath latex={labels.policyRule} /></p>
+    <p>{labels.blockIndex}: <InlineMath latex="b" /></p>
+    <ol class="course-diagram__grid depth-topology">
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-depth-topology="input">
+        <div class="course-diagram__card-heading"><h5>{labels.inputResidual}</h5></div>
+        <p><InlineMath latex={labels.inputResidualSymbol} /></p>
+        <p>{labels.residualRouteNote}</p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-depth-topology="attention">
+        <div class="course-diagram__card-heading"><h5>{labels.attentionAddition}</h5></div>
+        <p>{labels.attentionBranchNote}</p>
+        <p>{labels.attentionOutput}: <InlineMath latex="a_b" /></p>
+        <p>{labels.selectedAttentionWeights}</p>
+        <p><InlineMath latex={labels.storedWeightRule} /></p>
+        <p><InlineMath latex={labels.attentionAdditionRule} /></p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-depth-topology="feed-forward">
+        <div class="course-diagram__card-heading"><h5>{labels.feedForwardAddition}</h5></div>
+        <p>{labels.feedForwardBranchNote}</p>
+        <p>{labels.feedForwardOutput}: <InlineMath latex="f_b" /></p>
+        <p>{labels.selectedFeedForwardWeights}</p>
+        <p><InlineMath latex={labels.storedWeightRule} /></p>
+        <p><InlineMath latex={labels.feedForwardAdditionRule} /></p>
+      </li>
+    </ol>
+    <p>{labels.unchangedParametersNote}</p>
+  </section>
+
+  <section class="course-diagram__scroll" data-diagram-box data-diagram-scroll data-depth-scroll
+    data-depth-section="initialized" role="region" tabindex="0" aria-labelledby="depth-initialized-title">
+    <h4 id="depth-initialized-title">{labels.initializedTitle}</h4>
+    <p>{labels.initializedNote}</p>
+    <p>{labels.seed}: <bdi dir="ltr"><code>{trace.seed}</code></bdi></p>
+    <p>{labels.band}: <InlineMath latex={`[${trace.inclusive_ratio_bounds[0]},${trace.inclusive_ratio_bounds[1]}]`} /></p>
+    <p>{labels.activationNormalizerNote}</p>
+    <p>{labels.adjointNormalizerNote}</p>
+    <p>{labels.roundingNote}</p>
+    <div class="course-diagram__grid depth-fixtures">
+      {trace.fixtures.map(fixture => <article class="course-diagram__card-stack"
+        data-diagram-card data-diagram-box data-depth-fixture={fixture.id} data-depth-case="initialized"
+        aria-labelledby={`depth-fixture-${fixture.id}`}>
+        <div class="course-diagram__card-heading">
+          <h5 id={`depth-fixture-${fixture.id}`}>{fixtureName(fixture.id)}</h5>
+        </div>
+        <dl class="depth-configuration">
+          <div><dt>{labels.blocks}</dt><dd data-depth-metric="layers"><InlineMath latex={`${fixture.layers}`} /></dd></div>
+          <div><dt>{labels.width}</dt><dd data-depth-metric="width"><InlineMath latex={`${fixture.width}`} /></dd></div>
+          <div><dt>{labels.heads}</dt><dd data-depth-metric="heads"><InlineMath latex={`${fixture.heads}`} /></dd></div>
+          <div><dt>{labels.feedForwardWidth}</dt><dd data-depth-metric="ff_width"><InlineMath latex={`${fixture.ff_width}`} /></dd></div>
+          <div><dt>{labels.vocabulary}</dt><dd data-depth-metric="vocabulary"><InlineMath latex={`${fixture.vocabulary}`} /></dd></div>
+          <div><dt>{labels.positionCapacity}</dt><dd data-depth-metric="max_positions"><InlineMath latex={`${fixture.max_positions}`} /></dd></div>
+          <div><dt>{labels.parameters}</dt><dd data-depth-metric="parameters"><InlineMath latex={`${fixture.parameters}`} /></dd></div>
+          <div><dt>{labels.factor}</dt><dd data-depth-metric="factor" data-depth-value={fixture.factor}><InlineMath latex={decimal(fixture.factor)} /></dd></div>
+        </dl>
+        <dl class="depth-normalizers">
+          <div>
+            <dt>{labels.inputNormalizer} <InlineMath latex="A_0" /></dt>
+            <dd data-depth-site="0" data-depth-metric="input_activation_normalizer" data-depth-value={fixture.initialized.input_activation_normalizer}>
+              <InlineMath latex={decimal(fixture.initialized.input_activation_normalizer)} />
+            </dd>
+          </div>
+          <div>
+            <dt>{labels.terminalNormalizer} <InlineMath latex="G_{2L}" /></dt>
+            <dd data-depth-site={2 * fixture.layers} data-depth-metric="terminal_adjoint_normalizer" data-depth-value={fixture.initialized.terminal_adjoint_normalizer}>
+              <InlineMath latex={decimal(fixture.initialized.terminal_adjoint_normalizer)} />
+            </dd>
+          </div>
+        </dl>
+        <p data-depth-metric="within_band" data-depth-status={fixture.initialized.within_band ? 'within' : 'outside'}>
+          {fixture.initialized.within_band ? labels.aggregateWithin : labels.aggregateOutside}
+        </p>
+        <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0"
+          aria-label={`${labels.siteTableRegion}: ${fixtureName(fixture.id)}`}>
+          <table data-diagram-table data-depth-sites={fixture.id}>
+            <caption>{labels.siteTableCaption}: {fixtureName(fixture.id)}</caption>
+            <thead><tr>
+              <th scope="col">{labels.siteIndex}</th>
+              <th scope="col">{labels.activationRms}<small><InlineMath latex="A_s" /></small></th>
+              <th scope="col">{labels.activationRatio}<small><InlineMath latex="A_s/A_0" /></small></th>
+              <th scope="col">{labels.adjointRms}<small><InlineMath latex="G_s" /></small></th>
+              <th scope="col">{labels.adjointRatio}<small><InlineMath latex="G_s/G_{2L}" /></small></th>
+            </tr></thead>
+            <tbody>{fixture.initialized.sites.map(site => <tr data-depth-site={site.site}>
+              <th scope="row">
+                <InlineMath latex={`${site.site}`} />
+                <small>{site.site === 0 ? labels.inputSite : <>
+                  {labels.blockIndex} <InlineMath latex={`${Math.floor((site.site - 1) / 2)}`} />
+                  <br />{site.site % 2 === 1 ? labels.afterAttention : labels.afterFeedForward}
+                </>}</small>
+              </th>
+              <td data-depth-metric="activation_rms" data-depth-value={site.activation_rms}><InlineMath latex={decimal(site.activation_rms)} /></td>
+              <td data-depth-metric="activation_ratio" data-depth-value={site.activation_ratio}>
+                <InlineMath latex={decimal(site.activation_ratio)} />
+                <small data-depth-metric="activation_status" data-depth-status={site.activation_status}>{statusCopy(site.activation_status)}</small>
+              </td>
+              <td data-depth-metric="adjoint_rms" data-depth-value={site.adjoint_rms}><InlineMath latex={decimal(site.adjoint_rms)} /></td>
+              <td data-depth-metric="adjoint_ratio" data-depth-value={site.adjoint_ratio}>
+                <InlineMath latex={decimal(site.adjoint_ratio)} />
+                <small data-depth-metric="adjoint_status" data-depth-status={site.adjoint_status}>{statusCopy(site.adjoint_status)}</small>
+              </td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </article>)}
+    </div>
+    <p>{labels.diagnosticsNote}</p>
+  </section>
+
+  <section class="course-diagram__scroll" data-diagram-box data-diagram-scroll data-depth-scroll
+    data-depth-section="controls" role="region" tabindex="0"
+    aria-labelledby="depth-controls-title" data-depth-comparison="same-base-controls">
+    <h4 id="depth-controls-title">{labels.controlsTitle}</h4>
+    <p>{labels.controlsNote}</p>
+    <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0" aria-label={labels.controlsRegion}>
+      <table data-diagram-table data-depth-controls>
+        <caption>{labels.controlsCaption}</caption>
+        <thead><tr>
+          <th scope="col">{labels.decoderFixture}</th>
+          <th scope="col">{labels.inputNormalizer}<small><InlineMath latex="A_0" /></small></th>
+          <th scope="col">{labels.terminalNormalizer}<small><InlineMath latex="G_{2L}" /></small></th>
+          <th scope="col">{labels.activationRange}<small><InlineMath latex="A_s/A_0" /></small></th>
+          <th scope="col">{labels.adjointRange}<small><InlineMath latex="G_s/G_{2L}" /></small></th>
+          <th scope="col">{labels.classification}</th>
+        </tr></thead>
+        <tbody>{controls.map(control => <tr data-depth-fixture={control.id} data-depth-case="same_base_unscaled_control">
+          <th scope="row">{fixtureName(control.id)}</th>
+          <td data-depth-site="0" data-depth-metric="input_activation_normalizer" data-depth-value={control.report.input_activation_normalizer}>
+            <InlineMath latex={decimal(control.report.input_activation_normalizer)} />
+          </td>
+          <td data-depth-site={control.terminalSite} data-depth-metric="terminal_adjoint_normalizer" data-depth-value={control.report.terminal_adjoint_normalizer}>
+            <InlineMath latex={decimal(control.report.terminal_adjoint_normalizer)} />
+          </td>
+          <td>
+            <span>{labels.rangeMinimum}: <span data-depth-metric="activation_ratio_min" data-depth-value={control.activationMin}><InlineMath latex={decimal(control.activationMin)} /></span></span>
+            <br /><span>{labels.rangeMaximum}: <span data-depth-metric="activation_ratio_max" data-depth-value={control.activationMax}><InlineMath latex={decimal(control.activationMax)} /></span></span>
+          </td>
+          <td>
+            <span>{labels.rangeMinimum}: <span data-depth-metric="adjoint_ratio_min" data-depth-value={control.adjointMin}><InlineMath latex={decimal(control.adjointMin)} /></span></span>
+            <br /><span>{labels.rangeMaximum}: <span data-depth-metric="adjoint_ratio_max" data-depth-value={control.adjointMax}><InlineMath latex={decimal(control.adjointMax)} /></span></span>
+          </td>
+          <td data-depth-metric="within_band" data-depth-status={control.report.within_band ? 'within' : 'outside'}>
+            {control.report.within_band ? labels.aggregateWithin : labels.aggregateOutside}
+          </td>
+        </tr>)}</tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="course-diagram__scroll" data-diagram-box data-diagram-scroll data-depth-scroll
+    data-depth-section="synthetic" role="region" tabindex="0"
+    aria-labelledby="depth-synthetic-title" data-depth-comparison="synthetic">
+    <h4 id="depth-synthetic-title">{labels.syntheticTitle}</h4>
+    <p>{labels.syntheticNote}</p>
+    <div class="course-diagram__grid depth-synthetic">
+      {trace.synthetic_classifiers.map(example => <div class="course-diagram__scroll" data-diagram-scroll
+        role="region" tabindex="0" data-depth-synthetic={example.id}
+        aria-label={`${labels.syntheticRegion}: ${syntheticName(example.id)}`}>
+        <table data-diagram-table>
+          <caption>{syntheticName(example.id)}</caption>
+          <thead><tr><th scope="col">{labels.syntheticSite}</th><th scope="col">{labels.syntheticRatio}</th><th scope="col">{labels.classification}</th></tr></thead>
+          <tbody>{example.ratios.map((ratio, site) => <tr data-depth-site={site}>
+            <th scope="row"><InlineMath latex={`${site}`} /></th>
+            <td data-depth-metric="synthetic_ratio" data-depth-value={ratio}><InlineMath latex={`${ratio}`} /></td>
+            <td data-depth-metric="synthetic_status" data-depth-status={example.statuses[site]}>{statusCopy(example.statuses[site])}</td>
+          </tr>)}</tbody>
+        </table>
+      </div>)}
+    </div>
+  </section>
+</figure>
+
+<style>
+  .depth-topology, .depth-fixtures, .depth-synthetic {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .depth-configuration, .depth-normalizers {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem 0.75rem;
+    margin: 0;
+  }
+  .depth-configuration > div, .depth-normalizers > div { min-inline-size: 0; }
+  .depth-stable-diagram [data-depth-sites] { min-inline-size: 42rem; }
+  .depth-stable-diagram [data-depth-controls] { min-inline-size: 54rem; }
+  .depth-stable-diagram [data-depth-synthetic] table { min-inline-size: 20rem; }
+  .depth-stable-diagram table { --diagram-cell-padding-block: 0.35rem; }
+  @container (min-width: 38rem) {
+    .depth-configuration { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .depth-normalizers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container (min-width: 48rem) {
+    .depth-topology { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @container (min-width: 68rem) {
+    .depth-synthetic { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    align-items: start;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > figcaption {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > [data-depth-section='topology'],
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > [data-depth-section='initialized'] {
+    max-block-size: min(30rem, 65dvh);
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > [data-depth-scroll] {
+    overflow-y: auto;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > [data-depth-section='controls'],
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > [data-depth-section='synthetic'] {
+    max-block-size: min(21rem, 45dvh);
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen > section > p {
+    max-inline-size: none;
+    margin-block: 0.35rem;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen .depth-fixtures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen .depth-configuration,
+  .depth-stable-diagram.depth-stable-diagram:fullscreen .depth-normalizers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen [data-depth-sites] {
+    table-layout: fixed;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen [data-depth-sites] thead th:first-child {
+    inline-size: 16rem;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen [data-depth-sites] tbody th small {
+    display: inline;
+    margin-inline-start: 0.35rem;
+  }
+  .depth-stable-diagram.depth-stable-diagram:fullscreen [data-depth-fixture] > .course-diagram__scroll {
+    max-block-size: 28rem;
+  }
+</style>

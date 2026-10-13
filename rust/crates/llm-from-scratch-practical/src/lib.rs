@@ -52,12 +52,15 @@ pub mod autograd {
 
 /// Numerically stable neural-network building blocks.
 pub mod nn {
+    pub mod depth_health;
+    pub mod depth_init;
     pub mod embedding;
     pub mod init;
     pub mod linear;
     #[path = "probability.rs"]
     pub mod probability;
     pub mod residual;
+    pub mod residual_scale;
     pub mod rmsnorm;
     pub mod swiglu;
 }

@@ -738,6 +738,47 @@ trait TensorBackwardObserver {
 
 struct NoTensorBackwardTrace;
 
+/// Retains only requested completed adjoints, without recording operand edges.
+struct RecordSelectedAdjoints<'a> {
+    selected: &'a [TensorValue],
+}
+
+impl TensorBackwardObserver for RecordSelectedAdjoints<'_> {
+    type Output = Vec<Option<Tensor>>;
+
+    fn observe_edge(
+        &mut self,
+        _child: usize,
+        _parent: usize,
+        _operand: usize,
+        _saved: &TensorSavedContext,
+        _upstream: &Tensor,
+        _contribution: &Tensor,
+        _parent_tracked: bool,
+        _parent_adjoint_before: Option<&Tensor>,
+        _parent_adjoint_after: Option<&Tensor>,
+    ) {
+    }
+
+    fn finish(
+        self,
+        _retention: GraphRetention,
+        topology: &[TensorValue],
+        pass_adjoints: &[Option<Tensor>],
+        _prospective_gradients: &[Option<Tensor>],
+    ) -> Self::Output {
+        self.selected
+            .iter()
+            .map(|selected| {
+                topology
+                    .iter()
+                    .position(|node| node.is_same_node(selected))
+                    .and_then(|index| pass_adjoints[index].clone())
+            })
+            .collect()
+    }
+}
+
 impl TensorBackwardObserver for NoTensorBackwardTrace {
     type Output = ();
 
@@ -1091,6 +1132,20 @@ impl TensorValue {
     pub fn backward_with_trace(&self) -> Result<TensorBackwardPass, TensorAutodiffError> {
         self.backward_scalar(RecordTensorBackwardTrace::default())
     }
+
+    // region:completed-selected-adjoints
+    /// Uses the existing reverse pass and copies completed adjoints in request order.
+    ///
+    /// Missing or untracked nodes yield `None`. Node identity, rather than a
+    /// matching shape or operation name, binds each observation. Parameter
+    /// gradients have exactly the ordinary reverse pass's accumulation semantics.
+    pub fn backward_with_selected_adjoints(
+        &self,
+        selected: &[TensorValue],
+    ) -> Result<Vec<Option<Tensor>>, TensorAutodiffError> {
+        self.backward_scalar(RecordSelectedAdjoints { selected })
+    }
+    // endregion:completed-selected-adjoints
 
     fn backward_scalar<Observer: TensorBackwardObserver>(
         &self,
