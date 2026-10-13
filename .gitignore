@@ -18,3 +18,4 @@ desktop.ini
 node_modules/
 test-results/
 dev_scripts/
+tmp/
