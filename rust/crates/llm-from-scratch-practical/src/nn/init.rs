@@ -145,10 +145,20 @@ impl SplitMix64 {
 
     /// Maps the high 53 bits of one draw to the binary64 interval [0,1).
     pub fn next_unit_f64(&mut self) -> f64 {
-        ((self.next_u64() >> 11) as f64) * BINARY64_UNIT_SCALE
+        Self::unit_f64_from_word(self.next_u64())
     }
 }
 // endregion:deterministic-prng
+
+impl SplitMix64 {
+    /// The increment shared by sequential and random-access course draws.
+    pub const WORD_INCREMENT: u64 = SPLITMIX_INCREMENT;
+
+    /// Converts an already generated word without advancing a generator.
+    pub fn unit_f64_from_word(word: u64) -> f64 {
+        ((word >> 11) as f64) * BINARY64_UNIT_SCALE
+    }
+}
 
 // region:xavier-initialization
 /// The formula-derived scale for one [fan-in, fan-out] matrix.

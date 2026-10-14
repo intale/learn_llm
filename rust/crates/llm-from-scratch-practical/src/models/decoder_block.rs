@@ -7,6 +7,7 @@ use crate::attention::multi_head::{
     MultiHeadAttention, MultiHeadAttentionError, MultiHeadAttentionForward,
 };
 use crate::autograd::tensor_core::{AutogradContext, TensorValue};
+use crate::nn::dropout::{DropoutError, DropoutExecution, DropoutSiteId, DropoutSiteKind};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::nn::residual::{ResidualError, residual_add_with_context};
 use crate::nn::rmsnorm::{RmsNorm, RmsNormError, RmsNormForward};
@@ -36,6 +37,7 @@ impl fmt::Display for DecoderBlockComponent {
 /// A rejected component assembly or stage of one decoder-block forward pass.
 #[derive(Clone, Debug, PartialEq)]
 pub enum DecoderBlockError {
+    Dropout(DropoutError),
     AttentionNorm(RmsNormError),
     Attention(MultiHeadAttentionError),
     AttentionResidual(ResidualError),
@@ -53,6 +55,7 @@ pub enum DecoderBlockError {
 impl fmt::Display for DecoderBlockError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Dropout(source) => source.fmt(formatter),
             Self::AttentionNorm(source) => write!(formatter, "attention RMSNorm: {source}"),
             Self::Attention(source) => write!(formatter, "causal multi-head attention: {source}"),
             Self::AttentionResidual(source) => {
@@ -81,6 +84,7 @@ impl fmt::Display for DecoderBlockError {
 impl Error for DecoderBlockError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
+            Self::Dropout(source) => Some(source),
             Self::AttentionNorm(source) | Self::FeedForwardNorm(source) => Some(source),
             Self::Attention(source) => Some(source),
             Self::AttentionResidual(source) | Self::FeedForwardResidual(source) => Some(source),
@@ -344,6 +348,30 @@ impl DecoderBlock {
         starts: Option<&[usize]>,
         positions: Option<&[usize]>,
     ) -> Result<DecoderBlockForward, DecoderBlockError> {
+        self.forward_with_layout_and_dropout(
+            context,
+            input,
+            position_offset,
+            lengths,
+            starts,
+            positions,
+            0,
+            &mut DropoutExecution::Identity,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn forward_with_layout_and_dropout(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
+        layer: usize,
+        dropout: &mut DropoutExecution<'_>,
+    ) -> Result<DecoderBlockForward, DecoderBlockError> {
         let attention_norm = self
             .attention_norm
             .forward_with_intermediates_and_context(context, input)
@@ -359,10 +387,20 @@ impl DecoderBlock {
                 positions,
             )
             .map_err(DecoderBlockError::Attention)?;
-        let after_attention = residual_add_with_context(context, input, attention.output())
+        let branch = dropout
+            .apply(
+                context,
+                attention.output(),
+                DropoutSiteId {
+                    layer,
+                    kind: DropoutSiteKind::AttentionOutput,
+                },
+            )
+            .map_err(DecoderBlockError::Dropout)?;
+        let after_attention = residual_add_with_context(context, input, &branch)
             .map_err(DecoderBlockError::AttentionResidual)?;
         let (feed_forward_norm, feed_forward, output) =
-            self.forward_feed_forward_path(context, &after_attention)?;
+            self.forward_feed_forward_path_and_dropout(context, &after_attention, layer, dropout)?;
 
         Ok(DecoderBlockForward {
             attention_norm,
@@ -380,6 +418,21 @@ impl DecoderBlock {
         context: AutogradContext,
         after_attention: &TensorValue,
     ) -> Result<(RmsNormForward, SwiGluForward, TensorValue), DecoderBlockError> {
+        self.forward_feed_forward_path_and_dropout(
+            context,
+            after_attention,
+            0,
+            &mut DropoutExecution::Identity,
+        )
+    }
+
+    pub(crate) fn forward_feed_forward_path_and_dropout(
+        &self,
+        context: AutogradContext,
+        after_attention: &TensorValue,
+        layer: usize,
+        dropout: &mut DropoutExecution<'_>,
+    ) -> Result<(RmsNormForward, SwiGluForward, TensorValue), DecoderBlockError> {
         let feed_forward_norm = self
             .feed_forward_norm
             .forward_with_intermediates_and_context(context, after_attention)
@@ -388,7 +441,17 @@ impl DecoderBlock {
             .feed_forward
             .forward_with_intermediates_and_context(context, feed_forward_norm.output())
             .map_err(DecoderBlockError::FeedForward)?;
-        let output = residual_add_with_context(context, after_attention, feed_forward.output())
+        let branch = dropout
+            .apply(
+                context,
+                feed_forward.output(),
+                DropoutSiteId {
+                    layer,
+                    kind: DropoutSiteKind::FeedForwardOutput,
+                },
+            )
+            .map_err(DecoderBlockError::Dropout)?;
+        let output = residual_add_with_context(context, after_attention, &branch)
             .map_err(DecoderBlockError::FeedForwardResidual)?;
         Ok((feed_forward_norm, feed_forward, output))
     }

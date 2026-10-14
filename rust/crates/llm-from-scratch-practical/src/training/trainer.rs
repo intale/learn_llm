@@ -13,7 +13,7 @@ use crate::models::decoder::{
 };
 use crate::nn::init::{InitializationError, NamedParameter};
 use crate::tensor::storage::{Tensor, TensorError};
-use crate::training::adamw::{AdamW, AdamWError, AdamWGradientTransform, AdamWState};
+use crate::training::adamw::{AdamW, AdamWError, AdamWGradientTransform, AdamWState, AdamWStep};
 use crate::training::batch::MiniBatchEpoch;
 
 // region:training-plan
@@ -154,6 +154,10 @@ impl fmt::Display for TrainerEpochRole {
 /// A rejected configuration, partition, numerical value, or cumulative API call.
 #[derive(Clone, Debug, PartialEq)]
 pub enum TrainerError {
+    InvalidUpdateStep {
+        step: usize,
+    },
+    ObserverRejected(&'static str),
     EmptyLearningRateSchedule,
     InvalidScheduledLearningRate {
         step: usize,
@@ -248,6 +252,12 @@ pub enum TrainerError {
 impl fmt::Display for TrainerError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::InvalidUpdateStep { step } => {
+                write!(formatter, "trainer update {step} is outside its schedule")
+            }
+            Self::ObserverRejected(reason) => {
+                write!(formatter, "trainer observation rejected: {reason}")
+            }
             Self::EmptyLearningRateSchedule => {
                 formatter.write_str("the learning-rate schedule must contain at least one step")
             }
@@ -423,6 +433,7 @@ struct StateParameter {
 pub struct DecoderModelState {
     config: DecoderModelConfig,
     parameters: Vec<StateParameter>,
+    execution_identity: Option<crate::models::decoder::CoreIdentity>,
 }
 
 impl DecoderModelState {
@@ -430,6 +441,7 @@ impl DecoderModelState {
     pub fn snapshot(model: &DecoderModel) -> Self {
         Self {
             config: model.config(),
+            execution_identity: model.execution_identity_snapshot(),
             parameters: model
                 .parameters()
                 .iter()
@@ -446,6 +458,7 @@ impl DecoderModelState {
         Self {
             config: self.config,
             parameters: self.parameters.clone(),
+            execution_identity: self.execution_identity.clone(),
         }
     }
 
@@ -486,12 +499,25 @@ impl DecoderModelState {
 
     /// Consumes graph-free state and moves every tensor buffer into one decoder.
     pub fn into_model(self) -> Result<DecoderModel, TrainerError> {
-        let Self { config, parameters } = self;
+        let Self {
+            config,
+            parameters,
+            execution_identity,
+        } = self;
         let parameters = parameters
             .into_iter()
             .map(|parameter| NamedParameter::from_tensor(parameter.name, parameter.value))
             .collect::<Result<Vec<_>, _>>()?;
-        DecoderModel::from_parameters(config, parameters).map_err(Into::into)
+        let model = DecoderModel::from_parameters(config, parameters)?;
+        if let Some(id) = execution_identity {
+            model.bind_execution_identity(
+                id.semantic_sha256,
+                id.run_sha256,
+                id.construction_id,
+                id.max_rows,
+            )?;
+        }
+        Ok(model)
     }
 }
 
@@ -555,6 +581,7 @@ impl DecoderModelState {
     ) -> Result<Self, TrainerError> {
         let state = Self {
             config,
+            execution_identity: None,
             parameters: parameters
                 .into_iter()
                 .map(|(name, value)| StateParameter { name, value })
@@ -567,6 +594,18 @@ impl DecoderModelState {
 // endregion:decoder-state-layout-validation
 
 impl DecoderModelState {
+    /// This in-memory binding is absent from component-checkpoint version 1.
+    pub fn execution_binding(&self) -> Option<(&str, &str, &str, usize)> {
+        self.execution_identity.as_ref().map(|id| {
+            (
+                id.semantic_sha256.as_str(),
+                id.run_sha256.as_str(),
+                id.construction_id.as_str(),
+                id.max_rows,
+            )
+        })
+    }
+
     pub(crate) fn named_tensors(&self) -> impl ExactSizeIterator<Item = (&str, &Tensor)> {
         self.parameters
             .iter()
@@ -1020,6 +1059,107 @@ fn checkpoint(
     })
 }
 
+/// A bounded observer can retain evidence without owning update arithmetic.
+pub trait DecoderUpdateObserver {
+    fn after_forward(&mut self, _loss: &TensorValue) -> Result<(), TrainerError> {
+        Ok(())
+    }
+    fn before_update(
+        &mut self,
+        _model: &DecoderModel,
+        _transform: AdamWGradientTransform,
+    ) -> Result<(), TrainerError> {
+        Ok(())
+    }
+    fn records_update_trace(&self) -> bool {
+        false
+    }
+}
+pub struct NoDecoderUpdateObserver;
+impl DecoderUpdateObserver for NoDecoderUpdateObserver {}
+pub struct DecoderUpdateExecution {
+    pub step: TrainingStep,
+    pub optimizer_trace: Option<AdamWStep>,
+}
+
+/// The existing update owner accepts the caller's text forward and phase observer.
+pub fn decoder_update_with_forward<F, O>(
+    model: &DecoderModel,
+    optimizer: &mut AdamW,
+    config: &TrainerConfig,
+    step: usize,
+    forward: F,
+    observer: &mut O,
+) -> Result<DecoderUpdateExecution, TrainerError>
+where
+    F: FnOnce() -> Result<TensorValue, TrainerError>,
+    O: DecoderUpdateObserver,
+{
+    let learning_rate = config
+        .schedule
+        .learning_rate(step)
+        .ok_or(TrainerError::InvalidUpdateStep { step })?;
+    let expected_optimizer_step =
+        u64::try_from(step).map_err(|_| TrainerError::InvalidUpdateStep { step })?;
+    if optimizer.step_count().checked_add(1) != Some(expected_optimizer_step) {
+        return Err(TrainerError::OptimizerStepMismatch {
+            expected: expected_optimizer_step,
+            actual: optimizer.step_count(),
+        });
+    }
+    let loss = forward()?;
+    let train_loss = scalar_loss(&loss)?;
+    observer.after_forward(&loss)?;
+    loss.backward_with_seed(
+        &Tensor::from_vec(Vec::new(), vec![1.0])?.view(),
+        GraphRetention::Release,
+    )?;
+    drop(loss);
+    let norm = gradient_norm(model, config.max_gradient_norm)?;
+    observer.before_update(model, norm.transform)?;
+    let (optimizer_step, optimizer_trace) = if observer.records_update_trace() {
+        let trace = optimizer.step_with_learning_rate_and_gradient_transform_and_trace(
+            model.parameters(),
+            learning_rate,
+            norm.transform,
+        )?;
+        (trace.step(), Some(trace))
+    } else {
+        (
+            optimizer.step_with_learning_rate_and_gradient_transform(
+                model.parameters(),
+                learning_rate,
+                norm.transform,
+            )?,
+            None,
+        )
+    };
+    if optimizer_step != expected_optimizer_step {
+        return Err(TrainerError::OptimizerStepMismatch {
+            expected: expected_optimizer_step,
+            actual: optimizer_step,
+        });
+    }
+    clear_and_verify_gradients(model)?;
+    Ok(DecoderUpdateExecution {
+        step: TrainingStep {
+            step,
+            batch_windows: Vec::new(),
+            learning_rate,
+            train_loss,
+            gradient_norm_before: norm.before,
+            gradient_norm_after: norm.after,
+            gradient_transform: norm.transform,
+            clipped: norm.clipped,
+            finite_gradients: true,
+            parameter_nodes_preserved: true,
+            cleared_gradients: true,
+            events: UPDATE_EVENT_ORDER,
+        },
+        optimizer_trace,
+    })
+}
+
 // region:complete-training-loop
 /// Executes every planned update, then restores the earliest validation minimum.
 ///
@@ -1074,56 +1214,30 @@ pub fn train_decoder(
     for step in 1..=config.schedule.steps() {
         let batch_index = (step - 1) % update_epoch.batch_count();
         let batch = &update_epoch.batches()[batch_index];
-        let loss = model.loss(
-            batch.inputs(),
-            &[batch.batch_width(), batch.context_length()],
-            batch.targets(),
+        let mut executed = decoder_update_with_forward(
+            &model,
+            &mut optimizer,
+            config,
+            step,
+            || {
+                model
+                    .loss(
+                        batch.inputs(),
+                        &[batch.batch_width(), batch.context_length()],
+                        batch.targets(),
+                    )
+                    .map_err(Into::into)
+            },
+            &mut NoDecoderUpdateObserver,
         )?;
-        let train_loss = scalar_loss(&loss)?;
-        loss.backward_with_seed(
-            &Tensor::from_vec(Vec::new(), vec![1.0])?.view(),
-            GraphRetention::Release,
-        )?;
-        drop(loss);
-
-        let norm = gradient_norm(&model, config.max_gradient_norm)?;
-        let learning_rate = config
-            .schedule
-            .learning_rate(step)
-            .expect("the loop stays inside the validated schedule");
-        let optimizer_step = optimizer.step_with_learning_rate_and_gradient_transform(
-            model.parameters(),
-            learning_rate,
-            norm.transform,
-        )?;
-        let expected_optimizer_step = u64::try_from(step).unwrap_or(u64::MAX);
-        if optimizer_step != expected_optimizer_step {
-            return Err(TrainerError::OptimizerStepMismatch {
-                expected: expected_optimizer_step,
-                actual: optimizer_step,
-            });
-        }
-        clear_and_verify_gradients(&model)?;
 
         let batch_windows = batch
             .provenance()
             .iter()
             .map(|window| format!("{}@{}", window.document_id(), window.start()))
             .collect();
-        steps.push(TrainingStep {
-            step,
-            batch_windows,
-            learning_rate,
-            train_loss,
-            gradient_norm_before: norm.before,
-            gradient_norm_after: norm.after,
-            gradient_transform: norm.transform,
-            clipped: norm.clipped,
-            finite_gradients: true,
-            parameter_nodes_preserved: true,
-            cleared_gradients: true,
-            events: UPDATE_EVENT_ORDER,
-        });
+        executed.step.batch_windows = batch_windows;
+        steps.push(executed.step);
 
         if config.validation_steps.binary_search(&step).is_ok() {
             let measured = checkpoint(step, &model, train_evaluation, validation)?;

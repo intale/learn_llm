@@ -1238,6 +1238,18 @@ impl AdamW {
     }
     // endregion:adamw-execution-and-trace-api
 
+    /// Records the same scheduled, transformed update used by the trainer.
+    pub fn step_with_learning_rate_and_gradient_transform_and_trace(
+        &mut self,
+        parameters: &[NamedParameter],
+        learning_rate: f64,
+        gradient_transform: AdamWGradientTransform,
+    ) -> Result<AdamWStep, AdamWError> {
+        let step_config = self.config.with_learning_rate(learning_rate)?;
+        let observer = RecordAdamWTrace::with_capacity(parameters.len());
+        self.step_with_config(parameters, step_config, gradient_transform, observer)
+    }
+
     // region:transactional-adamw-step
     fn step_with_config<O: AdamWStepObserver>(
         &mut self,

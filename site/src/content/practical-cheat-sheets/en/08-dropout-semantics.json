@@ -1,0 +1,15 @@
+{
+  "chapter_id":"08-dropout-semantics",
+  "locale":"en",
+  "title":"Optional dropout, modes and saved masks",
+  "description":"Terms for training masks, their saved gradients, explicit evaluation identity and checked random-counter ownership.",
+  "terms":[
+    {"term":"Dropout","definition":"An optional training transformation that randomly zeros individual elements of a complete projected residual branch. The course default disables it, and its correctness fixtures do not establish a model-quality improvement."},
+    {"term":"Keep probability","definition":"One minus the requested drop probability. A saved mask bit of one means keep and zero means drop. The one-half fixture uses a training scale of two."},
+    {"term":"Inverted dropout","definition":"The convention that rescales kept elements during training by the reciprocal of keep probability. Evaluation returns the original input handle without training rescaling or sampling."},
+    {"term":"Saved mask","definition":"The keep/drop choices and scale retained from one forward through a constant multiplier. Backward reuses those coefficients rather than sampling again or inferring choices from zero outputs."},
+    {"term":"Residual branch","definition":"The transformed attention or feed-forward contribution added to an unchanged residual input. This policy applies dropout after the complete attention output projection or SwiGLU down-projection and before the corresponding addition."},
+    {"term":"Training and evaluation modes","definition":"Explicit per-call choices that control sampling independently of autograd recording. Train samples at positive probability even under no-grad; Eval and zero probability return the input handle without creating a dropout operation."},
+    {"term":"Random counter","definition":"The checked next-word position owned by optional dropout purpose four. Fresh active forwards commit their reserved ranges on complete success; bound site replay reuses original ranges without advancing the live counter. Equal seeds alone do not remove layout or environment constraints."}
+  ]
+}

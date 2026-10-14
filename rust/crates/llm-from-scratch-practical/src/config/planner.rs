@@ -796,6 +796,135 @@ pub fn plan_decoder(
     })
 }
 
+/// Additional f64 storage for the existing constant-Multiply construction.
+#[derive(Clone, Debug, Serialize)]
+pub struct DropoutAccounting {
+    pub active: bool,
+    pub mask_data_bytes: u64,
+    pub output_data_bytes: u64,
+    pub saved_graph_primal_bytes: u64,
+    pub output_adjoint_reserve_bytes: u64,
+    pub events: Vec<LiveEvent>,
+    pub liveness: LivenessReport,
+    pub interpretation: &'static str,
+}
+
+/// Uses the existing liveness evaluator with all dropout owners live together.
+pub fn plan_dropout_accounting(
+    base: &DecoderPlan,
+    probability: crate::nn::dropout::DropoutProbability,
+    mode: crate::nn::dropout::DropoutMode,
+) -> Result<DropoutAccounting, ConfigError> {
+    let active = mode == crate::nn::dropout::DropoutMode::Train
+        && !probability.is_zero()
+        && base.accounting.mode != ForwardMode::Cached;
+    let mask = if active {
+        product(
+            &[
+                16,
+                base.model.l.into(),
+                base.run.b.into(),
+                base.model.c.into(),
+                base.model.d.into(),
+            ],
+            "dropout mask subtotal",
+        )?
+    } else {
+        0
+    };
+    let saved = if active && base.accounting.mode == ForwardMode::TrackedFull {
+        mul(mask, 2, "dropout saved Multiply primals")?
+    } else {
+        0
+    };
+    let adjoint = if active && base.accounting.mode == ForwardMode::TrackedFull {
+        mask
+    } else {
+        0
+    };
+    let mut events = base.accounting.events.clone();
+    for (name, bytes) in [
+        ("dropout.constant-multipliers", mask),
+        ("dropout.multiply-outputs", mask),
+        ("dropout.saved-Multiply-primals", saved),
+        ("dropout.output-adjoint-reserve", adjoint),
+    ] {
+        events.push(LiveEvent::Allocate {
+            name: name.into(),
+            bytes: checked_u64(bytes)?,
+        });
+    }
+    // Multiply constructs both saved primal copies before no-grad discards them.
+    // Reverse Multiply also creates a local contribution for its constant operand.
+    let site_bytes = if active {
+        product(
+            &[
+                8,
+                base.run.b.into(),
+                base.model.c.into(),
+                base.model.d.into(),
+            ],
+            "dropout site temporary",
+        )?
+    } else {
+        0
+    };
+    events.push(LiveEvent::Workspace { estimate: Workspace::Known { bytes: checked_u64(mul(site_bytes, 2, "dropout local scratch")?)?, basis: "existing Multiply transient saved copies or local VJP contributions; complete CPU RSS is measured separately".into() } });
+    events.push(LiveEvent::Workspace {
+        estimate: base.accounting.selected_workspace.clone(),
+    });
+    let liveness = evaluate_liveness(&events)?;
+    Ok(DropoutAccounting {
+        active,
+        mask_data_bytes: checked_u64(mask)?,
+        output_data_bytes: checked_u64(mask)?,
+        saved_graph_primal_bytes: checked_u64(saved)?,
+        output_adjoint_reserve_bytes: checked_u64(adjoint)?,
+        events,
+        liveness,
+        interpretation: "conservative f64 payload/reserve liveness; mask subtotal alone is not a process or allocator peak; no measured GPU claim",
+    })
+}
+
+pub struct DropoutDecoderAdmission {
+    base: DecoderAdmission,
+    run: super::dropout_run::DropoutRunConfig,
+    accounting: DropoutAccounting,
+}
+pub fn admit_dropout_decoder(
+    model: &ModelConfig,
+    run: &super::dropout_run::DropoutRunConfig,
+) -> Result<DropoutDecoderAdmission, ConfigError> {
+    run.validate()?;
+    let base = admit_decoder(model, &run.legacy_run)?;
+    let accounting = plan_dropout_accounting(
+        base.plan(),
+        run.dropout.policy()?.probability(),
+        crate::nn::dropout::DropoutMode::Train,
+    )?;
+    if accounting.liveness.known_lower_bound_peak > base.plan().profile.host_bytes {
+        return Err(ConfigError::Invalid(
+            "dropout payload exceeds selected CPU profile",
+        ));
+    }
+    Ok(DropoutDecoderAdmission {
+        base,
+        run: run.clone(),
+        accounting,
+    })
+}
+impl DropoutDecoderAdmission {
+    pub const fn run(&self) -> &super::dropout_run::DropoutRunConfig {
+        &self.run
+    }
+    pub const fn accounting(&self) -> &DropoutAccounting {
+        &self.accounting
+    }
+    pub fn construct(self, rng: &mut SplitMix64) -> Result<DepthInitializedDecoder, ConfigError> {
+        self.base.construct(rng)
+    }
+}
+
 // region:decoder-resource-plan
 /// Private fields prevent callers fabricating a positive allocation decision.
 pub struct DecoderAdmission {

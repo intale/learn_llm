@@ -95,7 +95,7 @@ const practicalContracts = readChapterContractSummaries(repositoryRoot, {
 });
 const practicalDemoNames = practicalContracts.map(({packageName}) => packageName).sort();
 duplicate(practicalDemoNames, 'Practical demo registration');
-if (practicalDemoNames.length !== 7) fail('expected exactly seven registered Practical demos');
+if (practicalDemoNames.length !== 8) fail('expected exactly eight registered Practical demos');
 console.error(`Registered Practical demo directories: ${practicalDemoNames.join(', ')}`);
 
 const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })
@@ -284,6 +284,16 @@ for (const pkg of [...chapterPackages, ...practicalPackages].sort((left, right) 
       fail(`${pkg.name}: complete site trace must be a nonempty regular file`);
     }
   }
+  if (pkg.name === 'practical-ch08-dropout-semantics') {
+    const compactTrace = join(repositoryRoot, 'site/src/data/course/dropout-semantics-trace.json');
+    const traceStats = lstatSync(compactTrace);
+    if (!traceStats.isFile() || traceStats.isSymbolicLink() || traceStats.size === 0) {
+      fail(`${pkg.name}: compact site trace must be a nonempty regular file`);
+    }
+    if (!readFileSync(compactTrace).equals(readFileSync(fixture))) {
+      fail(`${pkg.name}: compact site trace differs byte-for-byte from expected.txt`);
+    }
+  }
   const stdinPath = pkg.name === 'practical-ch02-corpus-preparation'
     ? join(demoDirectory, 'fixtures/prepared.jsonl')
     : '/dev/null';
@@ -434,6 +444,70 @@ while IFS= read -r -d '' package_name && \
     fi
   fi
 
+  if [[ "${package_name}" == practical-ch08-dropout-semantics ]]; then
+    actual_dropout_trace_path="${temporary_directory}/${package_name}.detailed-trace.actual.ndjson"
+    cargo run \
+      --quiet \
+      --locked \
+      --offline \
+      --manifest-path "${repository_root}/Cargo.toml" \
+      --package "${package_name}" \
+      --bin "${binary_name}" \
+      -- --trace \
+      >"${actual_dropout_trace_path}" </dev/null
+    node --input-type=module - "${expected_path}" "${actual_dropout_trace_path}" <<'NODE'
+import { readFileSync } from 'node:fs';
+import { isDeepStrictEqual } from 'node:util';
+
+function fail(message) {
+  throw new Error(`Rust demo check failed: dropout detailed trace ${message}`);
+}
+const [expectedPath, tracePath] = process.argv.slice(2);
+const expectedBytes = readFileSync(expectedPath, 'utf8');
+const expected = JSON.parse(expectedBytes);
+const lines = readFileSync(tracePath, 'utf8').split('\n');
+if (lines.pop() !== '' || lines.some((line) => line.length === 0)) fail('requires nonempty LF-terminated NDJSON records');
+if (lines.some((line) => Buffer.byteLength(line + '\n') > 2097152)) fail('record exceeds the existing 2MiB encoding ceiling');
+const records = lines.map((line) => JSON.parse(line));
+const schema = 'practical-dropout-semantics-v1';
+const counts = {
+  'primitive-fixtures': 1,
+  'operator-recompute': 3,
+  'full-core-recompute': 1,
+  'committed-snapshot': 4,
+  'update-header': 4,
+  'update-category': 48,
+  'resume-update-comparison': 6,
+  summary: 1,
+};
+if (records.length !== 68 || records.some((record) => record.schema !== schema || !(record.record_type in counts))) fail('schema, type or total record count differs');
+for (const [type, count] of Object.entries(counts)) {
+  if (records.filter((record) => record.record_type === type).length !== count) fail(`${type} count differs`);
+}
+const prefix = `{"record_type":"summary","schema":"${schema}","summary":`;
+const finalLine = lines.at(-1);
+if (!finalLine.startsWith(prefix) || !finalLine.endsWith('}') || finalLine.slice(prefix.length, -1) + '\n' !== expectedBytes) fail('final summary differs byte-for-byte from compact stdout');
+const primitive = records[0];
+if (primitive.record_type !== 'primitive-fixtures' || ['primitive', 'fixed_mask', 'modes_grid_history'].some((key) => !isDeepStrictEqual(primitive[key], expected[key]))) fail('primitive record differs from compact summary');
+const operators = records.filter((record) => record.record_type === 'operator-recompute');
+if (!isDeepStrictEqual(operators.map((record) => record.point), ['R1', 'R2', 'R3'])) fail('operator point registry differs');
+const headers = records.filter((record) => record.record_type === 'update-header');
+if (!isDeepStrictEqual(headers.map((record) => record.step), [1, 2, 3, 4])) fail('update step registry differs');
+const categories = ['adaptive-delta', 'adaptive-direction', 'clipped-gradient', 'corrected-first-moment', 'corrected-second-moment', 'decay-delta', 'effective-gradient', 'first-moment', 'parameter-after', 'parameter-before', 'raw-gradient', 'second-moment'];
+for (const update of expected.resume.updates) {
+  const rows = records.filter((record) => record.record_type === 'update-category' && record.step === update.step);
+  if (!isDeepStrictEqual(rows.map((record) => record.category).sort(), categories)) fail(`step ${update.step} category registry differs`);
+  for (const row of rows) {
+    if (row.branch !== 'uninterrupted' || !Array.isArray(row.bits) || row.bits.length !== update.categories[row.category].coordinates || row.bits.some((word) => typeof word !== 'string' || !/^[0-9a-f]{16}$/.test(word))) fail(`step ${update.step} category coordinate representation differs`);
+  }
+}
+for (const point of expected.resume.points) {
+  if (records.filter((record) => record.record_type === 'resume-update-comparison' && record.point === point.point).length !== point.remaining_updates_compared) fail(`${point.point} continuation record count differs`);
+}
+console.log('Dropout detailed trace check passed: 68 records; exact compact summary; R1..R3 and U1..U3 record/category counts.');
+NODE
+  fi
+
   if [[ -n "${trace_target_name}" ]]; then
     actual_trace_path="${temporary_directory}/${package_name}.trace.actual.txt"
     cargo run \
@@ -461,8 +535,8 @@ if [[ ${original_checked} -ne 39 ]]; then
   exit 1
 fi
 
-if [[ ${practical_checked} -ne 7 ]]; then
-  echo "Rust demo check failed: expected seven checked Practical chapter demos, got ${practical_checked}." >&2
+if [[ ${practical_checked} -ne 8 ]]; then
+  echo "Rust demo check failed: expected eight checked Practical chapter demos, got ${practical_checked}." >&2
   exit 1
 fi
 

@@ -8,7 +8,7 @@ import {getCheatSheetCopy,paginateCheatSheetTerms,sortCheatSheetTerms} from '../
 import {expectNoPageOverflow,expectOnlySharedDiagramClientScript,expectOrderedChapterNavigation,expectSeoDescription,expectStackedDiagramText,expectVisualizationDecision} from './chapter-helpers';
 
 const prefix='/en/practical-llm-in-rust/';
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -20,12 +20,13 @@ const paddedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course
 const packedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/packed-sequence-masks-trace.json',import.meta.url),'utf8'));
 const depthTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/depth-stable-decoder-trace.json',import.meta.url),'utf8'));
 const configurableTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/configurable-decoder-core-trace.json',import.meta.url),'utf8'));
+const dropoutTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/dropout-semantics-trace.json',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:4,
+  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -120,7 +121,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="/en/course/40-"]')).toHaveCount(0);
  await page.goto('/en/course/39-end-to-end-llm/');await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -143,7 +144,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');expect(html).toContain('application/x-tex');
@@ -283,6 +284,24 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    for(const producer of ['ordinary-text-token-forward','cached-text-token-forward'])await expect(figure.locator('[data-configurable-producer="'+producer+'"]')).toHaveCount(1);
    await expect(figure.locator('[data-configurable-consumer]')).toHaveCount(1);await expect(figure.locator('[data-configurable-consumer="one-causal-decoder"]')).toHaveCount(1);
    await testInfo.attach('programmatic-configurable-trace-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,census,identities:{semantic:reference.semantic_sha256,run:reference.run_sha256},liveness:configurableTrace.toy_liveness,admission:{reference:reference.admissible,bridge:bridge.admissible,laptop:laptop.refusals,production:production.refusals},producers:await figure.locator('[data-configurable-producer]').evaluateAll(nodes=>nodes.map(node=>({producer:node.getAttribute('data-configurable-producer'),text:node.textContent}))),consumer:await figure.locator('[data-configurable-consumer]').textContent()}),contentType:'application/json'});
+  } else if(lesson.id===ids[8]) {
+   const fixed=dropoutTrace.fixed_mask,display=(value:number)=>Object.is(value,-0)?'-0':String(value);
+   const rows=figure.locator('#dropout-figure-values tbody tr');await expect(rows).toHaveCount(fixed.input.length);
+   const associations:unknown[]=[];
+   for(let index=0;index<fixed.input.length;index++){
+    const row=figure.locator('tr[data-dropout-feature="'+(index+1)+'"]');await expect(row).toHaveCount(1);
+    await expect(row.locator('th samp')).toHaveText(String(index+1));
+    const state=index===2?'kept-zero':fixed.mask[index]===1?'kept':'dropped';await expect(row).toHaveAttribute('data-dropout-state',state);
+    const values=[fixed.input[index],fixed.mask[index],fixed.mask[index]/fixed.keep_probability,fixed.training_output[index],fixed.upstream_gradient[index],fixed.input_gradient[index]].map(display);
+    expect(await row.locator('td samp').allTextContents()).toEqual(values);
+    associations.push({feature:index+1,state,values,trainingOutputBits:fixed.training_output_bits[index],inputGradientBits:fixed.input_gradient_bits[index]});
+   }
+   await expect(figure.locator('#dropout-figure-eval dd samp')).toHaveText('['+fixed.eval_output.map(display).join(',')+']');
+   await expect(figure.locator('#dropout-figure-eval annotation[encoding="application/x-tex"]')).toHaveText('\\partial\\mathcal L/\\partial x_i=g_i');
+   const r1=dropoutTrace.recompute.points.find((point:{point:string})=>point.point==='R1');expect(r1).toBeDefined();
+   await expect(figure.locator('#dropout-figure-replay dd samp')).toHaveText(['['+r1.range.join(',')+')',r1.live_cursor_before+' → '+r1.live_cursor_after]);
+   await expect(figure.locator('[data-diagram-scroll][role="region"][tabindex="0"]')).toHaveCount(1);
+   await testInfo.attach('programmatic-dropout-trace-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,source:'actual compact Rust stdout',schema:dropoutTrace.schema,fixedMaskAssociations:associations,evalOutput:fixed.eval_output,replay:{point:r1.point,range:r1.range,liveCursorBefore:r1.live_cursor_before,liveCursorAfter:r1.live_cursor_after}}),contentType:'application/json'});
   }
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
@@ -310,7 +329,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
   await testInfo.attach('programmatic-full-view-geometry',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,state:'full-view',viewport,diagram,geometry}),contentType:'application/json'});
   expect(diagram.errors).toEqual([]);
   expect(geometry.scrollHeight,'full view must not require more than 50% additional vertical travel').toBeLessThanOrEqual(geometry.clientHeight*1.5+2);
-  await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toBeFocused();await expect(figure).toHaveCount(1);
+  await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toHaveAttribute('aria-expanded','false');await expect(toggle).toBeFocused();await expect(figure).toHaveCount(1);
   const restoredControl=await controlValues(toggle);expect(restoredControl).toEqual(ordinaryControl);
   await testInfo.attach('programmatic-full-view-controls',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,viewport,states:{inline:ordinaryControl,fullView:expandedControl,restored:restoredControl}}),contentType:'application/json'});
   if(lesson.id===ids[6])await testInfo.attach('programmatic-depth-full-view-names',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,bodyTemplates:await page.locator('body').evaluate(node=>({open:node.getAttribute('data-diagram-full-view-open'),close:node.getAttribute('data-diagram-full-view-close')})),states:{inline:ordinaryControl,fullView:expandedControl,restored:restoredControl},button:await toggle.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls'),title:node.getAttribute('title')}))}),contentType:'application/json'});
@@ -349,6 +368,10 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    if(lesson.id===ids[7]){
     expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'configurable-decoder-term-'+(index+1)));
     await testInfo.attach('programmatic-configurable-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
+   }
+   if(lesson.id===ids[8]){
+    expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'dropout-semantics-term-'+(index+1)));
+    await testInfo.attach('programmatic-dropout-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
    }
    expect(geometry.errors).toEqual([]);expect(geometry.reachedEnd).toBe(true);
    await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await page.keyboard.press('Enter');await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expectNoPageOverflow(page);

@@ -1,0 +1,118 @@
+---
+import trace from '../../data/course/dropout-semantics-trace.json';
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string; flowTitle: string; flowCaption: string;
+  scrollLabel: string; feature: string; input: string; mask: string;
+  coefficient: string; output: string; upstream: string; gradient: string;
+  keep: string; drop: string; keptZero: string; evalTitle: string;
+  evalNote: string; evalOutput: string; evalDerivative: string;
+  replayTitle: string; replayNote: string; replayRange: string; liveCursor: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error('dropout-diagram-copy');
+  }
+}
+const fixed = trace.fixed_mask;
+const r1 = trace.recompute.points.find(point => point.point === 'R1');
+if (trace.schema !== 'practical-dropout-semantics-v1' || trace.schema_version !== 1 ||
+    trace.placement !== 'residual-output-element-dropout-v1' ||
+    trace.counter_mapping !== 'course-dropout-counter-v1' ||
+    fixed.shape.join(',') !== '1,1,4' || fixed.mask.join(',') !== '1,0,1,1' ||
+    fixed.drop_probability !== 0.5 || fixed.keep_probability !== 0.5 ||
+    fixed.input.length !== 4 || fixed.training_output.length !== 4 ||
+    fixed.upstream_gradient.length !== 4 || fixed.input_gradient.length !== 4 ||
+    fixed.training_output_bits[1] !== '8000000000000000' ||
+    fixed.input_gradient[2] !== 14 || !fixed.eval_same_handle ||
+    !r1 || r1.range.join(',') !== '0,48' ||
+    r1.live_cursor_before !== 192 || r1.live_cursor_after !== 192 ||
+    !r1.multiplier_equal || !r1.output_equal || !r1.input_gradient_equal) {
+  throw new Error('dropout-diagram-trace');
+}
+const display = (value: number, bits?: string) =>
+  bits === '8000000000000000' || Object.is(value, -0) ? '-0' : String(value);
+const features = fixed.input.map((input, index) => ({
+  number: index + 1, input, mask: fixed.mask[index],
+  coefficient: fixed.mask[index] / fixed.keep_probability,
+  output: fixed.training_output[index], outputBits: fixed.training_output_bits[index],
+  upstream: fixed.upstream_gradient[index],
+  gradient: fixed.input_gradient[index], gradientBits: fixed.input_gradient_bits[index],
+  state: index === 2 ? labels.keptZero : fixed.mask[index] === 1 ? labels.keep : labels.drop,
+}));
+---
+<figure class="course-diagram dropout-semantics-diagram" data-diagram-style="course-v1"
+  data-visualization-id="dropout-semantics" tabindex="0"
+  aria-labelledby="dropout-figure-title" aria-describedby="dropout-figure-description">
+  <figcaption class="course-diagram__caption" id="dropout-figure-caption">
+    <h3 id="dropout-figure-title">{labels.title}</h3>
+    <p class="course-diagram__description" id="dropout-figure-description">{labels.description}</p>
+  </figcaption>
+
+  <section data-diagram-box id="dropout-figure-flow"
+    aria-labelledby="dropout-figure-flow-title">
+    <h4 id="dropout-figure-flow-title">{labels.flowTitle}</h4>
+    <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0"
+      id="dropout-figure-scroll" aria-label={labels.scrollLabel}>
+      <table data-diagram-table id="dropout-figure-values">
+        <caption id="dropout-figure-table-caption">{labels.flowCaption}</caption>
+        <thead><tr>
+          <th scope="col">{labels.feature}</th>
+          <th scope="col">{labels.input} <InlineMath latex="x_i" /></th>
+          <th scope="col">{labels.mask} <InlineMath latex="m_i" /></th>
+          <th scope="col">{labels.coefficient} <InlineMath latex="m_i/q" /></th>
+          <th scope="col">{labels.output} <InlineMath latex="y_i" /></th>
+          <th scope="col">{labels.upstream} <InlineMath latex="g_i" /></th>
+          <th scope="col">{labels.gradient} <InlineMath latex="m_i g_i/q" /></th>
+        </tr></thead>
+        <tbody>
+          {features.map(feature => <tr data-dropout-feature={feature.number}
+            data-dropout-state={feature.number === 3 ? 'kept-zero' : feature.mask === 1 ? 'kept' : 'dropped'}>
+            <th scope="row"><samp>{feature.number}</samp><small>{feature.state}</small></th>
+            <td><samp>{display(feature.input)}</samp></td>
+            <td><samp>{feature.mask}</samp></td>
+            <td><samp>{display(feature.coefficient)}</samp></td>
+            <td><samp>{display(feature.output, feature.outputBits)}</samp></td>
+            <td><samp>{display(feature.upstream)}</samp></td>
+            <td><samp>{display(feature.gradient, feature.gradientBits)}</samp></td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="course-diagram__grid dropout-semantics-pair">
+    <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+      id="dropout-figure-eval" aria-labelledby="dropout-figure-eval-title">
+      <div class="course-diagram__card-heading"><h4 id="dropout-figure-eval-title">{labels.evalTitle}</h4></div>
+      <p>{labels.evalNote}</p>
+      <dl>
+        <dt>{labels.evalOutput}</dt>
+        <dd class="course-diagram__technical"><samp><bdi dir="ltr">[{fixed.eval_output.map(value => display(value)).join(',')}]</bdi></samp></dd>
+      </dl>
+      <p>{labels.evalDerivative}: <InlineMath latex="\partial\mathcal L/\partial x_i=g_i" /></p>
+    </article>
+    <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+      id="dropout-figure-replay" aria-labelledby="dropout-figure-replay-title">
+      <div class="course-diagram__card-heading"><h4 id="dropout-figure-replay-title">{labels.replayTitle}</h4></div>
+      <p>{labels.replayNote}</p>
+      <dl>
+        <dt>{labels.replayRange}</dt>
+        <dd class="course-diagram__technical"><samp><bdi dir="ltr">[{r1.range[0]},{r1.range[1]})</bdi></samp></dd>
+        <dt>{labels.liveCursor}</dt>
+        <dd class="course-diagram__technical"><samp><bdi dir="ltr">{r1.live_cursor_before} → {r1.live_cursor_after}</bdi></samp></dd>
+      </dl>
+    </article>
+  </div>
+</figure>
+
+<style>
+  #dropout-figure-values { inline-size: 100%; min-inline-size: 48rem; table-layout: fixed; }
+  .dropout-semantics-pair { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 40rem) {
+    .dropout-semantics-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

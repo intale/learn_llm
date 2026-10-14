@@ -1,0 +1,622 @@
+---
+{
+  "chapter_id":"08-dropout-semantics","locale":"en","content_revision":1,"order":8,"concept_id":"dropout-semantics",
+  "title":"Make optional dropout explicit and replayable",
+  "description":"Apply optional residual dropout with saved-mask gradients, exact evaluation identity and checked random counters. Keep local replay distinct from durable job resume.",
+  "objective":"Extend the existing decoder with optional inverted dropout whose training, evaluation, backward and replay behavior is explicit, while preserving the disabled path.",
+  "worked_inputs":"Explain input [2,-4,0,6], supplied mask [1,0,1,1], drop probability 0.5 and upstream gradient [3,5,7,-2]. Inspect ten predetermined seeded masks and local recomputation and four-update continuation fixtures for the two-block bridge decoder.",
+  "formula":{
+    "latex":"q=1-p,\\qquad y_i=\\frac{m_i x_i}{q},\\qquad \\frac{\\partial\\mathcal L}{\\partial x_i}=\\frac{m_i}{q}g_i",
+    "symbols":[
+      {"symbol":"p","meaning":"requested probability of dropping an element, finite and at least zero but less than one"},
+      {"symbol":"q","meaning":"keep probability, one minus the requested drop probability"},
+      {"symbol":"i","meaning":"one element in batch, token, feature flattening order"},
+      {"symbol":"m_i","meaning":"saved mask bit for element i: one keeps the element and zero drops it"},
+      {"symbol":"x_i","meaning":"finite input value at element i of a complete projected residual branch"},
+      {"symbol":"y_i","meaning":"training output at element i after multiplication by the saved mask and training scale"},
+      {"symbol":"g_i","meaning":"supplied upstream derivative of the loss with respect to training output element i"},
+      {"symbol":"\\mathcal L","meaning":"scalar loss; the worked linear probe deliberately fixes its upstream gradient"},
+      {"symbol":"B,T,D","meaning":"rows, token positions per row, and residual features per token in the complete rectangular site tensor"},
+      {"symbol":"L","meaning":"number of complete decoder blocks, each with an attention-output and feed-forward-output dropout site"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"training-practice",
+      "limitation":"A random training subnetwork needs a separate inference rule; its sampled result and gradient depend on the saved mask.",
+      "later_advance":"The 2014 paper also describes backward through the sampled subnetwork.",
+      "modern_llm_role":"Optional decoder dropout needs explicit mode, saved-mask backward and bound random-counter replay, with inference and continuation limits stated separately.",
+      "sources":[
+        {"role":"earlier","year":2012,"name":"Improving neural networks by preventing co-adaptation of feature detectors","source_url":"https://arxiv.org/abs/1207.0580","claim":"Hinton and colleagues' 2012 preprint describes random unit omission during training and an unthinned test network with halved outgoing weights in its one-half case. It does not specify the course's decoder placement or counter."},
+        {"role":"later","year":2014,"name":"Dropout: A Simple Way to Prevent Neural Networks from Overfitting","source_url":"https://www.jmlr.org/papers/v15/srivastava14a.html","claim":"Srivastava and colleagues' 2014 paper describes random unit removal during training and an unthinned inference network with retention-scaled outgoing weights. Its probability notation denotes retention, and its results do not establish benefit for this course's decoder."}
+      ]
+    },
+    "approach":"Use the existing TensorValue multiplier to compare unscaled training with retention-scaled evaluation against inverted training with identity evaluation on one linear contribution.",
+    "summary":"The historical scaling intuition motivates distinct training and inference rules. The course chooses its own residual placement and deterministic counter, and claims correctness and bounded replay rather than improved model quality.",
+    "rust_source":"rust/demos/practical-ch08-dropout-semantics/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/demos/practical-ch08-dropout-semantics/src/lib.rs","region":"dropout-fixed-mask-evidence","purpose":"Apply a supplied mask through the existing multiplier and explain the kept zero's gradient."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/dropout.rs","region":"dropout-primitive","purpose":"Return the original handle for identity paths or apply a checked sampled multiplier through existing autodiff."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/nn/dropout.rs","region":"dropout-counter","purpose":"Reuse SplitMix word arithmetic while checking the live counter range without wraparound."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/decoder_dropout.rs","region":"dropout-text-forward","purpose":"Route checked text through the existing decoder with a candidate counter committed only after a complete forward."},
+    {"path":"rust/demos/practical-ch08-dropout-semantics/src/lib.rs","region":"dropout-historical-scaling","purpose":"Compare the two scaling conventions with the same existing scalar multiplier operation."},
+    {"path":"rust/demos/practical-ch08-dropout-semantics/src/main.rs","region":"dropout-semantics-demo","purpose":"Print the compact canonical fixture summary or the detailed NDJSON evidence with --trace."}
+  ],
+  "visualization":{"decision":"useful","id":"dropout-semantics","rationale":"One aligned relationship shows input transformed by the saved training mask and scale, then reuses that same mask for backward. A kept zero distinguishes a zero output from a dropped element; Eval identity and a replay range clarify execution state."},
+  "decoder_connection":"Carry exact mode, counter, cache and failure boundaries into Chapter 9's dependency and error contracts. Local site replay and four-update snapshots leave Chapter 13's activation scheduler and Chapter 17's durable job resume for later work."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import DropoutSemanticsDiagram from "../../../components/chapters/DropoutSemanticsDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="dropout-worked-example">
+
+## The problem: a random forward needs a matching backward
+
+Optional dropout zeros selected elements during training. The forward result
+therefore depends on the execution mode and random-number state as well as the
+input values. Backward needs the mask used by that forward. Evaluation needs its
+own explicit behavior, and recomputing an activation must recover the original
+mask without consuming fresh randomness.
+
+We will add inverted dropout to the existing decoder's projected residual
+branches. The default drop probability is zero, preserving the disabled path.
+The one-half examples teach forward, gradient and replay correctness. They do
+not establish that dropout improves this model's held-out loss.
+
+<h3 id="dropout-worked-mask-heading">Explain one complete saved mask</h3>
+
+Take the literal input `[2,-4,0,6]` with shape `[1,1,4]`: one batch row, one
+token position and four features. Use drop probability $p=0.5$, keep probability
+$q=1-p=0.5$, and the supplied mask `[1,0,1,1]`. A mask bit of one means keep;
+zero means drop. This mask is a fixed mathematical fixture, with no claim that
+an arbitrary seed produces it.
+
+Inverted dropout multiplies each kept input by $1/q=2$. The first input becomes
+$4$, the second is dropped, the third remains zero, and the fourth becomes
+$12$. Multiplying the negative second input by a nonnegative zero coefficient
+can store negative zero in `f64`, so the training vector is `[4,-0,0,12]`.
+
+Supply upstream gradient `[3,5,7,-2]`, meaning the loss derivative with respect
+to each output element. Backward multiplies it by the same saved coefficients
+`[2,0,2,2]`, giving final input gradient `[6,0,14,-4]`. The third input was
+**kept zero**: its zero output does not mean it was dropped. Its input gradient
+is $2\cdot7=14$. Reconstructing the mask from nonzero outputs would erase that
+derivative incorrectly.
+
+The linear probe $\mathcal L=\sum_i g_i y_i$ deliberately fixes those upstream
+gradients and gives $3\cdot4+5\cdot0+7\cdot0-2\cdot12=-12$.
+It does not stand for a nonlinear model loss with a mask-independent gradient.
+
+<RustSource path="rust/demos/practical-ch08-dropout-semantics/src/lib.rs"
+  region="dropout-fixed-mask-evidence" captionId="dropout-rust-fixed-mask"
+  caption="Apply the supplied mask through existing tensor multiplication; the kept zero has a saved coefficient of two and input gradient fourteen."
+  label="Rust source: supplied dropout mask and kept-zero gradient" />
+
+The executed `fixed_mask` record reports `training_output` as
+`[4.0,-0.0,0.0,12.0]`, `input_gradient` as `[6.0,0.0,14.0,-4.0]`, and
+`linear_probe` as `-12.0`. It also reports `eval_same_handle: true` and
+`eval_end_counter: 0`. The stored second output has bits `8000000000000000`,
+while the final second input gradient has bits `0000000000000000`: forward
+negative zero and final accumulated positive zero are distinct observations.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="dropout-formula">
+
+## Derive the training rule and its saved-mask derivative
+
+For finite fixed input $x_i$, let $m_i$ be the saved mask bit. Under the ideal
+Bernoulli model, $m_i\sim\operatorname{Bernoulli}(q)$: an element is kept with
+probability $q=1-p$, where $0\le p<1$. The policy probability is fixed,
+rather than learned. With upstream derivative
+$g_i=\partial\mathcal L/\partial y_i$, training and the chain rule give
+
+$$
+q=1-p,\qquad y_i=\frac{m_i x_i}{q},\qquad \frac{\partial\mathcal L}{\partial x_i}=\frac{m_i}{q}g_i
+$$
+
+Backward uses the mask and scale saved by its own forward. A later call's mode,
+probability or random cursor cannot replace them. Sampling another mask in
+backward would differentiate a different computation.
+
+For this ideal distribution, $m_i^2=m_i$ and
+$\mathbb E[m_i]=q$. Hence
+
+$$
+\mathbb E[y_i\mid x_i]=x_i,\qquad
+\operatorname{Var}(y_i\mid x_i)=\frac{p}{1-p}x_i^2.
+$$
+
+For input $2$ at drop probability one half, the possible outputs are $0$ and
+$4$, each with ideal probability one half; their expectation is $2$.
+Enumerating all $16$ masks of the four-feature fixture also gives the original
+vector as its exact-arithmetic average. Enumeration checks that distribution,
+rather than measuring pseudorandom frequencies or training quality.
+
+An individual call need not preserve a sum, magnitude or norm. Even an
+all-dropped small mask is legal. Elementwise expectation at one layer also does
+not make a nonlinear stochastic network's average output equal to its
+deterministic evaluation output.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="dropout-symbols">
+
+## Keep probabilities, features and derivatives distinct
+
+$p$ denotes the requested **drop** probability; $q$ denotes retention.
+$i$ identifies one element in batch, token, feature flattening order.
+$x_i$ and $y_i$ are that element's input and training output, $m_i$ is its saved
+keep/drop bit, and $g_i$ is the supplied upstream loss derivative.
+
+A decoder site has shape $[B,T,D]$: $B$ counts rows, $T$ token positions per
+row and $D$ residual features per token. $L$ counts complete blocks. These
+dimensions determine how many words a fresh active forward consumes; they do
+not change which targets belong to the token-mean loss.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="dropout-implementation" class="lesson-body">
+
+## Reuse multiplication and keep mode separate from autograd
+
+`DropoutProbability::new` rejects nonfinite probabilities, negative values and
+values at least one. It preserves the accepted probability's exact bits,
+including an accepted signed zero, and stores the keep probability and scale.
+Configuration validation still applies in Eval, even though Eval will not use
+a mask.
+
+Active dropout creates an untracked constant multiplier with the same shape as
+the input. Each coefficient is zero or the saved training scale. Existing
+`TensorValue::mul_with_context` applies it, and the existing Multiply VJP
+retains the coefficients for backward. The mask is not a parameter, and no new
+gradient rule is needed.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/dropout.rs"
+  region="dropout-primitive" captionId="dropout-rust-primitive"
+  caption="Preserve the input handle for Eval or zero probability; otherwise validate and apply a saved multiplier before committing the local counter."
+  label="Rust source: identity paths and checked dropout application" />
+
+`DropoutMode` chooses Train or Eval. `AutogradContext` separately permits or
+disables new graph recording. The following table uses an already tracked
+input, a nonempty site and a valid positive probability; zero probability
+returns the input handle in every row.
+
+<table id="dropout-mode-table" tabindex="0" aria-labelledby="dropout-mode-caption">
+  <caption id="dropout-mode-caption">Dropout mode and graph recording are independent controls for an already tracked input at a nonempty site and valid positive drop probability</caption>
+  <thead><tr><th scope="col">Dropout mode</th><th scope="col">New graph recording</th><th scope="col">Forward and backward consequence</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Train</th><td>On</td><td>Sample a mask, apply the training scale and retain the multiplier for backward.</td></tr>
+    <tr><th scope="row">Train</th><td>Off</td><td>Sample and apply the same numerical rule without recording a new training graph.</td></tr>
+    <tr><th scope="row">Eval</th><td>On</td><td>Return the original input handle and its gradient connection, without sampling.</td></tr>
+    <tr><th scope="row">Eval</th><td>Off</td><td>Return the original input handle without creating a new graph or sampling.</td></tr>
+  </tbody>
+</table>
+
+Eval and zero probability preserve every input bit, including signed zero.
+They allocate no dropout mask, derive no dropout key and consume no random
+words. `no_grad()` controls new operations; an identity return does not
+retroactively detach an already tracked input handle. If an Eval identity
+result receives upstream derivative $g_i$, that connection passes $g_i$ to the
+input without training rescaling.
+
+<h3 id="dropout-placement-heading">Place dropout after each complete branch projection</h3>
+
+The course policy `residual-output-element-dropout-v1` has two sites per block:
+the complete attention output after $W_o$, just before the attention residual
+addition, and the complete SwiGLU output after $W_{\mathrm{down}}$, just before
+the feed-forward residual addition. The untouched residual input is still added.
+Embeddings, normalization gains, attention probabilities and vocabulary logits
+are not dropout sites in this policy.
+
+Each active site draws for every element of its full $[B,T,D]$ rectangle,
+including PAD cells. Blocks run in ascending order, attention before
+feed-forward, then row-major batch, token, feature order. Padding, causal
+attention and valid-target masks keep their existing meanings. Repacking or
+changing microbatch boundaries can assign different counters to valid
+coordinates, even with the same seed.
+
+Legacy model and run records remain version one with unchanged bytes and
+digests. `DropoutRunConfig` is an explicit version-two wrapper containing that
+legacy run and a version-one dropout policy; its identity domain is
+`decoder-dropout-run-v2`. The policy records probability bits, seed, placement,
+counter mapping and purpose. Changing it changes replay compatibility, while
+the learned parameter count stays unchanged.
+
+<h3 id="dropout-counter-heading">Specify the words and check the cursor</h3>
+
+The course registry assigns initialization purpose `1`, corpus order `2`,
+packing `3`, optional dropout `4`, sampling `5` and evaluation bootstrap `6`.
+Dropout owns purpose `4` and its own seed/key and next-word counter. Calls to
+other mutable generators cannot advance that counter.
+
+`course-dropout-counter-v1` reuses `SplitMix64`. Let $s$ be the dropout seed,
+$G$ the existing increment `0x9e3779b97f4a7c15`, and
+$\operatorname{next}(a)$ the result of one `next_u64()` call starting from
+`SplitMix64::from_state(a)`. The key and counter-indexed word are
+
+$$
+\begin{aligned}
+k&=\operatorname{next}\bigl(s\mathbin{\oplus}(4G\bmod2^{64})\bigr),\\
+w(c)&=\operatorname{next}\bigl((k+Gc)\bmod2^{64}\bigr).
+\end{aligned}
+$$
+
+Here $\oplus$ is bitwise exclusive-or, and $c$ is the counter of the requested
+word. Only the specified generator arithmetic wraps modulo $2^{64}$.
+For a request starting at $c$ with $n$ entries, the end $c+n$ is checked before
+allocation. Overflow or an exhausted `u64::MAX` cursor rejects without partial
+consumption. The generated range is $[c,c+n)$.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/nn/dropout.rs"
+  region="dropout-counter" captionId="dropout-rust-counter"
+  caption="Reuse SplitMix's wrapping word arithmetic for the key and indexed words, while checking the stored counter range without wraparound."
+  label="Rust source: purpose-four words and checked counter range" />
+
+The conversion keeps the high $53$ bits:
+
+$$
+u(c)=\left\lfloor\frac{w(c)}{2^{11}}\right\rfloor2^{-53},\qquad
+m(c)=\mathbf1\{u(c)\ge p\}.
+$$
+
+The values are $j/2^{53}$ for integer $0\le j<2^{53}$, so one is never
+generated. Equality with the threshold **keeps** the element. Assuming uniform
+words, counting this grid gives effective drop probability
+
+$$
+p_{\mathrm{effective}}=\frac{\lceil p\,2^{53}\rceil}{2^{53}}.
+$$
+
+At $p=0.5$, the grid represents the threshold exactly. At requested
+$p=2^{-54}$, grid zero drops while $2^{-53}$ keeps. With the requested scale,
+even exact real arithmetic would then give
+
+$$
+\mathbb E[y_i]=x_i\frac{1-p_{\mathrm{effective}}}{1-p}.
+$$
+
+Stored `f64` subtraction and division can add rounding as well. The earlier
+expectation equality is the ideal Bernoulli statement; it is not an exact claim
+for every requested floating-point threshold. Separate counter ownership also
+does not prove statistically independent or cryptographically secure streams:
+with an odd increment, keyed full-period sequences are cyclic shifts.
+
+<h3 id="dropout-seeded-heading">Inspect ten predetermined seeded masks</h3>
+
+The executed primitive fixture uses seeds `0` through `8`, then `39`, with the
+same input, upstream gradient, shape `[1,1,4]`, purpose `4`, half-drop policy
+and initial counter `0`. Each record ends at counter `4`. The summary retains
+all four generated hexadecimal words and exact output/final-gradient bits.
+The table writes those `f64` bit patterns as their corresponding scalar values:
+
+<table id="dropout-seed-table" tabindex="0" aria-labelledby="dropout-seed-caption">
+  <caption id="dropout-seed-caption">Ten executed half-drop fixtures for input <code>[2,-4,0,6]</code>, upstream <code>[3,5,7,-2]</code> and shape <code>[1,1,4]</code>; purpose four and counter range <code>[0,4)</code></caption>
+  <thead><tr><th scope="col">Seed</th><th scope="col">Mask, one keeps</th><th scope="col">Train output</th><th scope="col">Final input gradient</th></tr></thead>
+  <tbody>
+    <tr><th scope="row"><samp>0</samp></th><td><code>0110</code></td><td><code>[0,-8,0,0]</code></td><td><code>[0,10,14,0]</code></td></tr>
+    <tr><th scope="row"><samp>1</samp></th><td><code>0011</code></td><td><code>[0,-0,0,12]</code></td><td><code>[0,0,14,-4]</code></td></tr>
+    <tr><th scope="row"><samp>2</samp></th><td><code>1101</code></td><td><code>[4,-8,0,12]</code></td><td><code>[6,10,0,-4]</code></td></tr>
+    <tr><th scope="row"><samp>3</samp></th><td><code>1001</code></td><td><code>[4,-0,0,12]</code></td><td><code>[6,0,0,-4]</code></td></tr>
+    <tr><th scope="row"><samp>4</samp></th><td><code>0110</code></td><td><code>[0,-8,0,0]</code></td><td><code>[0,10,14,0]</code></td></tr>
+    <tr><th scope="row"><samp>5</samp></th><td><code>1110</code></td><td><code>[4,-8,0,0]</code></td><td><code>[6,10,14,0]</code></td></tr>
+    <tr><th scope="row"><samp>6</samp></th><td><code>1000</code></td><td><code>[4,-0,0,0]</code></td><td><code>[6,0,0,0]</code></td></tr>
+    <tr><th scope="row"><samp>7</samp></th><td><code>0011</code></td><td><code>[0,-0,0,12]</code></td><td><code>[0,0,14,-4]</code></td></tr>
+    <tr><th scope="row"><samp>8</samp></th><td><code>1011</code></td><td><code>[4,-0,0,12]</code></td><td><code>[6,0,14,-4]</code></td></tr>
+    <tr><th scope="row"><samp>39</samp></th><td><code>1101</code></td><td><code>[4,-8,0,12]</code></td><td><code>[6,10,0,-4]</code></td></tr>
+  </tbody>
+</table>
+
+For seed `39`, the generated words are `e0f2d7d7dd3d13ac`,
+`bbe95911f05f90b5`, `210c4710466fdb4c` and `88a1d7a436e3ab9b`.
+At the one-half threshold, their high bits give mask `1101`. The seeds were
+fixed before execution; these records check the specified mapping, not
+pseudorandom frequencies. A local Multiply edge can contribute negative zero,
+while accumulation into an initially positive-zero adjoint gives the final
+stored zeros shown here. Identity paths separately preserve input zero signs.
+
+<h3 id="dropout-transaction-heading">Commit only a successful complete forward</h3>
+
+The active text wrapper checks the full counter demand and dropout resource
+limits before sampling. One candidate counter then covers every block and both
+sites. The existing private text decoder consumes that candidate; the caller's
+live state is published only after the complete forward succeeds.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/decoder_dropout.rs"
+  region="dropout-text-forward" captionId="dropout-rust-forward"
+  caption="Use the existing checked text producer and decoder core with one candidate dropout counter for the complete forward."
+  label="Rust source: text dropout forward and complete-forward commit" />
+
+A later-layer failure discards partial results and leaves the live cursor,
+parameters and pre-existing gradients unchanged. Active nonfinite arithmetic is
+an error, rather than a value repaired by clipping or replacing it with zero.
+This forward boundary does not rewind every allocation or internal graph ID,
+and it does not make backward or the optimizer update transactional. After a
+successful forward, the cursor has advanced; a failed update needs restoration
+of the last committed training state before retry.
+
+Cached decoding explicitly selects Eval and its existing `no_grad` context.
+The mode and graph choices are separate. An explicit cached Train request
+returns `CachedTrain` before cache, work or dropout state changes. Disabled
+ordinary and cached calls retain the preceding error order and behavior.
+
+<h3 id="dropout-replay-heading">Bind replay to the original computation</h3>
+
+`DropoutReplayTicket` is immutable evidence for a site. It binds mapping and
+placement versions, purpose, seed/key, counter start/end, probability/scale
+bits, layer/site, actual shape and run/text-layout/model-revision identities.
+Full-model replay also checks the original live parameter nodes and revisions
+before using the same private decoder core. A same-shaped different packed or
+ordinary batch does not gain replay authority.
+
+`replay_dropout_with_context` regenerates the saved coefficient tensor from the
+ticket. It accepts no live counter and consumes zero live words. The complete
+text replay validates all site tickets before decoder work. A ticket for old
+weights cannot establish recomputation under changed weights.
+
+For the supplied bridge, $B=1,T=3,D=16,L=2$: each site has
+$1\cdot3\cdot16=48$ entries and a fresh forward uses
+$2\cdot2\cdot48=192$ words. Inputs are `[0,99,100]`, targets
+`[99,100,1]`, positions `[0,1,2]`, initialization and dropout seeds `39`, and
+drop probability $0.5$. All three targets belong to the existing token-mean
+loss.
+
+<table id="dropout-recompute-table" tabindex="0" aria-labelledby="dropout-recompute-caption">
+  <caption id="dropout-recompute-caption">Three local site-recomputation boundaries in the same two-block bridge forward</caption>
+  <thead><tr><th scope="col">Boundary</th><th scope="col">Captured site and word range</th><th scope="col">Resumed operation and comparison</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">R1</th><td>Layer 0 attention output, <code>[0,48)</code></td><td>Regenerate its multiplier and output; compare input derivatives using the original model-loss upstream derivatives.</td></tr>
+    <tr><th scope="row">R2</th><td>Layer 0 feed-forward output, <code>[48,96)</code></td><td>Repeat the same comparisons at this later site, without reserving another live range.</td></tr>
+    <tr><th scope="row">R3</th><td>Layer 1 attention output, <code>[96,144)</code></td><td>Repeat at the third boundary; retain the final feed-forward range <code>[144,192)</code> for complete-core replay.</td></tr>
+  </tbody>
+</table>
+
+The full replay compares every logit, token-mean loss and all named parameter
+gradients, using all four saved tickets. Gradients are deliberately cleared
+between comparison backward passes. These are local site and same-core
+recomputation checks; they do not provide Chapter 13's activation scheduler or
+demonstrate a memory-saving training schedule.
+
+The executed R1, R2 and R3 records each compare $48$ multiplier, output and
+input-gradient coordinates exactly and retain live cursor `192`. Full-core
+replay reports equal bits for all $798$ logits, the token-mean loss and all
+$8304$ parameter-gradient coordinates, plus all four masks. A changed
+same-shaped text input is rejected.
+
+The continuation fixture runs four shared-trainer updates on that repeated
+batch, with learning rate $0.001$, AdamW coefficients $0.9$ and $0.999$,
+epsilon $10^{-8}$, weight decay $0.01$ and global gradient-norm cap $1$.
+U1, U2 and U3 capture committed zero-gradient states after updates one, two and
+three, at dropout cursors `192`, `384` and `576`; four fresh forwards end at
+`768`.
+
+Each in-memory snapshot carries parameter names/order/values and admitted model
+identity, AdamW moments/step, the zero-gradient and commit phase, dropout
+mapping/seed/cursor, run/config/dtype/backend bindings, batch identity/cursor,
+valid-target count and denominator, optimizer settings, schedule and remaining
+updates. Restoration creates independent live parameter nodes. Comparisons
+cover every remaining mask, logit, loss, raw and clipped gradient, update,
+parameter, moment, step, final cursor and next word. Missing or mismatched
+counter, phase, run, probability or batch cursor rejects.
+
+The executed U1, U2 and U3 continuations report `all_remaining_tapes_equal:
+true` for three, two and one remaining updates respectively. All finish at
+counter `768`, with next word `a8c1103f72c54933`, matching final parameter,
+optimizer and declared-state bits. In the injected post-forward failure, the
+counter first reaches `192`; restoring the last committed snapshot returns it
+to `0` and restores the commit phase before an identical retry. The seven
+missing/mismatched snapshot cases in the report all reject.
+
+This snapshot is scoped to a four-update in-memory fixture. The unchanged
+version-one component checkpoint is not a complete training-job record.
+Chapter 17 still owns durable job continuation and restart policy.
+
+<h3 id="dropout-accounting-heading">Count mask data separately from memory peaks</h3>
+
+The multiplier stores `f64` coefficients, so one active site owns $8BTD$
+mask-data bytes. If both multipliers in all blocks are live, their subtotal is
+
+$$
+M_{\mathrm{mask}}=16LBTD\quad\text{bytes}.
+$$
+
+At nominal full-context shapes, this gives reference $4096$ bytes, bridge
+$65536$ bytes and laptop $33554432$ bytes. These are data subtotals, not
+allocator peaks: output tensors, saved graph primals, adjoints, temporary
+storage, alignment and metadata also matter. The existing planner accounts for
+their lifetimes. The laptop number is counterfactual active-`f64` accounting;
+mandatory `8gb-gpu-core` keeps dropout off, and no GPU execution is established
+here. Eval and zero probability allocate zero dropout masks.
+
+The recorded compiled CPU summary run had peak resident set size $48050176$
+bytes and took about $0.314$ seconds. That process measurement covers this
+bounded fixture, separate from compilation, container setup and nominal
+full-context planning. It does not measure the laptop or a GPU allocator peak.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="dropout-history">
+
+## Relate inverted scaling to earlier dropout
+
+A random training subnetwork needs a separate inference rule; its sampled
+result and gradient depend on the saved mask.
+
+[Hinton and colleagues' 2012 preprint](https://arxiv.org/abs/1207.0580)
+describes random unit omission during training and an unthinned test network
+with halved outgoing weights in its one-half case. It does not specify the
+course's decoder placement or counter.
+[Srivastava and colleagues' 2014 paper](https://www.jmlr.org/papers/v15/srivastava14a.html)
+describes random unit removal during training and an unthinned inference
+network with retention-scaled outgoing weights. Its probability notation
+denotes retention, and its results do not establish benefit for this course's
+decoder. The 2014 paper also describes backward through the sampled subnetwork.
+The 2014 paper uses $p$ for **retention**. Our notation uses $p$ for dropping
+and $q=1-p$ for retention.
+
+For one linear contribution, retention-scaling an outgoing weight is
+equivalent to applying that factor to its input activation. The local Rust
+contrast therefore compares earlier unscaled training and retention-scaled
+evaluation with our inverted training and identity evaluation:
+
+$$
+\begin{aligned}
+\text{earlier Train: }&m_i x_i,&\text{earlier Eval: }&q x_i,\\
+\text{inverted Train: }&m_i x_i/q,&\text{inverted Eval: }&x_i.
+\end{aligned}
+$$
+
+The two conventions place the retention factor in different modes. This
+scalar comparison reuses `TensorValue::mul_with_context`; it is not another
+dropout implementation or a reproduction of the paper's whole network. The
+2014 paper's task results do not choose this decoder's probability or residual
+placement or specify its counter.
+
+For the executed scalar input `2.0` with supplied keep bit `1` and retention
+`0.5`, the earlier convention reports training/evaluation values `2.0/1.0`.
+The inverted convention reports `4.0/2.0`. This is the same linear example in
+both conventions, with the retention factor placed in different modes.
+
+<RustSource path="rust/demos/practical-ch08-dropout-semantics/src/lib.rs"
+  region="dropout-historical-scaling" captionId="dropout-rust-history"
+  caption="Compare earlier unscaled training and retention-scaled evaluation with inverted training and identity evaluation through the same scalar multiplier."
+  label="Rust source: historical and inverted dropout scaling contrast" />
+
+Optional decoder dropout needs explicit mode, saved-mask backward and bound
+random-counter replay, with inference and continuation limits stated separately.
+
+The [PyTorch 2.14 reproducibility notes](https://docs.pytorch.org/docs/2.14/notes/randomness.html)
+also state limits across releases, platforms and CPU/GPU execution. That
+contextual evidence supports a controlled-environment replay claim. PyTorch is
+not a dependency or random-number oracle for this implementation; equal seeds
+alone do not promise hardware-independent results.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="dropout-visualization">
+
+## Follow the same saved mask through forward and backward
+
+The aligned rows connect each input to its saved coefficient and Train output,
+then connect its upstream derivative to its input derivative using that same
+coefficient. The third row explicitly identifies the kept zero. Eval uses the
+identity branch; site replay reuses an original range without advancing live
+random state.
+
+<DropoutSemanticsDiagram labels={{
+  title: "One saved dropout mask governs Train output and backward",
+  description: "For input [2,-4,0,6] and drop probability one half, mask [1,0,1,1] means keep, drop, keep, keep. Train multiplies kept inputs by two, producing [4,-0,0,12]. Backward reuses that same mask and scale: upstream [3,5,7,-2] becomes input gradient [6,0,14,-4]. The third input is a kept zero, so its zero output still has input gradient fourteen. Eval returns the original input handle without scaling or sampling. R1 replay reuses the original layer-zero attention range [0,48); the complete forward's live cursor stays at 192.",
+  flowTitle: "Input → saved mask and Train scale → output; the same coefficient carries backward",
+  flowCaption: "Four features with supplied mask [1,0,1,1] and training scale two",
+  scrollLabel: "Aligned dropout inputs, saved coefficients, outputs and gradients",
+  feature: "Feature and saved state",
+  input: "Input",
+  mask: "Saved mask bit",
+  coefficient: "Train coefficient",
+  output: "Train output",
+  upstream: "Upstream gradient",
+  gradient: "Input gradient",
+  keep: "Kept",
+  drop: "Dropped",
+  keptZero: "Kept zero",
+  evalTitle: "Eval preserves the input handle",
+  evalNote: "The original values and gradient connection pass through unchanged. There is no training rescaling, mask or random draw.",
+  evalOutput: "Eval output",
+  evalDerivative: "Eval input derivative equals the supplied upstream derivative",
+  replayTitle: "R1 reuses its original counter range",
+  replayNote: "Site replay regenerates the layer-zero attention multiplier from its ticket. It makes no live reservation after the original complete forward.",
+  replayRange: "Original and replayed word range",
+  liveCursor: "Live cursor before and after site replay"
+}} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="dropout-practice">
+
+## Optional practice: reproduce and explain the fixed behavior
+
+Run from the repository root with Docker running. The `course` launcher prepares
+its workspace image, then runs the supplied CPU fixtures with locked offline
+Cargo and container networking disabled. No corpus or model download is needed.
+The default command prints one compact JSON summary with schema
+`practical-dropout-semantics-v1`, including ten primitive seed rows, R1–R3
+recomputation points and U1–U3 continuation points. Observable results include
+`fixed_mask.input_gradient` with third value `14.0`,
+<code style="overflow-wrap: anywhere; white-space: normal;">recompute.full_core.every_parameter_gradient_equal: true</code>,
+`resume.final_counter: 768`, and `all_remaining_tapes_equal: true` at each
+continuation point:
+
+```bash
+./course run cargo run --offline --locked --release -p practical-ch08-dropout-semantics
+```
+
+For the same fixtures' individual word, tensor, update and snapshot values, use
+the trace option from the same repository root and Docker setup. It prints
+newline-delimited JSON records, ending with the compact summary:
+
+```bash
+./course run cargo run --offline --locked --release -p practical-ch08-dropout-semantics -- --trace
+```
+
+<RustSource path="rust/demos/practical-ch08-dropout-semantics/src/main.rs"
+  region="dropout-semantics-demo" captionId="dropout-rust-demo"
+  caption="Print the compact dropout fixture summary, or the same fixtures' detailed NDJSON records with --trace."
+  label="Rust source: dropout summary and detailed trace output" />
+
+<ol id="dropout-practice-prompts">
+  <li id="dropout-practice-1">Inspect the supplied mask's third input, output and gradient. Explain why a zero output still has input gradient fourteen.</li>
+  <li id="dropout-practice-2">Explain why backward must retain the forward coefficient, even after another call changes mode, probability or cursor. Relate the answer to the original upstream gradient.</li>
+  <li id="dropout-practice-3">Use the training rule to explain an all-dropped four-element mask. Distinguish a legal individual result from ideal expectation preservation.</li>
+  <li id="dropout-practice-4">Inspect the Eval/no-grad mode row. Explain why its result can still expose a tracked input handle, and identify the random state it leaves unchanged.</li>
+  <li id="dropout-practice-5">Inspect the counter traversal and finite-grid cases. Explain why changing microbatch boundaries can change masks with the same seed, and why threshold equality keeps an element.</li>
+  <li id="dropout-practice-6">Inspect R1 and U1. Identify the state each operation reuses or restores and explain why their comparisons do not establish an activation scheduler or durable job resume.</li>
+</ol>
+
+<details id="dropout-practice-answers">
+<summary id="dropout-answer-summary">Checked explanations for kept zero, saved backward, all-drop, Eval identity, counter scope and local replay</summary>
+
+<ol>
+  <li id="dropout-answer-1">The third mask bit is one, so its saved coefficient is <InlineMath latex="1/0.5=2" />. Its input value is zero, giving zero output, but its upstream derivative is <InlineMath latex="7" />. Multiplication therefore gives input derivative <InlineMath latex="2\cdot7=14" />. Output values alone do not recover the mask.</li>
+  <li id="dropout-answer-2">The forward map's derivative is its saved coefficient <InlineMath latex="m_i/q" />. For upstream <code>[3,5,7,-2]</code>, the supplied coefficients <code>[2,0,2,2]</code> give <code>[6,0,14,-4]</code>. A resampled mask belongs to a different forward and cannot differentiate this one; backward needs no new random words.</li>
+  <li id="dropout-answer-3">All four zero mask bits give zero coefficients, zero numerical outputs and zero input derivatives. A negative input may store negative zero in the output. At ideal drop probability one half, all-drop has probability <InlineMath latex="(1/2)^4=1/16" />, so it is legal and is not retried. Expectation averages over masks, rather than constraining each call's norm or sum.</li>
+  <li id="dropout-answer-4">Eval returns the input handle itself, so an already tracked handle retains its gradient connection. <code>no_grad()</code> prevents new graph operations and does not detach that existing handle. Eval allocates no mask and changes neither the dropout key nor live cursor.</li>
+  <li id="dropout-answer-5">Counters follow full rectangular batch/token/feature order at every site. A changed layout or call boundary can assign a different counter to the same valid feature. The keep comparison is <InlineMath latex="u\ge p" />, so equality keeps; at <InlineMath latex="p=2^{-54}" />, grid zero drops and the first positive grid value <InlineMath latex="2^{-53}" /> keeps. An equal seed alone does not remove layout or execution-environment bindings.</li>
+  <li id="dropout-answer-6">R1 reuses the original site's immutable ticket and <code>[0,48)</code> range, while the live counter stays <code>192</code>. U1 restores a complete declared in-memory state after update one, including counter <code>192</code>, parameters, optimizer and committed zero-gradient phase, then compares the remaining three updates. R1 lacks a memory-saving activation schedule; U1 lacks a durable complete-job artifact and restart protocol.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="dropout-handoff">
+
+## Carry precise failure boundaries into Chapter 9
+
+Optional inverted dropout now has a saved forward mask, explicit Train/Eval
+behavior, checked purpose-four random ownership and bound local replay. The
+disabled path retains the preceding decoder behavior. Chapter 9,
+`09-dependency-error-contract`, makes dependency roles and error contracts
+explicit; it must retain the difference between a failed complete forward and
+a failed later training update. Chapter 13's activation scheduler and Chapter
+17's durable job continuation remain separate capabilities.
+
+</div>

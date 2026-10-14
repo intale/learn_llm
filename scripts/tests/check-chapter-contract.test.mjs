@@ -261,7 +261,7 @@ test('default and practical contract selectors enumerate their separate current 
   assert.equal(firstResults.results.length, 40);
   assert.equal(firstResults.results.every(result => result.parsed.data.order <= 39), true);
   const practicalResults = runChapterContractCheck(['--course', practical.id, '--structure-only'], root);
-  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core'];
+  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core', '08-dropout-semantics'];
   assert.deepEqual(practicalResults.results.map(result => result.parsed.data.chapter_id), currentPracticalIds);
   assert.equal(runFunctionalContractCheck(['--structure-only'], root).length, 40);
   assert.equal(runFunctionalContractCheck(['--course', practical.id, '--structure-only'], root).length, currentPracticalIds.length);
@@ -417,6 +417,8 @@ test('practical term anchors are opt-in for the exact new chapter and preserve t
     wrapper.replace('depth-stable-term', 'another-depth-term'),
     wrapper.replace('07-configurable-decoder-core', '03-scalable-bpe-tokenizer'),
     wrapper.replace('configurable-decoder-term', 'another-configurable-term'),
+    wrapper.replace('08-dropout-semantics', '03-scalable-bpe-tokenizer'),
+    wrapper.replace('dropout-semantics-term', 'another-dropout-term'),
     wrapper.replace(" : undefined}", " : Astro.props.entry.data.chapter_id === '06-unowned' ? 'unowned-term' : undefined}"),
     wrapper.replace(" : undefined}", " : 'padded-variable-term'}"),
     wrapper.replace('Astro.props.entry.data.chapter_id', 'entry.data.chapter_id'),

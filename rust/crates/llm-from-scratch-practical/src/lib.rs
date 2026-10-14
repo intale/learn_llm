@@ -57,6 +57,7 @@ pub mod autograd {
 pub mod nn {
     pub mod depth_health;
     pub mod depth_init;
+    pub mod dropout;
     pub mod embedding;
     pub mod init;
     pub mod linear;

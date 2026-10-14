@@ -66,6 +66,7 @@ impl fmt::Display for CachedDecoderStage {
 /// A rejected model/cache pairing, phase transition, token, or decoder stage.
 #[derive(Clone, Debug, PartialEq)]
 pub enum DecoderKvCacheError {
+    Dropout(crate::nn::dropout::DropoutError),
     LayerAllocationFailed {
         layers: usize,
     },
@@ -173,6 +174,7 @@ pub enum DecoderKvCacheError {
 impl fmt::Display for DecoderKvCacheError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Dropout(source) => source.fmt(formatter),
             Self::PreparedInput { reason } => write!(formatter, "prepared decoder input: {reason}"),
             Self::LayerAllocationFailed { layers } => {
                 write!(formatter, "cannot allocate {layers} decoder layer caches")
@@ -649,12 +651,40 @@ impl DecoderKvCache {
 }
 
 impl DecoderKvSession<'_, '_> {
+    /// An explicit cached request selects Eval before validation or state changes.
+    pub fn prefill_with_mode(
+        &mut self,
+        prompt: &[u32],
+        mode: crate::nn::dropout::DropoutMode,
+    ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        if mode == crate::nn::dropout::DropoutMode::Train {
+            return Err(DecoderKvCacheError::Dropout(
+                crate::nn::dropout::DropoutError::CachedTrain,
+            ));
+        }
+        self.prefill_eval(prompt)
+    }
+    pub fn decode_with_mode(
+        &mut self,
+        token_id: u32,
+        mode: crate::nn::dropout::DropoutMode,
+    ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        if mode == crate::nn::dropout::DropoutMode::Train {
+            return Err(DecoderKvCacheError::Dropout(
+                crate::nn::dropout::DropoutError::CachedTrain,
+            ));
+        }
+        self.decode_eval(token_id)
+    }
     /// Fills every block cache from one validated, nonempty prompt.
     ///
     /// Prompt rows advance serially through the shared one-row path. A later
     /// internal failure restores empty logical state while retaining allocation
     /// and the session's exact-model binding.
     pub fn prefill(&mut self, prompt: &[u32]) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        self.prefill_with_mode(prompt, crate::nn::dropout::DropoutMode::Eval)
+    }
+    fn prefill_eval(&mut self, prompt: &[u32]) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
         if prompt.is_empty() {
             return Err(DecoderKvCacheError::EmptyPrompt);
         }
@@ -695,6 +725,9 @@ impl DecoderKvSession<'_, '_> {
 
     /// Appends one selected token and returns logits for the following choice.
     pub fn decode(&mut self, token_id: u32) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        self.decode_with_mode(token_id, crate::nn::dropout::DropoutMode::Eval)
+    }
+    fn decode_eval(&mut self, token_id: u32) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
         if !self.cache.prefill_complete || self.cache.len == 0 {
             return Err(DecoderKvCacheError::DecodeRequiresPrefill);
         }

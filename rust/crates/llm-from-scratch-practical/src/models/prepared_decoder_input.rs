@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct CoreIdentity {
+pub(crate) struct CoreIdentity {
     pub semantic_sha256: String,
     pub run_sha256: String,
     pub construction_id: String,

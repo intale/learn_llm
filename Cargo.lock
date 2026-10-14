@@ -1009,6 +1009,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "practical-ch08-dropout-semantics"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch-practical",
+ "serde_json",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"

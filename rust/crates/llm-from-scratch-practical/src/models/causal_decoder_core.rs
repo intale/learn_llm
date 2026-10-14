@@ -8,7 +8,7 @@ use crate::{
     attention::incremental::{LayerKvCache, PreparedIncrementalAttention},
     autograd::tensor_core::{AutogradContext, TensorValue},
     generation::kv_cache::{CachedDecoderStage, DecoderKvCacheCounter, DecoderKvCacheError},
-    nn::{residual::residual_add_with_context, rmsnorm::RmsNormForward},
+    nn::{dropout::DropoutExecution, residual::residual_add_with_context, rmsnorm::RmsNormForward},
 };
 
 pub(super) enum CoreError {
@@ -40,6 +40,14 @@ pub(super) fn consume(
     model: &DecoderModel,
     input: PreparedDecoderInput<'_>,
 ) -> Result<CoreForward, CoreError> {
+    consume_with_dropout(model, input, &mut DropoutExecution::Identity)
+}
+
+pub(super) fn consume_with_dropout(
+    model: &DecoderModel,
+    input: PreparedDecoderInput<'_>,
+    dropout: &mut DropoutExecution<'_>,
+) -> Result<CoreForward, CoreError> {
     let _guards: Vec<_> = model
         .parameters()
         .iter()
@@ -55,7 +63,7 @@ pub(super) fn consume(
         }),
         TextSource::Cached { layers, .. } => Mode::Cached(layers),
     };
-    run(model, context, embedding, 0, mode)
+    run(model, context, embedding, 0, mode, dropout)
 }
 
 /// Residual diagnostics enter the same internal engine, not a third producer.
@@ -67,7 +75,15 @@ pub(super) fn residual_tail(
     first_site: usize,
     layout: FullLayout<'_>,
 ) -> Result<CoreForward, DecoderModelError> {
-    run(model, context, current, first_site, Mode::Full(layout)).map_err(|e| match e {
+    run(
+        model,
+        context,
+        current,
+        first_site,
+        Mode::Full(layout),
+        &mut DropoutExecution::Identity,
+    )
+    .map_err(|e| match e {
         CoreError::Full(e) => e,
         CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
         CoreError::Cached(_) => unreachable!("diagnostic mode is full"),
@@ -80,6 +96,7 @@ fn run(
     mut current: TensorValue,
     first_site: usize,
     mode: Mode<'_>,
+    dropout: &mut DropoutExecution<'_>,
 ) -> Result<CoreForward, CoreError> {
     let cached = matches!(mode, Mode::Cached(_));
     let site_count = 2 * model.blocks().len() + 1;
@@ -94,7 +111,7 @@ fn run(
     let mut first_layer = first_site / 2;
     if first_site % 2 == 1 {
         current = model.blocks()[first_layer]
-            .forward_feed_forward_path(context, &current)
+            .forward_feed_forward_path_and_dropout(context, &current, first_layer, dropout)
             .map_err(|source| {
                 CoreError::Full(DecoderModelError::Block {
                     layer: first_layer,
@@ -128,13 +145,15 @@ fn run(
         match &mode {
             Mode::Full(layout) => {
                 let f = block
-                    .forward_with_layout(
+                    .forward_with_layout_and_dropout(
                         context,
                         &current,
                         0,
                         layout.lengths,
                         layout.starts,
                         layout.positions,
+                        layer,
+                        dropout,
                     )
                     .map_err(|source| {
                         CoreError::Full(DecoderModelError::Block { layer, source })

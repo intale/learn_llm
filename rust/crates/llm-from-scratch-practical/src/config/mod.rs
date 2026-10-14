@@ -1,4 +1,5 @@
 //! Checked descriptions, accounting and admission for the existing decoder.
+pub mod dropout_run;
 pub mod model;
 pub mod planner;
 pub mod profile;

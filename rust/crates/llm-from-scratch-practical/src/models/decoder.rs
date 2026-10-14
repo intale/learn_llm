@@ -4,9 +4,10 @@ use std::cell::RefCell;
 use std::error::Error;
 use std::fmt;
 
+pub(crate) use super::prepared_decoder_input::CoreIdentity;
 use super::{
     causal_decoder_core::{self, CoreError},
-    prepared_decoder_input::{CoreIdentity, PreparedDecoderInput},
+    prepared_decoder_input::PreparedDecoderInput,
 };
 
 use crate::attention::multi_head::{MultiHeadAttention, MultiHeadAttentionError};
@@ -16,6 +17,7 @@ use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorV
 use crate::models::decoder_block::{
     DecoderBlock, DecoderBlockComponent, DecoderBlockConfig, DecoderBlockError, DecoderBlockForward,
 };
+use crate::nn::dropout::DropoutError;
 use crate::nn::embedding::{Embedding, EmbeddingError};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::nn::linear::LinearError;
@@ -23,6 +25,10 @@ use crate::nn::rmsnorm::{RmsNorm, RmsNormError, RmsNormForward};
 use crate::nn::swiglu::{SwiGlu, SwiGluError, SwiGluProjection};
 use crate::tensor::storage::Tensor;
 use crate::training::sequence_example::BatchBinding;
+
+#[path = "decoder_dropout.rs"]
+mod dropout;
+pub use dropout::DropoutModelForward;
 
 #[cfg(test)]
 #[path = "decoder_depth_tests.rs"]
@@ -115,6 +121,7 @@ impl fmt::Display for DecoderModelNorm {
 /// A rejected decoder configuration, component assembly, input, or tape stage.
 #[derive(Clone, Debug, PartialEq)]
 pub enum DecoderModelError {
+    Dropout(DropoutError),
     EmptyVocabulary,
     ZeroModelWidth,
     ZeroHeadCount,
@@ -252,6 +259,7 @@ pub enum DecoderModelError {
 impl fmt::Display for DecoderModelError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Dropout(source) => source.fmt(formatter),
             Self::PreparedInput { reason } => write!(formatter, "prepared decoder input: {reason}"),
             Self::EmptyVocabulary => {
                 formatter.write_str("decoder vocabulary must contain at least one token")
@@ -432,6 +440,7 @@ impl fmt::Display for DecoderModelError {
 impl Error for DecoderModelError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
+            Self::Dropout(source) => Some(source),
             Self::Embedding(source) => Some(source),
             Self::Block { source, .. } => Some(source),
             Self::FinalNorm(source) => Some(source),
@@ -921,6 +930,28 @@ impl DecoderModel {
         batch: &VariableBatch,
         expected: &BatchBinding,
     ) -> Result<DecoderModelForward, PaddedDecoderError> {
+        let embedding = self.prepare_padded_text(context, batch, expected)?;
+        Ok(self.forward_prepared_text(context, embedding, Some(batch))?)
+    }
+
+    fn prepare_padded_text(
+        &self,
+        context: AutogradContext,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+    ) -> Result<TensorValue, PaddedDecoderError> {
+        self.validate_padded_text(batch, expected)?;
+        let embedding = self
+            .embedding
+            .forward_padded_with_context(context, batch.inputs(), &batch.shape())
+            .map_err(DecoderModelError::Embedding)?;
+        Ok(embedding)
+    }
+    fn validate_padded_text(
+        &self,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+    ) -> Result<(), PaddedDecoderError> {
         batch.ensure_binding(expected)?;
         if expected.vocabulary_size() != self.config.vocabulary_size {
             return Err(VariableBatchError::Invalid(
@@ -935,11 +966,7 @@ impl DecoderModel {
             }
             .into());
         }
-        let embedding = self
-            .embedding
-            .forward_padded_with_context(context, batch.inputs(), &batch.shape())
-            .map_err(DecoderModelError::Embedding)?;
-        Ok(self.forward_prepared_text(context, embedding, Some(batch))?)
+        Ok(())
     }
     // endregion:padded-decoder-entry
 
@@ -949,12 +976,28 @@ impl DecoderModel {
         embedding: TensorValue,
         batch: Option<&VariableBatch>,
     ) -> Result<DecoderModelForward, DecoderModelError> {
+        self.forward_prepared_text_with_dropout(
+            context,
+            embedding,
+            batch,
+            &mut crate::nn::dropout::DropoutExecution::Identity,
+        )
+    }
+    fn forward_prepared_text_with_dropout(
+        &self,
+        context: AutogradContext,
+        embedding: TensorValue,
+        batch: Option<&VariableBatch>,
+        dropout: &mut crate::nn::dropout::DropoutExecution<'_>,
+    ) -> Result<DecoderModelForward, DecoderModelError> {
         let input = PreparedDecoderInput::full(self, context, embedding.clone(), batch);
-        let forward = causal_decoder_core::consume(self, input).map_err(|e| match e {
-            CoreError::Full(e) => e,
-            CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
-            CoreError::Cached(_) => unreachable!("ordinary text mode"),
-        })?;
+        let forward = causal_decoder_core::consume_with_dropout(self, input, dropout).map_err(
+            |e| match e {
+                CoreError::Full(e) => e,
+                CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
+                CoreError::Cached(_) => unreachable!("ordinary text mode"),
+            },
+        )?;
         Ok(DecoderModelForward {
             embedding,
             blocks: forward.blocks,
@@ -1060,6 +1103,9 @@ impl DecoderModel {
             max_rows,
         });
         Ok(())
+    }
+    pub(crate) fn execution_identity_snapshot(&self) -> Option<CoreIdentity> {
+        self.execution_identity.borrow().clone()
     }
     pub(super) fn input_identity(
         &self,
