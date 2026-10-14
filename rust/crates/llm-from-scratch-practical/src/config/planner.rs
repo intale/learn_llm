@@ -1,8 +1,6 @@
 //! Shape-derived ledgers; no value kernels, model arrays or RNG draws here.
 use super::{
-    ConfigError, add, aligned_bytes, checked_file_offset, checked_u64, checked_usize,
     model::{ModelConfig, ParameterCensus, TensorGroup},
-    mul,
     profile::ResourceProfile,
     run::RunConfig,
 };
@@ -16,7 +14,63 @@ use crate::{
     },
 };
 use serde::Serialize;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, error::Error, fmt};
+
+pub const ARITHMETIC_POLICY: &str = "planner_arithmetic(version=1;input_bytes_max=1048576;encoding=canonical-json-utf8;keys=unique;integers=canonical-unsigned;arithmetic=checked-u128;dimensions=positive;division=exact-before-multiply;conversions=range-checked-u64-usize-file-offset;forbidden=saturating,wrapping,truncating,floating-resource-planning;failure=before-allocation)";
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ConfigError {
+    Invalid(&'static str),
+    Overflow(&'static str),
+    Refused(Vec<String>),
+}
+impl fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Invalid(s) => write!(f, "invalid decoder description: {s}"),
+            Self::Overflow(s) => write!(f, "decoder planning overflow: {s}"),
+            Self::Refused(r) => write!(f, "decoder execution refused: {}", r.join("; ")),
+        }
+    }
+}
+impl Error for ConfigError {}
+impl From<crate::artifact_identity::IdentityError> for ConfigError {
+    fn from(error: crate::artifact_identity::IdentityError) -> Self {
+        use crate::artifact_identity::IdentityError;
+        Self::Invalid(match error {
+            IdentityError::EncodedTooLarge => "input exceeds 1 MiB",
+            IdentityError::InvalidJson => "typed JSON",
+            IdentityError::NonCanonical => "noncanonical bytes",
+            IdentityError::Serialization => "JSON encoding",
+            _ => "identity framing",
+        })
+    }
+}
+pub(crate) fn add(a: u128, b: u128, role: &'static str) -> Result<u128, ConfigError> {
+    a.checked_add(b).ok_or(ConfigError::Overflow(role))
+}
+pub(crate) fn mul(a: u128, b: u128, role: &'static str) -> Result<u128, ConfigError> {
+    a.checked_mul(b).ok_or(ConfigError::Overflow(role))
+}
+pub fn checked_u64(v: u128) -> Result<u64, ConfigError> {
+    u64::try_from(v).map_err(|_| ConfigError::Overflow("u64"))
+}
+pub fn checked_usize(v: u128) -> Result<usize, ConfigError> {
+    usize::try_from(v).map_err(|_| ConfigError::Overflow("usize"))
+}
+pub fn checked_file_offset(v: u128) -> Result<i64, ConfigError> {
+    i64::try_from(v).map_err(|_| ConfigError::Overflow("file offset"))
+}
+pub fn aligned_bytes(elements: u128, width: u128, alignment: u128) -> Result<u128, ConfigError> {
+    if width == 0 || alignment == 0 || !alignment.is_power_of_two() {
+        return Err(ConfigError::Invalid("dtype width or alignment"));
+    }
+    let bytes = mul(elements, width, "buffer bytes")?;
+    mul(
+        add(bytes, alignment - 1, "alignment")? / alignment,
+        alignment,
+        "alignment",
+    )
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "kebab-case")]

@@ -1,7 +1,9 @@
 //! A versioned extension leaves the legacy run record and its digest untouched.
 use super::{ConfigError, run::RunConfig};
 use crate::{
-    artifact_identity::{ArtifactDigest, canonical_json_bytes},
+    artifact_identity::{
+        ArtifactDigest, ArtifactIdentity, canonical_json_bytes, read_canonical_record,
+    },
     nn::dropout::{
         DROPOUT_COUNTER_VERSION, DROPOUT_PLACEMENT, DROPOUT_PURPOSE, DropoutCounterState,
         DropoutPolicy, DropoutProbability,
@@ -57,7 +59,10 @@ impl DropoutRunPolicy {
     }
     pub fn digest(&self) -> Result<ArtifactDigest, ConfigError> {
         self.validate()?;
-        super::digest("decoder-dropout-policy-v1", self)
+        Ok(
+            ArtifactIdentity::from_record("decoder-dropout-policy-v1", "configuration", self)?
+                .digest()?,
+        )
     }
 }
 
@@ -69,6 +74,41 @@ pub struct DropoutRunConfig {
     pub dropout: DropoutRunPolicy,
 }
 impl DropoutRunConfig {
+    /// Bind native configuration sections to the versioned run extension.
+    pub fn from_config(config: &config_lib::Config) -> Result<Self, ConfigError> {
+        let value = config.as_value();
+        use super::settings::{field, number, text};
+        super::settings::schema(&["schema_version"], &[])
+            .build()
+            .validate(value)
+            .map_err(|_| ConfigError::Invalid("dropout run schema"))?;
+        let legacy_run = RunConfig::from_settings_values(
+            field(value, "legacy_run")?,
+            field(value, "legacy_run.seeds")?,
+        )?;
+        let policy = field(value, "dropout")?;
+        super::settings::schema(
+            &["schema_version", "purpose", "probability_bits", "seed"],
+            &["placement", "counter_mapping"],
+        )
+        .build()
+        .validate(policy)
+        .map_err(|_| ConfigError::Invalid("dropout policy schema"))?;
+        let r = Self {
+            schema_version: number(value, "schema_version")?,
+            legacy_run,
+            dropout: DropoutRunPolicy {
+                schema_version: number(policy, "schema_version")?,
+                placement: text(policy, "placement")?,
+                counter_mapping: text(policy, "counter_mapping")?,
+                purpose: number(policy, "purpose")?,
+                probability_bits: number(policy, "probability_bits")?,
+                seed: number(policy, "seed")?,
+            },
+        };
+        r.validate()?;
+        Ok(r)
+    }
     pub fn new(legacy_run: RunConfig, dropout: DropoutRunPolicy) -> Result<Self, ConfigError> {
         let value = Self {
             schema_version: 2,
@@ -78,8 +118,9 @@ impl DropoutRunConfig {
         value.validate()?;
         Ok(value)
     }
+    /// Read an existing bound artifact record; user settings use `from_config`.
     pub fn from_canonical_bytes(bytes: &[u8]) -> Result<Self, ConfigError> {
-        let r: Self = super::parse(bytes)?;
+        let r: Self = read_canonical_record(bytes, super::INPUT_BYTES_MAX)?;
         r.validate()?;
         Ok(r)
     }
@@ -104,6 +145,9 @@ impl DropoutRunConfig {
     }
     pub fn digest(&self) -> Result<ArtifactDigest, ConfigError> {
         self.validate()?;
-        super::digest("decoder-dropout-run-v2", self)
+        Ok(
+            ArtifactIdentity::from_record("decoder-dropout-run-v2", "configuration", self)?
+                .digest()?,
+        )
     }
 }

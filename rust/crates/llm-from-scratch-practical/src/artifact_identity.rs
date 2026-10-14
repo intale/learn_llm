@@ -8,7 +8,7 @@
 use std::collections::BTreeMap;
 use std::fmt;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use sha2::{Digest, Sha256};
 
 pub const IDENTITY_SCHEMA_VERSION: u32 = 1;
@@ -30,6 +30,22 @@ pub fn canonical_json_bytes<T: Serialize>(value: &T) -> Result<Vec<u8>, Identity
         return Err(IdentityError::EncodedTooLarge);
     }
     Ok(bytes)
+}
+
+/// Read an existing bound artifact record using the shared canonical encoding.
+/// Configuration files are loaded separately by config-lib.
+pub fn read_canonical_record<T: DeserializeOwned + Serialize>(
+    bytes: &[u8],
+    maximum: usize,
+) -> Result<T, IdentityError> {
+    if bytes.len() > maximum {
+        return Err(IdentityError::EncodedTooLarge);
+    }
+    let value: T = serde_json::from_slice(bytes).map_err(|_| IdentityError::InvalidJson)?;
+    if canonical_json_bytes(&value)? != bytes {
+        return Err(IdentityError::NonCanonical);
+    }
+    Ok(value)
 }
 
 /// Immutable identity fields; a caller still owns domain-specific requirements.
@@ -141,6 +157,16 @@ fn valid_identifier(value: &str, maximum: usize) -> bool {
 }
 
 impl ArtifactIdentity {
+    /// Bind an existing serializable record as one opaque canonical field.
+    pub fn from_record<T: Serialize>(
+        domain: &str,
+        field: &str,
+        record: &T,
+    ) -> Result<Self, IdentityError> {
+        let bytes = canonical_json_bytes(record)?;
+        let text = std::str::from_utf8(&bytes).map_err(|_| IdentityError::Serialization)?;
+        Self::new(domain, [(field, text)])
+    }
     /// Validate before retaining any caller field. Duplicate keys never overwrite.
     /// Values are opaque UTF-8 strings: no trimming or Unicode normalization.
     pub fn new<'a>(

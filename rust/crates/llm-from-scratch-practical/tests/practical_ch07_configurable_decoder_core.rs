@@ -4,7 +4,7 @@ use llm_from_scratch_practical::{
         self, ConfigError,
         model::{DecoderShape, ModelConfig},
         planner::{self, ForwardMode, LiveEvent, Workspace},
-        profile::{ResourceProfile, SEED_SENSITIVITY_SEEDS},
+        profile::{ResourceProfile, seed_sensitivity_seeds},
         run::RunConfig,
     },
     generation::kv_cache::DecoderKvCache,
@@ -401,7 +401,10 @@ fn profile_metadata_is_frozen_without_fake_adapter_selection() {
     let adapter = ResourceProfile::named("8gb-adapter").unwrap();
     assert_eq!(adapter.state, "blocked-artifact-selection");
     assert!(adapter.fixture_model().is_err());
-    assert_eq!(SEED_SENSITIVITY_SEEDS, [104729, 130363, 15485863]);
+    assert_eq!(
+        seed_sensitivity_seeds().unwrap(),
+        [104729, 130363, 15485863]
+    );
     let seed = planner::plan_decoder(
         &ModelConfig::scale("seed-sensitivity").unwrap(),
         &RunConfig::fixture("8gb-seed-sensitivity").unwrap(),

@@ -1,6 +1,8 @@
 //! Run choices have their own identity; token work is not a tensor axis.
 use super::ConfigError;
-use crate::artifact_identity::{ArtifactDigest, canonical_json_bytes};
+use crate::artifact_identity::{
+    ArtifactDigest, ArtifactIdentity, canonical_json_bytes, read_canonical_record,
+};
 use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -27,9 +29,75 @@ pub struct RunConfig {
     pub kernel: String,
     pub resource_profile: String,
 }
+pub(super) const UNSIGNED_SETTINGS_FIELDS: &[&str] = &[
+    "schema_version",
+    "b",
+    "n",
+    "microbatch",
+    "accumulation",
+    "world_size",
+];
+pub(super) const UNSIGNED_SEED_FIELDS: &[&str] = &["initialization", "shuffle", "sampling"];
 impl RunConfig {
+    /// Bind library-loaded configuration values to the existing run policy.
+    pub fn from_config(config: &config_lib::Config) -> Result<Self, ConfigError> {
+        let r = Self::from_settings_values(
+            config.as_value(),
+            super::settings::field(config.as_value(), "seeds")?,
+        )?;
+        r.validate()?;
+        Ok(r)
+    }
+    pub(super) fn from_settings_values(
+        value: &config_lib::Value,
+        seeds: &config_lib::Value,
+    ) -> Result<Self, ConfigError> {
+        super::settings::schema(
+            UNSIGNED_SETTINGS_FIELDS,
+            &[
+                "topology",
+                "sharding",
+                "collectives",
+                "backend",
+                "device",
+                "kernel",
+                "resource_profile",
+            ],
+        )
+        .build()
+        .validate(value)
+        .map_err(|_| ConfigError::Invalid("run settings schema"))?;
+        super::settings::schema(UNSIGNED_SEED_FIELDS, &[])
+            .build()
+            .validate(seeds)
+            .map_err(|_| ConfigError::Invalid("named seeds schema"))?;
+        use super::settings::{number, text};
+        let r = Self {
+            schema_version: number(value, "schema_version")?,
+            b: number(value, "b")?,
+            n: number(value, "n")?,
+            microbatch: number(value, "microbatch")?,
+            accumulation: number(value, "accumulation")?,
+            seeds: NamedSeeds {
+                initialization: number(seeds, "initialization")?,
+                shuffle: number(seeds, "shuffle")?,
+                sampling: number(seeds, "sampling")?,
+            },
+            world_size: number(value, "world_size")?,
+            topology: text(value, "topology")?,
+            sharding: text(value, "sharding")?,
+            collectives: text(value, "collectives")?,
+            backend: text(value, "backend")?,
+            device: text(value, "device")?,
+            kernel: text(value, "kernel")?,
+            resource_profile: text(value, "resource_profile")?,
+        };
+        r.validate_policies()?;
+        Ok(r)
+    }
+    /// Read an existing bound artifact record; user settings use `from_config`.
     pub fn from_canonical_bytes(bytes: &[u8]) -> Result<Self, ConfigError> {
-        let r: Self = super::parse(bytes)?;
+        let r: Self = read_canonical_record(bytes, super::INPUT_BYTES_MAX)?;
         r.validate()?;
         Ok(r)
     }
@@ -39,9 +107,14 @@ impl RunConfig {
     }
     pub fn digest(&self) -> Result<ArtifactDigest, ConfigError> {
         self.validate()?;
-        super::digest("decoder-run-v1", self)
+        Ok(ArtifactIdentity::from_record("decoder-run-v1", "configuration", self)?.digest()?)
     }
     pub fn validate(&self) -> Result<(), ConfigError> {
+        self.validate_policies()?;
+        super::profile::ResourceProfile::named(&self.resource_profile)?;
+        Ok(())
+    }
+    fn validate_policies(&self) -> Result<(), ConfigError> {
         if self.schema_version != 1
             || [
                 self.b,
@@ -81,62 +154,9 @@ impl RunConfig {
             | ("wgpu-vulkan", "gpu", "unavailable") => (),
             _ => return Err(ConfigError::Invalid("backend/device/kernel policy")),
         }
-        super::profile::ResourceProfile::named(&self.resource_profile)?;
         Ok(())
     }
     pub fn fixture(profile: &str) -> Result<Self, ConfigError> {
-        let (b, n, accumulation) = match profile {
-            "reference-ci" => (16, 2048, 1),
-            "bridge-ci" => (8, 65536, 1),
-            "8gb-gpu-smoke" => (1, 65536, 8),
-            "8gb-seed-sensitivity" => (1, 1000000, 32),
-            "8gb-gpu-core" => (1, 20000000, 64),
-            "8gb-adapter" => (1, 1048576, 32),
-            "production-plan-only" => (1, 15000000000000, 1),
-            _ => return Err(ConfigError::Invalid("profile ID")),
-        };
-        let cpu = profile == "reference-ci" || profile == "bridge-ci";
-        let prod = profile == "production-plan-only";
-        Ok(Self {
-            schema_version: 1,
-            b,
-            n,
-            microbatch: b,
-            accumulation,
-            seeds: NamedSeeds {
-                initialization: 4701,
-                shuffle: 104729,
-                sampling: 130363,
-            },
-            world_size: 1,
-            topology: "single-device".into(),
-            sharding: "none".into(),
-            collectives: "none".into(),
-            backend: if cpu {
-                "scalar-cpu"
-            } else if prod {
-                "accounting-only"
-            } else {
-                "wgpu-vulkan"
-            }
-            .into(),
-            device: if cpu {
-                "cpu"
-            } else if prod {
-                "none"
-            } else {
-                "gpu"
-            }
-            .into(),
-            kernel: if cpu {
-                "existing-scalar-v1"
-            } else if prod {
-                "symbolic-schedule-v1"
-            } else {
-                "unavailable"
-            }
-            .into(),
-            resource_profile: profile.into(),
-        })
+        super::DecoderProfiles::defaults()?.run(profile)
     }
 }

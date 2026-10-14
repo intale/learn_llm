@@ -4,7 +4,7 @@ use llm_from_scratch_practical::{
     config::{
         model::ModelConfig,
         planner::{self, ForwardMode},
-        profile::{ResourceProfile, SEED_SENSITIVITY_SEEDS},
+        profile::{ResourceProfile, seed_sensitivity_seeds},
         run::RunConfig,
     },
     generation::kv_cache::DecoderKvCache,
@@ -153,7 +153,7 @@ pub fn demo_trace() -> Result<Value, Box<dyn Error>> {
         "scales":[plan_value("reference","reference","reference-ci")?,plan_value("bridge","bridge","bridge-ci")?,plan_value("laptop","laptop","8gb-gpu-core")?,plan_value("production-plan","production","production-plan-only")?],
         "execution":[execute("reference","reference-ci")?,execute("bridge","bridge-ci")?],
         "derived_smoke":plan_value("laptop-smoke-c128-v1","laptop-smoke-c128-v1","8gb-gpu-smoke")?,
-        "seed_sensitivity":plan_value("seed-sensitivity","seed-sensitivity","8gb-seed-sensitivity")?,"seed_sensitivity_seeds":SEED_SENSITIVITY_SEEDS,
+        "seed_sensitivity":plan_value("seed-sensitivity","seed-sensitivity","8gb-seed-sensitivity")?,"seed_sensitivity_seeds":seed_sensitivity_seeds()?,
         "profiles":profiles,"adapter_artifact":null,
         "identity_examples":{"changed_context_same_P":{"before_C":reference.c,"after_C":context.c,"before_P":reference.shape().census()?.total,"after_P":context.shape().census()?.total,"semantic_digest_changed":reference.digest()?!=context.digest()?},
             "changed_seed_semantic_same":{"semantic_sha256":reference.digest()?.to_string(),"run_digest_changed":reference_run.digest()?!=seed.digest()?},

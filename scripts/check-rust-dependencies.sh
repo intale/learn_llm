@@ -8,6 +8,7 @@ readonly repository_root
 # in concurrentDevelopmentMCP decisions. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
   aho-corasick
+  arc-swap
   atomic-waker
   base64
   bit-set
@@ -18,10 +19,13 @@ readonly -a allowed_supporting_crates=(
   bytes
   cc
   cfg-if
+  config-lib
   core-foundation
   core-foundation-sys
   cpufeatures
+  crossbeam-utils
   crypto-common
+  dashmap
   digest
   displaydoc
   errno
@@ -39,6 +43,7 @@ readonly -a allowed_supporting_crates=(
   futures-util
   generic-array
   getrandom
+  hashbrown
   http
   http-body
   http-body-util
@@ -61,6 +66,7 @@ readonly -a allowed_supporting_crates=(
   libc
   linux-raw-sys
   litemap
+  lock_api
   log
   memchr
   mime
@@ -71,6 +77,7 @@ readonly -a allowed_supporting_crates=(
   openssl-macros
   openssl-probe
   openssl-sys
+  parking_lot_core
   percent-encoding
   pin-project-lite
   pkg-config
@@ -78,6 +85,7 @@ readonly -a allowed_supporting_crates=(
   proc-macro2
   quote
   r-efi
+  redox_syscall
   regex-automata
   regex-syntax
   reqwest
@@ -85,6 +93,7 @@ readonly -a allowed_supporting_crates=(
   rustls-pki-types
   rustversion
   schannel
+  scopeguard
   security-framework
   security-framework-sys
   serde
@@ -101,6 +110,8 @@ readonly -a allowed_supporting_crates=(
   sync_wrapper
   synstructure
   tempfile
+  thiserror
+  thiserror-impl
   tinystr
   tokio
   tokio-native-tls

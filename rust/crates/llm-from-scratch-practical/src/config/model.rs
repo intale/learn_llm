@@ -1,7 +1,9 @@
 //! Semantic axes and the shared constructor/planner census.
 use super::{ConfigError, add, checked_u64, checked_usize, mul};
 use crate::{
-    artifact_identity::{ArtifactDigest, canonical_json_bytes},
+    artifact_identity::{
+        ArtifactDigest, ArtifactIdentity, canonical_json_bytes, read_canonical_record,
+    },
     models::decoder::{BLOCK_PARAMETER_SUFFIXES, DecoderModelConfig},
     nn::residual_scale::DEPTH_POLICY_ID,
 };
@@ -52,8 +54,57 @@ fn identifier(s: &str) -> bool {
             .all(|b| b.is_ascii_alphanumeric() || b"._:-".contains(&b))
 }
 impl ModelConfig {
+    /// Bind library-loaded configuration values to the decoder's semantic axes.
+    pub fn from_config(config: &config_lib::Config) -> Result<Self, ConfigError> {
+        Self::from_settings_value(config.as_value())
+    }
+    pub(super) fn from_settings_value(value: &config_lib::Value) -> Result<Self, ConfigError> {
+        let unsigned = &["schema_version", "v", "d", "l", "hq", "hkv", "f", "c"];
+        super::settings::schema(
+            unsigned,
+            &[
+                "schema",
+                "rope_base_bits",
+                "rms_epsilon_bits",
+                "rope_policy",
+                "causal_mask_policy",
+                "tied_head_policy",
+                "vocabulary_id",
+                "tokenizer_id",
+                "dtype_policy",
+                "parameter_family",
+            ],
+        )
+        .build()
+        .validate(value)
+        .map_err(|_| ConfigError::Invalid("model settings schema"))?;
+        use super::settings::{number, text};
+        let m = Self {
+            schema_version: number(value, "schema_version")?,
+            schema: text(value, "schema")?,
+            v: number(value, "v")?,
+            d: number(value, "d")?,
+            l: number(value, "l")?,
+            hq: number(value, "hq")?,
+            hkv: number(value, "hkv")?,
+            f: number(value, "f")?,
+            c: number(value, "c")?,
+            rope_base_bits: text(value, "rope_base_bits")?,
+            rms_epsilon_bits: text(value, "rms_epsilon_bits")?,
+            rope_policy: text(value, "rope_policy")?,
+            causal_mask_policy: text(value, "causal_mask_policy")?,
+            tied_head_policy: text(value, "tied_head_policy")?,
+            vocabulary_id: text(value, "vocabulary_id")?,
+            tokenizer_id: text(value, "tokenizer_id")?,
+            dtype_policy: text(value, "dtype_policy")?,
+            parameter_family: text(value, "parameter_family")?,
+        };
+        m.validate()?;
+        Ok(m)
+    }
+    /// Read an existing bound artifact record; user settings use `from_config`.
     pub fn from_canonical_bytes(bytes: &[u8]) -> Result<Self, ConfigError> {
-        let m: Self = super::parse(bytes)?;
+        let m: Self = read_canonical_record(bytes, super::INPUT_BYTES_MAX)?;
         m.validate()?;
         Ok(m)
     }
@@ -63,7 +114,7 @@ impl ModelConfig {
     }
     pub fn digest(&self) -> Result<ArtifactDigest, ConfigError> {
         self.validate()?;
-        super::digest("decoder-model-v1", self)
+        Ok(ArtifactIdentity::from_record("decoder-model-v1", "configuration", self)?.digest()?)
     }
     pub fn validate(&self) -> Result<(), ConfigError> {
         if self.schema_version != 1
@@ -134,57 +185,7 @@ impl ModelConfig {
         ))
     }
     pub fn scale(id: &str) -> Result<Self, ConfigError> {
-        let (v, d, l, hq, hkv, f, c, dtype) = match id {
-            "reference" => (266, 4, 1, 1, 1, 4, 4, "scalar-f64"),
-            "bridge" => (266, 16, 2, 2, 2, 20, 16, "scalar-f64"),
-            "laptop" | "laptop-smoke-c128-v1" => (
-                16384,
-                512,
-                8,
-                8,
-                2,
-                1536,
-                if id == "laptop" { 512 } else { 128 },
-                "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-            ),
-            "seed-sensitivity" => (
-                8192,
-                256,
-                3,
-                4,
-                1,
-                768,
-                256,
-                "wgpu-vulkan-fp16-fp32-protected-dynamicv1",
-            ),
-            "production" => (128000, 8192, 80, 64, 8, 28672, 32768, "bf16-accounting"),
-            _ => return Err(ConfigError::Invalid("scale ID")),
-        };
-        Ok(Self {
-            schema_version: 1,
-            schema: MODEL_SCHEMA.into(),
-            v,
-            d,
-            l,
-            hq,
-            hkv,
-            f,
-            c,
-            rope_base_bits: format!("{:016x}", 10000.0_f64.to_bits()),
-            rms_epsilon_bits: format!("{:016x}", 1e-6_f64.to_bits()),
-            rope_policy: "adjacent-pairs-v1".into(),
-            causal_mask_policy: "occurrence-local-causal-v1".into(),
-            tied_head_policy: "embedding-transpose-v1".into(),
-            vocabulary_id: if v == 266 {
-                "controlled-layout-v1"
-            } else {
-                "declared-vocabulary-v1"
-            }
-            .into(),
-            tokenizer_id: "opaque-source-identity-v1".into(),
-            dtype_policy: dtype.into(),
-            parameter_family: DEPTH_POLICY_ID.into(),
-        })
+        super::DecoderProfiles::defaults()?.model(id)
     }
 }
 // region:configurable-model-shapes
