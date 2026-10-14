@@ -1,0 +1,617 @@
+---
+{
+  "chapter_id":"07-configurable-decoder-core","locale":"en","content_revision":1,"order":7,"concept_id":"configurable-decoder-core",
+  "title":"Configure one decoder core before construction",
+  "description":"Validate model and run records, plan resources before constructing the existing CPU decoder, then preserve full and cached text through two private producers and one private core.",
+  "objective":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text paths through one private core.",
+  "worked_inputs":"Derive the reference decoder's 1188 parameters from vocabulary 266, width four, one block, one query and KV head, feed-forward width four and context capacity four. Compare the bridge, laptop and production plans; inspect full inputs [0,99,100], repeated inputs [0,99,99], and cached prefill [0,99] followed by token 100.",
+  "formula":{
+    "latex":"\\begin{aligned}\np&=2D^2+2DK+3DF+2D,\\\\\nP&=VD+Lp+D.\n\\end{aligned}",
+    "symbols":[
+      {"symbol":"P","meaning":"count of unique learned scalar parameters; the tied vocabulary head adds no second embedding table"},
+      {"symbol":"p","meaning":"learned scalar parameter count in one complete decoder block"},
+      {"symbol":"V","meaning":"number of text-token vocabulary entries"},
+      {"symbol":"D","meaning":"number of residual features per token"},
+      {"symbol":"L","meaning":"positive number of complete decoder blocks in a version-one model record"},
+      {"symbol":"H_q","meaning":"query-head count, which must divide model width exactly"},
+      {"symbol":"H_{kv}","meaning":"key/value-head count, no larger than the query-head count and dividing it exactly"},
+      {"symbol":"d_h","meaning":"features per head: model width divided exactly by query-head count; even for the selected RoPE policy"},
+      {"symbol":"K","meaning":"total key or value projection width: key/value-head count times features per head"},
+      {"symbol":"F","meaning":"hidden feature width of the SwiGLU feed-forward branch"},
+      {"symbol":"C","meaning":"configured position and physical KV capacity, in token positions per row"},
+      {"symbol":"B","meaning":"nominal rows in the full-context forward accounting unit; a call may contain fewer admitted rows"},
+      {"symbol":"N","meaning":"declared training-token budget, separate from model parameters and tensor axes"},
+      {"symbol":"b_{kv}","meaning":"bytes stored per key or value element in the selected KV accounting layout"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"model-building-practice",
+      "limitation":"A model-size description alone neither solves a device's storage constraint nor chooses how many training tokens to process.",
+      "later_advance":"The Chinchilla abstract studies model size and training-token count together under a compute budget, keeping those choices distinct.",
+      "modern_llm_role":"A decoder configuration needs separate semantic dimensions, run budgets and topology-dependent resource accounting, with supported execution checked independently.",
+      "sources":[
+        {"role":"earlier","year":2019,"name":"Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism","source_url":"https://arxiv.org/abs/1909.08053v4","claim":"The Megatron-LM abstract describes an intra-layer model-parallel approach to large-Transformer memory constraints using communication operations; it does not validate the course's TP8 ledger."},
+        {"role":"later","year":2022,"name":"Training Compute-Optimal Large Language Models","source_url":"https://arxiv.org/abs/2203.15556v1","claim":"The Chinchilla abstract studies model size and training-token count together under a compute budget, keeping those choices distinct. This study does not establish optimality for the course's four scales."}
+      ]
+    },
+    "approach":"A local Rust planning comparison partitions named matrices, keeps norm gains replicated, records sent messages, and changes a run's token budget without changing its model census.",
+    "summary":"Partitioned storage, communication traffic and training-token allocation answer different questions. The chapter calculates local fixtures without reproducing a distributed run or a paper's training result.",
+    "rust_source":"rust/demos/practical-ch07-configurable-decoder-core/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/config/model.rs","region":"configurable-model-shapes","purpose":"Validate head grouping and derive the named tensor census shared by planning and construction."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/config/planner.rs","region":"decoder-resource-plan","purpose":"Admit the checked plan and delegate construction while binding its configuration and actual initialization identity."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs","region":"prepared-text-input","purpose":"Bind model-owned text lookup to private shape, provenance, configuration and live-parameter metadata."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs","region":"shared-causal-decoder","purpose":"Consume both prepared text paths through one block loop, final normalization and tied vocabulary head."},
+    {"path":"rust/demos/practical-ch07-configurable-decoder-core/src/lib.rs","region":"configurable-budget-history","purpose":"Compare named tensor partitions and sent traffic, and change a token budget independently of the parameter census."},
+    {"path":"rust/demos/practical-ch07-configurable-decoder-core/src/main.rs","region":"configurable-decoder-example","purpose":"Print decoder totals, configuration records, refusals and supported CPU observations by default; --trace retains the same fixtures' complete accounting ledgers."}
+  ],
+  "visualization":{"decision":"useful","id":"configurable-decoder-core","rationale":"One flow relates model and run records to a checked plan, its admission branches, and two text producers converging on one private decoder core. Calculated parameter categories and separate synthetic liveness peaks make accounting scope visible."},
+  "decoder_connection":"Carry the checked dimensions, construction identity and single text core into Chapter 8's optional dropout and reproducibility work. Unequal-head GQA execution, GPU and distributed backends, adapter selection and trained-checkpoint serialization remain later capabilities."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import ConfigurableDecoderCoreDiagram from "../../../components/chapters/ConfigurableDecoderCoreDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="configurable-worked-example">
+
+## The problem: dimension choices must agree
+
+Changing a decoder's width changes its embeddings, attention projections,
+feed-forward matrices and normalization gains. Changing its context capacity
+changes the storage needed for cached tokens. If those choices are made
+independently, a model can have incompatible shapes or reserve more memory than
+its execution environment allows. Constructing arrays first discovers such
+problems after the expensive work has begun.
+
+We will describe the model once, calculate its shapes and resource needs, and
+allow construction only after the selected execution path passes its checks.
+The decoder family stays the same: causal text attention with pre-RMSNorm,
+RoPE, SwiGLU, no biases, and a vocabulary head tied to the token embedding
+table. Dimensions are runtime data. Reference and bridge records use the
+existing CPU implementation; larger records can produce useful plans while
+execution remains refused.
+
+### Solve the tiny parameter census
+
+Take vocabulary size $V=266$, residual width $D=4$, one complete block $L=1$,
+one query head and one key/value head, and feed-forward width $F=4$. The model
+can represent positions up to its configured capacity $C=4$.
+
+The embedding table contains $266\cdot4=1064$ learned scalars. Its transpose
+also supplies the vocabulary head, so that head owns no second table. The four
+attention matrices contain $4\cdot4^2=64$ scalars. The three SwiGLU matrices
+contain $3\cdot4\cdot4=48$. Two block RMSNorm gains and one final gain contain
+$3\cdot4=12$. Together they give
+
+$$
+1064+64+48+12=1188
+$$
+
+unique learned parameters. This census describes storage ownership, so using
+the embedding twice does not count its scalars twice. A separate untied head
+would add another $1064$, producing $2252$ parameters and a different model
+architecture.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="configurable-formula" class="lesson-body">
+
+## Derive shapes before counting parameters
+
+Let $H_q$ count query heads and $H_{kv}$ count key/value heads. Each head has
+width $d_h$. The total key or value projection width is $K$:
+
+$$
+d_h=D/H_q,\qquad K=H_{kv}d_h.
+$$
+
+The divisions must be exact: $H_q$ divides $D$, and $H_{kv}$ divides $H_q$,
+with $H_{kv}\le H_q$. The selected RoPE policy also requires even $d_h$.
+Truncating a quotient would describe incomplete head groups. An unequal-head
+shape can be valid for planning even though its execution kernel is not yet
+available here.
+
+For a bias-free block, the query and output matrices contribute $2D^2$, key
+and value contribute $2DK$, the three feed-forward matrices contribute $3DF$,
+and two norm gains contribute $2D$. Call their sum $p$. The embedding and final
+gain sit outside the $L$ blocks:
+
+$$
+\begin{aligned}
+p&=2D^2+2DK+3DF+2D,\\
+P&=VD+Lp+D.
+\end{aligned}
+$$
+
+$P$ counts unique learned scalar values. RoPE adds no learned position table,
+and the tied head adds no independent vocabulary matrix. This is why changing
+$C$ alone leaves $P$ unchanged for this family.
+
+<table id="configurable-model-records" tabindex="0" aria-labelledby="configurable-model-records-caption">
+  <caption id="configurable-model-records-caption">Four checked model records: literal dimensions, unique learned scalar counts and current execution scope</caption>
+  <thead><tr><th scope="col">Model quantity</th><th scope="col">Reference</th><th scope="col">Bridge</th><th scope="col">Laptop plan</th><th scope="col">Production plan</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Vocabulary entries <InlineMath latex="V" /></th><td><samp>266</samp></td><td><samp>266</samp></td><td><samp>16384</samp></td><td><samp>128000</samp></td></tr>
+    <tr><th scope="row">Residual features <InlineMath latex="D" /></th><td><samp>4</samp></td><td><samp>16</samp></td><td><samp>512</samp></td><td><samp>8192</samp></td></tr>
+    <tr><th scope="row">Complete blocks <InlineMath latex="L" /></th><td><samp>1</samp></td><td><samp>2</samp></td><td><samp>8</samp></td><td><samp>80</samp></td></tr>
+    <tr><th scope="row">Query heads <InlineMath latex="H_q" /></th><td><samp>1</samp></td><td><samp>2</samp></td><td><samp>8</samp></td><td><samp>64</samp></td></tr>
+    <tr><th scope="row">Key/value heads <InlineMath latex="H_{kv}" /></th><td><samp>1</samp></td><td><samp>2</samp></td><td><samp>2</samp></td><td><samp>8</samp></td></tr>
+    <tr><th scope="row">SwiGLU hidden features <InlineMath latex="F" /></th><td><samp>4</samp></td><td><samp>20</samp></td><td><samp>1536</samp></td><td><samp>28672</samp></td></tr>
+    <tr><th scope="row">Position capacity <InlineMath latex="C" /></th><td><samp>4</samp></td><td><samp>16</samp></td><td><samp>512</samp></td><td><samp>32768</samp></td></tr>
+    <tr><th scope="row">Unique learned scalars <InlineMath latex="P" /></th><td><samp>1188</samp></td><td><samp>8304</samp></td><td><samp>32514560</samp></td><td><samp>69500936192</samp></td></tr>
+    <tr><th scope="row">Current execution</th><td>CPU supported</td><td>CPU supported</td><td>Refused</td><td>Refused</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="configurable-symbols">
+
+## Keep dimensions, capacity and token budgets distinct
+
+$V$ counts vocabulary entries; $D$ counts residual features per token; $L$
+counts complete blocks; $H_q$ and $H_{kv}$ count heads; and $F$ counts
+SwiGLU hidden features. The derived widths $d_h$ and $K$ count features, while
+$p$ and $P$ count learned scalars per block and per model.
+
+$C$ counts available token positions per row. $B$ is the nominal row count in
+one full-context forward accounting unit. A particular call may use fewer
+admitted rows or positions. $N$ is a declared training-token budget, separate
+from these tensor axes. Reference uses $B=16,N=2048$, bridge
+$B=8,N=65536$, laptop $B=1,N=20000000$, and production
+$B=1,N=15000000000000$. These budgets do not mean the chapter trains on those
+tokens.
+
+Later resource formulas use $b_{kv}$ for bytes per stored key/value element.
+The examples explicitly choose either two-byte accounting or eight-byte `f64`
+CPU storage. A byte count requires both the element count and this width.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="configurable-records-admission">
+
+## Let one checked plan control construction
+
+The semantic model record owns dimensions and capacity, vocabulary/tokenizer
+bindings, numerical policies, dtype and Chapter 6's initialization policy.
+The run record owns nominal rows, token budget, microbatch and accumulation,
+named initialization/shuffle/sampling seeds, topology and backend choices.
+Changing a run seed changes the run identity while the semantic identity stays
+the same. Changing capacity from $512$ to $128$ changes semantic identity
+while the parameter count stays $32514560$.
+
+The two identities use SHA-256 over the shared `ArtifactIdentity` framing.
+Its model domain is `decoder-model-v1`, its run domain `decoder-run-v1`, and
+its identity schema version is one. A `configuration` string holds the exact
+canonical model or run record, including its final line feed; the framed
+identity is itself canonically encoded before hashing.
+
+The accepted record encoding is compact UTF-8 JSON with recursively sorted object
+keys, preserved array order and one final line feed. Parsing is bounded to one
+MiB; strict typed objects reject duplicate or unknown fields. The parser also
+requires the decoded record to encode back to the exact input bytes, so it does
+not silently insert defaults or normalize a bound record.
+
+Dimensions and budgets use canonical unsigned integers. Resource arithmetic
+uses checked `u128` products, sums and alignment, followed by range checks for
+each output representation. RoPE base and RMSNorm epsilon are separate finite
+`f64` semantics whose exact bit patterns belong to identity; they do not supply
+floating-point approximations of resource counts. Dimensions must be positive,
+RoPE base positive and epsilon nonnegative. Zero seeds and zero epsilon remain
+allowed. No overflow, inexact division or resource limit is repaired by
+clamping a model.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/config/model.rs"
+  region="configurable-model-shapes" captionId="configurable-rust-shapes"
+  caption="Validate head grouping and derive the checked named tensor census shared by decoder planning and construction."
+  label="Rust source: checked decoder head shapes and parameter census" />
+
+Construction follows this order:
+
+1. Parse and validate the two records.
+2. Calculate the named tensor, state, activation, KV and communication plans.
+3. Compare execution support and every applicable profile limit.
+4. Admit the checked plan, then construct from that same plan.
+
+Only bounded parser and report metadata may be allocated before admission.
+Model, cache, optimizer and device arrays, and initialization draws, come after
+it. An invalid shape rejects during validation. A valid unequal-head model can
+be planned but refuses execution because GQA support is absent. A plan can
+also refuse because its demand exceeds a resource partition or required
+workspace is unknown. These outcomes answer different questions.
+
+Reference and bridge are the only executable profiles here. They initialize
+through the existing fresh-depth owner and use actual `f64` computation.
+The smoke record explicitly changes laptop capacity to $128$ and binds its own
+identity; it does not clamp the laptop record. Smoke, seed-sensitivity, core,
+adapter and production execution remain refused. Adapter additionally lacks a
+selected compatible artifact.
+
+The planner's `plan_decoder` function produces the complete resource report.
+The excerpt below shows `admit_decoder` returning its private admission token
+and `construct` consuming that token through the existing fresh initializer.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/config/planner.rs"
+  region="decoder-resource-plan" captionId="configurable-rust-plan"
+  caption="Admit the checked decoder plan, then delegate construction and bind its configuration and actual initialization identity."
+  label="Rust source: checked decoder admission and construction" />
+
+</div>
+
+<div id="configurable-private-core">
+
+## Send two text paths through one private core
+
+A checked configuration keeps model construction consistent. The input boundary
+must also preserve the existing text behavior. Ordinary full, padded and packed
+input performs text-token embedding lookup through one model-owned producer.
+Cached text performs its one-new-token lookup through the second. Both wrap the
+result in private `PreparedDecoderInput` and send it to one causal decoder
+core, which owns the block loop, final RMSNorm and tied vocabulary head.
+
+In a full prepared tensor of shape $[b,T,D]$, $b$ is the actual number of rows
+and $T$ the number of supplied positions per row; they fit the admitted row and
+position bounds. The carrier keeps checked batch metadata by reference for
+padded or packed input; ordinary and cached input carry their position and
+causal policies. Together these bind positions, implicit causal ranges,
+segment IDs, validity and loss eligibility, source provenance, semantic/run
+digests, dtype, device and construction identity without allocating a dense
+attention mask. The core checks these fields
+against the model before running any block. It also checks the original
+embedding handle's node and revision, then the actual parameter node identities
+and revisions, including the tied table.
+
+A matching digest describes matching bound bytes. It does not prove that a
+hidden tensor came from the model's lookup or that live parameters remain
+current. A same-shaped, equal-valued model with different nodes cannot use the
+first model's prepared input or cache. The private carrier offers no public raw
+embedding or modality entry point.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs"
+  region="prepared-text-input" captionId="configurable-rust-input"
+  caption="Bind private prepared text to its checked layout, configuration, construction provenance and actual parameter nodes."
+  label="Rust source: private prepared text input and live parameter binding" />
+
+Full execution propagates the caller's explicit `AutogradContext`. With
+recording enabled, it keeps the original lookup handle and graph, so repeated
+token IDs accumulate lookup and tied-head contributions into the same learned
+table. Cached inference selects `AutogradContext::no_grad()` before embedding
+lookup and passes that context through every child operation. Its logits are
+graph-free and existing training gradients stay unchanged. Sharing the core
+does not turn detached cached history into full-prefix training.
+
+Full packed input retains occurrence-local positions and causal ranges.
+Cached input retains its existing growing-prefix, one-new-token policy; it
+does not gain packed segment resets or ragged serving. Cache sessions keep
+their parameter guards, and every layer ticket plus the final output is checked
+before a token commits. A rejected token retains the preceding cache and work
+counters. If a later token fails during prefill, the whole prefill returns to
+empty logical cache and zero work while retaining physical capacity. Reset
+does not authorize stale parameter binding.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs"
+  region="shared-causal-decoder" captionId="configurable-rust-core"
+  caption="Consume ordinary and cached prepared text through the same decoder block loop, final norm and tied head."
+  label="Rust source: one causal decoder core for full and cached text" />
+
+The configured demo supplies full inputs `[0,99,100]` with targets
+`[99,100,1]` and cached prefill `[0,99]` followed by `100`. It initializes both
+supported profiles with seed `4701`. Its raw negative-log-likelihood sum adds
+the three selected target losses before division; the mean divides by $3$.
+Both reductions use the existing indexed-loss traversal. A nonfinite raw sum
+is refused, while the existing scaled mean path can still produce a finite
+mean. The earlier batch loss API, which multiplies the mean by valid-target
+count, stays unchanged.
+
+Separate compatibility comparisons retain
+the legacy reference seed `39` and bridge seed `4701`, including repeated
+inputs `[0,99,99]` with targets `[99,99,1]`. These are controlled valid token
+IDs, not a claim about a tokenizer's segmentation. Each path's before/after comparison covers its own
+logits, loss or cache, and work. Full-prefix versus cached-prefix comparison is
+forward only: it compares corresponding last-position logits, with absolute
+tolerance $10^{-10}$ plus relative tolerance $10^{-9}$ when operation order
+differs. It supplies no cached-gradient parity claim.
+
+</div>
+
+<div id="configurable-resource-accounting" class="lesson-body">
+
+## Keep counts, simultaneous storage and measurements separate
+
+### KV storage uses physical capacity
+
+A full-capacity KV cache reserves a key and a value in each block for every
+token position and row.
+With $b_{kv}$ bytes per element, the payload capacity is
+
+$$
+\operatorname{KV}_{bytes}=2BLC Kb_{kv}.
+$$
+
+The factor two counts keys and values. The formula uses key/value heads through
+$K$, rather than query heads. A prefix with fewer tokens still owns its reserved
+capacity, and a logical reset does not make its allocated bytes zero.
+
+### A MAC convention identifies the counted work
+
+A MAC is one multiply-accumulate pair. For one nominal full-context forward,
+matrix products contribute
+
+$$
+M_{\mathrm{linear}}=BC\,[L(2D^2+2DK+3DF)+DV].
+$$
+
+For ordinary unsegmented causal attention, permitted triangular score and
+value-mix entries add $BLDC(C+1)$. Materializing the full dense score and mix
+products adds $2BLDC^2$ instead:
+
+$$
+\begin{aligned}
+M_{\mathrm{causal}}&=M_{\mathrm{linear}}+BLDC(C+1),\\
+M_{\mathrm{dense}}&=M_{\mathrm{linear}}+2BLDC^2.
+\end{aligned}
+$$
+
+Neither convention counts RMSNorm, RoPE, softmax, activation, masking or other
+scalar operations. Twice a MAC count covers multiply/add arithmetic only,
+not a complete FLOP total or hardware instruction count. Packed segments change
+permitted edges, so this unsegmented causal formula is not their exact edge
+count. Counts also establish no execution time.
+
+<table id="configurable-forward-counts" tabindex="0" aria-labelledby="configurable-forward-counts-caption">
+  <caption id="configurable-forward-counts-caption">Calculated full-context forward counts at nominal rows: two-byte KV comparison and two MAC conventions; these are not measured memory or timing</caption>
+  <thead><tr><th scope="col">Scale</th><th scope="col">Nominal rows</th><th scope="col">KV payload bytes at two bytes per element</th><th scope="col">Causal MAC pairs</th><th scope="col">Dense MAC pairs</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Reference</th><td><samp>16</samp></td><td><samp>1024</samp></td><td><samp>76544</samp></td><td><samp>77312</samp></td></tr>
+    <tr><th scope="row">Bridge</th><td><samp>8</samp></td><td><samp>16384</samp></td><td><samp>1122304</samp></td><td><samp>1183744</samp></td></tr>
+    <tr><th scope="row">Laptop plan</th><td><samp>1</samp></td><td><samp>2097152</samp></td><td><samp>17718837248</samp></td><td><samp>18790481920</samp></td></tr>
+    <tr><th scope="row">Production plan</th><td><samp>1</samp></td><td><samp>10737418240</samp></td><td><samp>2981072375644160</samp></td><td><samp>3684738342584320</samp></td></tr>
+  </tbody>
+</table>
+
+The two-byte column is a common accounting comparison. Replacing its element
+width with eight-byte `f64` gives $4096$ and $65536$ bytes for reference and
+bridge at the same nominal row counts. Those are comparison calculations.
+The existing cache supports one row; the actual reference and bridge cache
+payload capacities are $256$ and $8192$ bytes at capacities four and sixteen,
+before overhead. The small executed comparisons also use one row. Production's two-byte KV
+alone is $10{,}737{,}418{,}240$ bytes, already greater than the laptop device
+envelope of $6{,}710{,}886{,}400$ bytes. That decisive refusal needs no model
+allocation.
+
+### State and lifetimes need allocation ownership
+
+Persistent state lists each unique buffer's element count, bytes per element
+and alignment. Count a master-weight copy only when it is a separate allocation,
+and round up each allocated buffer individually. Aliases such as the tied head
+own no second allocation. An illustrative state layout uses two-byte weights
+and four-byte master weights, gradients and two moment buffers: $18P$ bytes
+before alignment. The production subtotal is $1{,}251{,}016{,}851{,}456$
+bytes. These five named allocations are an accounting example, not the actual
+CPU footprint of every model or optimizer. Persistent storage also includes
+nonlearned RoPE inverse frequencies, cosine and sine tables. They change stored
+bytes without changing the learned parameter census or the illustrative $18P$
+subtotal. A tensor-parallel state ledger partitions declared matrix axes and
+keeps norm gains replicated; dividing the whole subtotal by rank count would
+miss that ownership. Batch layout metadata has its own byte ledger, separate
+from tensor payloads and runtime overhead. A profile's slack partition is a
+ceiling: the selected schedule's zero `slack_reserve_bytes` means no named
+allocation is reserved there. It does not turn unknown workspace into a zero
+demand.
+
+Peak storage depends on what is live at the same event. In a synthetic schedule,
+keep $64$ bytes of state, allocate A with $64$ bytes, then B with $128$ bytes
+while B needs $32$ bytes of workspace. Their joint peak is $288$ bytes.
+Release A before allocating B and the peak falls to $224$ bytes. An alias of B
+adds no owned bytes. These results test lifetime accounting; they do not measure
+the decoder's peak.
+
+Tracked full execution keeps forward tensors needed for backward and their
+adjoints. Untracked full execution retains inspectable forward tensors until
+its result is dropped, while omitting the recording graph and adjoints.
+Cached execution reserves one row, physical KV capacity and staged layer tickets
+until commit. The selected
+symbolic schedule enumerates these buffers and computes their simultaneous
+resident peak. Its declared workspace contributes at its own event to the
+combined symbolic peak. If an actual backend's required workspace is unknown,
+a complete execution peak cannot be asserted. The selected schedule remains
+distinct from an actual backend allocator bound. Unavailable GPU workspace stays `Unknown` and prevents
+execution admission; it is not a zero-byte allocation.
+
+The CPU host plan additionally reserves a named $32$ MiB runtime/metadata
+envelope and explicit tensor and scratch bounds. Compiled-child process RSS
+includes more than tensor payloads and must fit that host plan and the profile's
+$256$ MiB cap. These are different quantities from compiler memory, symbolic
+GPU storage and the toy liveness peak.
+
+### Communication counts sent bytes
+
+The local production TP8 forward fixture partitions compatible matrix axes
+across eight ranks and keeps norm gains replicated. A full residual payload
+has $32768\cdot8192=268435456$ elements. Eight ring chunks contain
+$33554432$ elements each. Reduce-scatter plus all-gather sends $2(8-1)=14$
+chunks per rank per event. Two events in each of $80$ blocks give $160$ events.
+At two bytes per element, this produces $939{,}524{,}096$ sent bytes per rank
+per event, $150{,}323{,}855{,}360$ per rank, and
+$1{,}202{,}590{,}842{,}880$ summed across all eight ranks.
+
+This is calculated forward traffic. It excludes backward collectives,
+optimizer communication and protocol headers, and establishes no bandwidth
+or distributed execution. Traffic is separate from resident state. Only
+communication buffers with their actual planned lifetimes enter the memory
+ledger. Single-device profiles have no communication events; an unsupported
+topology receives an error rather than a zero-traffic fallback.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="configurable-history">
+
+## History: model storage and training budgets are different choices
+
+A model-size description alone neither solves a device's storage constraint
+nor chooses how many training tokens to process.
+
+The [Megatron-LM abstract](https://arxiv.org/abs/1909.08053v4) describes an
+intra-layer model-parallel approach to large-Transformer memory constraints
+using communication operations; it does not validate the course's TP8 ledger.
+It motivates separating partitioned storage from communication. Our
+named-matrix TP8 ledger is a local arithmetic fixture; it does not reproduce
+Megatron-LM's implementation, cluster measurements or execution support.
+
+The [Chinchilla abstract](https://arxiv.org/abs/2203.15556v1) studies model
+size and training-token count together under a compute budget, keeping those
+choices distinct. This study does not establish optimality for the course's
+four scales. In our Rust comparison, changing only $N$ leaves the model's $P$
+unchanged and changes the run identity. This demonstrates distinct
+configuration responsibilities without transferring the paper's empirical
+training result to an untrained toy decoder. A per-forward MAC count alone
+does not determine total training compute or quality.
+
+A decoder configuration needs separate semantic dimensions, run budgets and
+topology-dependent resource accounting, with supported execution checked
+independently.
+
+<RustSource path="rust/demos/practical-ch07-configurable-decoder-core/src/lib.rs"
+  region="configurable-budget-history" captionId="configurable-rust-history"
+  caption="Compare local named-tensor partitions and sent traffic, then change a training-token budget while keeping the parameter census fixed."
+  label="Rust source: local topology and token-budget planning comparison" />
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="configurable-visualization">
+
+## Read the plan before either text path runs
+
+Follow the model and run records into one checked plan. The plan admits
+construction only when execution support and resource limits pass. Once
+admitted, ordinary and cached text producers feed the same private decoder
+core. The reference census and separate synthetic lifetime schedules explain
+what the accounting counts.
+
+<ConfigurableDecoderCoreDiagram labels={{
+  title: "One checked plan, two text paths, one decoder core",
+  description: "The semantic model record and run record enter shape validation and resource planning together. Construction occurs only after execution support and resource gates pass: reference and bridge use the CPU path, while laptop and production retain plans with execution refused. Ordinary full, padded or packed text lookup and cached one-token lookup then converge on the same private core. Parameter counts are calculated from the reference record; the two lifetime peaks are synthetic accounting results, not measured decoder memory.",
+  inputsTitle: "Two records enter planning",
+  modelRecord: "Semantic model record",
+  modelNote: "Dimensions, capacity, numerical policies, vocabulary, dtype and initialization identity",
+  runRecord: "Run record",
+  runNote: "Rows, token budget, named seeds, topology, backend and resource profile",
+  modelDigest: "Reference semantic model SHA-256",
+  runDigest: "Reference run SHA-256",
+  digestNote: "The semantic-model and run-record identities shown identify the reference plan. Matching record digests do not replace actual parameter-node and revision checks in the private core.",
+  checksTitle: "Validate, plan, then admit",
+  checksNote: "One checked shape descriptor determines the tensor census and resource ledgers. Execution support and every applicable resource limit are checked before construction.",
+  executeTitle: "Admitted CPU construction",
+  executeNote: "Reference and bridge pass the supported CPU gates. The admitted plan supplies construction before ordinary or cached text runs.",
+  refuseTitle: "Plan with execution refused",
+  refuseNote: "Laptop and production retain known accounting. Missing GQA or GPU support, exceeded limits or Unknown actual workspace prevent construction.",
+  censusTitle: "Reference parameter census",
+  censusNote: "Calculated unique learned scalars; the tied vocabulary head shares the embedding allocation.",
+  embedding: "Embedding and tied head",
+  attention: "All attention matrices",
+  feedForward: "All feed-forward matrices",
+  norms: "All norm gains",
+  total: "Total unique learned scalars",
+  textPathsTitle: "Two model-owned text producers converge",
+  ordinaryTitle: "Ordinary text producer",
+  ordinaryNote: "Full, padded and packed token lookup preserves the caller's context; recording keeps the original embedding graph.",
+  cachedTitle: "Cached text producer",
+  cachedNote: "No-gradient mode is selected before one-token lookup; the cached producer preserves the growing-prefix binding.",
+  coreTitle: "One private causal decoder core",
+  coreNote: "Validate the original lookup tensor, prepared metadata and actual parameter nodes/revisions, then use one block loop, final RMSNorm and tied text head.",
+  livenessTitle: "Separate synthetic lifetime schedules",
+  livenessNote: "Both schedules keep 64 bytes of state and use B with 128 bytes plus 32 bytes of workspace. Aliasing B adds no owned allocation.",
+  overlap: "A's 64 bytes remain live while B runs: joint peak in bytes",
+  released: "Release A's 64 bytes before B runs: joint peak in bytes"
+}} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="configurable-practice">
+
+## Optional practice: inspect the same plans and boundaries
+
+Run the chapter demo from the repository root with Docker running. The launcher
+builds its workspace image as setup, then runs this CPU demo with locked offline
+Cargo and container networking disabled. Supplied fixtures require no corpus or
+model download. A successful default run emits a concise JSON report of totals,
+configuration records, profiles and refusal reasons, including the two supported
+CPU observations. The counts are calculated; the CPU observations come from the
+supplied forward, backward and cached calls.
+
+```bash
+./course run cargo run --offline --locked -p practical-ch07-configurable-decoder-core
+```
+
+To inspect the same fixtures' named tensor, allocation and lifetime-event
+ledgers, use the trace option from the same repository root and Docker setup.
+It prints the complete JSON ledger rather than the concise report:
+
+```bash
+./course run cargo run --offline --locked -p practical-ch07-configurable-decoder-core -- --trace
+```
+
+<RustSource path="rust/demos/practical-ch07-configurable-decoder-core/src/main.rs"
+  region="configurable-decoder-example" captionId="configurable-rust-demo"
+  caption="Print decoder totals, refusals and supported CPU observations; use --trace for the same fixtures' complete accounting ledgers."
+  label="Rust source: configurable decoder report and trace output" />
+
+<ol id="configurable-practice-prompts">
+  <li id="configurable-practice-1">Inspect the reference census. Explain why its tied head gives 1,188 learned scalars and how a hypothetical separate head would change that count.</li>
+  <li id="configurable-practice-2">For the laptop plan, hold every model field fixed except key/value heads, changing two to one. Reproduce the changed key/value width, parameter count and two-byte KV capacity. Identify the categories that stay unchanged.</li>
+  <li id="configurable-practice-3">Reproduce the byte excess when production KV alone is compared with the laptop device envelope. Explain why this is enough to refuse that allocation.</li>
+  <li id="configurable-practice-4">Inspect the two synthetic lifetime schedules. Explain the 288-byte and 224-byte joint peaks and the effect of aliasing B.</li>
+  <li id="configurable-practice-5">Reproduce TP8's 14 sent chunks per rank/event and 160 forward events. Distinguish the sent-byte totals for one rank and all ranks.</li>
+  <li id="configurable-practice-6">Inspect a run-seed or token-budget change, then the explicit laptop capacity change from 512 to 128. Explain which identity changes and why the learned parameter census stays fixed.</li>
+  <li id="configurable-practice-7">Explain admission for a 100-byte limit with 64 bytes of known state and Unknown required workspace. Relate this case to the distinction between complete symbolic accounting and actual GPU readiness.</li>
+</ol>
+
+<details id="configurable-practice-answers">
+<summary id="configurable-practice-answer-summary">Checked explanations for tied storage, KV changes, refusal, lifetimes, traffic and configuration identities</summary>
+
+<ol>
+  <li id="configurable-answer-1">The reference embedding contains <InlineMath latex="1064" /> learned scalars, attention matrices <InlineMath latex="64" />, feed-forward matrices <InlineMath latex="48" /> and norm gains <InlineMath latex="12" />: <InlineMath latex="1064+64+48+12=1188" /> in total. The transpose head aliases the embedding. An independent head would add <InlineMath latex="1064" />, giving <InlineMath latex="2252" /> and changing the architecture.</li>
+  <li id="configurable-answer-2">For the laptop plan, head width stays <InlineMath latex="512/8=64" /> features; key/value width changes from <InlineMath latex="2\cdot64=128" /> to <InlineMath latex="64" />. K/V projection scalars fall by <InlineMath latex="2\cdot8\cdot512\cdot64=524288" />, giving <InlineMath latex="31990272" /> unique parameters. Two-byte KV capacity halves from <InlineMath latex="2097152" /> to <InlineMath latex="1048576" /> bytes. Q/output, embedding, feed-forward and norm scalars stay fixed; the whole model and all MAC terms do not halve.</li>
+  <li id="configurable-answer-3">Production KV payload minus the laptop device envelope is <InlineMath latex="10737418240-6710886400=4026531840" /> bytes. KV capacity alone exceeds the envelope, before weights or activations. Refusal precedes allocation; no out-of-memory attempt or assumption about unknown workspace is needed.</li>
+  <li id="configurable-answer-4">The synthetic overlap schedule keeps state with <InlineMath latex="64" /> bytes, A with <InlineMath latex="64" />, B with <InlineMath latex="128" /> and B's workspace with <InlineMath latex="32" />: <InlineMath latex="64+64+128+32=288" /> bytes together. Releasing A before B runs gives <InlineMath latex="64+128+32=224" /> bytes. A B alias adds zero owned bytes. Peak accounting takes simultaneous lifetimes and workspace; adding independently maximized categories can misstate that relationship.</li>
+  <li id="configurable-answer-5">In this TP8 forward ring fixture, reduce-scatter and all-gather each send <InlineMath latex="8-1" /> chunks per rank, giving <InlineMath latex="14" /> per event. Two events per block over <InlineMath latex="80" /> blocks give <InlineMath latex="160" />. Each message has <InlineMath latex="33554432" /> elements at two bytes each. The totals are <InlineMath latex="150{,}323{,}855{,}360" /> sent bytes per rank and <InlineMath latex="1{,}202{,}590{,}842{,}880" /> summed across eight ranks; they are calculated traffic, not resident memory or measured bandwidth.</li>
+  <li id="configurable-answer-6">A run seed or training-token budget <InlineMath latex="N" /> belongs to the run record: changing it changes that digest, while the semantic digest and learned census <InlineMath latex="P" /> stay fixed. Position capacity belongs to the semantic record: changing <InlineMath latex="512" /> to <InlineMath latex="128" /> token positions per row changes its digest. RoPE owns no learned position table here, so the change leaves <InlineMath latex="P=32514560" />. The smoke record is explicit rather than a clamped laptop input.</li>
+  <li id="configurable-answer-7">A <InlineMath latex="100" />-byte limit with <InlineMath latex="64" /> bytes of state leaves <InlineMath latex="36" /> bytes, but that remainder does not tell us the required workspace. Preserve <code>Unknown</code> and refuse until an actual backend descriptor supplies a defensible demand or enforced bound. A complete symbolic schedule can supply a calculation under its assumptions while actual GPU readiness remains unestablished.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="configurable-handoff">
+
+## Carry the checked core into stochastic execution
+
+One checked configuration now connects dimension choices to planning and
+admitted construction. One private text core preserves the occurrence-local
+attention, positions and valid-target loss from Chapter 5 and the construction
+policy from Chapter 6. Chapter 8 adds optional dropout with its own
+reproducibility streams. Unequal-head GQA execution, GPU and distributed
+backends, adapter selection and trained-checkpoint serialization remain later
+capabilities.
+
+</div>

@@ -58,6 +58,36 @@ function temporary(t) {
   t.after(() => rmSync(path, { recursive: true, force: true }));
   return path;
 }
+
+test('HTML practice tasks require a matching checked answer for each item', () => {
+  const id = '07-configurable-decoder-core';
+  const current = source(practical, id);
+  assert.doesNotThrow(() => lesson(practical, id, current));
+  const missingAnswer = current.replace(
+    /<li id="configurable-answer-7">[\s\S]*?<\/li>/,
+    '',
+  );
+  assert.notEqual(missingAnswer, current);
+  assert.throws(
+    () => lesson(practical, id, missingAnswer),
+    /checked answers must contain one substantive ordered answer per practice task/,
+  );
+});
+
+test('Visible history link labels retain the independent source destination gate', () => {
+  const id = '07-configurable-decoder-core';
+  const current = source(practical, id);
+  assert.doesNotThrow(() => lesson(practical, id, current));
+  const missingSource = current.replace(
+    '[Chinchilla abstract](https://arxiv.org/abs/2203.15556v1)',
+    'Chinchilla abstract',
+  );
+  assert.notEqual(missingSource, current);
+  assert.throws(
+    () => lesson(practical, id, missingSource),
+    /history section must cite declared LLM-evolution source https:\/\/arxiv.org\/abs\/2203\.15556v1/,
+  );
+});
 function write(path, relative, value) {
   mkdirSync(join(path, relative, '..'), { recursive: true });
   writeFileSync(join(path, relative), value);
@@ -231,7 +261,7 @@ test('default and practical contract selectors enumerate their separate current 
   assert.equal(firstResults.results.length, 40);
   assert.equal(firstResults.results.every(result => result.parsed.data.order <= 39), true);
   const practicalResults = runChapterContractCheck(['--course', practical.id, '--structure-only'], root);
-  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder'];
+  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core'];
   assert.deepEqual(practicalResults.results.map(result => result.parsed.data.chapter_id), currentPracticalIds);
   assert.equal(runFunctionalContractCheck(['--structure-only'], root).length, 40);
   assert.equal(runFunctionalContractCheck(['--course', practical.id, '--structure-only'], root).length, currentPracticalIds.length);
@@ -385,6 +415,8 @@ test('practical term anchors are opt-in for the exact new chapter and preserve t
     wrapper.replace('packed-sequence-term', 'another-packed-term'),
     wrapper.replace('06-depth-stable-decoder', '03-scalable-bpe-tokenizer'),
     wrapper.replace('depth-stable-term', 'another-depth-term'),
+    wrapper.replace('07-configurable-decoder-core', '03-scalable-bpe-tokenizer'),
+    wrapper.replace('configurable-decoder-term', 'another-configurable-term'),
     wrapper.replace(" : undefined}", " : Astro.props.entry.data.chapter_id === '06-unowned' ? 'unowned-term' : undefined}"),
     wrapper.replace(" : undefined}", " : 'padded-variable-term'}"),
     wrapper.replace('Astro.props.entry.data.chapter_id', 'entry.data.chapter_id'),

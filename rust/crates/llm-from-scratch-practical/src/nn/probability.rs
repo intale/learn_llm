@@ -15,21 +15,41 @@ pub enum ProbabilityError {
     /// A tensor-view error was converted into the probability error type.
     View(TensorViewError),
     /// The requested class axis does not exist.
-    AxisOutOfBounds { axis: usize, rank: usize },
+    AxisOutOfBounds {
+        axis: usize,
+        rank: usize,
+    },
     /// Softmax, log-softmax, and indexed NLL need at least one class.
-    EmptyNormalizationAxis { axis: usize },
+    EmptyNormalizationAxis {
+        axis: usize,
+    },
     /// The checked output shape is valid, but its value buffer cannot be reserved.
-    OutputAllocationFailed { elements: usize },
+    OutputAllocationFailed {
+        elements: usize,
+    },
     /// The first rejected logit in group-major, class-minor order is NaN.
-    NaNLogit { group: usize, class: usize },
+    NaNLogit {
+        group: usize,
+        class: usize,
+    },
     /// The first rejected logit in group-major, class-minor order is positive infinity.
-    PositiveInfinityLogit { group: usize, class: usize },
+    PositiveInfinityLogit {
+        group: usize,
+        class: usize,
+    },
     /// The first rejected logit in group-major, class-minor order is negative infinity.
-    NegativeInfinityLogit { group: usize, class: usize },
+    NegativeInfinityLogit {
+        group: usize,
+        class: usize,
+    },
     /// There must be one flat target for every class-axis group.
-    TargetCountMismatch { expected: usize, actual: usize },
+    TargetCountMismatch {
+        expected: usize,
+        actual: usize,
+    },
     /// A mean is undefined when there are no target groups.
     EmptyTargets,
+    LossSumOverflow,
     /// One target does not name a class on the selected axis.
     TargetOutOfBounds {
         group: usize,
@@ -72,6 +92,9 @@ impl fmt::Display for ProbabilityError {
                 "indexed mean NLL needs {expected} targets, but received {actual}"
             ),
             Self::EmptyTargets => formatter.write_str("indexed mean NLL needs at least one target"),
+            Self::LossSumOverflow => {
+                formatter.write_str("indexed NLL sum is not representable as finite f64")
+            }
             Self::TargetOutOfBounds {
                 group,
                 target,
@@ -322,6 +345,7 @@ pub(crate) struct LogSoftmaxForward {
 #[derive(Debug)]
 pub(crate) struct IndexedMeanNllForward {
     pub(crate) loss: f64,
+    pub(crate) loss_sum: Option<f64>,
     pub(crate) probabilities: Option<Tensor>,
 }
 
@@ -599,10 +623,22 @@ pub(crate) fn indexed_mean_nll_forward(
         .transpose()?;
     Ok(IndexedMeanNllForward {
         loss,
+        loss_sum: (!needs_scaled_fallback).then(|| positive_zero(total)),
         probabilities,
     })
 }
 // endregion:stable-probability-operations
+
+/// Reuses the indexed traversal's accumulated sum, before mean division.
+pub fn indexed_sum_nll(
+    logits: &TensorView<'_>,
+    axis: usize,
+    targets: &[usize],
+) -> Result<f64, ProbabilityError> {
+    indexed_mean_nll_forward(logits, axis, targets, false)?
+        .loss_sum
+        .ok_or(ProbabilityError::LossSumOverflow)
+}
 
 #[cfg(test)]
 mod tests {

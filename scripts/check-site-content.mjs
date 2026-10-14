@@ -387,7 +387,11 @@ function sliceChapterSections(body) {
 }
 
 function visibleSectionEvidence(section) {
-  return section
+  let visible = section;
+  for (const link of directMarkdownLinks(section)) {
+    visible = visible.replace(link.source, link.label);
+  }
+  return visible
     .replace(/^\s*##[^\n]*$/m, '')
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
     .replace(/<[^>]+>/g, ' ')
@@ -402,11 +406,7 @@ function normalizedFormula(value) {
 }
 
 function directMarkdownLinkDestinations(source) {
-  const destinations = [];
-  const markdownLinks = /(?<!!)\[[^\]\n]+\]\(\s*(?:<([^>\n]+)>|([^\s)\n]+))(?:\s+["'][^"'\n]*["'])?\s*\)/g;
-  for (const match of source.matchAll(markdownLinks)) {
-    destinations.push(match[1] ?? match[2]);
-  }
+  const destinations = directMarkdownLinks(source).map(link => link.destination);
   for (const match of source.matchAll(/<(https:\/\/[^>\s]+)>/g)) {
     destinations.push(match[1]);
   }
@@ -415,6 +415,41 @@ function directMarkdownLinkDestinations(source) {
       .map((destination) => canonicalSourceUrl(destination))
       .filter((destination) => destination !== null),
   );
+}
+
+function directMarkdownLinks(source) {
+  const markdownLinks = /(?<!!)\[([^\]\n]+)\]\(\s*(?:<([^>\n]+)>|([^\s)\n]+))(?:\s+["'][^"'\n]*["'])?\s*\)/g;
+  return [...source.matchAll(markdownLinks)].map(match => ({
+    source: match[0],
+    label: match[1],
+    destination: match[2] ?? match[3],
+  }));
+}
+
+function orderedPracticeTaskEvidence(source) {
+  const markdownCount = [...source.matchAll(/^\s*\d+\.\s+\S/gm)].length;
+  let htmlCount = 0;
+  if (/<ol(?:\s|>)/i.test(source)) {
+    const parsed = parseAstro(source);
+    const visit = (node) => {
+      if (node.type === 'element' && node.name === 'ol') {
+        htmlCount += node.children.filter((child) =>
+          child.type === 'element' && child.name === 'li' &&
+          visibleSectionEvidence(source.slice(
+            child.position.start.offset,
+            child.position.end.offset,
+          )).length > 0,
+        ).length;
+        return;
+      }
+      for (const child of node.children ?? []) visit(child);
+    };
+    visit(parsed.ast);
+  }
+  return {
+    count: markdownCount + htmlCount,
+    hasOrderedStart: /^\s*1\.\s+\S/m.test(source) || htmlCount > 0,
+  };
 }
 
 function validateChapterSections(data, body, issues, sourceName, course) {
@@ -526,8 +561,9 @@ function validateChapterSections(data, body, issues, sourceName, course) {
     const predictionPrompts =
       answerStart === -1 ? exercises : exercises.slice(0, answerStart);
     const checkedAnswers = answerStart === -1 ? '' : exercises.slice(answerStart);
-    const predictionCount = [...predictionPrompts.matchAll(/^\s*\d+\.\s+\S/gm)].length;
-    if (!/^\s*1\.\s+\S/m.test(predictionPrompts)) {
+    const practiceTasks = orderedPracticeTaskEvidence(predictionPrompts);
+    const predictionCount = practiceTasks.count;
+    if (!practiceTasks.hasOrderedStart) {
       issues.push(sourceName + ': exercises section must contain an ordered practice-task list');
     }
     const answerBlock = checkedAnswers.match(
@@ -536,7 +572,7 @@ function validateChapterSections(data, body, issues, sourceName, course) {
     if (!answerBlock) {
       issues.push(sourceName + ': exercises section must contain checked answers in <details>');
     } else {
-      const answerCount = [...answerBlock[1].matchAll(/^\s*\d+\.\s+\S/gm)].length;
+      const answerCount = orderedPracticeTaskEvidence(answerBlock[1]).count;
       if (
         visibleSectionEvidence(answerBlock[1]).length < 40 ||
         answerCount !== predictionCount
@@ -1647,7 +1683,7 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
   }
   const termAnchor = extras.find(attribute => attribute.name === 'cheatSheetTermIdPrefix');
   if (termAnchor) {
-    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the declared Chapter4/5/6 term-anchor conditionals']); };
+    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the declared Chapter4/5/6/7 term-anchor conditionals']); };
     if (termAnchor.type !== 'attribute' || termAnchor.kind !== 'expression' ||
         typeof termAnchor.value !== 'string') reject();
     const anchorProgram = ts.createSourceFile(sourceName + '.term-anchor.ts', `(${termAnchor.value});`,
@@ -1659,7 +1695,8 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
         !conditional || !ts.isConditionalExpression(conditional)) reject();
     const pairs = [['04-padded-variable-batches', 'padded-variable-term'],
       ['05-packed-sequence-masks', 'packed-sequence-term'],
-      ['06-depth-stable-decoder', 'depth-stable-term']];
+      ['06-depth-stable-decoder', 'depth-stable-term'],
+      ['07-configurable-decoder-core', 'configurable-decoder-term']];
     let branch = conditional;
     for (const [chapterId, prefix] of pairs) {
       if (!ts.isConditionalExpression(branch) || !ts.isBinaryExpression(branch.condition) ||

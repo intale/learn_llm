@@ -19,6 +19,19 @@ pub const MAX_VALUE_BYTES: usize = 65_536;
 pub const MAX_INPUT_BYTES: usize = 262_144;
 pub const MAX_ENCODED_BYTES: usize = 2_097_152;
 
+/// Shared compact JSON framing: recursively sorted object keys and one LF.
+/// Typed callers reject duplicates before encoding. The accepted default
+/// serde_json Map is a BTreeMap; array order remains unchanged.
+pub fn canonical_json_bytes<T: Serialize>(value: &T) -> Result<Vec<u8>, IdentityError> {
+    let value = serde_json::to_value(value).map_err(|_| IdentityError::Serialization)?;
+    let mut bytes = serde_json::to_vec(&value).map_err(|_| IdentityError::Serialization)?;
+    bytes.push(b'\n');
+    if bytes.len() > MAX_ENCODED_BYTES {
+        return Err(IdentityError::EncodedTooLarge);
+    }
+    Ok(bytes)
+}
+
 /// Immutable identity fields; a caller still owns domain-specific requirements.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ArtifactIdentity {
@@ -179,17 +192,11 @@ impl ArtifactIdentity {
     }
 
     pub fn canonical_bytes(&self) -> Result<Vec<u8>, IdentityError> {
-        let mut bytes = serde_json::to_vec(&WireIdentity {
+        canonical_json_bytes(&WireIdentity {
             domain: &self.domain,
             fields: &self.fields,
             schema_version: IDENTITY_SCHEMA_VERSION,
         })
-        .map_err(|_| IdentityError::Serialization)?;
-        bytes.push(b'\n');
-        if bytes.len() > MAX_ENCODED_BYTES {
-            return Err(IdentityError::EncodedTooLarge);
-        }
-        Ok(bytes)
     }
 
     /// Accept only exact v1 bytes, not semantically similar JSON or last-key-wins.

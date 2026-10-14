@@ -75,6 +75,7 @@ pub enum TensorOperation {
     CausalSoftmax,
     RotaryPairs,
     IndexedMeanNll,
+    IndexedSumNll,
 }
 
 impl TensorOperation {
@@ -100,6 +101,7 @@ impl TensorOperation {
             Self::CausalSoftmax => "causal_softmax",
             Self::RotaryPairs => "rotary_pairs",
             Self::IndexedMeanNll => "indexed_mean_nll",
+            Self::IndexedSumNll => "indexed_sum_nll",
         }
     }
 

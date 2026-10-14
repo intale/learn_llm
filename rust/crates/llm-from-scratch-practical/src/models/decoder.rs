@@ -1,7 +1,13 @@
 //! A complete bias-free decoder language model with a tied vocabulary head.
 
+use std::cell::RefCell;
 use std::error::Error;
 use std::fmt;
+
+use super::{
+    causal_decoder_core::{self, CoreError},
+    prepared_decoder_input::{CoreIdentity, PreparedDecoderInput},
+};
 
 use crate::attention::multi_head::{MultiHeadAttention, MultiHeadAttentionError};
 use crate::attention::qkv::{QkvError, QkvProjection};
@@ -59,7 +65,7 @@ impl From<VariableBatchError> for PaddedDecoderError {
     }
 }
 
-const BLOCK_PARAMETER_SUFFIXES: [&str; 9] = [
+pub(crate) const BLOCK_PARAMETER_SUFFIXES: [&str; 9] = [
     "attention_norm.gain",
     "attention.query.weight",
     "attention.key.weight",
@@ -134,6 +140,9 @@ pub enum DecoderModelError {
         tensors: usize,
     },
     ParameterScalarCountOverflow,
+    PreparedInput {
+        reason: &'static str,
+    },
     ResidualSiteOutOfBounds {
         site: usize,
         site_count: usize,
@@ -243,6 +252,7 @@ pub enum DecoderModelError {
 impl fmt::Display for DecoderModelError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::PreparedInput { reason } => write!(formatter, "prepared decoder input: {reason}"),
             Self::EmptyVocabulary => {
                 formatter.write_str("decoder vocabulary must contain at least one token")
             }
@@ -537,19 +547,18 @@ impl DecoderModelConfig {
     /// Counts this owner's bias-free equal-head matrices without allocating them.
     pub fn checked_parameter_count(self) -> Result<usize, DecoderModelError> {
         validate_config(self)?;
-        let checked = || -> Option<usize> {
-            let d = self.model_width;
-            let attention = d.checked_mul(d)?.checked_mul(4)?;
-            let feed_forward = d.checked_mul(self.feed_forward_width)?.checked_mul(3)?;
-            let per_block = attention
-                .checked_add(feed_forward)?
-                .checked_add(d.checked_mul(2)?)?;
-            self.vocabulary_size
-                .checked_mul(d)?
-                .checked_add(self.layers.checked_mul(per_block)?)?
-                .checked_add(d)
+        let shape = crate::config::model::DecoderShape {
+            v: self.vocabulary_size as u128,
+            d: self.model_width as u128,
+            l: self.layers as u128,
+            hq: self.heads as u128,
+            hkv: self.heads as u128,
+            f: self.feed_forward_width as u128,
         };
-        checked().ok_or(DecoderModelError::ParameterScalarCountOverflow)
+        let census = shape
+            .census()
+            .map_err(|_| DecoderModelError::ParameterScalarCountOverflow)?;
+        usize::try_from(census.total).map_err(|_| DecoderModelError::ParameterScalarCountOverflow)
     }
 }
 
@@ -642,6 +651,7 @@ pub struct DecoderModel {
     blocks: Vec<DecoderBlock>,
     final_norm: RmsNorm,
     parameters: NamedParameters,
+    execution_identity: RefCell<Option<CoreIdentity>>,
 }
 
 impl DecoderModel {
@@ -867,6 +877,7 @@ impl DecoderModel {
             blocks,
             final_norm,
             parameters,
+            execution_identity: RefCell::new(None),
         })
     }
 
@@ -891,7 +902,7 @@ impl DecoderModel {
             .embedding
             .forward_with_context(context, token_ids, token_shape)
             .map_err(DecoderModelError::Embedding)?;
-        self.forward_from_embedding(context, embedding, None, None, None)
+        self.forward_prepared_text(context, embedding, None)
     }
 
     // region:padded-decoder-entry
@@ -928,16 +939,33 @@ impl DecoderModel {
             .embedding
             .forward_padded_with_context(context, batch.inputs(), &batch.shape())
             .map_err(DecoderModelError::Embedding)?;
-        Ok(self.forward_from_embedding(
-            context,
-            embedding,
-            Some(batch.lengths()),
-            Some(batch.range_starts()),
-            Some(batch.positions()),
-        )?)
+        Ok(self.forward_prepared_text(context, embedding, Some(batch))?)
     }
     // endregion:padded-decoder-entry
 
+    fn forward_prepared_text(
+        &self,
+        context: AutogradContext,
+        embedding: TensorValue,
+        batch: Option<&VariableBatch>,
+    ) -> Result<DecoderModelForward, DecoderModelError> {
+        let input = PreparedDecoderInput::full(self, context, embedding.clone(), batch);
+        let forward = causal_decoder_core::consume(self, input).map_err(|e| match e {
+            CoreError::Full(e) => e,
+            CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
+            CoreError::Cached(_) => unreachable!("ordinary text mode"),
+        })?;
+        Ok(DecoderModelForward {
+            embedding,
+            blocks: forward.blocks,
+            final_norm: forward.final_norm,
+            logits: forward.logits,
+        })
+    }
+
+    /// Existing padding diagnostics keep their private test-only entry point.
+    /// It reaches the same engine without adding a production text producer.
+    #[cfg(test)]
     fn forward_from_embedding(
         &self,
         context: AutogradContext,
@@ -957,63 +985,143 @@ impl DecoderModel {
     }
 
     /// The same downstream computation serves full forward and bounded diagnostics.
+    #[cfg(test)]
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     fn forward_residual_tail(
         &self,
         context: AutogradContext,
-        mut current: TensorValue,
+        current: TensorValue,
         first_site: usize,
         lengths: Option<&[usize]>,
         starts: Option<&[usize]>,
         positions: Option<&[usize]>,
     ) -> Result<(Vec<DecoderBlockForward>, RmsNormForward, TensorValue), DecoderModelError> {
-        let site_count = 2 * self.blocks.len() + 1;
-        if first_site >= site_count {
-            return Err(DecoderModelError::ResidualSiteOutOfBounds {
-                site: first_site,
-                site_count,
+        let f = causal_decoder_core::residual_tail(
+            self,
+            context,
+            current,
+            first_site,
+            causal_decoder_core::FullLayout {
+                lengths,
+                starts,
+                positions,
+            },
+        )?;
+        Ok((f.blocks, f.final_norm, f.logits))
+    }
+
+    #[allow(clippy::type_complexity)]
+    pub(crate) fn forward_cached_text_token(
+        &self,
+        token_id: u32,
+        layers: &[crate::attention::incremental::LayerKvCache],
+        prefix: usize,
+    ) -> Result<
+        (
+            TensorValue,
+            Vec<crate::attention::incremental::PreparedIncrementalAttention>,
+            usize,
+        ),
+        crate::generation::kv_cache::DecoderKvCacheError,
+    > {
+        use crate::generation::kv_cache::DecoderKvCacheError;
+        // Mode is selected before lookup; it never changes ambient graph policy.
+        let context = AutogradContext::no_grad();
+        let embedding = self
+            .embedding
+            .forward_with_context(context, &[token_id], &[1, 1])
+            .map_err(DecoderKvCacheError::Embedding)?;
+        let input = PreparedDecoderInput::cached(self, embedding, layers, prefix);
+        let f = causal_decoder_core::consume(self, input).map_err(|e| match e {
+            CoreError::Cached(e) => e,
+            CoreError::Prepared(reason) => DecoderKvCacheError::PreparedInput { reason },
+            CoreError::Full(_) => unreachable!("cached text mode"),
+        })?;
+        Ok((f.logits, f.tickets, f.score_values))
+    }
+
+    pub(crate) fn bind_execution_identity(
+        &self,
+        semantic_sha256: String,
+        run_sha256: String,
+        construction_id: String,
+        max_rows: usize,
+    ) -> Result<(), DecoderModelError> {
+        let mut slot = self.execution_identity.borrow_mut();
+        if slot.is_some() || max_rows == 0 {
+            return Err(DecoderModelError::PreparedInput {
+                reason: "execution identity already bound or zero row limit",
             });
         }
-        let mut first_layer = first_site / 2;
-        if first_site % 2 == 1 {
-            current = self.blocks[first_layer]
-                .forward_feed_forward_path(context, &current)
-                .map_err(|source| DecoderModelError::Block {
-                    layer: first_layer,
-                    source,
-                })?
-                .2;
-            first_layer += 1;
+        *slot = Some(CoreIdentity {
+            semantic_sha256,
+            run_sha256,
+            construction_id,
+            max_rows,
+        });
+        Ok(())
+    }
+    pub(super) fn input_identity(
+        &self,
+        b: usize,
+        t: usize,
+        context: AutogradContext,
+    ) -> CoreIdentity {
+        if let Some(id) = self.execution_identity.borrow().as_ref() {
+            return id.clone();
         }
-        let mut block_forwards = Vec::new();
-        block_forwards
-            .try_reserve_exact(self.blocks.len() - first_layer)
-            .map_err(|_| DecoderModelError::LayerAllocationFailed {
-                layers: self.blocks.len(),
-            })?;
-        for (layer, block) in self.blocks.iter().enumerate().skip(first_layer) {
-            let forward = block
-                .forward_with_layout(context, &current, 0, lengths, starts, positions)
-                .map_err(|source| DecoderModelError::Block { layer, source })?;
-            current = forward.output().clone();
-            block_forwards.push(forward);
+        // Legacy entry points have no persisted run/artifact receipt. Their
+        // descriptive identities never replace the actual live node bindings.
+        let c = self.config;
+        let values = [
+            c.vocabulary_size,
+            c.model_width,
+            c.layers,
+            c.heads,
+            c.feed_forward_width,
+            c.max_positions,
+        ]
+        .map(|v| v.to_string());
+        let rope = format!("{:016x}", c.rope_base.to_bits());
+        let epsilon = format!("{:016x}", c.rms_epsilon.to_bits());
+        let semantic = crate::artifact_identity::ArtifactIdentity::new(
+            "legacy-decoder-semantic-v1",
+            [
+                ("v", values[0].as_str()),
+                ("d", values[1].as_str()),
+                ("l", values[2].as_str()),
+                ("heads", values[3].as_str()),
+                ("f", values[4].as_str()),
+                ("c", values[5].as_str()),
+                ("rope-bits", rope.as_str()),
+                ("epsilon-bits", epsilon.as_str()),
+            ],
+        )
+        .and_then(|v| v.digest())
+        .expect("validated bounded legacy dimensions");
+        let rows = b.to_string();
+        let tokens = t.to_string();
+        let mode = if context.records_graph() {
+            "recording"
+        } else {
+            "no-grad"
+        };
+        let run = crate::artifact_identity::ArtifactIdentity::new(
+            "legacy-decoder-entry-v1",
+            [
+                ("rows", rows.as_str()),
+                ("tokens", tokens.as_str()),
+                ("mode", mode),
+            ],
+        )
+        .and_then(|v| v.digest())
+        .expect("bounded entry metadata");
+        CoreIdentity {
+            semantic_sha256: semantic.to_string(),
+            run_sha256: run.to_string(),
+            construction_id: "legacy-live-nodes-no-artifact".into(),
+            max_rows: usize::MAX,
         }
-        let final_norm = self
-            .final_norm
-            .forward_with_intermediates_and_context(context, &current)
-            .map_err(DecoderModelError::FinalNorm)?;
-        let tied_weight = self
-            .embedding
-            .table()
-            .tensor()
-            .transpose_with_context(context, 0, 1)
-            .map_err(autodiff_error(DecoderModelStage::TiedWeightTranspose))?;
-        let logits = final_norm
-            .output()
-            .matmul_with_context(context, &tied_weight)
-            .map_err(autodiff_error(DecoderModelStage::TiedVocabularyProjection))?;
-
-        Ok((block_forwards, final_norm, logits))
     }
 
     /// Computes one mean next-token loss over the vocabulary axis.

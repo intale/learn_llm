@@ -1,0 +1,18 @@
+{
+  "chapter_id":"07-configurable-decoder-core",
+  "locale":"en",
+  "title":"Decoder configuration and resource plans",
+  "description":"Terms for keeping decoder dimensions, execution budgets, unique storage, live buffers and communication traffic distinct.",
+  "terms":[
+    {"term":"Semantic model configuration","definition":"The record that fixes this decoder's dimensions, position capacity, vocabulary and tokenizer bindings, numerical policies, dtype and initialization policy. Changing capacity changes its identity even when the learned parameter count stays the same."},
+    {"term":"Run configuration","definition":"The record of nominal rows, training-token budget, microbatch and accumulation limits, named seeds, topology and backend choices. Changing a run seed or token budget leaves the model's semantic identity and parameter count unchanged."},
+    {"term":"Tied text head","definition":"A vocabulary projection that uses the transpose of the token embedding table. Both operations share one learned allocation, so the parameter census counts that table once."},
+    {"term":"Query and key/value heads","definition":"Attention head groups with a common feature width. Query-head count divides model width; key/value-head count divides query-head count. Unequal counts can be planned here, while executed CPU fixtures use equal counts."},
+    {"term":"Parameter census","definition":"The count of unique learned scalar values derived from named tensor shapes, including norm gains and excluding a second count for the tied head. It is separate from bytes, training tokens and executed work."},
+    {"term":"KV capacity","definition":"Physical storage reserved for keys and values over the configured token capacity. Logical prefix length may grow or reset without changing that allocation; storage depends on key/value heads and bytes per element."},
+    {"term":"Multiply-accumulate","definition":"One product added to an accumulated sum, abbreviated MAC. The chapter's causal and dense forward counts cover matrix products and attention score/mix work, excluding normalization, RoPE, softmax and other scalar operations."},
+    {"term":"Activation lifetime","definition":"The interval in an execution schedule during which an intermediate buffer must remain allocated. Tracked forward values may remain live for backward; the memory peak uses buffers and workspace live at the same event."},
+    {"term":"Tensor parallelism","definition":"Partitioning selected model tensors across ranks under a declared layout. The TP8 fixture divides compatible matrices, retains replicated gains and calculates sent traffic; it does not execute a distributed decoder."},
+    {"term":"Execution admission","definition":"Permission to construct from a checked plan after shape, implementation and resource gates pass. A valid model description can still be refused because execution support is absent, a limit is exceeded or required workspace is unknown."}
+  ]
+}

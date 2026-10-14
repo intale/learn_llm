@@ -179,6 +179,7 @@ pub enum ModelSavedContext {
         axis: usize,
         input_shape: Vec<usize>,
         groups: usize,
+        divisor: usize,
     },
 }
 // endregion:model-saved-context
@@ -591,9 +592,39 @@ impl TensorValue {
         axis: usize,
         targets: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
+        self.indexed_nll_with_context(context, axis, targets, false)
+    }
+
+    /// Accumulates indexed NLL before division, using the same kernel and VJP.
+    pub fn indexed_sum_nll(
+        &self,
+        axis: usize,
+        targets: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.indexed_sum_nll_with_context(AutogradContext::recording(), axis, targets)
+    }
+    pub fn indexed_sum_nll_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+        targets: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.indexed_nll_with_context(context, axis, targets, true)
+    }
+    fn indexed_nll_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+        targets: &[usize],
+        sum: bool,
+    ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation_with_context(
             context,
-            TensorOperation::IndexedMeanNll,
+            if sum {
+                TensorOperation::IndexedSumNll
+            } else {
+                TensorOperation::IndexedMeanNll
+            },
             [self],
             |primals| {
                 let logits = primals[0];
@@ -601,7 +632,14 @@ impl TensorValue {
                 let probabilities = forward
                     .probabilities
                     .expect("the autodiff indexed-NLL forward requests saved probabilities");
-                let value = Tensor::from_vec(Vec::new(), vec![forward.loss])?;
+                let loss = if sum {
+                    forward
+                        .loss_sum
+                        .ok_or(crate::nn::probability::ProbabilityError::LossSumOverflow)?
+                } else {
+                    forward.loss
+                };
+                let value = Tensor::from_vec(Vec::new(), vec![loss])?;
                 Ok((
                     value,
                     [ModelSavedContext::IndexedMeanNll {
@@ -610,6 +648,7 @@ impl TensorValue {
                         axis,
                         input_shape: logits.shape().to_vec(),
                         groups: targets.len(),
+                        divisor: if sum { 1 } else { targets.len() },
                     }],
                 ))
             },
@@ -952,6 +991,7 @@ pub(crate) fn apply_model_vjp(
             axis,
             input_shape,
             groups,
+            divisor,
         } => {
             debug_assert_eq!(upstream.shape(), &[] as &[usize]);
             debug_assert_eq!(probabilities.shape(), input_shape);
@@ -975,7 +1015,7 @@ pub(crate) fn apply_model_vjp(
                     .expect("a checked indexed-NLL target retains a valid storage offset");
                 result.as_mut_slice()[target_offset] -= 1.0;
             }
-            let scale = upstream.as_slice()[0] / (*groups as f64);
+            let scale = upstream.as_slice()[0] / (*divisor as f64);
             for value in result.as_mut_slice() {
                 *value *= scale;
                 if *value == 0.0 {

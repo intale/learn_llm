@@ -60,10 +60,12 @@ scripts/check-rust-demos.sh
 
 The demo checker requires the current product lock and checks exactly 39
 first-course programs and 34 diagram traces against their committed stdout.
-Its ownership scan recognizes only the three Practical demo directories named
+Its ownership scan recognizes only the seven Practical demo directories named
 by the locked current contracts; every unregistered `expected.txt` owner fails.
 Practical demos retain their separate course commands, including supplied stdin
 for Chapter 2, and require their own nonzero golden-output execution checks.
+Chapter 7's default report is its golden output; the same binary's `--trace`
+view is also checked byte-for-byte against the complete static-site trace.
 
 ## Exported checkpoint verification
 

@@ -95,7 +95,7 @@ const practicalContracts = readChapterContractSummaries(repositoryRoot, {
 });
 const practicalDemoNames = practicalContracts.map(({packageName}) => packageName).sort();
 duplicate(practicalDemoNames, 'Practical demo registration');
-if (practicalDemoNames.length !== 6) fail('expected exactly six registered Practical demos');
+if (practicalDemoNames.length !== 7) fail('expected exactly seven registered Practical demos');
 console.error(`Registered Practical demo directories: ${practicalDemoNames.join(', ')}`);
 
 const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })
@@ -277,6 +277,13 @@ for (const pkg of [...chapterPackages, ...practicalPackages].sort((left, right) 
   if (readFileSync(fixture, 'utf8') !== contract.data.rust.expected_output) {
     fail(`${pkg.name}: expected.txt differs byte-for-byte from contract rust.expected_output`);
   }
+  if (pkg.name === 'practical-ch07-configurable-decoder-core') {
+    const fullTrace = join(repositoryRoot, 'site/src/data/course/configurable-decoder-core-trace.json');
+    const traceStats = lstatSync(fullTrace);
+    if (!traceStats.isFile() || traceStats.isSymbolicLink() || traceStats.size === 0) {
+      fail(`${pkg.name}: complete site trace must be a nonempty regular file`);
+    }
+  }
   const stdinPath = pkg.name === 'practical-ch02-corpus-preparation'
     ? join(demoDirectory, 'fixtures/prepared.jsonl')
     : '/dev/null';
@@ -406,6 +413,27 @@ while IFS= read -r -d '' package_name && \
     original_checked=$((original_checked + 1))
   fi
 
+  if [[ "${package_name}" == practical-ch07-configurable-decoder-core ]]; then
+    actual_configurable_trace_path="${temporary_directory}/${package_name}.full-trace.actual.txt"
+    cargo run \
+      --quiet \
+      --locked \
+      --offline \
+      --manifest-path "${repository_root}/Cargo.toml" \
+      --package "${package_name}" \
+      --bin "${binary_name}" \
+      -- --trace \
+      >"${actual_configurable_trace_path}" </dev/null
+    if ! diff -u \
+      --label "site/src/data/course/configurable-decoder-core-trace.json" \
+      --label "${package_name} --trace stdout" \
+      "${repository_root}/site/src/data/course/configurable-decoder-core-trace.json" \
+      "${actual_configurable_trace_path}"; then
+      echo "Rust demo check failed: complete configurable decoder site trace drifted." >&2
+      exit 1
+    fi
+  fi
+
   if [[ -n "${trace_target_name}" ]]; then
     actual_trace_path="${temporary_directory}/${package_name}.trace.actual.txt"
     cargo run \
@@ -433,8 +461,8 @@ if [[ ${original_checked} -ne 39 ]]; then
   exit 1
 fi
 
-if [[ ${practical_checked} -ne 6 ]]; then
-  echo "Rust demo check failed: expected six checked Practical chapter demos, got ${practical_checked}." >&2
+if [[ ${practical_checked} -ne 7 ]]; then
+  echo "Rust demo check failed: expected seven checked Practical chapter demos, got ${practical_checked}." >&2
   exit 1
 fi
 

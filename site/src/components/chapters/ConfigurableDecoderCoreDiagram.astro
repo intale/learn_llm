@@ -1,0 +1,172 @@
+---
+import trace from '../../data/course/configurable-decoder-core-trace.json';
+
+interface Labels {
+  title: string; description: string;
+  inputsTitle: string; modelRecord: string; modelNote: string;
+  runRecord: string; runNote: string; modelDigest: string; runDigest: string;
+  digestNote: string; checksTitle: string; checksNote: string;
+  executeTitle: string; executeNote: string; refuseTitle: string; refuseNote: string;
+  censusTitle: string; censusNote: string; embedding: string; attention: string;
+  feedForward: string; norms: string; total: string;
+  textPathsTitle: string; ordinaryTitle: string; ordinaryNote: string;
+  cachedTitle: string; cachedNote: string; coreTitle: string; coreNote: string;
+  livenessTitle: string; livenessNote: string; overlap: string; released: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error('configurable-decoder-diagram-copy');
+  }
+}
+const scale = (id: string) => {
+  const value = trace.scales.find(item => item.id === id);
+  if (!value) throw new Error('configurable-decoder-diagram-scale');
+  return value;
+};
+const reference = scale('reference');
+const bridge = scale('bridge');
+const laptop = scale('laptop');
+const production = scale('production-plan');
+if (trace.schema_version !== 1 || reference.census.total !== 1188 ||
+    bridge.census.total !== 8304 || laptop.census.total !== 32514560 ||
+    production.census.total !== 69500936192 ||
+    !reference.admissible || !bridge.admissible || laptop.admissible || production.admissible ||
+    trace.toy_liveness.overlap_peak !== 288 || trace.toy_liveness.released_peak !== 224 ||
+    !/^[a-f0-9]{64}$/.test(reference.semantic_sha256) ||
+    !/^[a-f0-9]{64}$/.test(reference.run_sha256)) {
+  throw new Error('configurable-decoder-diagram-trace');
+}
+const census = [
+  { key: 'embedding', label: labels.embedding, count: reference.census.embedding },
+  { key: 'attention', label: labels.attention, count: reference.census.attention },
+  { key: 'feed_forward', label: labels.feedForward, count: reference.census.feed_forward },
+  { key: 'norms', label: labels.norms, count: reference.census.norms },
+  { key: 'total', label: labels.total, count: reference.census.total },
+];
+---
+<figure class="course-diagram configurable-decoder-diagram" data-diagram-style="course-v1"
+  data-visualization-id="configurable-decoder-core" tabindex="0"
+  aria-labelledby="configurable-figure-title" aria-describedby="configurable-figure-description">
+  <figcaption class="course-diagram__caption" id="configurable-figure-caption">
+    <h3 id="configurable-figure-title">{labels.title}</h3>
+    <p id="configurable-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <div class="course-diagram__grid configurable-overview">
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box
+      id="configurable-figure-plan" aria-labelledby="configurable-figure-inputs-title">
+      <div class="course-diagram__card-heading"><h4 id="configurable-figure-inputs-title">{labels.inputsTitle}</h4></div>
+      <div class="course-diagram__grid configurable-pair">
+        <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          id="configurable-figure-model-record">
+          <div class="course-diagram__card-heading"><h5>{labels.modelRecord}</h5></div>
+          <p>{labels.modelNote}</p>
+          <dl>
+            <dt>{labels.modelDigest}</dt>
+            <dd class="course-diagram__technical" data-configurable-identity="semantic">
+              <code><bdi dir="ltr">{reference.semantic_sha256}</bdi></code>
+            </dd>
+          </dl>
+        </article>
+        <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          id="configurable-figure-run-record">
+          <div class="course-diagram__card-heading"><h5>{labels.runRecord}</h5></div>
+          <p>{labels.runNote}</p>
+          <dl>
+            <dt>{labels.runDigest}</dt>
+            <dd class="course-diagram__technical" data-configurable-identity="run">
+              <code><bdi dir="ltr">{reference.run_sha256}</bdi></code>
+            </dd>
+          </dl>
+        </article>
+      </div>
+      <p id="configurable-figure-digest-note">{labels.digestNote}</p>
+      <div class="course-diagram__card-stack" id="configurable-figure-check-order">
+        <h5>{labels.checksTitle}</h5>
+        <p>{labels.checksNote}</p>
+      </div>
+      <div class="course-diagram__grid configurable-pair">
+        <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          id="configurable-figure-execute" data-configurable-branch="execute"
+          data-configurable-reference-admissible={reference.admissible}
+          data-configurable-bridge-admissible={bridge.admissible}>
+          <div class="course-diagram__card-heading"><h5>{labels.executeTitle}</h5></div>
+          <p>{labels.executeNote}</p>
+        </article>
+        <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          id="configurable-figure-refuse" data-configurable-branch="refuse"
+          data-configurable-laptop-refusals={JSON.stringify(laptop.refusals)}
+          data-configurable-production-refusals={JSON.stringify(production.refusals)}>
+          <div class="course-diagram__card-heading"><h5>{labels.refuseTitle}</h5></div>
+          <p>{labels.refuseNote}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box
+      id="configurable-figure-accounting" aria-labelledby="configurable-figure-census-title">
+      <div class="course-diagram__card-stack" id="configurable-figure-census">
+        <div class="course-diagram__card-heading"><h4 id="configurable-figure-census-title">{labels.censusTitle}</h4></div>
+        <p>{labels.censusNote}</p>
+        <dl id="configurable-figure-census-values">
+          {census.map(group => <div data-configurable-parameter-group={group.key}>
+            <dt>{group.label}</dt>
+            <dd class="course-diagram__technical" data-configurable-count={group.count}>
+              <samp><bdi dir="ltr">{group.count}</bdi></samp>
+            </dd>
+          </div>)}
+        </dl>
+      </div>
+      <div class="course-diagram__card-stack" id="configurable-figure-liveness">
+        <h5>{labels.livenessTitle}</h5>
+        <p>{labels.livenessNote}</p>
+        <dl>
+          <div><dt>{labels.overlap}</dt><dd class="course-diagram__technical" data-configurable-liveness="overlap"><samp>{trace.toy_liveness.overlap_peak}</samp></dd></div>
+          <div><dt>{labels.released}</dt><dd class="course-diagram__technical" data-configurable-liveness="released"><samp>{trace.toy_liveness.released_peak}</samp></dd></div>
+        </dl>
+      </div>
+    </section>
+  </div>
+
+  <section data-diagram-box id="configurable-figure-text-paths"
+    aria-labelledby="configurable-figure-paths-title">
+    <h4 id="configurable-figure-paths-title">{labels.textPathsTitle}</h4>
+    <div class="course-diagram__grid configurable-producers">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+        id="configurable-figure-ordinary" data-configurable-producer="ordinary-text-token-forward">
+        <div class="course-diagram__card-heading"><h5>{labels.ordinaryTitle}</h5></div>
+        <p>{labels.ordinaryNote}</p>
+      </article>
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+        id="configurable-figure-cached" data-configurable-producer="cached-text-token-forward">
+        <div class="course-diagram__card-heading"><h5>{labels.cachedTitle}</h5></div>
+        <p>{labels.cachedNote}</p>
+      </article>
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box
+        id="configurable-figure-core" data-configurable-consumer="one-causal-decoder">
+        <div class="course-diagram__card-heading"><h5>{labels.coreTitle}</h5></div>
+        <p>{labels.coreNote}</p>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .configurable-overview, .configurable-pair, .configurable-producers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #configurable-figure-census-values > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: baseline;
+  }
+  @container course-diagram (min-width: 36rem) {
+    .configurable-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container course-diagram (min-width: 62rem) {
+    .configurable-overview { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+    .configurable-producers { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
