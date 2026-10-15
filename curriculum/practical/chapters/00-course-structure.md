@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "concept_id": "practical-course-structure",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 0,
   "objective": {
     "en": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs."
@@ -30,7 +30,7 @@
     }
   },
   "decoder_connection": {
-    "en": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; planned chapters extend the same model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
+    "en": "The course extends a separate copy of the completed causal decoder. Chapter 10 will implement the input-encoding boundary used by that text model: the encoder will supply embedding vectors to a shared transformer, and a text output head will map its hidden features to token logits. Text will be the course's sole encoder and output-head example. Later chapters will extend the composed model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
   },
   "terminology": [],
   "translation_notes": [
@@ -59,10 +59,11 @@
 ## Scope
 
 Orientation only: identify the independent copied implementation, prerequisites,
-published foundation through Chapter 9 and planned Chapters 10–31. Explain the
-planned CUDA training path, retained CPU inference, portable save/load and local
-CLI use. Do not introduce a second algorithm, formula lesson, Rust implementation
-sample, exercise, answer, diagram or cheat sheet.
+published foundation through Chapter 9 and 23 planned lessons in Chapters 10–32.
+Explain the required future input-encoding boundary, planned CUDA training path,
+retained CPU inference, portable save/load and local CLI use. Do not introduce a
+second algorithm, formula lesson, Rust implementation sample, exercise, answer,
+diagram or cheat sheet.
 
 <!-- contract-section:overview -->
 ## Orientation commitments
@@ -93,14 +94,28 @@ place the existing batching/packing and configurable decoder foundations in
 Chapters 4–9 before the planned continuation.
 
 Use a small Markdown table with chapter(s) and learning focus. Group planned
-Chapters 10–14, 15–21, 22–26, 27 and 28–31. Locate GPU execution and numerical
-training; evaluation, quantization, attention, sampling and batched generation;
-SFT, LoRA, DPO and prefix/context work; the local capstone; and beam search,
-speculative verification, distributed-training mathematics and MoE. Explicitly
-name Chapter 14 for saving trained weights/settings, exiting and loading them in
-a fresh local inference process before extending whole-job training resume.
-Present these as future learning goals, not completed implementations or
-measurements. Keep application integration outside the roadmap.
+Chapters 10–15, 16–22, 23–27, 28 and 29–32. Explicitly name Chapter 10,
+"Separate input encoding from the transformer", as the required implementation
+of the input boundary used by the existing text model, before GPU execution in
+Chapter 11. Retain numerical training; evaluation, quantization, attention,
+sampling and batched generation; SFT, LoRA, DPO and prefix/context work; the local
+capstone; and beam search, speculative verification, distributed-training
+mathematics and MoE. Name Chapter 15 for saving the composed model, exiting and
+loading it in a fresh local inference process before extending whole-job
+training resume. Present these as future learning goals, not completed
+implementations or measurements. Keep application integration outside the
+roadmap.
+
+Explain the input boundary at orientation level. The text encoder will reuse
+existing tokenization and embedding lookup to prepare a checked sequence of
+embedding vectors with position and attention information. The shared
+transformer will accept that sequence without requiring text tokens or a
+tokenizer and return hidden features; the text output head will reuse the tied
+projection to map those features to token logits. Chapter 10 will route the real
+text forward, training and cached-generation paths through that composition by
+extending the existing model. The course will implement only the text encoder
+and text output head. Other compatible source encoders may supply vectors later,
+but their inputs will still require suitable encoding and training.
 
 <!-- contract-section:visualization -->
 ## Navigation evidence
@@ -116,10 +131,13 @@ Keep one causal text model as the subject. Distinguish small examples from
 full-corpus or hardware measurements. CPU reference and loading of prepared
 documents remain available. CUDA is the planned accelerated training path and
 requires compatible NVIDIA hardware; retain CPU inference as a future requirement.
-Saved inference weights, model settings and required tokenizer assets are intended
-to load independently of the training GPU. The planned portability check is CUDA
-training or an update, save, exit, then CPU loading and generation with the same
-weights without retraining. CUDA training must not imply NVIDIA-only inference.
+Chapter 15 will save the composition, weights and settings of the text encoder,
+shared transformer and text output head, keeping tied weights shared and
+including the tokenizer assets needed to restore the text model. That saved
+model is intended to load independently of the training GPU. The planned
+portability check is CUDA training or an update, save, exit, then CPU loading and
+generation with the same weights without retraining. CUDA training must not
+imply NVIDIA-only inference.
 Exact training resume adds optimizer, RNG, data-position and accumulation state
 and may have narrower execution compatibility. Do not claim that these future
 capabilities or arbitrary model/backend loading already work.

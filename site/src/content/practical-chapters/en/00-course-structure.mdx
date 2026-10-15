@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
@@ -22,7 +22,7 @@
     "id": null,
     "rationale": "The chapter list maps the first lessons to their purposes, and the roadmap table locates the later learning topics. Together they provide the navigation this orientation needs."
   },
-  "decoder_connection": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; planned chapters extend the same model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
+  "decoder_connection": "The course extends a separate copy of the completed causal decoder. Chapter 10 will implement the input-encoding boundary used by that text model: the encoder will supply embedding vectors to a shared transformer, and a text output head will map its hidden features to token logits. Text will be the course's sole encoder and output-head example. Later chapters will extend the composed model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
 }
 ---
 
@@ -86,21 +86,36 @@ Published Chapters 4–9 continue with variable-length batches and packing,
 configurable decoder depth and shape, optional dropout and explicit failure
 boundaries.
 
-The planned continuation extends that same causal text model through Chapters
-10–31. These future chapters describe planned work, not completed implementations
-or measurements.
+The planned continuation extends that same causal text model through 23 future
+lessons, Chapters 10–32. These chapters describe planned work, not completed
+implementations or measurements.
 
 | Chapter(s) | Learning focus |
 | --- | --- |
-| 10–14 | GPU tensor execution, mixed precision, gradient accumulation and activation recomputation, then optimizer schedules and clipping. Chapter 14 adds saving and loading a model for local use, followed by training resume. |
-| 15–21 | Evaluate loss and overfitting, quantize weights, extend attention and its key/value cache, transform sampling distributions, and generate in batches. |
-| 22–26 | Supervised fine-tuning (SFT) on response tokens; low-rank adaptation (LoRA), including over quantized weights; direct preference optimization (DPO) from chosen/rejected responses. Then reuse prefix caches and study rotary position embeddings (RoPE) with context scaling. |
-| 27 | A local capstone combines training or adaptation, saving, resuming, evaluation, quantization and generation with the same model. |
-| 28–31 | Beam search, speculative proposal verification, distributed-training mathematics through local sharding and collective examples, and a tiny mixture-of-experts (MoE) model built from existing feed-forward blocks. |
+| 10–15 | Chapter 10, “Separate input encoding from the transformer”, will implement the existing text model's input boundary. Chapter 11 will add GPU tensor execution, followed by mixed precision, gradient accumulation and activation recomputation, then optimizer schedules and clipping. Chapter 15 will add saving and loading of the composed model for local use, then training resume. |
+| 16–22 | Evaluate loss and overfitting, quantize weights, extend attention and its key/value cache, transform sampling distributions, and generate in batches. |
+| 23–27 | Supervised fine-tuning (SFT) on response tokens; low-rank adaptation (LoRA), including over quantized weights; direct preference optimization (DPO) from chosen/rejected responses. Then reuse prefix caches and study rotary position embeddings (RoPE) with context scaling. |
+| 28 | A local capstone combines training or adaptation, saving, resuming, evaluation, quantization and generation with the same model. |
+| 29–32 | Beam search, speculative proposal verification, distributed-training mathematics through local sharding and collective examples, and a tiny mixture-of-experts (MoE) model built from existing feed-forward blocks. |
 
-Chapter 14 is planned to save this course's trained weights, model settings and
-required tokenizer assets, then load them in a fresh local process for
-generation. The saved model is intended to be independent of the training GPU:
+Chapter 10 will route the existing model's forward calculation, training and
+cached generation through the input boundary. Its text encoder will reuse
+tokenization and embedding lookup to prepare a checked sequence of embedding
+vectors with position and attention information. The shared transformer will
+accept that sequence without requiring text tokens or a tokenizer and return
+hidden features. The text output head will reuse the existing tied projection
+to map those features to token logits.
+
+Separating these responsibilities will let other compatible source encoders
+supply vectors without changing the shared transformer. The course will
+implement only this text encoder and text output head. Other sources will still
+need suitable encoding and training.
+
+Chapter 15 will save the composition, weights and settings of the text encoder,
+shared transformer and text output head, keeping tied weights shared and
+including the tokenizer assets needed to restore this text model. It will then
+load the model in a fresh local process for generation. The saved model is
+intended to be independent of the training GPU:
 the portability check will be to train or update with CUDA, save, exit, and load
 the same weights on CPU without retraining. CUDA training is not intended to
 make inference NVIDIA-only. Exact training resume will add optimizer,

@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"09-dependency-error-contract","locale":"en","content_revision":4,"order":9,"concept_id":"dependency-error-contract",
+  "chapter_id":"09-dependency-error-contract","locale":"en","content_revision":5,"order":9,"concept_id":"dependency-error-contract",
   "title":"Keep model operations and failures explicit",
   "description":"Read configuration refusals, optimizer failures and checkpoint publication failures at their actual state boundaries. Distinguish local evidence from future backend integration.",
   "objective":"Interpret configuration refusals and typed operation failures, and identify which model, optimizer or checkpoint state each tested boundary preserves.",
@@ -35,7 +35,7 @@
     {"path":"rust/demos/practical-ch09-dependency-error-contract/src/main.rs","purpose":"Print the compact result for the chapter's fixed CPU fixtures."}
   ],
   "visualization":{"decision":"not-useful","id":null,"rationale":"Captioned tables keep each configuration change, failure boundary and state effect beside its observed result. A diagram would add no relationship beyond those comparisons."},
-  "decoder_connection":"Chapter 10 will reuse typed failures and requested/actual identities to keep device selection explicit for GPU tensor execution and refuse an unavailable requested backend without silent substitution. Logical model settings must remain separate from execution choices. Real CUDA execution needs its own evidence."
+  "decoder_connection":"Chapter 10 will carry typed failures and state identities into the required input-encoding boundary. The text encoder will supply a checked sequence of embedding vectors and retain text-specific validation; the encoder and shared transformer will refuse malformed shapes or layouts and incompatible live state at the appropriate boundary. GPU tensor execution will follow in Chapter 11 with explicit requested/actual backend identity and refusal of an unavailable requested backend. Logical model settings will remain separate from execution choices. Current CPU fixtures do not demonstrate either future implementation; real CUDA execution will need separate evidence."
 }
 ---
 import RustSource from "../../../components/RustSource.astro";
@@ -400,23 +400,31 @@ COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch09
 
 <div id="dependency-handoff">
 
-## <span id="dependency-handoff-heading">Carry explicit identities into GPU tensor execution</span>
+## <span id="dependency-handoff-heading">Carry explicit failures into input encoding</span>
 
 Configuration refusal, optimizer preservation, checkpoint publication and local
-cleanup each have a stated boundary. Chapter 10 will reuse the typed categories,
-dispositions and requested/actual identities when selecting a backend for GPU
-tensor execution. If the requested CUDA backend is unavailable, the operation
-must refuse explicitly instead of silently substituting a CPU run. The reported
-actual identity must reflect what was selected, including no selection.
+cleanup each have a stated boundary. Chapter 10 will carry those typed failures
+and state identities into the required separation of input encoding from the
+shared transformer. The encoder and transformer will use them to distinguish
+malformed shapes or layouts from incompatible live state and reject invalid
+inputs or state at the appropriate boundary. The text encoder will supply the
+checked sequence of embedding vectors consumed by the transformer and keep
+text-specific validation in the encoder.
+
+GPU tensor execution will follow in Chapter 11. It will reuse typed categories,
+dispositions and requested/actual backend identities to keep device selection
+explicit. If the requested CUDA backend is unavailable, the operation will
+refuse explicitly instead of silently substituting a CPU run. The reported
+actual identity will reflect what was selected, including no selection.
 
 Model settings will describe architecture, tensor shapes and numerical semantics;
 execution settings will select the device, backend and supported dtype. Keeping
-those choices separate without changing the learned model's identity is a
-requirement for that future lesson.
+those choices separate without changing the learned model's identity will be a
+requirement for both future lessons.
 
-These are future design requirements. This chapter's CPU boundary fixtures do
-not demonstrate CUDA execution or portable saved tensors. Real backend
-integration, activation scheduling and durable job continuation need their own
-evidence.
+These are future implementation requirements. This chapter's bounded CPU
+boundary fixtures do not demonstrate the input-encoding boundary, CUDA execution
+or portable saved tensors. The input boundary, real CUDA integration, activation
+scheduling and durable job continuation will each need their own evidence.
 
 </div>
