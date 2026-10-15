@@ -3,13 +3,13 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "concept_id": "practical-course-structure",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 0,
   "objective": {
     "en": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs."
   },
   "worked_inputs": {
-    "en": "Trace the path from a fixed reference experiment through prepared documents and extended BPE to the later batching, GPU, training, evaluation and serving stages."
+    "en": "Trace the path from a fixed reference experiment, prepared documents and extended BPE through batching and decoder configuration to the planned training and inference chapters."
   },
   "formula": null,
   "history": {
@@ -26,11 +26,11 @@
     "decision": "not-useful",
     "id": null,
     "rationale": {
-      "en": "An ordered chapter list directly associates each available lesson with its purpose and distinguishes it from the later roadmap; a second model diagram would repeat the first course's structural map."
+      "en": "The chapter list maps the first lessons to their purposes, and the roadmap table locates the later learning topics. Together they provide the navigation this orientation needs."
     }
   },
   "decoder_connection": {
-    "en": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; later chapters change how that same model is configured, trained, evaluated and used for generation."
+    "en": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; planned chapters extend the same model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
   },
   "terminology": [],
   "translation_notes": [
@@ -47,7 +47,7 @@
     },
     {
       "input": "Inspect the language and execution boundaries",
-      "expected": "English practical lessons remain distinct from the bilingual first course; CPU reference and prepared loading remain distinct from the compatible-NVIDIA requirement and full-data measurements."
+      "expected": "English practical lessons remain distinct from the bilingual first course. Planned CUDA training retains CPU inference and saved weights independent of the training GPU as goals. The external NeMo example separately needs its compatible NVIDIA CUDA/RAPIDS environment. Fixtures do not discharge full-data or hardware gates."
     }
   ]
 }
@@ -59,8 +59,10 @@
 ## Scope
 
 Orientation only: identify the independent copied implementation, prerequisites,
-initial material and later roadmap. Do not introduce a second algorithm, formula
-lesson, Rust implementation sample, exercise, answer or cheat sheet.
+published foundation through Chapter 9 and planned Chapters 10–31. Explain the
+planned CUDA training path, retained CPU inference, portable save/load and local
+CLI use. Do not introduce a second algorithm, formula lesson, Rust implementation
+sample, exercise, answer, diagram or cheat sheet.
 
 <!-- contract-section:overview -->
 ## Orientation commitments
@@ -69,9 +71,9 @@ The practical crate starts from the restored first-course implementation and is
 evolved independently. First-course lessons and algorithms stay unchanged.
 Chapter 1 records the fixed baseline experiment; Chapter 2 separates external
 preparation from Rust loading; Chapter 3 extends the existing BPE implementation.
-Available links must correspond to published practical chapters. If Chapter 3
-is pending at the foundation checkpoint, show its named role as roadmap text
-until its complete chapter is published.
+Available links must correspond to published practical chapters. Keep the first
+three published links and their purposes; the course index remains authoritative
+for current availability. Do not link unpublished chapters.
 
 <!-- contract-section:history -->
 ## Starting point
@@ -85,24 +87,47 @@ historical claim and reuse no first-course diagram as a new taught mechanism.
 
 Give each initial chapter its concrete purpose: identified reference inputs and
 scope, external preparation and Rust loading, then extension of existing BPE.
-Link available practical Chapters 1, 2 and 3, keeping each chapter's concrete purpose next to its link. Link the
-course index for current availability. Explain the subsequent batching, model
-configuration, GPU, training, resume, evaluation, adaptation, inference and
-serving stages as a roadmap rather than completed measurements.
+Link available practical Chapters 1, 2 and 3, keeping each chapter's concrete
+purpose next to its link. Link the course index for current availability. Briefly
+place the existing batching/packing and configurable decoder foundations in
+Chapters 4–9 before the planned continuation.
+
+Use a small Markdown table with chapter(s) and learning focus. Group planned
+Chapters 10–14, 15–21, 22–26, 27 and 28–31. Locate GPU execution and numerical
+training; evaluation, quantization, attention, sampling and batched generation;
+SFT, LoRA, DPO and prefix/context work; the local capstone; and beam search,
+speculative verification, distributed-training mathematics and MoE. Explicitly
+name Chapter 14 for saving trained weights/settings, exiting and loading them in
+a fresh local inference process before extending whole-job training resume.
+Present these as future learning goals, not completed implementations or
+measurements. Keep application integration outside the roadmap.
 
 <!-- contract-section:visualization -->
 ## Navigation evidence
 
-An ordered list supplies the chapter-to-purpose mapping. No figure is required.
-Explain that concrete reason without referring to rendering or build machinery.
+The ordered list maps the first lessons to their purposes, and the roadmap table
+places later learning goals in order. Explain how that sequence helps the learner
+navigate; no figure is required. Do not refer to rendering or build machinery.
 
 <!-- contract-section:decoder-connection -->
 ## Practical path
 
 Keep one causal text model as the subject. Distinguish small examples from
 full-corpus or hardware measurements. CPU reference and loading of prepared
-documents remain available; the GPU-backed path and external NeMo stack require
-a compatible NVIDIA device and driver.
+documents remain available. CUDA is the planned accelerated training path and
+requires compatible NVIDIA hardware; retain CPU inference as a future requirement.
+Saved inference weights, model settings and required tokenizer assets are intended
+to load independently of the training GPU. The planned portability check is CUDA
+training or an update, save, exit, then CPU loading and generation with the same
+weights without retraining. CUDA training must not imply NVIDIA-only inference.
+Exact training resume adds optimizer, RNG, data-position and accumulation state
+and may have narrower execution compatibility. Do not claim that these future
+capabilities or arbitrary model/backend loading already work.
+
+The existing external NeMo preparation example separately requires a GPU and
+driver compatible with its pinned CUDA/RAPIDS environment. Another tool can
+provide the same prepared documents. Describe a shared local CLI as the intended
+way to experiment with the course model, without inventing a command.
 
 <!-- contract-section:localization -->
 ## Locale scope

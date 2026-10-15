@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"09-dependency-error-contract","locale":"en","content_revision":3,"order":9,"concept_id":"dependency-error-contract",
+  "chapter_id":"09-dependency-error-contract","locale":"en","content_revision":4,"order":9,"concept_id":"dependency-error-contract",
   "title":"Keep model operations and failures explicit",
   "description":"Read configuration refusals, optimizer failures and checkpoint publication failures at their actual state boundaries. Distinguish local evidence from future backend integration.",
   "objective":"Interpret configuration refusals and typed operation failures, and identify which model, optimizer or checkpoint state each tested boundary preserves.",
@@ -35,7 +35,7 @@
     {"path":"rust/demos/practical-ch09-dependency-error-contract/src/main.rs","purpose":"Print the compact result for the chapter's fixed CPU fixtures."}
   ],
   "visualization":{"decision":"not-useful","id":null,"rationale":"Captioned tables keep each configuration change, failure boundary and state effect beside its observed result. A diagram would add no relationship beyond those comparisons."},
-  "decoder_connection":"Chapter 10 will consume typed failures and requested/actual identities when admitting serving configurations. Real backend, service and persistence integration requires evidence at those components' own boundaries."
+  "decoder_connection":"Chapter 10 will reuse typed failures and requested/actual identities to keep device selection explicit for GPU tensor execution and refuse an unavailable requested backend without silent substitution. Logical model settings must remain separate from execution choices. Real CUDA execution needs its own evidence."
 }
 ---
 import RustSource from "../../../components/RustSource.astro";
@@ -400,13 +400,23 @@ COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch09
 
 <div id="dependency-handoff">
 
-## <span id="dependency-handoff-heading">Carry explicit identities into serving admission</span>
+## <span id="dependency-handoff-heading">Carry explicit identities into GPU tensor execution</span>
 
 Configuration refusal, optimizer preservation, checkpoint publication and local
-cleanup each have a stated boundary. Chapter 10 will use the typed categories,
-dispositions and requested/actual identities to admit serving configurations
-and refuse unavailable requirements explicitly. Its real request, backend and
-publication boundaries need their own integration evidence. GPU execution,
-activation scheduling and durable job continuation remain separate capabilities.
+cleanup each have a stated boundary. Chapter 10 will reuse the typed categories,
+dispositions and requested/actual identities when selecting a backend for GPU
+tensor execution. If the requested CUDA backend is unavailable, the operation
+must refuse explicitly instead of silently substituting a CPU run. The reported
+actual identity must reflect what was selected, including no selection.
+
+Model settings will describe architecture, tensor shapes and numerical semantics;
+execution settings will select the device, backend and supported dtype. Keeping
+those choices separate without changing the learned model's identity is a
+requirement for that future lesson.
+
+These are future design requirements. This chapter's CPU boundary fixtures do
+not demonstrate CUDA execution or portable saved tensors. Real backend
+integration, activation scheduling and durable job continuation need their own
+evidence.
 
 </div>

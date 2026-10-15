@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"09-dependency-error-contract","concept_id":"dependency-error-contract","content_revision":3,"order":9,
+  "chapter_id":"09-dependency-error-contract","concept_id":"dependency-error-contract","content_revision":4,"order":9,
   "objective":{"en":"Interpret configuration refusals and typed operation failures, and identify which model, optimizer or checkpoint state each tested boundary preserves."},
   "worked_inputs":{"en":"Load the native reference settings, explain the invalid width-five/two-head configuration, and inspect cancellation, AdamW, checkpoint publication and cleanup failures. Compare the two existing course attention APIs on one shared two-token input."},
   "formula":{
@@ -37,7 +37,7 @@
     "expected_output":"{\"attention\":{\"operation\":\"existing-course-owned-unmasked-attention\",\"output\":[1.0,2.0,1.0,2.0],\"probabilities\":[0.5,0.5,0.5,0.5],\"query_and_key\":[0,0,0,0],\"same_reference_output\":true,\"scope\":\"one f64 input; no full-model or quality equivalence\",\"shape\":[1,2,2],\"value\":[2,0,0,4]},\"chapter\":\"09-dependency-error-contract\",\"faults\":{\"by_scope\":{\"future-boundary-harness\":33,\"inherited\":13,\"inherited-plus-future-harness\":1,\"local\":5},\"future_integration\":\"not-proven-by-boundary-harness\",\"selected_examples\":[{\"category\":\"config\",\"disposition\":\"reject_unchanged\",\"id\":\"F14\",\"phase\":\"config_admission\",\"reason\":\"invalid_value\",\"scope\":\"inherited\"},{\"category\":\"cancelled\",\"disposition\":\"reject_unchanged\",\"id\":\"F33\",\"phase\":\"request_admission\",\"reason\":\"requested\",\"scope\":\"future-boundary-harness\"},{\"category\":\"cancelled\",\"disposition\":\"abort_provisional\",\"id\":\"F34\",\"phase\":\"execution\",\"reason\":\"requested\",\"scope\":\"future-boundary-harness\"},{\"category\":\"numeric\",\"disposition\":\"reject_unchanged\",\"id\":\"F36\",\"phase\":\"execution\",\"reason\":\"nonfinite_optimizer_arithmetic\",\"scope\":\"inherited\"},{\"category\":\"artifact\",\"disposition\":\"abort_provisional\",\"id\":\"F43\",\"phase\":\"commit\",\"reason\":\"publication_failed\",\"scope\":\"inherited\"},{\"category\":\"internal\",\"disposition\":\"stop_job\",\"id\":\"F44\",\"phase\":\"cleanup\",\"reason\":\"cleanup_failed\",\"scope\":\"future-boundary-harness\"}],\"total\":52},\"positive_controls\":{\"after_commit_cancellation\":{\"after\":{\"cache_logical_length\":3,\"dropout_next_counter\":192,\"model_revision\":8,\"published_outputs\":1},\"committed\":{\"cache_logical_length\":3,\"dropout_next_counter\":192,\"model_revision\":8,\"published_outputs\":1},\"next_operation_error\":{\"category\":\"cancelled\",\"disposition\":\"reject_unchanged\",\"identity\":{\"actual\":{\"state\":\"not_selected\"},\"requested\":[190,120,248,17,248,227,196,129,77,127,142,109,55,54,239,152,240,253,200,99,38,7,237,9,243,56,200,169,196,103,136,213]},\"phase\":\"request_admission\",\"reason\":\"requested\",\"schema_version\":1,\"terminal_state\":\"cancelled\"}},\"bytes_1024_under_cap_1024\":\"accepted\",\"cancel_before_deadline_precedence\":{\"category\":\"cancelled\",\"disposition\":\"reject_unchanged\",\"identity\":{\"actual\":{\"state\":\"not_selected\"},\"requested\":[190,120,248,17,248,227,196,129,77,127,142,109,55,54,239,152,240,253,200,99,38,7,237,9,243,56,200,169,196,103,136,213]},\"phase\":\"request_admission\",\"reason\":\"requested\",\"schema_version\":1,\"terminal_state\":\"cancelled\"},\"duplicate_vocabulary_id\":\"replacement-v1\",\"exact_requested_capability\":\"accepted-in-harness\",\"native_duplicate_key\":\"library-last-value-wins\",\"native_head_width\":4,\"native_unknown_fields\":\"accepted-without-model-effect\",\"scope\":\"local controls; no GPU/server/persistence integration\"},\"resource_scope\":\"compiled CPU fixtures; process RSS measured separately\"}\n"
   },
   "visualization":{"decision":"not-useful","id":null,"rationale":{"en":"Captioned tables keep each configuration change, failure boundary and state effect beside its observed result. A diagram would add no relationship beyond those comparisons."}},
-  "decoder_connection":{"en":"Chapter 10 will consume typed failures and requested/actual identities when admitting serving configurations. Real backend, service and persistence integration requires evidence at those components' own boundaries."},
+  "decoder_connection":{"en":"Chapter 10 will reuse typed failures and requested/actual identities to keep device selection explicit for GPU tensor execution and refuse an unavailable requested backend without silent substitution. Logical model settings must remain separate from execution choices. Real CUDA execution needs its own evidence."},
   "terminology":[
     {"concept_id":"supporting-operation","en":"Supporting operation"},
     {"concept_id":"model-invariant","en":"Model invariant"},
@@ -79,7 +79,7 @@ cleanup and attention operations. The terminal adapter wraps component errors
 with their live source chains and leaves each component's public error API and
 algorithm intact. Remove the chapter-local package audit, its synthetic cases
 and related teaching. Preserve the chapter/package/route identity and advance
-the content revision to two. The first course and earlier practical content
+the content revision to four. The first course and earlier practical content
 remain unchanged.
 
 Native config-lib owns settings syntax and general field schemas. Existing
@@ -194,11 +194,19 @@ inspection supports their documented reproduction route only.
 <!-- contract-section:decoder-connection -->
 ## Decoder connection
 
-Chapter 10 will consume typed categories, dispositions and requested/actual
-identity for serving configuration admission. Do not link an unpublished route.
-Real request/backend/publication boundaries, GPU execution, activation scheduling
-and durable job continuation need their own evidence. Chapter 8's failed-forward
-promise does not become global backward/optimizer rollback.
+Chapter 10 will reuse typed categories, dispositions and requested/actual
+identities for GPU tensor execution. Keep device selection explicit: refuse an
+unavailable requested CUDA backend instead of silently substituting CPU, and
+report only the backend actually selected. Future logical model settings describe
+architecture, tensor shapes and numerical semantics; execution settings describe
+device, backend and supported dtype. Keep those choices separate without changing
+learned model identity.
+
+Do not link an unpublished route. These are future design requirements. The
+current CPU fixtures do not prove CUDA execution or portable saved tensors.
+Real backend execution, activation scheduling and durable job continuation need
+their own evidence. Chapter 8's failed-forward promise does not become global
+backward/optimizer rollback.
 
 <!-- contract-section:localization -->
 ## Localization

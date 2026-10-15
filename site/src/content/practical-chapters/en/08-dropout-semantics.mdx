@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"08-dropout-semantics","locale":"en","content_revision":1,"order":8,"concept_id":"dropout-semantics",
+  "chapter_id":"08-dropout-semantics","locale":"en","content_revision":2,"order":8,"concept_id":"dropout-semantics",
   "title":"Make optional dropout explicit and replayable",
   "description":"Apply optional residual dropout with saved-mask gradients, exact evaluation identity and checked random counters. Keep local replay distinct from durable job resume.",
   "objective":"Extend the existing decoder with optional inverted dropout whose training, evaluation, backward and replay behavior is explicit, while preserving the disabled path.",
@@ -44,7 +44,7 @@
     {"path":"rust/demos/practical-ch08-dropout-semantics/src/main.rs","region":"dropout-semantics-demo","purpose":"Print the compact canonical fixture summary or the detailed NDJSON evidence with --trace."}
   ],
   "visualization":{"decision":"useful","id":"dropout-semantics","rationale":"One aligned relationship shows input transformed by the saved training mask and scale, then reuses that same mask for backward. A kept zero distinguishes a zero output from a dropped element; Eval identity and a replay range clarify execution state."},
-  "decoder_connection":"Carry exact mode, counter, cache and failure boundaries into Chapter 9's dependency and error contracts. Local site replay and four-update snapshots leave Chapter 13's activation scheduler and Chapter 17's durable job resume for later work."
+  "decoder_connection":"Carry exact mode, counter, cache and failure boundaries into Chapter 9's dependency and error contracts. Local site replay and four-update snapshots leave Chapter 12's activation scheduler and Chapter 14's durable job resume for later work."
 }
 ---
 import RustSource from "../../../components/RustSource.astro";
@@ -385,7 +385,7 @@ loss.
 The full replay compares every logit, token-mean loss and all named parameter
 gradients, using all four saved tickets. Gradients are deliberately cleared
 between comparison backward passes. These are local site and same-core
-recomputation checks; they do not provide Chapter 13's activation scheduler or
+recomputation checks; they do not provide Chapter 12's activation scheduler or
 demonstrate a memory-saving training schedule.
 
 The executed R1, R2 and R3 records each compare $48$ multiplier, output and
@@ -420,7 +420,7 @@ missing/mismatched snapshot cases in the report all reject.
 
 This snapshot is scoped to a four-update in-memory fixture. The unchanged
 version-one component checkpoint is not a complete training-job record.
-Chapter 17 still owns durable job continuation and restart policy.
+Chapter 14 still owns durable job continuation and restart policy.
 
 <h3 id="dropout-accounting-heading">Count mask data separately from memory peaks</h3>
 
@@ -616,7 +616,7 @@ behavior, checked purpose-four random ownership and bound local replay. The
 disabled path retains the preceding decoder behavior. Chapter 9,
 `09-dependency-error-contract`, makes dependency roles and error contracts
 explicit; it must retain the difference between a failed complete forward and
-a failed later training update. Chapter 13's activation scheduler and Chapter
-17's durable job continuation remain separate capabilities.
+a failed later training update. Chapter 12's activation scheduler and Chapter
+14's durable job continuation remain separate capabilities.
 
 </div>

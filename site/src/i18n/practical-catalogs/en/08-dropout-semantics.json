@@ -2,7 +2,7 @@
   "schemaVersion":1,
   "chapterId":"08-dropout-semantics",
   "locale":"en",
-  "contentRevision":1,
+  "contentRevision":2,
   "title":"Make optional dropout explicit and replayable",
   "description":"Apply optional residual dropout with saved-mask gradients, exact evaluation identity and checked random counters. Keep local replay distinct from durable job resume.",
   "objective":"Extend the existing decoder with optional inverted dropout whose training, evaluation, backward and replay behavior is explicit, while preserving the disabled path."

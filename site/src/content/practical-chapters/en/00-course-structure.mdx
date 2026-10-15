@@ -3,13 +3,13 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
-  "description": "Start from the completed Rust language model, follow the practical chapter sequence, and distinguish CPU examples, external corpus preparation and the GPU-backed path.",
+  "description": "Follow the practical Rust model from its published foundations to planned CUDA training, portable saved weights and local CPU inference.",
   "objective": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs.",
-  "worked_inputs": "Trace the path from a fixed reference experiment through prepared documents and extended BPE to the later batching, GPU, training, evaluation and serving stages.",
+  "worked_inputs": "Trace the path from a fixed reference experiment, prepared documents and extended BPE through batching and decoder configuration to the planned training and inference chapters.",
   "formula": null,
   "history": {
     "approach": "The first course builds the mechanisms of a small causal language model.",
@@ -20,9 +20,9 @@
   "visualization": {
     "decision": "not-useful",
     "id": null,
-    "rationale": "An ordered chapter list directly associates each available lesson with its purpose and distinguishes it from the later roadmap; a second model diagram would repeat the first course's structural map."
+    "rationale": "The chapter list maps the first lessons to their purposes, and the roadmap table locates the later learning topics. Together they provide the navigation this orientation needs."
   },
-  "decoder_connection": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; later chapters change how that same model is configured, trained, evaluated and used for generation."
+  "decoder_connection": "The course extends a separate copy of the completed causal decoder. Corpus preparation and tokenization supply its inputs; planned chapters extend the same model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
 }
 ---
 
@@ -49,10 +49,13 @@ small model. Familiarity with that model matters more than memorizing its
 chapter numbers.
 
 The initial reference and Rust loading of an already prepared corpus run on a
-CPU. The GPU-backed practical path requires a compatible NVIDIA GPU. The external
-corpus-preparation example uses NVIDIA NeMo Curator and needs a GPU and driver
-compatible with its pinned CUDA/RAPIDS environment. NeMo prepares text outside
-the Rust model; another tool can supply the same prepared-document format.
+CPU. The planned accelerated training path will use CUDA and require a compatible
+NVIDIA GPU. CPU inference remains part of the planned path.
+
+The external corpus-preparation example separately uses NVIDIA NeMo Curator. It
+needs a GPU and driver compatible with its pinned CUDA/RAPIDS environment. NeMo
+prepares text outside the Rust model; another tool can supply the same
+prepared-document format.
 
 {/* chapter-section:history */}
 
@@ -78,12 +81,35 @@ course keeps its own implementation.
    bounded ingestion, local pair updates and efficient application of frozen
    merge ranks to the existing tokenizer.
 
-The [practical course index](../) links to the lessons
-currently available. The later curriculum continues with variable-length batches and packing,
-configurable decoder depth and shape, GPU execution, larger training runs,
-complete resume state, evaluation, adaptation, quantized inference and serving.
-These are stages of one causal text model. Their examples become available as
-each mechanism is implemented and measured.
+The [practical course index](../) links to the lessons currently available.
+Published Chapters 4–9 continue with variable-length batches and packing,
+configurable decoder depth and shape, optional dropout and explicit failure
+boundaries.
+
+The planned continuation extends that same causal text model through Chapters
+10–31. These future chapters describe planned work, not completed implementations
+or measurements.
+
+| Chapter(s) | Learning focus |
+| --- | --- |
+| 10–14 | GPU tensor execution, mixed precision, gradient accumulation and activation recomputation, then optimizer schedules and clipping. Chapter 14 adds saving and loading a model for local use, followed by training resume. |
+| 15–21 | Evaluate loss and overfitting, quantize weights, extend attention and its key/value cache, transform sampling distributions, and generate in batches. |
+| 22–26 | Supervised fine-tuning (SFT) on response tokens; low-rank adaptation (LoRA), including over quantized weights; direct preference optimization (DPO) from chosen/rejected responses. Then reuse prefix caches and study rotary position embeddings (RoPE) with context scaling. |
+| 27 | A local capstone combines training or adaptation, saving, resuming, evaluation, quantization and generation with the same model. |
+| 28–31 | Beam search, speculative proposal verification, distributed-training mathematics through local sharding and collective examples, and a tiny mixture-of-experts (MoE) model built from existing feed-forward blocks. |
+
+Chapter 14 is planned to save this course's trained weights, model settings and
+required tokenizer assets, then load them in a fresh local process for
+generation. The saved model is intended to be independent of the training GPU:
+the portability check will be to train or update with CUDA, save, exit, and load
+the same weights on CPU without retraining. CUDA training is not intended to
+make inference NVIDIA-only. Exact training resume will add optimizer,
+random-generator, data-position and accumulation state and may require a more
+specific execution environment.
+
+A shared local command-line interface is planned for experimenting with this
+same model: training, saving and loading, evaluating, and generating text.
+Application integration is outside this roadmap.
 
 ## Read the examples at their stated scale
 
@@ -97,9 +123,10 @@ measurements supply that separate evidence.
 
 ## Use the sequence to navigate
 
-An ordered chapter list connects each available lesson to its purpose and names
-the later stages. The individual lessons introduce diagrams where a computation
-or comparison benefits from one.
+The list connects the first lessons to their purposes, and the table places
+later learning goals in order. That sequence gives you a route through the
+course. The individual lessons introduce diagrams where a computation or
+comparison benefits from one.
 
 {/* chapter-section:decoder-connection */}
 
