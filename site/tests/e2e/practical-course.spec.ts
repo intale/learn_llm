@@ -8,7 +8,7 @@ import {getCheatSheetCopy,paginateCheatSheetTerms,sortCheatSheetTerms} from '../
 import {expectNoPageOverflow,expectOnlySharedDiagramClientScript,expectOrderedChapterNavigation,expectSeoDescription,expectStackedDiagramText,expectVisualizationDecision} from './chapter-helpers';
 
 const prefix='/en/practical-llm-in-rust/';
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -21,12 +21,13 @@ const packedTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course
 const depthTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/depth-stable-decoder-trace.json',import.meta.url),'utf8'));
 const configurableTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/configurable-decoder-core-trace.json',import.meta.url),'utf8'));
 const dropoutTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/dropout-semantics-trace.json',import.meta.url),'utf8'));
+const inputBoundary=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch10-input-encoding-boundary/expected.txt',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
+  boxCount:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -121,7 +122,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="/en/course/40-"]')).toHaveCount(0);
  await page.goto('/en/course/39-end-to-end-llm/');await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -144,7 +145,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
@@ -163,7 +164,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
   const figure=figureFor(page,lesson.figureId);
   if(lesson.data.visualization.decision==='useful'){
    await expect(figure).toHaveCount(1);await expect(figure.locator('figcaption')).toHaveCount(1);
-   await expect(figure).toHaveClass(/course-diagram/);await expect(figure).toHaveAttribute('data-diagram-style','course-v1');await expect(figure.locator('[data-diagram-box]')).toHaveCount(lesson.boxCount);
+   await expect(figure).toHaveClass(/course-diagram/);await expect(figure).toHaveAttribute('data-diagram-style','course-v1');if(lesson.boxCount===null)expect(await figure.locator('[data-diagram-box]').count()).toBeGreaterThan(0);else await expect(figure.locator('[data-diagram-box]')).toHaveCount(lesson.boxCount);
   }else{
    await expect(page.locator('figure[data-visualization-id],[data-diagram-full-view-toggle]')).toHaveCount(0);
    expect(await page.locator('.lesson-body table thead th').count()).toBeGreaterThan(0);
@@ -309,6 +310,19 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
    await expect(figure.locator('#dropout-figure-replay dd samp')).toHaveText(['['+r1.range.join(',')+')',r1.live_cursor_before+' → '+r1.live_cursor_after]);
    await expect(figure.locator('[data-diagram-scroll][role="region"][tabindex="0"]')).toHaveCount(1);
    await testInfo.attach('programmatic-dropout-trace-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,source:'actual compact Rust stdout',schema:dropoutTrace.schema,fixedMaskAssociations:associations,evalOutput:fixed.eval_output,replay:{point:r1.point,range:r1.range,liveCursorBefore:r1.live_cursor_before,liveCursorAfter:r1.live_cursor_after}}),contentType:'application/json'});
+  } else if(lesson.id===ids[10]) {
+   await expect(figure).toHaveAttribute('aria-labelledby','input-encoding-figure-title');
+   await expect(figure).toHaveAttribute('aria-describedby','input-encoding-figure-description');
+   const forward=figure.locator('#input-encoding-figure-flow');
+   expect(await forward.locator(':scope > li').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(['input-encoding-figure-encoder','input-encoding-figure-backbone','input-encoding-figure-head']);
+   const annotations=await figure.locator('annotation[encoding="application/x-tex"]').allTextContents();
+   for(const value of ['X\\;'+JSON.stringify(inputBoundary.shapes.embedding),'H\\;'+JSON.stringify(inputBoundary.shapes.hidden),JSON.stringify(inputBoundary.shapes.logits),'E\\;'+JSON.stringify(inputBoundary.shapes.table)])expect(annotations).toContain(value);
+   const backward=figure.locator('section[aria-labelledby="input-encoding-gradient-title"]');
+   await expect(backward.locator('[data-diagram-card]')).toHaveCount(3);
+   const shared=backward.locator('#input-encoding-figure-shared-table');
+   await expect(shared).toContainText(String(inputBoundary.shapes.table[0]*inputBoundary.shapes.table[1]));
+   expect(await shared.locator('annotation[encoding="application/x-tex"]').allTextContents()).toContain('G_{\\mathrm{lookup}}+G_{\\mathrm{head}}');
+   await testInfo.attach('programmatic-input-boundary-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,source:'actual new Rust golden stdout',shapes:inputBoundary.shapes,annotations,forward:await forward.ariaSnapshot(),backward:await backward.ariaSnapshot(),figureTitle:await figure.locator('#input-encoding-figure-title').textContent(),figureDescription:await figure.locator('#input-encoding-figure-description').textContent(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
   }
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
@@ -393,6 +407,7 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
     expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'dropout-semantics-term-'+(index+1)));
     await testInfo.attach('programmatic-dropout-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
    }
+   if(lesson.id===ids[10])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'input-encoding-term-'+(index+1)));
    expect(geometry.errors).toEqual([]);expect(geometry.reachedEnd).toBe(true);
    await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await page.keyboard.press('Enter');await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expectNoPageOverflow(page);
   });

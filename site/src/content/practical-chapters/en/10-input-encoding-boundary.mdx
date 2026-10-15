@@ -1,0 +1,458 @@
+---
+{
+  "chapter_id":"10-input-encoding-boundary","locale":"en","content_revision":1,"order":10,"concept_id":"input-encoding-boundary",
+  "title":"Separate input encoding from the transformer",
+  "description":"Compose text lookup, the existing causal backbone and a tied text head. Follow vector shapes, live parameter checks and the two gradient paths into one shared table.",
+  "objective":"Separate source-to-vector encoding, causal hidden features and text logits while preserving the existing model's values, gradients and shared embedding table.",
+  "worked_inputs":"Encode the text ab with the existing empty-merge BPE, giving document IDs [0,99,100,1]. Compose inputs [0,99,100] and targets [99,100,1] with seed 39, vocabulary 258, residual width four and two existing decoder blocks. Inspect the shared-table gradient and cached prefill [0,99] followed by token 100.",
+  "formula":{
+    "latex":"\\begin{aligned}\nX_{b,t,d}&=E_{i_{b,t},d},\\\\\nH&=F_\\theta(X;\\Lambda),\\\\\nZ_{b,t,v}&=\\sum_{d=0}^{D-1}H_{b,t,d}E_{v,d},\\\\\n\\nabla_E\\mathcal L&=G_{\\mathrm{lookup}}+G_{\\mathrm{head}}.\n\\end{aligned}",
+    "symbols":[
+      {"symbol":"B","meaning":"number of batch rows"},
+      {"symbol":"T","meaning":"number of supplied positions per row"},
+      {"symbol":"D","meaning":"number of residual features at each position"},
+      {"symbol":"V","meaning":"number of entries in the text vocabulary"},
+      {"symbol":"b,t,d,v","meaning":"zero-based batch-row, position, residual-feature and vocabulary-entry indices"},
+      {"symbol":"i_{b,t}","meaning":"text token ID at row b and position t, selecting one table row"},
+      {"symbol":"E","meaning":"one live learned text table, with a row per vocabulary entry and residual-width features, shared by lookup and the transposed text head"},
+      {"symbol":"X","meaning":"prepared batch of residual-width input vectors, one vector per supplied position"},
+      {"symbol":"F_\\theta","meaning":"the existing causal backbone, with backbone parameters theta"},
+      {"symbol":"\\Lambda","meaning":"checked active lengths, causal range starts and RoPE positions supplied with the vectors"},
+      {"symbol":"H","meaning":"final-normalized residual-width hidden features at each supplied position"},
+      {"symbol":"Z","meaning":"text logits, with one score per vocabulary entry at each supplied position"},
+      {"symbol":"\\mathcal L","meaning":"scalar text loss formed from logits, targets and any valid-target mask outside the backbone"},
+      {"symbol":"G_{\\mathrm{lookup}},G_{\\mathrm{head}}","meaning":"the two contributions to the same table gradient at fixed numerical weights, input and loss"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"model-building-practice",
+      "limitation":"A language model can learn different matrices for input lookup and output vocabulary projection. Tying instead constrains those two roles to one parameter.",
+      "later_advance":"Section 3.4 of the 2017 Transformer paper describes learned token embeddings and the final linear/softmax transform as separate operations while sharing selected weight matrices.",
+      "modern_llm_role":"Separating components does not require separate learned storage: both text operations borrow one live table and add their derivative contributions.",
+      "sources":[
+        {"role":"earlier","year":2017,"name":"Using the Output Embedding to Improve Language Models","source_url":"https://aclanthology.org/E17-2025/","claim":"Press and Wolf's 2017 paper studies sharing input and output embeddings and the update of the common parameter. Its reported language-model results are not measurements of this course fixture."},
+        {"role":"later","year":2017,"name":"Attention Is All You Need","source_url":"https://arxiv.org/html/1706.03762v7#S3.SS4","claim":"Section 3.4 of the 2017 Transformer paper describes learned token embeddings and the final linear/softmax transform as separate operations while sharing selected weight matrices. The course's existing RMSNorm, RoPE and SwiGLU operations are its own decoder architecture, with different normalization and position treatment from that paper."}
+      ]
+    },
+    "approach":"Use the existing text lookup and vocabulary projection in separate borrowing components, then fix one role at a time to inspect the common table's two derivative contributions.",
+    "summary":"Separating the operations makes their roles visible. Weight tying still means one learned allocation, with both roles contributing to its gradient; the tiny fixture establishes no quality or performance benefit.",
+    "rust_source":"rust/demos/practical-ch10-input-encoding-boundary/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs","region":"input-encoder","purpose":"Define the source-to-vector interface using an explicit graph context and the destination backbone."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs","region":"prepared-decoder-input","purpose":"Preserve the embedding handle and validate shape, graph policy and live backbone and learned-producer bindings."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs","region":"decoder-backbone","purpose":"Borrow existing blocks and final RMSNorm and expose hidden features without a text table or tokenizer."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/text_input.rs","region":"text-output-head","purpose":"Project hidden features through the transpose of the same live table used for text lookup."},
+    {"path":"rust/demos/practical-ch10-input-encoding-boundary/src/lib.rs","region":"compose-text-path","purpose":"Compose the existing text fixture and compare its logits and shared table identity with the model wrapper."},
+    {"path":"rust/demos/practical-ch10-input-encoding-boundary/src/lib.rs","region":"tied-gradient-paths","purpose":"Fix one table role at a time and compare the sum of its isolated derivatives with the full tied gradient."},
+    {"path":"rust/demos/practical-ch10-input-encoding-boundary/src/main.rs","purpose":"Print the no-argument CPU text fixture as one JSON object."}
+  ],
+  "visualization":{"decision":"useful","id":"input-encoding-boundary","component":"InputEncodingBoundaryDiagram","rationale":"One figure connects text IDs, shared-table lookup, residual vectors, the existing backbone, hidden features and the transposed text head. Both derivative paths meet at one shared table, counted once."},
+  "decoder_connection":"Chapter 11 will add GPU numerical execution behind a narrow execution boundary while preserving this encoder, backbone and head composition and CPU inference. Chapter 15 will restore the composition and shared parameter aliases when persistence is implemented."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import InputEncodingBoundaryDiagram from "../../../components/chapters/InputEncodingBoundaryDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="input-encoding-worked-example">
+
+## The problem: text IDs hide the vector boundary
+
+The text model currently accepts token IDs and returns vocabulary logits. That
+convenient call contains three different transformations: look up vectors,
+transform those vectors with the causal decoder, then score the text
+vocabulary. The attention blocks operate on residual features. They need the
+vectors and their causal layout; token IDs and next-token targets serve other
+parts of the computation.
+
+Making this boundary explicit lets us use the existing transformer as a
+component without making its input contract depend on a text vocabulary.
+The complete text model must still produce the same values and send both uses
+of its tied table back to one learned parameter.
+
+### Follow one text sequence through the three transformations
+
+The existing BPE tokenizer with no merges encodes `ab` as document IDs
+`[0,99,100,1]`. The first and last IDs mark the document boundaries. Use
+`[0,99,100]` as the input and `[99,100,1]` as the next-token targets.
+
+The fixture has one batch row, three supplied positions and four residual
+features per position. Its text table has $258$ rows, one for each vocabulary
+entry, and four features per row. Looking up the three input IDs produces
+$X$ with shape $[1,3,4]$. The existing two decoder blocks and final RMSNorm
+produce hidden features $H$ with that same shape. The text head multiplies
+$H$ by the transpose of the lookup table, producing logits $Z$ with shape
+$[1,3,258]$: one score for every vocabulary entry at every supplied position.
+
+With initialization seed `39`, the mean text loss is
+$5.668398842431571$ nats. Its `f64` bits are `4016ac70bf03b620`.
+The explicit composition and the ordinary text wrapper give identical logit
+bits in this fixture. The table remains one live node, and the complete model
+still has $1372$ learned scalars in $20$ named tensors, counting that table
+once.
+
+<RustSource path="rust/demos/practical-ch10-input-encoding-boundary/src/lib.rs"
+  region="compose-text-path" captionId="input-encoding-rust-composition"
+  caption="Tokenize the fixed text, reuse its learned lookup, run the existing backbone, then apply the head that borrows the same table."
+  label="Rust source: explicit text encoder, backbone and tied head composition" />
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="input-encoding-formula">
+
+## Separate lookup, hidden features and vocabulary scores
+
+Let $B$ count batch rows, $T$ supplied positions per row, $D$ residual
+features per position and $V$ text vocabulary entries. The learned table
+$E$ has shape $[V,D]$. Token ID $i_{b,t}$ selects its row:
+
+$$
+X_{b,t,d}=E_{i_{b,t},d}.
+$$
+
+Here $b$ selects a batch row, $t$ a position and $d$ a feature. The ID is
+in the range $0\le i_{b,t}<V$. Repeated IDs select the same learned row;
+lookup backward adds the contributions from all those occurrences.
+
+Write the existing backbone as $F_\theta$, where $\theta$ contains its
+block and final-normalization parameters. Let $\Lambda$ describe active
+row lengths, causal range starts and RoPE positions. Then
+
+$$
+H=F_\theta(X;\Lambda),\qquad
+X,H\in\mathbb R^{B\times T\times D}.
+$$
+
+The backbone returns features of width $D$. It does not select a vocabulary.
+The text head supplies that last operation:
+
+$$
+Z_{b,t,v}=\sum_{d=0}^{D-1}H_{b,t,d}E_{v,d},\qquad
+Z=H E^{\mathsf T}.
+$$
+
+Vocabulary index $v$ selects one output score. The multiplication uses the
+transpose of the same $[V,D]$ table, so $Z$ has shape $[B,T,V]$.
+The text loss consumes these logits, target IDs and any valid-target mask.
+Targets and loss eligibility therefore stay outside the backbone.
+
+### Add the two derivatives of the shared table
+
+An untied model could use separate lookup and head matrices. Tying constrains
+their values to one shared parameter. At fixed numerical weights, input and
+loss, changing that parameter affects the loss through both roles. The forward
+composition and the chain rule give the complete relation
+
+$$
+\begin{aligned}
+X_{b,t,d}&=E_{i_{b,t},d},\\
+H&=F_\theta(X;\Lambda),\\
+Z_{b,t,v}&=\sum_{d=0}^{D-1}H_{b,t,d}E_{v,d},\\
+\nabla_E\mathcal L&=G_{\mathrm{lookup}}+G_{\mathrm{head}}.
+\end{aligned}
+$$
+
+$\mathcal L$ is the scalar text loss. $G_{\mathrm{lookup}}$ is the table
+derivative through lookup, the backbone and the head's hidden input.
+$G_{\mathrm{head}}$ is the derivative through the head's direct use of the
+table. Both have shape $[V,D]$ and accumulate into the same learned node.
+
+The experiment fixes a detached copy of the output table's values while
+leaving lookup connected to measure $G_{\mathrm{lookup}}$. It then fixes
+detached text embeddings while leaving the head's table connected to measure
+$G_{\mathrm{head}}$. Neither isolation changes the numerical weights or
+input. The production text path keeps both connections.
+
+For token row $99$, feature $0$, lookup contributes approximately
+$0.02265892536$, the head contributes approximately $-0.00149137079$,
+and the total tied-table derivative is approximately $0.02116755456$.
+These displayed values are rounded; the demo prints the full `f64` values.
+Across all $1032$ table coordinates, the maximum measured
+absolute difference between the total and the sum is zero. The comparison
+declares absolute tolerance $10^{-12}$ because floating-point additions can
+differ in order. This example does not determine the relative sizes or signs
+of the two contributions in other models or inputs.
+
+<RustSource path="rust/demos/practical-ch10-input-encoding-boundary/src/lib.rs"
+  region="tied-gradient-paths" captionId="input-encoding-rust-gradients"
+  caption="Fix only the output table or only the text embeddings to isolate the two derivatives, then compare their sum with the full tied gradient."
+  label="Rust source: two experimental derivative paths into the shared text table" />
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="input-encoding-symbols">
+
+## Keep the source axes separate from the vocabulary axis
+
+$B,T,D$ describe vector sequences: rows, positions and residual features.
+$V$ describes the text vocabulary. Lookup maps text IDs to $X[B,T,D]$;
+the backbone maps $X$ to $H[B,T,D]$; the text head maps $H$ to
+$Z[B,T,V]$. A generic vector input does not acquire a universal token
+vocabulary merely by sharing the residual width $D$.
+
+The fixture uses $V=258,D=4$, two blocks, one attention head,
+feed-forward width $8$ and position capacity $8$. Its RoPE base is
+$10000$ and its RMSNorm epsilon is $10^{-6}$. These are the existing
+course decoder's settings for this comparison.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="input-encoding-interface">
+
+## Give the backbone checked vectors
+
+`InputEncoder::encode` receives the explicit `AutogradContext` and the
+destination `DecoderBackbone`. It returns `PreparedDecoderInput` or the
+encoder's typed error. Source-specific validation belongs in the encoder;
+the backbone receives the prepared vector sequence.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs"
+  region="input-encoder" captionId="input-encoding-rust-interface"
+  caption="Require a source encoder to produce checked vectors for a particular backbone under an explicit graph-recording context."
+  label="Rust source: the small input encoder interface" />
+
+`SequenceLayout` gives the batch and position shape, each row's active prefix
+length, each cell's causal range start and its explicit RoPE position.
+An active query may attend from its range start through itself, within that
+row's active prefix. Ordinary text uses a range start of zero and positions
+starting at zero; packed text can retain its occurrence-local ranges and
+positions. This layout does not contain target IDs or loss masks.
+
+The prepared carrier retains the original `TensorValue` handle, so recorded
+lookup operations remain connected to their learned table. Its checks cover
+residual width, layout, position capacity and graph policy. It also binds the
+destination's actual parameter nodes and value revisions, plus every learned
+producer parameter declared by the encoder. Consumption checks those bindings
+again and holds read guards while the backbone runs.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs"
+  region="prepared-decoder-input" captionId="input-encoding-rust-prepared"
+  caption="Keep the original embedding handle and check vector shape, graph context and exact live parameter bindings when preparing and consuming it."
+  label="Rust source: checked prepared vectors and live parameter revisions" />
+
+These checks prevent a prepared result from silently using a different model
+or stale learned vectors. Equal-shaped, equal-valued parameters in another
+model still have different nodes. Updating the lookup table after encoding
+invalidates the prepared vectors even though that table is outside the
+backbone. Descriptive provenance identifies the producer; changing a label
+cannot authorize different vectors or a stale parameter binding.
+
+The real refusal cases include an incorrect residual width, malformed layout
+or out-of-capacity position, a graph-tracked lookup supplied under no-grad,
+different or changed backbone parameters, and a changed learned producer
+parameter. A no-grad call must prepare its text lookup under no-grad from the
+start; relabeling an already tracked tensor does not detach it.
+
+`TextInputEncoder` retains text-specific checks, including the existing padded
+or packed batch binding and validity rules. The generic carrier requires no
+tokenizer, token IDs, vocabulary, text split identity, targets or tied output
+table. Only the text encoder is implemented here. A future source still needs
+compatible encoding and training, together with any additional attention or
+objective semantics it requires.
+
+</div>
+
+<div id="input-encoding-backbone">
+
+## Borrow the existing transformer and table
+
+`DecoderBackbone` borrows the existing blocks and final RMSNorm. It can also
+be assembled directly from `DecoderBlockConfig`, blocks and final norm,
+without constructing a text model or supplying a tokenizer or vocabulary.
+Its public full forward returns hidden features. Construction does not copy
+learned tensor values, and full and cached execution retain one shared block
+loop.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs"
+  region="decoder-backbone" captionId="input-encoding-rust-backbone"
+  caption="Build a borrowing view from existing decoder components and expose a full forward that returns hidden features."
+  label="Rust source: source-independent backbone assembled from existing blocks and final norm" />
+
+`TextOutputHead` borrows the same live table used by lookup. It delegates to
+the existing transpose and matrix multiplication operations:
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/text_input.rs"
+  region="text-output-head" captionId="input-encoding-rust-head"
+  caption="Borrow the live lookup table and reuse its transpose for the text vocabulary projection."
+  label="Rust source: tied text output head without a second learned table" />
+
+The existing model calls now compose the encoder, backbone and head for
+ordinary, padded and packed text, optional dropout and replay, and text loss.
+The text wrapper holds parameter reads through the head, retains the original
+operation order, and keeps parameter names, order, counts and tying. The
+fixed before-and-after comparison preserves embedding, hidden and logit bits,
+loss, every named parameter value and gradient, and the tested cache results.
+
+The existing text cache selects no-grad before encoding its next token,
+runs the same backbone in cached mode and applies the text head before
+publishing layer cache tickets. `positioned_token` chooses an input's RoPE
+position; it does not choose cached execution. The generic cached entry
+remains internal to this text cache transaction.
+
+Prefilling `[0,99]` and decoding `100` reaches a logical prefix of three
+tokens. Across two layers, the measured work is six cache appends and twelve
+attention-score values. The cached result is graph-free, and its newest
+logits have zero bit mismatches against the corresponding full result in this
+fixture. Those observations do not promise equality for every sequence or
+future backend. The existing cache and dropout commit rules retain their
+own failure boundaries; they do not undo an earlier optimizer update or
+roll back a whole job.
+
+The current numerical execution remains CPU `f64`. This separation adds no
+GPU implementation and demonstrates no full-data training or quality result.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="input-encoding-history">
+
+## Separate the roles even when the weights are shared
+
+A language model can learn different matrices for input lookup and output
+vocabulary projection. Tying instead constrains those two roles to one
+parameter. [Press and Wolf's 2017 paper](https://aclanthology.org/E17-2025/)
+studies sharing input and output embeddings and the update of the common
+parameter. Its reported language-model results are not measurements of this
+course fixture. The two derivative paths in our Rust experiment make that
+shared update visible.
+
+[Section 3.4 of the 2017 Transformer paper](https://arxiv.org/html/1706.03762v7#S3.SS4)
+describes learned token embeddings and the final linear/softmax transform as
+separate operations while sharing selected weight matrices. The course's
+existing RMSNorm, RoPE and SwiGLU operations are its
+own decoder architecture, with different normalization and position treatment
+from that paper.
+
+Separating components does not require separate learned storage: both text
+operations borrow one live table and add their derivative contributions.
+
+Here an *input encoder* means the source-to-vector adapter. It is not the
+separate bidirectional encoder stack in the original encoder-decoder
+Transformer. Our causal backbone is still the decoder we already built.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="input-encoding-visualization">
+
+## Follow the forward sequence and the shared gradient
+
+The forward sequence changes the final axis from residual features to text
+vocabulary entries only at the head. The two derivative paths then meet at
+the table used in both text operations.
+
+<InputEncodingBoundaryDiagram labels={{
+  title: "One text table, two roles and one gradient sum",
+  description: "Text IDs select rows of one shared table to produce vectors for one batch row and three positions, with four residual features at each position. The existing causal backbone preserves those axes in its hidden features. The text head uses the same table's transpose to produce 258 vocabulary scores at each position. The lookup-path and head-path derivatives join at that single table of 1032 learned scalars, counted once within the complete model's 1372 scalars and 20 named tensors.",
+  flowTitle: "Forward: text IDs become vectors, hidden features and text logits",
+  encoderTitle: "1. Text encoder",
+  ids: "Input token IDs:",
+  lookup: "Look up rows in shared table",
+  backboneTitle: "2. Existing causal backbone",
+  backbone: "Two blocks and final RMSNorm preserve one row, three positions and four residual features per position.",
+  headTitle: "3. Tied text head",
+  head: "Project through the same table's transpose",
+  logits: "One row, three positions and 258 text vocabulary scores per position:",
+  gradientTitle: "Backward: both table roles contribute",
+  lookupGradient: "Lookup-path derivative",
+  lookupGradientNote: "The loss derivative travels through the hidden features, backbone and original text lookup to the selected table rows.",
+  headGradient: "Head-path derivative",
+  headGradientNote: "The loss derivative reaches the table directly through the text vocabulary projection.",
+  sharedTitle: "One live shared text table",
+  sharedNote: "The lookup and head borrow this same allocation: 258 vocabulary rows, four features per row and 1032 learned scalars.",
+  totalGradient: "The total table gradient",
+  gradientSum: "is the sum of both contributions:",
+  count: "Count this table once within the complete fixture's 1372 learned scalars in 20 named tensors."
+}} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="input-encoding-practice">
+
+## Optional practice: reproduce and explain the composition
+
+Run from the repository root with Docker running. The `course` launcher
+prepares the workspace image; its initial build may need network access to
+provision the toolchain and dependencies. `COURSE_CORPUS=false` disables
+corpus acquisition, and this fixed CPU text example needs no corpus or model
+download. After setup, the command runs locked offline Cargo with container
+networking disabled.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --offline --locked -p practical-ch10-input-encoding-boundary
+```
+
+The no-argument demo prints one JSON object. It reports
+`lookup_and_head_same_node: true`, `same_text_wrapper_logits: true`, loss bits
+`4016ac70bf03b620` and `within_tolerance: true`. Its cached result reports
+`newest_logit_bit_mismatches: 0` for this fixture.
+
+From the same directory and Docker setup, run the focused boundary tests and
+the demo library test:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p llm-from-scratch-practical --lib models::prepared_decoder_input::tests
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch10-input-encoding-boundary --lib
+```
+
+The first command selects six tests covering component-only construction,
+composition and gradients, layout and graph policy, stale parameters and
+provenance. The second selects one test covering the demonstrated text
+composition, shared gradient and cached result.
+
+<RustSource path="rust/demos/practical-ch10-input-encoding-boundary/src/main.rs"
+  captionId="input-encoding-rust-demo"
+  caption="Print the fixed CPU text composition and its derivative, cache and refusal observations as one JSON object."
+  label="Rust source: Chapter 10 no-argument text fixture output" />
+
+<ol id="input-encoding-practice-prompts">
+  <li id="input-encoding-practice-1">Using the demo output above, explain why detaching only the table passed to the experimental head removes the head contribution while preserving a lookup contribution to the original table.</li>
+  <li id="input-encoding-practice-2">Trace the demo's malformed text-derived vector with shape <InlineMath latex="[1,1,3]" /> into a backbone of residual width <InlineMath latex="4" />. Identify the refusal and explain why the vector cannot enter the first block.</li>
+  <li id="input-encoding-practice-3">For the worked text input and targets, identify which data the backbone needs and which data stay with text lookup or text loss. Explain why a valid vector shape alone does not establish that the model understands another source.</li>
+</ol>
+
+<details id="input-encoding-practice-answers">
+<summary id="input-encoding-answer-summary">Checked explanations for derivative isolation, width refusal and text-specific data</summary>
+
+<ol>
+  <li id="input-encoding-answer-1">The detached head table keeps the same numerical values but has no gradient connection to the original learned node. The original lookup remains connected to that node, so the loss still differentiates through the head's hidden input, the backbone and the lookup. This experiment isolates the lookup contribution. Fixing the text embeddings instead isolates the head contribution; the production path keeps both.</li>
+  <li id="input-encoding-answer-2">The layout describes one row and one position, but the vector has three features where the backbone requires four. PreparedDecoderInput rejects it with <code>B,T,D or admitted row count</code> before the backbone runs a block. The vector is not padded, truncated or reinterpreted as a token ID.</li>
+  <li id="input-encoding-answer-3">The backbone needs checked vectors, their active lengths, causal range starts, RoPE positions, graph context and current live bindings. Text token IDs select lookup rows; tokenizer and batch-source checks stay with text encoding. Next-token targets <code>[99,100,1]</code> and valid-target masks stay with the text loss. Another source needs suitable encoding, training and any additional attention or objective semantics; matching residual width supplies only a tensor compatibility condition.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="input-encoding-handoff">
+
+## Carry the composition into numerical execution
+
+We can now name the complete text computation as encoding, backbone and head
+without changing its learned nodes or tied gradient. Chapter 11 will add GPU
+numerical execution behind a narrow execution boundary while preserving this
+composition and CPU inference. Device computation must preserve the meaning
+of the vectors, layout and model parameters.
+
+Persistence will follow in Chapter 15. It will need to restore the actual
+component composition, required text assets and shared parameter aliases,
+including the single table used by lookup and the text head. Neither GPU
+execution nor that persistence capability is implemented in this chapter.
+
+</div>

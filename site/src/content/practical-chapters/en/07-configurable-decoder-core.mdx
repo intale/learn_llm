@@ -1,9 +1,9 @@
 ---
 {
-  "chapter_id":"07-configurable-decoder-core","locale":"en","content_revision":1,"order":7,"concept_id":"configurable-decoder-core",
+  "chapter_id":"07-configurable-decoder-core","locale":"en","content_revision":2,"order":7,"concept_id":"configurable-decoder-core",
   "title":"Configure one decoder core before construction",
-  "description":"Validate model and run records, plan resources before constructing the existing CPU decoder, then preserve full and cached text through two private producers and one private core.",
-  "objective":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text paths through one private core.",
+  "description":"Validate model and run records, plan resources before constructing the existing CPU decoder, then preserve full and cached text through one shared decoder path.",
+  "objective":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text through one shared decoder path.",
   "worked_inputs":"Derive the reference decoder's 1188 parameters from vocabulary 266, width four, one block, one query and KV head, feed-forward width four and context capacity four. Compare the bridge, laptop and production plans; inspect full inputs [0,99,100], repeated inputs [0,99,99], and cached prefill [0,99] followed by token 100.",
   "formula":{
     "latex":"\\begin{aligned}\np&=2D^2+2DK+3DF+2D,\\\\\nP&=VD+Lp+D.\n\\end{aligned}",
@@ -42,12 +42,12 @@
   "rust_sources":[
     {"path":"rust/crates/llm-from-scratch-practical/src/config/model.rs","region":"configurable-model-shapes","purpose":"Validate head grouping and derive the named tensor census shared by planning and construction."},
     {"path":"rust/crates/llm-from-scratch-practical/src/config/planner.rs","region":"decoder-resource-plan","purpose":"Admit the checked plan and delegate construction while binding its configuration and actual initialization identity."},
-    {"path":"rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs","region":"prepared-text-input","purpose":"Bind model-owned text lookup to private shape, provenance, configuration and live-parameter metadata."},
-    {"path":"rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs","region":"shared-causal-decoder","purpose":"Consume both prepared text paths through one block loop, final normalization and tied vocabulary head."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs","region":"prepared-text-input","purpose":"Check prepared vector shape, layout, graph policy and live backbone and producer bindings at the evolved input boundary."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs","region":"shared-causal-decoder","purpose":"Consume full and cached prepared vectors through one block loop and return final-normalized hidden features."},
     {"path":"rust/demos/practical-ch07-configurable-decoder-core/src/lib.rs","region":"configurable-budget-history","purpose":"Compare named tensor partitions and sent traffic, and change a token budget independently of the parameter census."},
     {"path":"rust/demos/practical-ch07-configurable-decoder-core/src/main.rs","region":"configurable-decoder-example","purpose":"Print decoder totals, configuration records, refusals and supported CPU observations by default; --trace retains the same fixtures' complete accounting ledgers."}
   ],
-  "visualization":{"decision":"useful","id":"configurable-decoder-core","rationale":"One flow relates model and run records to a checked plan, its admission branches, and two text producers converging on one private decoder core. Calculated parameter categories and separate synthetic liveness peaks make accounting scope visible."},
+  "visualization":{"decision":"useful","id":"configurable-decoder-core","rationale":"One flow relates model and run records to a checked plan, its admission branches, and ordinary and cached text converging on the shared decoder path. Calculated parameter categories and separate synthetic liveness peaks make accounting scope visible."},
   "decoder_connection":"Carry the checked dimensions, construction identity and single text core into Chapter 8's optional dropout and reproducibility work. Unequal-head GQA execution, GPU and distributed backends, adapter selection and trained-checkpoint serialization remain later capabilities."
 }
 ---
@@ -251,37 +251,45 @@ and `construct` consuming that token through the existing fresh initializer.
 
 <div id="configurable-private-core">
 
-## Send two text paths through one private core
+## Preserve the text seam as it evolves
 
-A checked configuration keeps model construction consistent. The input boundary
-must also preserve the existing text behavior. Ordinary full, padded and packed
-input performs text-token embedding lookup through one model-owned producer.
-Cached text performs its one-new-token lookup through the second. Both wrap the
-result in private `PreparedDecoderInput` and send it to one causal decoder
-core, which owns the block loop, final RMSNorm and tied vocabulary head.
+A checked configuration keeps model construction consistent. Chapter 7
+originally preserved text behavior with two private prepared-input producers.
+Ordinary full, padded and packed input performed text-token embedding lookup
+through one model-owned producer. Cached text performed its one-new-token
+lookup through the second. Both wrapped the result in private
+`PreparedDecoderInput` and sent it to one causal decoder core, which then
+contained the block loop, final RMSNorm and tied vocabulary head.
 
 In a full prepared tensor of shape $[b,T,D]$, $b$ is the actual number of rows
 and $T$ the number of supplied positions per row; they fit the admitted row and
-position bounds. The carrier keeps checked batch metadata by reference for
-padded or packed input; ordinary and cached input carry their position and
-causal policies. Together these bind positions, implicit causal ranges,
+position bounds. That original carrier kept checked batch metadata by reference
+for padded or packed input; ordinary and cached input carried their position
+and causal policies. Together these bound positions, implicit causal ranges,
 segment IDs, validity and loss eligibility, source provenance, semantic/run
 digests, dtype, device and construction identity without allocating a dense
-attention mask. The core checks these fields
-against the model before running any block. It also checks the original
+attention mask. The original core checked these fields
+against the model before running any block. It also checked the original
 embedding handle's node and revision, then the actual parameter node identities
 and revisions, including the tied table.
 
 A matching digest describes matching bound bytes. It does not prove that a
 hidden tensor came from the model's lookup or that live parameters remain
 current. A same-shaped, equal-valued model with different nodes cannot use the
-first model's prepared input or cache. The private carrier offers no public raw
-embedding or modality entry point.
+first model's prepared input or cache. The original private carrier offered no
+public raw embedding or modality entry point.
+
+Chapter 10 evolves this seam into a checked vector input and a borrowing
+`DecoderBackbone` that returns hidden features. Text source checks stay in
+`TextInputEncoder`, targets and masks stay with text loss, and
+`TextOutputHead` applies the same live tied table outside the backbone. The
+live excerpts below show that evolved boundary; the graph, parameter and cache
+preservation rules continue to apply.
 
 <RustSource path="rust/crates/llm-from-scratch-practical/src/models/prepared_decoder_input.rs"
   region="prepared-text-input" captionId="configurable-rust-input"
-  caption="Bind private prepared text to its checked layout, configuration, construction provenance and actual parameter nodes."
-  label="Rust source: private prepared text input and live parameter binding" />
+  caption="Check prepared vector shape, layout, graph policy and live backbone and learned-producer bindings before consumption."
+  label="Rust source: checked vector input at the evolved decoder boundary" />
 
 Full execution propagates the caller's explicit `AutogradContext`. With
 recording enabled, it keeps the original lookup handle and graph, so repeated
@@ -302,8 +310,8 @@ does not authorize stale parameter binding.
 
 <RustSource path="rust/crates/llm-from-scratch-practical/src/models/causal_decoder_core.rs"
   region="shared-causal-decoder" captionId="configurable-rust-core"
-  caption="Consume ordinary and cached prepared text through the same decoder block loop, final norm and tied head."
-  label="Rust source: one causal decoder core for full and cached text" />
+  caption="Run full and cached vector inputs through one decoder block loop and return final-normalized hidden features."
+  label="Rust source: shared full and cached transformer computation" />
 
 The configured demo supplies full inputs `[0,99,100]` with targets
 `[99,100,1]` and cached prefill `[0,99]` followed by `100`. It initializes both
@@ -499,13 +507,14 @@ independently.
 
 Follow the model and run records into one checked plan. The plan admits
 construction only when execution support and resource limits pass. Once
-admitted, ordinary and cached text producers feed the same private decoder
-core. The reference census and separate synthetic lifetime schedules explain
+admitted, ordinary and cached text feed the shared decoder path. Chapter 10
+separates its encoding, backbone and head while preserving that path. The
+reference census and separate synthetic lifetime schedules explain
 what the accounting counts.
 
 <ConfigurableDecoderCoreDiagram labels={{
   title: "One checked plan, two text paths, one decoder core",
-  description: "The semantic model record and run record enter shape validation and resource planning together. Construction occurs only after execution support and resource gates pass: reference and bridge use the CPU path, while laptop and production retain plans with execution refused. Ordinary full, padded or packed text lookup and cached one-token lookup then converge on the same private core. Parameter counts are calculated from the reference record; the two lifetime peaks are synthetic accounting results, not measured decoder memory.",
+  description: "The semantic model record and run record enter shape validation and resource planning together. Construction occurs only after execution support and resource gates pass: reference and bridge use the CPU path, while laptop and production retain plans with execution refused. Ordinary full, padded or packed text lookup and cached one-token lookup converge on the same backbone, followed by the tied text head. Parameter counts are calculated from the reference record; the two lifetime peaks are synthetic accounting results, not measured decoder memory.",
   inputsTitle: "Two records enter planning",
   modelRecord: "Semantic model record",
   modelNote: "Dimensions, capacity, numerical policies, vocabulary, dtype and initialization identity",
@@ -513,7 +522,7 @@ what the accounting counts.
   runNote: "Rows, token budget, named seeds, topology, backend and resource profile",
   modelDigest: "Reference semantic model SHA-256",
   runDigest: "Reference run SHA-256",
-  digestNote: "The semantic-model and run-record identities shown identify the reference plan. Matching record digests do not replace actual parameter-node and revision checks in the private core.",
+  digestNote: "The semantic-model and run-record identities shown identify the reference plan. Matching record digests do not replace actual parameter-node and revision checks at the input boundary.",
   checksTitle: "Validate, plan, then admit",
   checksNote: "One checked shape descriptor determines the tensor census and resource ledgers. Execution support and every applicable resource limit are checked before construction.",
   executeTitle: "Admitted CPU construction",
@@ -527,13 +536,13 @@ what the accounting counts.
   feedForward: "All feed-forward matrices",
   norms: "All norm gains",
   total: "Total unique learned scalars",
-  textPathsTitle: "Two model-owned text producers converge",
+  textPathsTitle: "Ordinary and cached text share the backbone",
   ordinaryTitle: "Ordinary text producer",
   ordinaryNote: "Full, padded and packed token lookup preserves the caller's context; recording keeps the original embedding graph.",
   cachedTitle: "Cached text producer",
   cachedNote: "No-gradient mode is selected before one-token lookup; the cached producer preserves the growing-prefix binding.",
-  coreTitle: "One private causal decoder core",
-  coreNote: "Validate the original lookup tensor, prepared metadata and actual parameter nodes/revisions, then use one block loop, final RMSNorm and tied text head.",
+  coreTitle: "One backbone, then the tied text head",
+  coreNote: "Check prepared vectors and live bindings, run the shared block loop and final RMSNorm, then project through the wrapper's tied text head.",
   livenessTitle: "Separate synthetic lifetime schedules",
   livenessNote: "Both schedules keep 64 bytes of state and use B with 128 bytes plus 32 bytes of workspace. Aliasing B adds no owned allocation.",
   overlap: "A's 64 bytes remain live while B runs: joint peak in bytes",
@@ -607,7 +616,7 @@ It prints the complete JSON ledger rather than the concise report:
 ## Carry the checked core into stochastic execution
 
 One checked configuration now connects dimension choices to planning and
-admitted construction. One private text core preserves the occurrence-local
+admitted construction. The shared text path preserves the occurrence-local
 attention, positions and valid-target loss from Chapter 5 and the construction
 policy from Chapter 6. Chapter 8 adds optional dropout with its own
 reproducibility streams. Unequal-head GQA execution, GPU and distributed

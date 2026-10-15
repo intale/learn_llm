@@ -32,11 +32,12 @@ pub mod attention {
 
 /// Complete decoder models assembled from the chapter-by-chapter primitives.
 pub mod models {
-    mod causal_decoder_core;
+    pub mod causal_decoder_core;
     pub mod decoder;
     pub mod decoder_block;
     pub mod neural_ngram;
-    mod prepared_decoder_input;
+    pub mod prepared_decoder_input;
+    pub mod text_input;
 }
 
 /// Deterministic data ordering and training updates.

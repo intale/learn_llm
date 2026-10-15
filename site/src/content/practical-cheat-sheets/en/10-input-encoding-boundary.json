@@ -1,0 +1,15 @@
+{
+  "chapter_id":"10-input-encoding-boundary",
+  "locale":"en",
+  "title":"Input encoding, hidden features and a tied text head",
+  "description":"Terms for the vector boundary, its causal layout and the shared table used by text lookup and vocabulary projection.",
+  "terms":[
+    {"term":"Input encoder","definition":"A source-to-vector adapter that supplies checked embedding sequences to the causal backbone. The implemented text encoder reuses token lookup; this adapter is not the bidirectional encoder stack of an encoder-decoder Transformer."},
+    {"term":"Prepared decoder input","definition":"The embedding tensor, sequence layout, graph-recording context and live bindings checked before the backbone consumes vectors. Token IDs, vocabulary, targets and text loss masks stay outside this generic carrier."},
+    {"term":"Sequence layout","definition":"The batch and position shape, active prefix length of each row, causal range start for each cell and explicit RoPE positions. These values describe where attention may read and which positions RoPE uses."},
+    {"term":"Decoder backbone","definition":"A borrowing view of the existing decoder blocks and final RMSNorm. It transforms residual-width input vectors into residual-width hidden features without requiring a text vocabulary or output table."},
+    {"term":"Text output head","definition":"The vocabulary projection that multiplies hidden features by the transpose of the live text embedding table. Its output has one logit per text vocabulary entry at each supplied position."},
+    {"term":"Weight tying","definition":"Using one learned table for both token lookup and the text output projection. The allocation is counted once, and backward adds lookup-path and head-path contributions to its gradient."},
+    {"term":"Live parameter binding","definition":"The exact parameter nodes and value revisions captured when vectors are prepared and checked again when the backbone consumes them. A descriptive source label cannot authorize stale vectors after a learned producer or backbone parameter changes."}
+  ]
+}

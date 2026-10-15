@@ -1,0 +1,105 @@
+---
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string;
+  flowTitle: string; encoderTitle: string; ids: string; lookup: string;
+  backboneTitle: string; backbone: string;
+  headTitle: string; head: string; logits: string;
+  gradientTitle: string; lookupGradient: string; lookupGradientNote: string;
+  headGradient: string; headGradientNote: string;
+  sharedTitle: string; sharedNote: string; totalGradient: string;
+  gradientSum: string; count: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error('input-encoding-boundary-diagram-copy');
+  }
+}
+---
+<figure class="course-diagram input-encoding-diagram" data-diagram-style="course-v1"
+  data-visualization-id="input-encoding-boundary" tabindex="0"
+  aria-labelledby="input-encoding-figure-title" aria-describedby="input-encoding-figure-description">
+  <figcaption class="course-diagram__caption" id="input-encoding-figure-caption">
+    <h3 id="input-encoding-figure-title">{labels.title}</h3>
+    <p id="input-encoding-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section data-diagram-box aria-labelledby="input-encoding-flow-title">
+    <h4 id="input-encoding-flow-title">{labels.flowTitle}</h4>
+    <ol class="course-diagram__grid input-encoding-flow" id="input-encoding-figure-flow">
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="input-encoding-figure-encoder">
+        <div class="course-diagram__card-heading"><h5>{labels.encoderTitle}</h5></div>
+        <p>{labels.ids} <code dir="ltr">[0,99,100]</code></p>
+        <p>{labels.lookup} <InlineMath latex="E" /></p>
+        <p class="course-diagram__technical"><InlineMath latex="X\;[1,3,4]" /></p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="input-encoding-figure-backbone">
+        <div class="course-diagram__card-heading"><h5>{labels.backboneTitle}</h5></div>
+        <p>{labels.backbone}</p>
+        <p class="course-diagram__technical"><InlineMath latex="X\;[1,3,4]" /> <span aria-hidden="true">→</span> <InlineMath latex="H\;[1,3,4]" /></p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="input-encoding-figure-head">
+        <div class="course-diagram__card-heading"><h5>{labels.headTitle}</h5></div>
+        <p>{labels.head} <InlineMath latex="E^{\mathsf T}" /></p>
+        <p class="course-diagram__technical"><InlineMath latex="H E^{\mathsf T}=Z" /></p>
+        <p>{labels.logits} <InlineMath latex="[1,3,258]" /></p>
+      </li>
+    </ol>
+  </section>
+
+  <section data-diagram-box aria-labelledby="input-encoding-gradient-title">
+    <h4 id="input-encoding-gradient-title">{labels.gradientTitle}</h4>
+    <div class="course-diagram__grid input-encoding-gradients" id="input-encoding-figure-gradient-paths">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box id="input-encoding-figure-lookup-gradient">
+        <div class="course-diagram__card-heading"><h5>{labels.lookupGradient}</h5></div>
+        <p>{labels.lookupGradientNote}</p>
+        <p class="course-diagram__technical"><InlineMath latex="G_{\mathrm{lookup}}" /> <span aria-hidden="true">↓</span></p>
+      </article>
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box id="input-encoding-figure-head-gradient">
+        <div class="course-diagram__card-heading"><h5>{labels.headGradient}</h5></div>
+        <p>{labels.headGradientNote}</p>
+        <p class="course-diagram__technical"><InlineMath latex="G_{\mathrm{head}}" /> <span aria-hidden="true">↓</span></p>
+      </article>
+      <article class="course-diagram__card-stack input-encoding-shared" data-diagram-card data-diagram-box id="input-encoding-figure-shared-table">
+        <div class="course-diagram__card-heading"><h5>{labels.sharedTitle}</h5></div>
+        <p class="course-diagram__technical"><InlineMath latex="E\;[258,4]" /></p>
+        <p>{labels.sharedNote}</p>
+        <p>{labels.totalGradient} <InlineMath latex="\nabla_E\mathcal L" /></p>
+        <p>{labels.gradientSum} <InlineMath latex="G_{\mathrm{lookup}}+G_{\mathrm{head}}" /></p>
+        <p>{labels.count}</p>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .input-encoding-flow,
+  .input-encoding-gradients {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .input-encoding-flow {
+    padding-inline-start: 1.5rem;
+  }
+  .input-encoding-shared {
+    grid-column: 1 / -1;
+  }
+  .input-encoding-diagram :global(.course-diagram__technical) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  @container course-diagram (min-width: 38rem) {
+    .input-encoding-gradients {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container course-diagram (min-width: 54rem) {
+    .input-encoding-flow {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

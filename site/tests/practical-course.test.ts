@@ -7,7 +7,7 @@ import {getMessages,validateMessageCatalog} from '../src/i18n';
 import {COURSE_HOME_MESSAGE_KEYS,COURSE_INDEX_MESSAGE_KEYS,courseMessageKeys,hasCourseHomeMessages,hasCourseIndexMessages,hasCourseMessages} from '../src/i18n/messages';
 import {practicalCourse} from '../src/lib/course-configuration';
 
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary'] as const;
 const read=(path:string)=>readFileSync(new URL('../../'+path,import.meta.url),'utf8');
 const documents=ids.map(id=>({id,
   lesson:parseJsonFrontmatter(read('site/src/content/practical-chapters/en/'+id+'.mdx'),id),
@@ -39,11 +39,11 @@ describe('independent optional course message groups',()=>{
   });
 });
 
-describe('current practical Chapters 0–9 source bindings',()=>{
+describe('current practical Chapters 0–10 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
-    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([5,1,1,2,1,1,1,1,3,5]);
+    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([5,1,1,2,1,1,1,2,3,5,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);
@@ -160,4 +160,32 @@ describe('current practical Chapters 0–9 source bindings',()=>{
     expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
     for(const source of lesson.data.history.llm_evolution.sources)expect(lesson.body).toContain(']('+source.source_url+')');
   });
+  it('binds Chapter 10 formula, executed text report, displayed sources and glossary',()=>{
+    const {id,lesson,contract}=documents[10];
+    expect(lesson.data.concept_id).toBe('input-encoding-boundary');
+    expect(lesson.data.formula.latex).toBe(contract.formula.latex);
+    expect(lesson.data.formula.symbols).toEqual(contract.formula.symbols.map((symbol:{symbol:string;en:string})=>({symbol:symbol.symbol,meaning:symbol.en})));
+    expect(lesson.data.visualization).toMatchObject({decision:'useful',id:'input-encoding-boundary'});
+    const expected=read('rust/demos/practical-ch'+id+'/expected.txt');
+    expect(contract.rust.expected_output).toBe(expected);
+    const observed=JSON.parse(expected);
+    expect(observed.shapes).toEqual({embedding:[1,3,4],hidden:[1,3,4],logits:[1,3,258],table:[258,4]});
+    expect(observed.parameters.lookup_and_head_same_node).toBe(true);
+    expect(observed.gradients.within_tolerance).toBe(true);
+    expect(lesson.data.rust_sources.length).toBeGreaterThan(0);
+    for(const entry of lesson.data.rust_sources){
+      expect(contract.rust.sources).toContain(entry.path);
+      const source=read(entry.path);
+      if(entry.region){
+        expect(source.split('// region:'+entry.region)).toHaveLength(2);
+        expect(source.split('// endregion:'+entry.region)).toHaveLength(2);
+        expect(lesson.body.split('region="'+entry.region+'"')).toHaveLength(2);
+      }else expect(lesson.body.split('<RustSource path="'+entry.path+'"')).toHaveLength(2);
+    }
+    const sheet=JSON.parse(read('site/src/content/practical-cheat-sheets/en/'+id+'.json'));
+    expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');
+    expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
+    for(const source of lesson.data.history.llm_evolution.sources)expect(lesson.body).toContain(']('+source.source_url+')');
+  });
+
 });

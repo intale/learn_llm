@@ -2,8 +2,8 @@
   "schemaVersion":1,
   "chapterId":"07-configurable-decoder-core",
   "locale":"en",
-  "contentRevision":1,
+  "contentRevision":2,
   "title":"Configure one decoder core before construction",
-  "description":"Validate model and run records, plan resources before constructing the existing CPU decoder, then preserve full and cached text through two private producers and one private core.",
-  "objective":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text paths through one private core."
+  "description":"Validate model and run records, plan resources before constructing the existing CPU decoder, then preserve full and cached text through one shared decoder path.",
+  "objective":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text through one shared decoder path."
 }

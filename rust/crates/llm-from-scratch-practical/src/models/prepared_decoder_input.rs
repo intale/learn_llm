@@ -1,10 +1,10 @@
-//! A models-only text seam. Digests describe inputs; live nodes authorize use.
-use super::decoder::{DecoderModel, DecoderModelConfig};
+//! Checked vector sequences shared by source encoders and the transformer.
+use super::{causal_decoder_core::DecoderBackbone, decoder_block::DecoderBlockConfig};
 use crate::{
-    attention::incremental::LayerKvCache,
     autograd::tensor_core::{AutogradContext, TensorValue, TensorValueBinding},
-    training::variable_batch::VariableBatch,
+    nn::init::NamedParameter,
 };
+use std::fmt;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct CoreIdentity {
@@ -13,296 +13,251 @@ pub(crate) struct CoreIdentity {
     pub construction_id: String,
     pub max_rows: usize,
 }
-pub(super) enum TextSource<'a> {
-    Full {
-        batch: Option<&'a VariableBatch>,
-    },
-    Cached {
-        layers: &'a [LayerKvCache],
-        prefix: usize,
-    },
+
+/// A malformed vector sequence, execution policy or stale live binding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct PreparedInputError(pub(crate) &'static str);
+impl PreparedInputError {
+    pub fn reason(self) -> &'static str {
+        self.0
+    }
 }
+impl fmt::Display for PreparedInputError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0)
+    }
+}
+impl std::error::Error for PreparedInputError {}
+
+// region:sequence-layout
+/// Source-independent causal layout. Each row has an active prefix; a cell
+/// attends from its range start through itself, using its explicit RoPE position.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SequenceLayout {
+    shape: [usize; 2],
+    lengths: Vec<usize>,
+    range_starts: Vec<usize>,
+    positions: Vec<usize>,
+}
+impl SequenceLayout {
+    pub fn new(
+        shape: [usize; 2],
+        lengths: Vec<usize>,
+        range_starts: Vec<usize>,
+        positions: Vec<usize>,
+    ) -> Result<Self, PreparedInputError> {
+        let [b, t] = shape;
+        let cells = b
+            .checked_mul(t)
+            .ok_or(PreparedInputError("layout size overflow"))?;
+        if b == 0
+            || t == 0
+            || lengths.len() != b
+            || range_starts.len() != cells
+            || positions.len() != cells
+        {
+            return Err(PreparedInputError("layout B,T or metadata lengths"));
+        }
+        if lengths.iter().any(|&n| n > t)
+            || range_starts
+                .iter()
+                .enumerate()
+                .any(|(i, &start)| start > i % t)
+        {
+            return Err(PreparedInputError("active length or causal range start"));
+        }
+        Ok(Self {
+            shape,
+            lengths,
+            range_starts,
+            positions,
+        })
+    }
+
+    /// Ordinary causal rows, with positions 0 through T-1.
+    pub fn causal(shape: [usize; 2]) -> Result<Self, PreparedInputError> {
+        let [b, t] = shape;
+        let cells = b
+            .checked_mul(t)
+            .ok_or(PreparedInputError("layout size overflow"))?;
+        if b == 0 || t == 0 {
+            return Err(PreparedInputError("layout B,T or metadata lengths"));
+        }
+        fn filled(n: usize, value: usize) -> Result<Vec<usize>, PreparedInputError> {
+            let mut values = Vec::new();
+            values
+                .try_reserve_exact(n)
+                .map_err(|_| PreparedInputError("layout allocation"))?;
+            values.resize(n, value);
+            Ok(values)
+        }
+        let mut positions = filled(cells, 0)?;
+        for (i, position) in positions.iter_mut().enumerate() {
+            *position = i % t;
+        }
+        Self::new(shape, filled(b, t)?, filled(cells, 0)?, positions)
+    }
+    pub fn at_position(position: usize) -> Self {
+        Self {
+            shape: [1, 1],
+            lengths: vec![1],
+            range_starts: vec![0],
+            positions: vec![position],
+        }
+    }
+    pub fn shape(&self) -> [usize; 2] {
+        self.shape
+    }
+    pub fn lengths(&self) -> &[usize] {
+        &self.lengths
+    }
+    pub fn range_starts(&self) -> &[usize] {
+        &self.range_starts
+    }
+    pub fn positions(&self) -> &[usize] {
+        &self.positions
+    }
+}
+// endregion:sequence-layout
+
+// region:input-encoder
+/// A producer of differentiable vectors. Source-specific validation belongs in
+/// the implementation; the transformer receives only the checked result.
+pub trait InputEncoder {
+    type Error: std::error::Error;
+    fn encode(
+        &self,
+        context: AutogradContext,
+        backbone: &DecoderBackbone<'_>,
+    ) -> Result<PreparedDecoderInput, Self::Error>;
+}
+// endregion:input-encoder
 
 // region:prepared-text-input
-/// This carrier has no public embedding/modality constructor.
-pub(crate) struct PreparedDecoderInput<'a> {
+// region:prepared-decoder-input
+/// A checked [B,T,D] vector sequence. No token IDs, vocabulary, tokenizer,
+/// targets or output table are required by this carrier.
+///
+/// Learned encoders must list every live parameter used to produce the vectors.
+/// Handles are retained without copying learned values. A changed parameter
+/// invalidates a prepared result before the transformer performs any work.
+pub struct PreparedDecoderInput {
     embedding: TensorValue,
     embedding_binding: TensorValueBinding,
     context: AutogradContext,
-    shape: [usize; 3],
-    source: TextSource<'a>,
-    provenance_id: String,
-    loss_eligible: bool,
-    semantic_and_run: CoreIdentity,
-    config: DecoderModelConfig,
-    dtype: &'static str,
-    device: &'static str,
+    layout: SequenceLayout,
+    provenance: String,
+    config: DecoderBlockConfig,
+    layers: usize,
+    identity: Option<CoreIdentity>,
     parameters: Vec<TensorValueBinding>,
-    tied_table: TensorValueBinding,
+    producer_parameters: Vec<TensorValueBinding>,
 }
-impl<'a> PreparedDecoderInput<'a> {
-    /// The sole ordinary text producer also carries checked padding/packing.
-    pub(super) fn full(
-        model: &DecoderModel,
+impl PreparedDecoderInput {
+    pub fn new(
+        backbone: &DecoderBackbone<'_>,
         context: AutogradContext,
         embedding: TensorValue,
-        batch: Option<&'a VariableBatch>,
-    ) -> Self {
-        Self::capture(model, context, embedding, TextSource::Full { batch }, true)
-    }
-    /// Only the model-owned cached text entry invokes this second producer.
-    pub(super) fn cached(
-        model: &DecoderModel,
-        embedding: TensorValue,
-        layers: &'a [LayerKvCache],
-        prefix: usize,
-    ) -> Self {
-        Self::capture(
-            model,
-            AutogradContext::no_grad(),
-            embedding,
-            TextSource::Cached { layers, prefix },
-            false,
-        )
-    }
-    fn capture(
-        model: &DecoderModel,
-        context: AutogradContext,
-        embedding: TensorValue,
-        source: TextSource<'a>,
-        loss_eligible: bool,
-    ) -> Self {
-        let shape = if embedding.shape().len() == 3 {
-            [
-                embedding.shape()[0],
-                embedding.shape()[1],
-                embedding.shape()[2],
-            ]
-        } else {
-            [0; 3]
-        };
-        let provenance_id = match &source {
-            TextSource::Full { batch: Some(batch) } => format!(
-                "checked-text:{}:{}",
-                batch.binding().tokenizer_sha256(),
-                batch.binding().split_receipt_sha256()
-            ),
-            TextSource::Full { batch: None } => "ordinary-text-token-ids".into(),
-            TextSource::Cached { prefix, .. } => format!("cached-text-prefix:{prefix}"),
-        };
-        Self {
-            semantic_and_run: model.input_identity(shape[0], shape[1], context),
-            shape,
+        layout: SequenceLayout,
+        provenance: impl Into<String>,
+        producer_parameters: &[NamedParameter],
+    ) -> Result<Self, PreparedInputError> {
+        let input = Self {
             embedding_binding: TensorValueBinding::capture(&embedding),
             embedding,
             context,
-            source,
-            provenance_id,
-            loss_eligible,
-            config: model.config(),
-            dtype: "f64",
-            device: "cpu",
-            parameters: model
+            layout,
+            provenance: provenance.into(),
+            config: backbone.config(),
+            layers: backbone.blocks().len(),
+            identity: backbone.identity().cloned(),
+            parameters: backbone
                 .parameters()
+                .map(|p| TensorValueBinding::capture(p.tensor()))
+                .collect(),
+            producer_parameters: producer_parameters
                 .iter()
                 .map(|p| TensorValueBinding::capture(p.tensor()))
                 .collect(),
-            tied_table: TensorValueBinding::capture(model.tied_embedding().tensor()),
-        }
+        };
+        input.validate(backbone)?;
+        Ok(input)
     }
-    /// Recheck metadata and exact node revisions before the first block.
-    pub(super) fn validate(&self, model: &DecoderModel) -> Result<(), &'static str> {
-        let [b, t, d] = self.shape;
-        if b == 0
-            || t == 0
-            || d != model.config().model_width()
-            || self.embedding.shape() != self.shape
-            || b > self.semantic_and_run.max_rows
+    /// Recheck exact live nodes/revisions at consumption, not just preparation.
+    pub fn validate(&self, backbone: &DecoderBackbone<'_>) -> Result<(), PreparedInputError> {
+        let [b, t] = self.layout.shape();
+        if self.embedding.shape() != [b, t, backbone.config().model_width()]
+            || t > backbone.config().max_positions()
+            || self.identity.as_ref().is_some_and(|id| b > id.max_rows)
         {
-            return Err("B,T,D or admitted row count");
+            return Err(PreparedInputError("B,T,D or admitted row count"));
         }
-        if self.dtype != "f64" || self.device != "cpu" || self.config != model.config() {
-            return Err("numerical policy or device");
+        if self
+            .layout
+            .positions()
+            .iter()
+            .any(|&p| p >= backbone.config().max_positions())
+        {
+            return Err(PreparedInputError("position capacity"));
+        }
+        if self.config != backbone.config()
+            || self.layers != backbone.blocks().len()
+            || self.identity.as_ref() != backbone.identity()
+        {
+            return Err(PreparedInputError(
+                "backbone configuration or execution identity",
+            ));
+        }
+        if self.provenance.is_empty() {
+            return Err(PreparedInputError("empty producer provenance"));
         }
         if !self.embedding_binding.node_matches(&self.embedding)
             || !self.embedding_binding.revision_matches(&self.embedding)
         {
-            return Err("prepared hidden tensor identity or revision");
-        }
-        if self.semantic_and_run != model.input_identity(b, t, self.context) {
-            return Err("semantic/run/construction identity");
-        }
-        if self.parameters.len() != model.parameters().len()
-            || !self
-                .tied_table
-                .node_matches(model.tied_embedding().tensor())
-            || !self
-                .tied_table
-                .revision_matches(model.tied_embedding().tensor())
-        {
-            return Err("tied table binding");
-        }
-        for (binding, p) in self.parameters.iter().zip(model.parameters()) {
-            if !binding.node_matches(p.tensor()) || !binding.revision_matches(p.tensor()) {
-                return Err("parameter node or revision");
-            }
+            return Err(PreparedInputError(
+                "prepared hidden tensor identity or revision",
+            ));
         }
         if !self.context.records_graph() && self.embedding.tracks_gradient() {
-            return Err("graph-recording mode");
+            return Err(PreparedInputError("graph-recording mode"));
         }
-        match &self.source {
-            TextSource::Full { batch } => {
-                if !self.loss_eligible || t > model.config().max_positions() {
-                    return Err("full text eligibility or positions");
-                }
-                let expected = if let Some(batch) = batch {
-                    if batch.shape() != [b, t] {
-                        return Err("batch layout shape");
-                    }
-                    let cells = b.checked_mul(t).ok_or("batch metadata overflow")?;
-                    if batch.positions().len() != cells
-                        || batch.range_starts().len() != cells
-                        || batch.segments().len() != cells
-                        || batch.valid_tokens().len() != cells
-                        || batch.valid_targets().len() != cells
-                        || batch.lengths().len() != b
-                    {
-                        return Err("position/segment/eligibility lengths");
-                    }
-                    for row in 0..b {
-                        if batch.lengths()[row] > t {
-                            return Err("active row length");
-                        }
-                        for col in 0..t {
-                            let i = row * t + col;
-                            if batch.valid_targets()[i] && !batch.valid_tokens()[i] {
-                                return Err("loss eligibility outside text");
-                            }
-                            if batch.valid_tokens()[i] {
-                                if col >= batch.lengths()[row]
-                                    || batch.segments()[i] < 0
-                                    || batch.range_starts()[i] > col
-                                    || batch.positions()[i] >= model.config().max_positions()
-                                {
-                                    return Err("positions or causal segment range");
-                                }
-                            } else if batch.segments()[i] != -1 {
-                                return Err("inactive segment identity");
-                            }
-                        }
-                    }
-                    format!(
-                        "checked-text:{}:{}",
-                        batch.binding().tokenizer_sha256(),
-                        batch.binding().split_receipt_sha256()
-                    )
-                } else {
-                    "ordinary-text-token-ids".into()
-                };
-                if expected != self.provenance_id {
-                    return Err("text provenance");
-                }
-            }
-            TextSource::Cached { layers, prefix } => {
-                if self.context.records_graph()
-                    || self.loss_eligible
-                    || self.shape != [1, 1, model.config().model_width()]
-                    || *prefix >= model.config().max_positions()
-                    || layers.len() != model.blocks().len()
-                {
-                    return Err("cached mode, prefix or layers");
-                }
-                if self.provenance_id != format!("cached-text-prefix:{prefix}") {
-                    return Err("cached provenance");
-                }
-                for (layer, block) in layers.iter().zip(model.blocks()) {
-                    if layer.len() != *prefix
-                        || layer.batch_size() != 1
-                        || layer.capacity() != model.config().max_positions()
-                    {
-                        return Err("cache prefix/batch/capacity");
-                    }
-                    block
-                        .attention()
-                        .validate_incremental_cache_binding(layer)
-                        .map_err(|_| "cache parameter binding")?;
-                }
-            }
+        let current: Vec<_> = backbone.parameters().collect();
+        if self.parameters.len() != current.len()
+            || self.parameters.iter().zip(current).any(|(binding, p)| {
+                !binding.node_matches(p.tensor()) || !binding.revision_matches(p.tensor())
+            })
+        {
+            return Err(PreparedInputError("backbone parameter node or revision"));
+        }
+        if self
+            .producer_parameters
+            .iter()
+            .any(|binding| !binding.revision_matches(binding.value_handle()))
+        {
+            return Err(PreparedInputError("producer parameter revision"));
         }
         Ok(())
     }
-    pub(super) fn into_parts(self) -> (TensorValue, AutogradContext, TextSource<'a>) {
-        (self.embedding, self.context, self.source)
+    pub fn embeddings(&self) -> &TensorValue {
+        &self.embedding
+    }
+    pub fn context(&self) -> AutogradContext {
+        self.context
+    }
+    pub fn layout(&self) -> &SequenceLayout {
+        &self.layout
+    }
+    /// Descriptive provenance is never used in place of a live node binding.
+    pub fn provenance(&self) -> &str {
+        &self.provenance
+    }
+    pub(crate) fn producer_parameters(&self) -> &[TensorValueBinding] {
+        &self.producer_parameters
     }
 }
+// endregion:prepared-decoder-input
 // endregion:prepared-text-input
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{autograd::tensor_core::AutogradContext, nn::init::SplitMix64};
-    fn model() -> DecoderModel {
-        DecoderModel::new(
-            DecoderModelConfig::new(266, 4, 1, 4, 1, 4, 10000.0, 1e-6),
-            &mut SplitMix64::from_seed(39),
-        )
-        .unwrap()
-    }
-    #[test]
-    fn forged_metadata_and_same_shape_other_nodes_are_refused() {
-        let m = model();
-        let other = model();
-        let context = AutogradContext::recording();
-        let e = m
-            .embedding()
-            .forward_with_context(context, &[0, 99], &[1, 2])
-            .unwrap();
-        let mut p = PreparedDecoderInput::full(&m, context, e, None);
-        assert!(p.validate(&m).is_ok());
-        assert_eq!(p.validate(&other), Err("tied table binding"));
-        p.shape[2] = 8;
-        assert_eq!(p.validate(&m), Err("B,T,D or admitted row count"));
-        p.shape[2] = 4;
-        p.semantic_and_run.run_sha256.push('x');
-        assert_eq!(p.validate(&m), Err("semantic/run/construction identity"));
-    }
-    #[test]
-    fn revision_provenance_and_context_cannot_authorize_a_stale_carrier() {
-        let m = model();
-        let e = m
-            .embedding()
-            .forward_with_context(AutogradContext::recording(), &[0], &[1, 1])
-            .unwrap();
-        let mut p = PreparedDecoderInput::full(&m, AutogradContext::recording(), e, None);
-        p.provenance_id = "unrelated".into();
-        assert_eq!(p.validate(&m), Err("text provenance"));
-        p.provenance_id = "ordinary-text-token-ids".into();
-        p.context = AutogradContext::no_grad();
-        assert!(p.validate(&m).is_err());
-        p.context = AutogradContext::recording();
-        m.tied_embedding().tensor().set_value_revision_for_test(1);
-        assert_eq!(p.validate(&m), Err("tied table binding"));
-    }
-
-    #[test]
-    fn changed_hidden_lookup_handle_fails_at_the_consumer_boundary() {
-        let m = model();
-        let other = model();
-        let context = AutogradContext::recording();
-        let e = m
-            .embedding()
-            .forward_with_context(context, &[0, 99], &[1, 2])
-            .unwrap();
-        let mut input = PreparedDecoderInput::full(&m, context, e, None);
-        input.embedding = other
-            .embedding()
-            .forward_with_context(context, &[0, 99], &[1, 2])
-            .unwrap();
-        assert!(matches!(
-            super::super::causal_decoder_core::consume(&m, input),
-            Err(super::super::causal_decoder_core::CoreError::Prepared(
-                "prepared hidden tensor identity or revision"
-            ))
-        ));
-    }
-}
+#[path = "decoder_input_tests.rs"]
+mod tests;

@@ -653,6 +653,10 @@ pub(crate) struct TensorValueBinding {
 }
 
 impl TensorValueBinding {
+    pub(crate) fn value_handle(&self) -> &TensorValue {
+        &self.value
+    }
+
     pub(crate) fn capture(value: &TensorValue) -> Self {
         Self {
             value: value.clone(),

@@ -2,9 +2,9 @@
 {
   "chapter_id":"07-configurable-decoder-core",
   "concept_id":"configurable-decoder-core",
-  "content_revision":1,
+  "content_revision":2,
   "order":7,
-  "objective":{"en":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text paths through one private core."},
+  "objective":{"en":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text through one shared decoder path."},
   "worked_inputs":{"en":"Derive the reference decoder's 1188 parameters from vocabulary 266, width four, one block, one query and KV head, feed-forward width four and context capacity four. Compare the bridge, laptop and production plans; inspect full inputs [0,99,100], repeated inputs [0,99,99], and cached prefill [0,99] followed by token 100."},
   "formula":{
     "latex":"\\begin{aligned}\np&=2D^2+2DK+3DF+2D,\\\\\nP&=VD+Lp+D.\n\\end{aligned}",
@@ -55,7 +55,7 @@
   "visualization":{
     "decision":"useful",
     "id":"configurable-decoder-core",
-    "rationale":{"en":"One flow relates model and run records to a checked plan, its admission branches, and two text producers converging on one private decoder core. Calculated parameter categories and separate synthetic liveness peaks make accounting scope visible."}
+    "rationale":{"en":"One flow relates model and run records to a checked plan, its admission branches, and ordinary and cached text converging on the shared decoder path. Calculated parameter categories and separate synthetic liveness peaks make accounting scope visible."}
   },
   "decoder_connection":{"en":"Carry the checked dimensions, construction identity and single text core into Chapter 8's optional dropout and reproducibility work. Unequal-head GQA execution, GPU and distributed backends, adapter selection and trained-checkpoint serialization remain later capabilities."},
   "terminology":[
@@ -83,8 +83,8 @@
     {"input":"Change only a run seed or token budget","expected":"Semantic identity and P remain unchanged; run identity changes. Changing model capacity512 to128 changes semantic identity while P remains32514560; smoke uses the explicit derived record rather than clamping laptop input."},
     {"input":"Plan known state64 under a100-byte limit with unknown workspace","expected":"The36-byte remainder does not supply the unknown workspace demand. Keep Unknown and refuse execution until a defensible backend demand or enforced bound exists."},
     {"input":"Parse invalid or noncanonical records","expected":"Reject unknown/duplicate keys, wrong types, versions/family, noncanonical or oversized bytes, invalid numerical policies, zero dimensions, inexact divisions, odd RoPE head width, overflow and output-range failures before model arrays or RNG draws."},
-    {"input":"Execute admitted reference and bridge records","expected":"The same checked plan/admission path initializes through Chapter6's existing fresh policy, then invokes the existing public text APIs through two private producers and one core. Preserve seed39 old public goldens and do not claim unequal-head execution."},
-    {"input":"Validate malformed or stale prepared metadata","expected":"Validate actual shape/layout, positions, ranges/segments/validity/provenance, model/run digests, dtype/device/numerical policy/construction identity and actual parameter nodes/revisions/tied handle. Reject before any block; a matching digest is insufficient authority."},
+    {"input":"Execute admitted reference and bridge records","expected":"The same checked plan/admission path initializes through Chapter6's existing fresh policy, then invokes the existing public text APIs through the shared decoder path. Chapter10 separates text encoding and head from the backbone while preserving these observations. Preserve seed39 old public goldens and do not claim unequal-head execution."},
+    {"input":"Validate malformed or stale prepared metadata","expected":"Preserve checked text source/layout/validity, model/run construction identity and live parameter protections across the evolved encoder/backbone boundary. Generic vectors require shape/layout, positions, graph policy and actual backbone/producer nodes and revisions; text source and loss metadata remain outside that carrier. Reject before any block; a matching digest is insufficient authority."},
     {"input":"Compare full and cached text behavior","expected":"Full mode preserves the exact caller AutogradContext and original lookup graph. Cached no_grad is selected before lookup and propagated; outputs are graph-free and nonzero preexisting gradients stay bitwise unchanged. Same-path logits/loss/adjoints/KV/counters replay exactly; full-prefix/cached-prefix comparison is forward only with the fixed tolerance."},
     {"input":"Refuse a cached token or a later prefill token","expected":"All layer tickets and final result pass before token commit; refused token retains prior logical cache/work. Later prefill failure resets the entire logical cache/work to empty/zero while retaining physical capacity. Reset does not authorize stale parameter binding."},
     {"input":"Request GPU, production, adapter or unsupported topology execution","expected":"Retain complete known symbolic accounting and explicit refusal reasons, with no model/cache/optimizer/device allocations or RNG draws. Actual unavailable GPU workspace is Unknown. Adapter selection remains blocked and unsupported topology is an error, never zero traffic."}
@@ -100,10 +100,12 @@ Extend the existing practical decoder with one versioned model record, one run
 record, a shared checked shape/census descriptor and admission before construction.
 The family remains causal pre-RMSNorm/RoPE/SwiGLU text decoding, bias-free, with a
 tied-transpose vocabulary head. Preserve Chapters 4–6 full/padded/packed input,
-valid-target loss and depth-initialization policies. Ordinary and cached text
-lookup are exactly two private prepared-input producers and feed one real block
-loop, final norm and tied head. No public embedding or modality entry point,
-alternate head, new checkpoint format, GQA kernel, optimizer or training run.
+valid-target loss and depth-initialization policies. Chapter 7 originally used
+two private prepared-text producers feeding one real block loop, final norm and
+tied head. Chapter 10 now separates checked source encoding, the borrowing
+backbone and the text head; its live Rust regions retain this chapter's graph,
+parameter and cache guarantees. The original private-only boundary is historical.
+No new checkpoint format, GQA kernel, optimizer or training run belongs here.
 The first course and all preceding product prose remain byte-identical.
 
 <!-- contract-section:worked-inputs -->
@@ -230,16 +232,22 @@ planning fields and every refusal reason. Semantic digest changes with capacity,
 run digest with a seed or $N$; capacity changes leave $P$ unchanged here.
 Matching digests describe bytes and never authorize stale parameter nodes.
 
-The carrier is `pub(crate)` with private fields and model-only constructors.
-Exactly `ordinary-text-token-forward` and `cached-text-token-forward` construct
-it. Ordinary/padded/packed lookup shares the first producer; sessions call the
-model-owned cached entry. The core validates shape/layout, positions, causal
-ranges/segment/validity/provenance, semantic/run digests, numerical policy,
-dtype/device/construction identity, actual parameter nodes/revisions and the tied
-table before blocks. Bind and validate the original embedding TensorValue's
-node/revision as well. Cached prefix/session binding remains exact. No public
-unchecked constructor, generic conversion or deserialization admits arbitrary
-hidden tensors.
+The original carrier was `pub(crate)` with private fields and model-only
+constructors: `ordinary-text-token-forward` and `cached-text-token-forward`.
+Ordinary/padded/packed lookup shared the first producer; sessions called the
+model-owned cached entry. Those checks originally combined text source and
+layout, positions, ranges/segment/validity/provenance, configuration and live
+parameter binding in the core.
+
+The current Chapter 10 seam moves text source validation into TextInputEncoder
+and keeps target eligibility with text loss. The public checked
+PreparedDecoderInput preserves the original embedding handle, generic layout,
+graph policy and exact backbone/learned-producer nodes and revisions.
+DecoderBackbone returns hidden features from the shared block loop and final
+norm; TextOutputHead borrows the same live tied table outside that backbone.
+Cached prefix/session binding remains exact, and the generic cached entry stays
+internal to the existing text cache transaction. No unchecked deserialization
+or matching descriptive digest authorizes stale vectors.
 
 Full mode propagates the exact caller `AutogradContext` and retains the original
 lookup handle/graph, including repeated-token accumulation into the tied table.
@@ -263,7 +271,9 @@ One static semantic figure uses ID `configurable-decoder-core`, shared
 `course-v1` roles, caller-localized labels and the existing full-view behavior.
 Its caption/nonvisual description names model and run records, check order,
 admission branch conditions, reference/bridge execution and symbolic refusals,
-then ordinary/cached producers converging on one private core. Keep calculated
+then ordinary/cached text converging on the shared backbone before the tied text
+head. Preserve the component and numeric data, updating only caller-owned labels
+for the evolved seam. Keep calculated
 census and synthetic liveness distinct from observed CPU output. No duplicated
 presentation tree, private script/control, shared CSS change, clipping or reduced
 type. Reflow cards; only a complete table needing travel uses the smallest named,
@@ -288,7 +298,7 @@ or internal authoring/review/publication task appears in learner prose.
 <!-- contract-section:decoder-connection -->
 ## Decoder connection
 
-The checked configuration and one private text core preserve the occurrence-local
+The checked configuration and shared text path preserve the occurrence-local
 attention/positions/valid-target loss of Chapter 5 and fresh-versus-restored
 construction distinction of Chapter 6. Chapter 8 adds optional dropout with its
 own reproducibility streams. No later stochastic, GQA, GPU, distributed, adapter
@@ -313,8 +323,8 @@ KV values/capacity, six counters,
 graph-free output and nonzero gradient preservation. Full-prefix/cached-prefix
 forward alone uses $|a-b|\le10^{-10}+10^{-9}\max(|a|,|b|)$ when operation
 order differs. Retain zero/one/two-block, seed39, Chapter 5 masked
-separate/padded/packed and Chapter 6 residual diagnostics. Exercise private API,
-two-producer/one-consumer, malformed metadata, node/revision mismatch, late
+separate/padded/packed and Chapter 6 residual diagnostics. Exercise checked input
+boundaries and the shared consumer, malformed metadata, node/revision mismatch, late
 cache failures, overflow, canonical/parser/range/alignment, alias/lifetime,
 matrix-sharding/traffic and allocation-free refusal with unchanged caller RNG.
 

@@ -6,8 +6,9 @@ use std::fmt;
 
 pub(crate) use super::prepared_decoder_input::CoreIdentity;
 use super::{
-    causal_decoder_core::{self, CoreError},
-    prepared_decoder_input::PreparedDecoderInput,
+    causal_decoder_core::{self, DecoderBackbone},
+    prepared_decoder_input::{InputEncoder, PreparedDecoderInput},
+    text_input::{TextInputEncoder, TextOutputHead, ordinary_error},
 };
 
 use crate::attention::multi_head::{MultiHeadAttention, MultiHeadAttentionError};
@@ -575,39 +576,7 @@ fn validate_config(config: DecoderModelConfig) -> Result<(), DecoderModelError> 
     if config.vocabulary_size == 0 {
         return Err(DecoderModelError::EmptyVocabulary);
     }
-    if config.model_width == 0 {
-        return Err(DecoderModelError::ZeroModelWidth);
-    }
-    if config.heads == 0 {
-        return Err(DecoderModelError::ZeroHeadCount);
-    }
-    if !config.model_width.is_multiple_of(config.heads) {
-        return Err(DecoderModelError::ModelWidthNotDivisible {
-            model_width: config.model_width,
-            heads: config.heads,
-        });
-    }
-    let head_width = config.model_width / config.heads;
-    if !head_width.is_multiple_of(2) {
-        return Err(DecoderModelError::OddHeadWidth { head_width });
-    }
-    if config.feed_forward_width == 0 {
-        return Err(DecoderModelError::ZeroFeedForwardWidth);
-    }
-    if config.max_positions == 0 {
-        return Err(DecoderModelError::ZeroPositionCapacity);
-    }
-    if !config.rope_base.is_finite() || config.rope_base <= 0.0 {
-        return Err(DecoderModelError::InvalidRopeBase {
-            value: config.rope_base,
-        });
-    }
-    if !config.rms_epsilon.is_finite() || config.rms_epsilon < 0.0 {
-        return Err(DecoderModelError::InvalidRmsEpsilon {
-            value: config.rms_epsilon,
-        });
-    }
-    Ok(())
+    causal_decoder_core::validate_backbone_config(config.block_config())
 }
 
 fn expected_parameter_tensors(layers: usize) -> Result<usize, DecoderModelError> {
@@ -796,74 +765,7 @@ impl DecoderModel {
                 actual: blocks.len(),
             });
         }
-        for (layer, block) in blocks.iter().enumerate() {
-            if block.model_width() != config.model_width {
-                return Err(DecoderModelError::BlockModelWidthMismatch {
-                    layer,
-                    expected: config.model_width,
-                    actual: block.model_width(),
-                });
-            }
-            if block.attention().heads() != config.heads {
-                return Err(DecoderModelError::BlockHeadCountMismatch {
-                    layer,
-                    expected: config.heads,
-                    actual: block.attention().heads(),
-                });
-            }
-            if block.feed_forward().hidden_width() != config.feed_forward_width {
-                return Err(DecoderModelError::BlockFeedForwardWidthMismatch {
-                    layer,
-                    expected: config.feed_forward_width,
-                    actual: block.feed_forward().hidden_width(),
-                });
-            }
-            if block.attention().rope().max_positions() != config.max_positions {
-                return Err(DecoderModelError::BlockPositionCapacityMismatch {
-                    layer,
-                    expected: config.max_positions,
-                    actual: block.attention().rope().max_positions(),
-                });
-            }
-            if block.attention().rope().base().to_bits() != config.rope_base.to_bits() {
-                return Err(DecoderModelError::BlockRopeBaseMismatch {
-                    layer,
-                    expected: config.rope_base,
-                    actual: block.attention().rope().base(),
-                });
-            }
-            for (norm, epsilon) in [
-                (
-                    DecoderModelNorm::Attention,
-                    block.attention_norm().epsilon(),
-                ),
-                (
-                    DecoderModelNorm::FeedForward,
-                    block.feed_forward_norm().epsilon(),
-                ),
-            ] {
-                if epsilon.to_bits() != config.rms_epsilon.to_bits() {
-                    return Err(DecoderModelError::BlockRmsEpsilonMismatch {
-                        layer,
-                        norm,
-                        expected: config.rms_epsilon,
-                        actual: epsilon,
-                    });
-                }
-            }
-        }
-        if final_norm.feature_width() != config.model_width {
-            return Err(DecoderModelError::FinalNormWidthMismatch {
-                expected: config.model_width,
-                actual: final_norm.feature_width(),
-            });
-        }
-        if final_norm.epsilon().to_bits() != config.rms_epsilon.to_bits() {
-            return Err(DecoderModelError::FinalNormEpsilonMismatch {
-                expected: config.rms_epsilon,
-                actual: final_norm.epsilon(),
-            });
-        }
+        DecoderBackbone::new(config.block_config(), &blocks, &final_norm)?;
 
         let parameter_tensors = expected_parameter_tensors(config.layers)?;
         let mut listed = Vec::new();
@@ -906,12 +808,10 @@ impl DecoderModel {
         token_ids: &[u32],
         token_shape: &[usize],
     ) -> Result<DecoderModelForward, DecoderModelError> {
-        self.validate_tokens(token_ids, token_shape)?;
-        let embedding = self
-            .embedding
-            .forward_with_context(context, token_ids, token_shape)
-            .map_err(DecoderModelError::Embedding)?;
-        self.forward_prepared_text(context, embedding, None)
+        let input = TextInputEncoder::tokens(self, token_ids, token_shape)
+            .encode(context, &self.backbone())
+            .map_err(ordinary_error)?;
+        self.forward_prepared_text(input)
     }
 
     // region:padded-decoder-entry
@@ -930,11 +830,12 @@ impl DecoderModel {
         batch: &VariableBatch,
         expected: &BatchBinding,
     ) -> Result<DecoderModelForward, PaddedDecoderError> {
-        let embedding = self.prepare_padded_text(context, batch, expected)?;
-        Ok(self.forward_prepared_text(context, embedding, Some(batch))?)
+        let input =
+            TextInputEncoder::padded(self, batch, expected).encode(context, &self.backbone())?;
+        Ok(self.forward_prepared_text(input)?)
     }
 
-    fn prepare_padded_text(
+    pub(super) fn prepare_padded_text(
         &self,
         context: AutogradContext,
         batch: &VariableBatch,
@@ -970,39 +871,44 @@ impl DecoderModel {
     }
     // endregion:padded-decoder-entry
 
+    /// A view of the existing transformer parameters, with no learned copy.
+    pub fn backbone(&self) -> DecoderBackbone<'_> {
+        DecoderBackbone::new(self.config.block_config(), &self.blocks, &self.final_norm)
+            .expect("model assembly already validated backbone components")
+            .with_identity(self.execution_identity_snapshot())
+    }
+    pub fn text_output_head(&self) -> TextOutputHead<'_> {
+        TextOutputHead::new(self.tied_embedding().tensor())
+    }
     fn forward_prepared_text(
         &self,
-        context: AutogradContext,
-        embedding: TensorValue,
-        batch: Option<&VariableBatch>,
+        input: PreparedDecoderInput,
     ) -> Result<DecoderModelForward, DecoderModelError> {
         self.forward_prepared_text_with_dropout(
-            context,
-            embedding,
-            batch,
+            input,
             &mut crate::nn::dropout::DropoutExecution::Identity,
         )
     }
     fn forward_prepared_text_with_dropout(
         &self,
-        context: AutogradContext,
-        embedding: TensorValue,
-        batch: Option<&VariableBatch>,
+        input: PreparedDecoderInput,
         dropout: &mut crate::nn::dropout::DropoutExecution<'_>,
     ) -> Result<DecoderModelForward, DecoderModelError> {
-        let input = PreparedDecoderInput::full(self, context, embedding.clone(), batch);
-        let forward = causal_decoder_core::consume_with_dropout(self, input, dropout).map_err(
-            |e| match e {
-                CoreError::Full(e) => e,
-                CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
-                CoreError::Cached(_) => unreachable!("ordinary text mode"),
-            },
-        )?;
+        // Keep the tied table and all transformer values stable through the head.
+        let _guards: Vec<_> = self
+            .parameters()
+            .iter()
+            .map(|p| p.tensor().value())
+            .collect();
+        let context = input.context();
+        let embedding = input.embeddings().clone();
+        let forward = self.backbone().forward_with_dropout(input, dropout)?;
+        let logits = self.text_output_head().forward(context, forward.hidden())?;
         Ok(DecoderModelForward {
             embedding,
             blocks: forward.blocks,
             final_norm: forward.final_norm,
-            logits: forward.logits,
+            logits,
         })
     }
 
@@ -1040,7 +946,7 @@ impl DecoderModel {
         positions: Option<&[usize]>,
     ) -> Result<(Vec<DecoderBlockForward>, RmsNormForward, TensorValue), DecoderModelError> {
         let f = causal_decoder_core::residual_tail(
-            self,
+            &self.backbone(),
             context,
             current,
             first_site,
@@ -1050,7 +956,8 @@ impl DecoderModel {
                 positions,
             },
         )?;
-        Ok((f.blocks, f.final_norm, f.logits))
+        let logits = self.text_output_head().forward(context, f.hidden())?;
+        Ok((f.blocks, f.final_norm, logits))
     }
 
     #[allow(clippy::type_complexity)]
@@ -1067,20 +974,44 @@ impl DecoderModel {
         ),
         crate::generation::kv_cache::DecoderKvCacheError,
     > {
-        use crate::generation::kv_cache::DecoderKvCacheError;
-        // Mode is selected before lookup; it never changes ambient graph policy.
+        use crate::generation::kv_cache::{CachedDecoderStage, DecoderKvCacheError};
+        let _guards: Vec<_> = self
+            .parameters()
+            .iter()
+            .map(|p| p.tensor().value())
+            .collect();
+        // Mode is selected before encoding; it never changes ambient graph policy.
         let context = AutogradContext::no_grad();
-        let embedding = self
-            .embedding
-            .forward_with_context(context, &[token_id], &[1, 1])
-            .map_err(DecoderKvCacheError::Embedding)?;
-        let input = PreparedDecoderInput::cached(self, embedding, layers, prefix);
-        let f = causal_decoder_core::consume(self, input).map_err(|e| match e {
-            CoreError::Cached(e) => e,
-            CoreError::Prepared(reason) => DecoderKvCacheError::PreparedInput { reason },
-            CoreError::Full(_) => unreachable!("cached text mode"),
-        })?;
-        Ok((f.logits, f.tickets, f.score_values))
+        let input = TextInputEncoder::positioned_token(self, token_id, prefix)
+            .encode(context, &self.backbone())
+            .map_err(|error| match ordinary_error(error) {
+                DecoderModelError::Embedding(error) => DecoderKvCacheError::Embedding(error),
+                DecoderModelError::PreparedInput { reason } => {
+                    DecoderKvCacheError::PreparedInput { reason }
+                }
+                _ => unreachable!("positioned token producer"),
+            })?;
+        let f = self.backbone().forward_cached(input, layers, prefix)?;
+        let logits = self
+            .text_output_head()
+            .forward(context, f.hidden())
+            .map_err(|error| match error {
+                DecoderModelError::Autodiff { stage, source } => DecoderKvCacheError::Autodiff {
+                    stage: match stage {
+                        DecoderModelStage::TiedWeightTranspose => {
+                            CachedDecoderStage::TiedWeightTranspose
+                        }
+                        DecoderModelStage::TiedVocabularyProjection => {
+                            CachedDecoderStage::TiedVocabularyProjection
+                        }
+                        _ => unreachable!("text output head stages"),
+                    },
+                    source,
+                },
+                _ => unreachable!("text output head error"),
+            })?;
+        // The caller commits tickets only after the complete text head succeeds.
+        Ok((logits, f.tickets, f.score_values))
     }
 
     pub(crate) fn bind_execution_identity(
@@ -1279,7 +1210,7 @@ impl DecoderModel {
     }
     // endregion:packed-decoder-entry
 
-    fn validate_tokens(
+    pub(super) fn validate_tokens(
         &self,
         token_ids: &[u32],
         token_shape: &[usize],

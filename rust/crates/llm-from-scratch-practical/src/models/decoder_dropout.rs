@@ -1,4 +1,8 @@
-//! Text-only adapters retain the existing private decoder engine.
+//! Text dropout and replay compose the shared encoder, backbone and head.
+use super::super::{
+    prepared_decoder_input::{InputEncoder, PreparedDecoderInput},
+    text_input::{TextInputEncoder, ordinary_error},
+};
 use super::{DecoderModel, DecoderModelError, DecoderModelForward, PaddedDecoderError};
 use crate::{
     artifact_identity::{ArtifactDigest, ArtifactIdentity, canonical_json_bytes, sha256},
@@ -151,9 +155,7 @@ impl DecoderModel {
     }
     fn consume_dropout_text(
         &self,
-        context: AutogradContext,
-        embedding: TensorValue,
-        batch: Option<&VariableBatch>,
+        input: PreparedDecoderInput,
         mut execution: DropoutExecution<'_>,
         live: Option<&mut DropoutCounterState>,
     ) -> Result<DropoutModelForward, DecoderModelError> {
@@ -164,8 +166,7 @@ impl DecoderModel {
             }
         };
         let parameters = self.capture_dropout_parameters();
-        let forward =
-            self.forward_prepared_text_with_dropout(context, embedding, batch, &mut execution)?;
+        let forward = self.forward_prepared_text_with_dropout(input, &mut execution)?;
         let sites = execution.finish(live)?;
         Ok(DropoutModelForward {
             forward,
@@ -209,11 +210,10 @@ impl DecoderModel {
             state,
             limits,
         )?;
-        let embedding = self
-            .embedding()
-            .forward_with_context(context, token_ids, token_shape)
-            .map_err(DecoderModelError::Embedding)?;
-        self.consume_dropout_text(context, embedding, None, execution, Some(state))
+        let input = TextInputEncoder::tokens(self, token_ids, token_shape)
+            .encode(context, &self.backbone())
+            .map_err(ordinary_error)?;
+        self.consume_dropout_text(input, execution, Some(state))
     }
     // endregion:dropout-text-forward
 
@@ -256,8 +256,9 @@ impl DecoderModel {
                 limits,
             )
             .map_err(DecoderModelError::Dropout)?;
-        let embedding = self.prepare_padded_text(context, batch, expected)?;
-        Ok(self.consume_dropout_text(context, embedding, Some(batch), execution, Some(state))?)
+        let input =
+            TextInputEncoder::padded(self, batch, expected).encode(context, &self.backbone())?;
+        Ok(self.consume_dropout_text(input, execution, Some(state))?)
     }
     #[allow(clippy::too_many_arguments)]
     pub fn forward_packed_with_dropout(
@@ -344,7 +345,7 @@ impl DecoderModel {
             records,
         })
     }
-    /// Text-only replay uses the same private core and never accepts a live counter.
+    /// Text replay uses the shared backbone and never accepts a live counter.
     pub fn replay_forward_with_dropout(
         &self,
         context: AutogradContext,
@@ -364,11 +365,10 @@ impl DecoderModel {
             prior,
             limits,
         )?;
-        let embedding = self
-            .embedding()
-            .forward_with_context(context, token_ids, token_shape)
-            .map_err(DecoderModelError::Embedding)?;
-        self.consume_dropout_text(context, embedding, None, execution, None)
+        let input = TextInputEncoder::tokens(self, token_ids, token_shape)
+            .encode(context, &self.backbone())
+            .map_err(ordinary_error)?;
+        self.consume_dropout_text(input, execution, None)
     }
     pub fn replay_padded_forward_with_dropout(
         &self,
@@ -394,8 +394,9 @@ impl DecoderModel {
                 limits,
             )
             .map_err(DecoderModelError::Dropout)?;
-        let embedding = self.prepare_padded_text(context, batch, expected)?;
-        Ok(self.consume_dropout_text(context, embedding, Some(batch), execution, None)?)
+        let input =
+            TextInputEncoder::padded(self, batch, expected).encode(context, &self.backbone())?;
+        Ok(self.consume_dropout_text(input, execution, None)?)
     }
 }
 

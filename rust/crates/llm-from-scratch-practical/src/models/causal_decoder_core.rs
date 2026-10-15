@@ -1,27 +1,240 @@
-//! The existing full and cached routes share this private block loop and head.
+//! One full/cached transformer loop, independent of source encoding and output heads.
 use super::{
-    decoder::{DecoderModel, DecoderModelError, DecoderModelStage},
-    decoder_block::{DecoderBlockError, DecoderBlockForward},
-    prepared_decoder_input::{PreparedDecoderInput, TextSource},
+    decoder::{DecoderModelError, DecoderModelNorm},
+    decoder_block::{DecoderBlock, DecoderBlockConfig, DecoderBlockError, DecoderBlockForward},
+    prepared_decoder_input::{CoreIdentity, PreparedDecoderInput},
 };
 use crate::{
     attention::incremental::{LayerKvCache, PreparedIncrementalAttention},
     autograd::tensor_core::{AutogradContext, TensorValue},
-    generation::kv_cache::{CachedDecoderStage, DecoderKvCacheCounter, DecoderKvCacheError},
-    nn::{dropout::DropoutExecution, residual::residual_add_with_context, rmsnorm::RmsNormForward},
+    generation::kv_cache::{DecoderKvCacheCounter, DecoderKvCacheError},
+    nn::{
+        dropout::DropoutExecution,
+        init::NamedParameter,
+        residual::residual_add_with_context,
+        rmsnorm::{RmsNorm, RmsNormForward},
+    },
 };
+
+pub(super) fn validate_backbone_config(
+    config: DecoderBlockConfig,
+) -> Result<(), DecoderModelError> {
+    if config.model_width() == 0 {
+        return Err(DecoderModelError::ZeroModelWidth);
+    }
+    if config.heads() == 0 {
+        return Err(DecoderModelError::ZeroHeadCount);
+    }
+    if !config.model_width().is_multiple_of(config.heads()) {
+        return Err(DecoderModelError::ModelWidthNotDivisible {
+            model_width: config.model_width(),
+            heads: config.heads(),
+        });
+    }
+    let head_width = config.model_width() / config.heads();
+    if !head_width.is_multiple_of(2) {
+        return Err(DecoderModelError::OddHeadWidth { head_width });
+    }
+    if config.feed_forward_width() == 0 {
+        return Err(DecoderModelError::ZeroFeedForwardWidth);
+    }
+    if config.max_positions() == 0 {
+        return Err(DecoderModelError::ZeroPositionCapacity);
+    }
+    if !config.rope_base().is_finite() || config.rope_base() <= 0.0 {
+        return Err(DecoderModelError::InvalidRopeBase {
+            value: config.rope_base(),
+        });
+    }
+    if !config.rms_epsilon().is_finite() || config.rms_epsilon() < 0.0 {
+        return Err(DecoderModelError::InvalidRmsEpsilon {
+            value: config.rms_epsilon(),
+        });
+    }
+    Ok(())
+}
+
+// region:decoder-backbone
+/// A borrowing transformer view. It owns neither a source encoder nor an output
+/// table, and constructing it does not allocate or clone learned tensor values.
+pub struct DecoderBackbone<'a> {
+    config: DecoderBlockConfig,
+    blocks: &'a [DecoderBlock],
+    final_norm: &'a RmsNorm,
+    identity: Option<CoreIdentity>,
+}
+impl<'a> DecoderBackbone<'a> {
+    /// Reuses the component checks used by complete text-model assembly.
+    pub fn new(
+        config: DecoderBlockConfig,
+        blocks: &'a [DecoderBlock],
+        final_norm: &'a RmsNorm,
+    ) -> Result<Self, DecoderModelError> {
+        validate_backbone_config(config)?;
+        for (layer, block) in blocks.iter().enumerate() {
+            if block.model_width() != config.model_width() {
+                return Err(DecoderModelError::BlockModelWidthMismatch {
+                    layer,
+                    expected: config.model_width(),
+                    actual: block.model_width(),
+                });
+            }
+            if block.attention().heads() != config.heads() {
+                return Err(DecoderModelError::BlockHeadCountMismatch {
+                    layer,
+                    expected: config.heads(),
+                    actual: block.attention().heads(),
+                });
+            }
+            if block.feed_forward().hidden_width() != config.feed_forward_width() {
+                return Err(DecoderModelError::BlockFeedForwardWidthMismatch {
+                    layer,
+                    expected: config.feed_forward_width(),
+                    actual: block.feed_forward().hidden_width(),
+                });
+            }
+            if block.attention().rope().max_positions() != config.max_positions() {
+                return Err(DecoderModelError::BlockPositionCapacityMismatch {
+                    layer,
+                    expected: config.max_positions(),
+                    actual: block.attention().rope().max_positions(),
+                });
+            }
+            if block.attention().rope().base().to_bits() != config.rope_base().to_bits() {
+                return Err(DecoderModelError::BlockRopeBaseMismatch {
+                    layer,
+                    expected: config.rope_base(),
+                    actual: block.attention().rope().base(),
+                });
+            }
+            for (norm, epsilon) in [
+                (
+                    DecoderModelNorm::Attention,
+                    block.attention_norm().epsilon(),
+                ),
+                (
+                    DecoderModelNorm::FeedForward,
+                    block.feed_forward_norm().epsilon(),
+                ),
+            ] {
+                if epsilon.to_bits() != config.rms_epsilon().to_bits() {
+                    return Err(DecoderModelError::BlockRmsEpsilonMismatch {
+                        layer,
+                        norm,
+                        expected: config.rms_epsilon(),
+                        actual: epsilon,
+                    });
+                }
+            }
+        }
+        if final_norm.feature_width() != config.model_width() {
+            return Err(DecoderModelError::FinalNormWidthMismatch {
+                expected: config.model_width(),
+                actual: final_norm.feature_width(),
+            });
+        }
+        if final_norm.epsilon().to_bits() != config.rms_epsilon().to_bits() {
+            return Err(DecoderModelError::FinalNormEpsilonMismatch {
+                expected: config.rms_epsilon(),
+                actual: final_norm.epsilon(),
+            });
+        }
+
+        Ok(Self {
+            config,
+            blocks,
+            final_norm,
+            identity: None,
+        })
+    }
+    pub const fn config(&self) -> DecoderBlockConfig {
+        self.config
+    }
+    pub fn blocks(&self) -> &[DecoderBlock] {
+        self.blocks
+    }
+    pub const fn final_norm(&self) -> &RmsNorm {
+        self.final_norm
+    }
+    pub fn parameters(&self) -> impl Iterator<Item = &NamedParameter> {
+        self.blocks
+            .iter()
+            .flat_map(|block| block.parameters())
+            .chain(self.final_norm.parameters())
+    }
+    pub(crate) fn identity(&self) -> Option<&CoreIdentity> {
+        self.identity.as_ref()
+    }
+    pub(crate) fn with_identity(mut self, identity: Option<CoreIdentity>) -> Self {
+        self.identity = identity;
+        self
+    }
+    /// Run the checked sequence and return [B,T,D] hidden features.
+    pub fn forward(
+        &self,
+        input: PreparedDecoderInput,
+    ) -> Result<BackboneForward, DecoderModelError> {
+        consume_with_dropout(self, input, &mut DropoutExecution::Identity).map_err(full_error)
+    }
+    pub(super) fn forward_with_dropout(
+        &self,
+        input: PreparedDecoderInput,
+        dropout: &mut DropoutExecution<'_>,
+    ) -> Result<BackboneForward, DecoderModelError> {
+        consume_with_dropout(self, input, dropout).map_err(full_error)
+    }
+    pub(crate) fn forward_cached(
+        &self,
+        input: PreparedDecoderInput,
+        layers: &[LayerKvCache],
+        prefix: usize,
+    ) -> Result<BackboneForward, DecoderKvCacheError> {
+        consume(
+            self,
+            &input,
+            Mode::Cached(layers),
+            Some(prefix),
+            &mut DropoutExecution::Identity,
+        )
+        .map_err(|e| match e {
+            CoreError::Cached(e) => e,
+            CoreError::Prepared(reason) => DecoderKvCacheError::PreparedInput { reason },
+            CoreError::Full(_) => unreachable!("cached execution"),
+        })
+    }
+}
+// endregion:decoder-backbone
 
 pub(super) enum CoreError {
     Full(DecoderModelError),
     Cached(DecoderKvCacheError),
     Prepared(&'static str),
 }
-pub(super) struct CoreForward {
-    pub blocks: Vec<DecoderBlockForward>,
-    pub final_norm: RmsNormForward,
-    pub logits: TensorValue,
-    pub tickets: Vec<PreparedIncrementalAttention>,
-    pub score_values: usize,
+fn full_error(e: CoreError) -> DecoderModelError {
+    match e {
+        CoreError::Full(e) => e,
+        CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
+        CoreError::Cached(_) => unreachable!("full execution"),
+    }
+}
+/// Hidden features and existing per-block diagnostics. Cache tickets stay private
+/// so the text cache can publish them only after its output head succeeds.
+pub struct BackboneForward {
+    pub(super) blocks: Vec<DecoderBlockForward>,
+    pub(super) final_norm: RmsNormForward,
+    pub(crate) tickets: Vec<PreparedIncrementalAttention>,
+    pub(crate) score_values: usize,
+}
+impl BackboneForward {
+    pub fn hidden(&self) -> &TensorValue {
+        self.final_norm.output()
+    }
+    pub fn blocks(&self) -> &[DecoderBlockForward] {
+        &self.blocks
+    }
+    pub fn final_norm(&self) -> &RmsNormForward {
+        &self.final_norm
+    }
 }
 pub(super) struct FullLayout<'a> {
     pub lengths: Option<&'a [usize]>,
@@ -34,72 +247,101 @@ enum Mode<'a> {
 }
 
 // region:shared-causal-decoder
-/// Only this consumer accepts a prepared text carrier. Fresh value borrows
-/// prevent changes between revision checks and the final tied projection.
-pub(super) fn consume(
-    model: &DecoderModel,
-    input: PreparedDecoderInput<'_>,
-) -> Result<CoreForward, CoreError> {
-    consume_with_dropout(model, input, &mut DropoutExecution::Identity)
-}
-
-pub(super) fn consume_with_dropout(
-    model: &DecoderModel,
-    input: PreparedDecoderInput<'_>,
+/// Mode chooses execution, independently of the source that produced vectors.
+fn consume_with_dropout(
+    backbone: &DecoderBackbone<'_>,
+    input: PreparedDecoderInput,
     dropout: &mut DropoutExecution<'_>,
-) -> Result<CoreForward, CoreError> {
-    let _guards: Vec<_> = model
-        .parameters()
-        .iter()
-        .map(|p| p.tensor().value())
-        .collect();
-    input.validate(model).map_err(CoreError::Prepared)?;
-    let (embedding, context, source) = input.into_parts();
-    let mode = match source {
-        TextSource::Full { batch } => Mode::Full(FullLayout {
-            lengths: batch.map(|b| b.lengths()),
-            starts: batch.map(|b| b.range_starts()),
-            positions: batch.map(|b| b.positions()),
-        }),
-        TextSource::Cached { layers, .. } => Mode::Cached(layers),
+) -> Result<BackboneForward, CoreError> {
+    // The layout borrows the carrier; keep it alive through the shared loop.
+    let layout = FullLayout {
+        lengths: Some(input.layout().lengths()),
+        starts: Some(input.layout().range_starts()),
+        positions: Some(input.layout().positions()),
     };
-    run(model, context, embedding, 0, mode, dropout)
+    consume(backbone, &input, Mode::Full(layout), None, dropout)
+}
+fn consume(
+    backbone: &DecoderBackbone<'_>,
+    input: &PreparedDecoderInput,
+    mode: Mode<'_>,
+    prefix: Option<usize>,
+    dropout: &mut DropoutExecution<'_>,
+) -> Result<BackboneForward, CoreError> {
+    let _backbone_guards: Vec<_> = backbone.parameters().map(|p| p.tensor().value()).collect();
+    let _producer_guards: Vec<_> = input
+        .producer_parameters()
+        .iter()
+        .map(|p| p.value_handle().value())
+        .collect();
+    let _embedding_guard = input.embeddings().value();
+    input
+        .validate(backbone)
+        .map_err(|e| CoreError::Prepared(e.reason()))?;
+    if let Mode::Cached(layers) = &mode {
+        let prefix = prefix.expect("cached execution supplies its prefix");
+        if input.context().records_graph()
+            || input.layout().shape() != [1, 1]
+            || input.layout().lengths() != [1]
+            || input.layout().range_starts() != [0]
+            || input.layout().positions() != [prefix]
+            || layers.len() != backbone.blocks.len()
+        {
+            return Err(CoreError::Prepared("cached mode, position or layers"));
+        }
+        for (cache, block) in layers.iter().zip(backbone.blocks) {
+            if cache.len() != prefix
+                || cache.batch_size() != 1
+                || cache.capacity() != backbone.config.max_positions()
+            {
+                return Err(CoreError::Prepared("cache prefix/batch/capacity"));
+            }
+            block
+                .attention()
+                .validate_incremental_cache_binding(cache)
+                .map_err(|_| CoreError::Prepared("cache parameter binding"))?;
+        }
+    }
+    run(
+        backbone,
+        input.context(),
+        input.embeddings().clone(),
+        0,
+        mode,
+        dropout,
+    )
 }
 
-/// Residual diagnostics enter the same internal engine, not a third producer.
+/// Residual diagnostics enter the same internal engine.
 #[cfg(test)]
 pub(super) fn residual_tail(
-    model: &DecoderModel,
+    backbone: &DecoderBackbone<'_>,
     context: AutogradContext,
     current: TensorValue,
     first_site: usize,
     layout: FullLayout<'_>,
-) -> Result<CoreForward, DecoderModelError> {
+) -> Result<BackboneForward, DecoderModelError> {
     run(
-        model,
+        backbone,
         context,
         current,
         first_site,
         Mode::Full(layout),
         &mut DropoutExecution::Identity,
     )
-    .map_err(|e| match e {
-        CoreError::Full(e) => e,
-        CoreError::Prepared(reason) => DecoderModelError::PreparedInput { reason },
-        CoreError::Cached(_) => unreachable!("diagnostic mode is full"),
-    })
+    .map_err(full_error)
 }
 
 fn run(
-    model: &DecoderModel,
+    backbone: &DecoderBackbone<'_>,
     context: AutogradContext,
     mut current: TensorValue,
     first_site: usize,
     mode: Mode<'_>,
     dropout: &mut DropoutExecution<'_>,
-) -> Result<CoreForward, CoreError> {
+) -> Result<BackboneForward, CoreError> {
     let cached = matches!(mode, Mode::Cached(_));
-    let site_count = 2 * model.blocks().len() + 1;
+    let site_count = 2 * backbone.blocks().len() + 1;
     if first_site >= site_count {
         return Err(CoreError::Full(
             DecoderModelError::ResidualSiteOutOfBounds {
@@ -110,7 +352,7 @@ fn run(
     }
     let mut first_layer = first_site / 2;
     if first_site % 2 == 1 {
-        current = model.blocks()[first_layer]
+        current = backbone.blocks()[first_layer]
             .forward_feed_forward_path_and_dropout(context, &current, first_layer, dropout)
             .map_err(|source| {
                 CoreError::Full(DecoderModelError::Block {
@@ -125,23 +367,23 @@ fn run(
     let mut tickets = Vec::new();
     if cached {
         tickets
-            .try_reserve_exact(model.blocks().len())
+            .try_reserve_exact(backbone.blocks().len())
             .map_err(|_| {
                 CoreError::Cached(DecoderKvCacheError::LayerAllocationFailed {
-                    layers: model.blocks().len(),
+                    layers: backbone.blocks().len(),
                 })
             })?;
     } else {
         blocks
-            .try_reserve_exact(model.blocks().len() - first_layer)
+            .try_reserve_exact(backbone.blocks().len() - first_layer)
             .map_err(|_| {
                 CoreError::Full(DecoderModelError::LayerAllocationFailed {
-                    layers: model.blocks().len(),
+                    layers: backbone.blocks().len(),
                 })
             })?;
     }
     let mut score_values = 0usize;
-    for (layer, block) in model.blocks().iter().enumerate().skip(first_layer) {
+    for (layer, block) in backbone.blocks().iter().enumerate().skip(first_layer) {
         match &mode {
             Mode::Full(layout) => {
                 let f = block
@@ -208,7 +450,7 @@ fn run(
             }
         }
     }
-    let final_norm = model
+    let final_norm = backbone
         .final_norm()
         .forward_with_intermediates_and_context(context, &current)
         .map_err(|source| {
@@ -218,43 +460,9 @@ fn run(
                 CoreError::Full(DecoderModelError::FinalNorm(source))
             }
         })?;
-    let tied = model
-        .tied_embedding()
-        .tensor()
-        .transpose_with_context(context, 0, 1)
-        .map_err(|source| {
-            if cached {
-                CoreError::Cached(DecoderKvCacheError::Autodiff {
-                    stage: CachedDecoderStage::TiedWeightTranspose,
-                    source,
-                })
-            } else {
-                CoreError::Full(DecoderModelError::Autodiff {
-                    stage: DecoderModelStage::TiedWeightTranspose,
-                    source,
-                })
-            }
-        })?;
-    let logits = final_norm
-        .output()
-        .matmul_with_context(context, &tied)
-        .map_err(|source| {
-            if cached {
-                CoreError::Cached(DecoderKvCacheError::Autodiff {
-                    stage: CachedDecoderStage::TiedVocabularyProjection,
-                    source,
-                })
-            } else {
-                CoreError::Full(DecoderModelError::Autodiff {
-                    stage: DecoderModelStage::TiedVocabularyProjection,
-                    source,
-                })
-            }
-        })?;
-    Ok(CoreForward {
+    Ok(BackboneForward {
         blocks,
         final_norm,
-        logits,
         tickets,
         score_values,
     })
