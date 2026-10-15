@@ -1,13 +1,12 @@
 //! Chapter-local evidence uses the existing model operations and configuration.
 pub mod boundary_fixtures;
-pub mod graph_fixtures;
 
 use boundary_fixtures::DemoResult;
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 
 // region:dependency-attention-contrast
-/// The supporting-library boundary leaves this previously taught operation visible.
+/// Compare the already-taught attention APIs on the same bounded input.
 pub fn attention_contrast() -> DemoResult<Value> {
     use llm_from_scratch as reference;
     use llm_from_scratch_practical as practical;
@@ -41,25 +40,12 @@ pub fn attention_contrast() -> DemoResult<Value> {
 // endregion:dependency-attention-contrast
 
 pub fn fault_rows() -> DemoResult<Vec<Value>> {
-    let mut rows = graph_fixtures::graph_rows();
-    rows.extend(boundary_fixtures::boundary_rows()?);
-    assert_eq!(rows.len(), 70);
+    let rows = boundary_fixtures::boundary_rows()?;
+    assert_eq!(rows.len(), 52);
     Ok(rows)
 }
 
 pub fn run() -> DemoResult<Value> {
-    use llm_from_scratch_practical::support::dependency_role::{
-        compare_graph, validate_source_bindings,
-    };
-    let baseline = graph_fixtures::baseline();
-    let comparison = compare_graph(&baseline, &baseline, &graph_fixtures::identity())?;
-    assert!(comparison.structural_match());
-    validate_source_bindings(
-        &baseline,
-        &graph_fixtures::sources(),
-        &graph_fixtures::reviews(),
-        &graph_fixtures::identity(),
-    )?;
     let rows = fault_rows()?;
     let mut scopes = BTreeMap::<String, usize>::new();
     for row in &rows {
@@ -67,35 +53,31 @@ pub fn run() -> DemoResult<Value> {
             .entry(row["scope"].as_str().unwrap().to_owned())
             .or_default() += 1;
     }
-    let selected = ["G03", "G07", "G10", "G12", "G15", "F14", "F36", "F43"];
+    let selected = ["F14", "F33", "F34", "F36", "F43", "F44"];
     let examples = rows.iter().filter(|row| selected.contains(&row["id"].as_str().unwrap())).map(|row|
         json!({"id":row["id"],"category":row["error"]["category"],"reason":row["error"]["reason"],
             "phase":row["error"]["phase"],"disposition":row["error"]["disposition"],
-            "added":row.get("added"),"missing":row.get("missing"),"scope":row["scope"]})
+            "scope":row["scope"]})
     ).collect::<Vec<_>>();
-    Ok(
-        json!({"chapter":"09-dependency-error-contract","synthetic_graph":{
-        "context":"fixture-cpu-v1","counts":comparison.counts,"added":0,"missing":0,
-        "records":10,"real_package_admission":false},
+    Ok(json!({"chapter":"09-dependency-error-contract",
         "faults":{"total":rows.len(),"by_scope":scopes,"selected_examples":examples,
             "future_integration":"not-proven-by-boundary-harness"},
         "positive_controls":boundary_fixtures::positive_controls()?,
         "attention":attention_contrast()?,
-        "resource_scope":"compiled CPU fixtures; process RSS measured separately"}),
-    )
+        "resource_scope":"compiled CPU fixtures; process RSS measured separately"}))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn chapter09_complete_matrix_runs_seventy_distinct_injections() {
+    fn chapter09_complete_matrix_runs_fifty_two_distinct_injections() {
         let rows = fault_rows().unwrap();
         let ids = rows
             .iter()
             .map(|r| r["id"].as_str().unwrap())
             .collect::<std::collections::BTreeSet<_>>();
-        assert_eq!(ids.len(), 70);
+        assert_eq!(ids.len(), 52);
         assert!(
             rows.iter()
                 .all(|r| r["error"]["terminal_state"] != "success")
@@ -104,7 +86,7 @@ mod tests {
     #[test]
     fn chapter09_positive_controls_keep_native_settings_and_existing_attention() {
         let report = run().unwrap();
-        assert_eq!(report["synthetic_graph"]["records"], 10);
+        assert_eq!(report["faults"]["total"], 52);
         assert_eq!(report["attention"]["output"], json!([1.0, 2.0, 1.0, 2.0]));
         assert_eq!(
             report["positive_controls"]["after_commit_cancellation"]["after"]["published_outputs"],

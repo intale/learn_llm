@@ -28,7 +28,7 @@ test('required product head admits the current courses without local process his
   assert.deepEqual(verifyProductLock(root),lock);
   assert.equal(lock.courses[0].chapters.length,40);
   assert.deepEqual(lock.courses[0].activeLocales,['en','ru']);
-  assert.deepEqual(lock.courses[1].chapters.map(c=>c.contentRevision),[3,1,1,2,1,1,1,1,1,1]);
+  assert.deepEqual(lock.courses[1].chapters.map(c=>c.contentRevision),[3,1,1,2,1,1,1,1,1,2]);
   assert.deepEqual(lock.courses[1].activeLocales,['en']);
   assert.deepEqual(readPracticalPublication(root).chapters.map(c=>c.chapterId),lock.courses[1].chapters.map(c=>c.chapterId));
   assert.equal(Object.hasOwn(lock,'status'),false);

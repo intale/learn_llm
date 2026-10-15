@@ -21,7 +21,7 @@ macro_rules! tokens {
     };
 }
 tokens!(FailureCategory {
-    Artifact => "artifact", Dependency => "dependency", Version => "version",
+    Artifact => "artifact", Version => "version",
     Dtype => "dtype", Quantization => "quantization", Device => "device",
     Kernel => "kernel", Adapter => "adapter", Config => "config", Schema => "schema",
     Tool => "tool", Persistence => "persistence", Migration => "migration",
@@ -64,25 +64,6 @@ reasons! {
     ArtifactChecksum => Artifact / "checksum_mismatch",
     ArtifactExtent => Artifact / "file_extent",
     ArtifactPublication => Artifact / "publication_failed",
-    PackageUnapproved => Dependency / "package_unapproved",
-    SnapshotIncomplete => Dependency / "snapshot_incomplete",
-    PackageIdentity => Dependency / "package_identity_mismatch",
-    PackageSource => Dependency / "package_source_mismatch",
-    PackageChecksum => Dependency / "package_checksum_mismatch",
-    EdgeUnapproved => Dependency / "edge_unapproved",
-    EdgeKind => Dependency / "edge_kind_mismatch",
-    EdgeAlias => Dependency / "edge_alias_mismatch",
-    EdgeTarget => Dependency / "edge_target_mismatch",
-    FeatureUnapproved => Dependency / "feature_unapproved",
-    CallSiteUncovered => Dependency / "call_site_uncovered",
-    RoleAmbiguous => Dependency / "call_site_role_ambiguous",
-    RoleForbidden => Dependency / "role_forbidden",
-    SourceBinding => Dependency / "call_site_source_mismatch",
-    ProvenanceIncomplete => Dependency / "provenance_incomplete",
-    BuildContext => Dependency / "build_context_mismatch",
-    PackageCount => Dependency / "package_count_limit",
-    DuplicateRecord => Dependency / "duplicate_record",
-    InvalidGraph => Dependency / "invalid_graph",
     UnsupportedVersion => Version / "unsupported",
     DtypeMismatch => Dtype / "mismatch",
     DtypeFallback => Dtype / "fallback_forbidden",
@@ -333,12 +314,6 @@ fn valid_tuple(
     use FailurePhase::*;
     use FailureReason::*;
     match reason {
-        PackageUnapproved | SnapshotIncomplete | PackageIdentity | PackageSource
-        | PackageChecksum | EdgeUnapproved | EdgeKind | EdgeAlias | EdgeTarget
-        | FeatureUnapproved | CallSiteUncovered | RoleAmbiguous | RoleForbidden | SourceBinding
-        | ProvenanceIncomplete | BuildContext | PackageCount | DuplicateRecord | InvalidGraph => {
-            phase == Startup && disposition == RejectUnchanged
-        }
         ArtifactMissing | ArtifactChecksum | ArtifactExtent | PersistenceRestore
         | MigrationVersion => phase == ArtifactRead && disposition == RejectUnchanged,
         ArtifactPublication => phase == Commit && disposition == AbortProvisional,

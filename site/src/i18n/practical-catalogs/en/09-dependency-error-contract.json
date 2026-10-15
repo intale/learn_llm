@@ -2,8 +2,8 @@
   "schemaVersion":1,
   "chapterId":"09-dependency-error-contract",
   "locale":"en",
-  "contentRevision":1,
+  "contentRevision":2,
   "title":"Keep model operations and failures explicit",
-  "description":"Bind supporting libraries to exact graph and source roles, then report typed failures with precise state effects. Distinguish local checks from future backend integration.",
-  "objective":"Bind supporting dependencies to exact graph and source roles, then interpret typed failures at the state boundary each operation actually guarantees."
+  "description":"Read configuration refusals, optimizer failures and checkpoint publication failures at their actual state boundaries. Distinguish local evidence from future backend integration.",
+  "objective":"Interpret configuration refusals and typed operation failures, and identify which model, optimizer or checkpoint state each tested boundary preserves."
 }

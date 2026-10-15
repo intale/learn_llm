@@ -11,10 +11,6 @@ llm-from-scratch-practical = { path = "../../crates/llm-from-scratch-practical" 
 serde_json = "1.0"
 
 [[example]]
-name = "practical-ch09-dependency-error-contract-check"
-path = "examples/check_dependency_graph.rs"
-
-[[example]]
 name = "practical-ch09-dependency-error-contract-faults"
 path = "examples/fault_matrix.rs"
 

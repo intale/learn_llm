@@ -15,9 +15,8 @@ pub mod metrics;
 pub mod pipeline;
 pub mod reference_source_identity;
 
-/// Explicit supporting-library roles and source-preserving operation failures.
+/// Source-preserving failures at model-operation boundaries.
 pub mod support {
-    pub mod dependency_role;
     pub mod functional_error;
 }
 

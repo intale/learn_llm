@@ -1,7 +1,6 @@
 //! Local ownership protocol and inherited CPU APIs; no device/server simulation claim.
-use crate::graph_fixtures::identity;
 use llm_from_scratch_practical::{
-    artifact_identity::canonical_json_bytes,
+    artifact_identity::{canonical_json_bytes, sha256},
     autograd::tensor_core::GraphRetention,
     checkpoint::{Checkpoint, CheckpointError},
     config::{Config, model::ModelConfig},
@@ -20,6 +19,11 @@ use std::{
 };
 
 pub type DemoResult<T> = Result<T, Box<dyn Error>>;
+
+fn identity() -> OperationIdentity {
+    OperationIdentity::unselected(&sha256(b"chapter09-local-fixtures-v1"))
+}
+
 const CATALOG: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../../crates/llm-from-scratch-practical/configs/decoder-profiles.conf"
