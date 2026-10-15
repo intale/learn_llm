@@ -15,6 +15,12 @@ pub mod metrics;
 pub mod pipeline;
 pub mod reference_source_identity;
 
+/// Explicit supporting-library roles and source-preserving operation failures.
+pub mod support {
+    pub mod dependency_role;
+    pub mod functional_error;
+}
+
 /// Learned feature views and weighted mixtures used by self-attention.
 pub mod attention {
     pub mod causal_mask;

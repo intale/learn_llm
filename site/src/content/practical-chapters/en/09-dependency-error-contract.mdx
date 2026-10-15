@@ -1,0 +1,532 @@
+---
+{
+  "chapter_id":"09-dependency-error-contract","locale":"en","content_revision":1,"order":9,"concept_id":"dependency-error-contract",
+  "title":"Keep model operations and failures explicit",
+  "description":"Bind supporting libraries to exact graph and source roles, then report typed failures with precise state effects. Distinguish local checks from future backend integration.",
+  "objective":"Bind supporting dependencies to exact graph and source roles, then interpret typed failures at the state boundary each operation actually guarantees.",
+  "worked_inputs":"Inspect the synthetic C/J/U version change, native CONF model settings, declared pre-commit counters, and existing checkpoint and AdamW failures. Compare the two existing course attention APIs on one shared two-token input.",
+  "formula":{
+    "latex":"A=P\\uplus E\\uplus F\\uplus R",
+    "symbols":[
+      {"symbol":"A","meaning":"approved tagged records for one declared dependency context"},
+      {"symbol":"P","meaning":"package-identity records, including version, source and checksum binding"},
+      {"symbol":"E","meaning":"directed dependency edges with their alias, kind and target condition"},
+      {"symbol":"F","meaning":"enabled-feature records keyed to a package identity"},
+      {"symbol":"R","meaning":"edge-role and course-call-site-role records"},
+      {"symbol":"c","meaning":"the fixed roots, toolchain, targets, feature request, dependency kinds and policy revision"},
+      {"symbol":"A_c","meaning":"the independently approved exact snapshot for context c"},
+      {"symbol":"O_c","meaning":"the observed tagged records for the same context c"},
+      {"symbol":"\\Delta_c^+","meaning":"observed records absent from the independently approved snapshot for the same context"},
+      {"symbol":"\\Delta_c^-","meaning":"approved records missing from the observation for the same context"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"neural-architecture",
+      "limitation":"A basic recurrent encoder-decoder can compress the source into one fixed-size vector.",
+      "later_advance":"The Transformer forms scaled query-key dot products for simultaneous queries, normalizes each query row, and uses those weights to mix values.",
+      "modern_llm_role":"Supporting configuration and storage must leave the decoder's attention, loss, gradients and update decisions visible in course Rust.",
+      "sources":[
+        {"role":"earlier","year":2014,"name":"Bahdanau, Cho, and Bengio, Neural Machine Translation by Jointly Learning to Align and Translate","source_url":"https://arxiv.org/abs/1409.0473","claim":"Bahdanau, Cho and Bengio compute a new context as a softmax-weighted sum of encoder annotations scored against the preceding decoder state."},
+        {"role":"later","year":2017,"name":"Vaswani et al., Attention Is All You Need","source_url":"https://arxiv.org/abs/1706.03762","claim":"The Transformer forms scaled query-key dot products for simultaneous queries, normalizes each query row, and uses those weights to mix values. Its self-attention relates positions within one sequence."}
+      ]
+    },
+    "approach":"Recall the admitted recurrent-attention and Transformer contrast, then use both existing course self-attention APIs on the same tiny input to inspect the operation that remains course-owned.",
+    "summary":"Cargo documentation explains dependency identity and build flags. The model sources explain attention history. Neither the dependency policy nor the shared input demonstrates improved model quality.",
+    "rust_source":"rust/demos/practical-ch09-dependency-error-contract/src/lib.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/support/dependency_role.rs","region":"dependency-snapshot-comparison","purpose":"Compare independently supplied tagged snapshots for the same context and return sorted additions and missing records."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/support/functional_error.rs","region":"terminal-error-contract","purpose":"Construct valid terminal failures and reject invalid diagnostic records with a trusted caller identity."},
+    {"path":"rust/demos/practical-ch09-dependency-error-contract/src/boundary_fixtures.rs","region":"checked-local-transition","purpose":"Observe deterministic entry and pre-commit barriers around one owned provisional payload and a scoped state assignment."},
+    {"path":"rust/demos/practical-ch09-dependency-error-contract/src/lib.rs","region":"dependency-attention-contrast","purpose":"Call the existing reference and practical attention operations on the same two-token input without implementing another attention algorithm."},
+    {"path":"rust/demos/practical-ch09-dependency-error-contract/src/main.rs","purpose":"Print the canonical compact result for the chapter's fixed CPU fixtures."}
+  ],
+  "visualization":{"decision":"not-useful","id":null,"rationale":"Exact package fields, mutation deltas and state effects are clearer as captioned semantic tables than as a node-link drawing. The tables retain each change beside its observed result."},
+  "decoder_connection":"Chapter 10 will consume these typed failures and requested/actual identities when admitting serving configurations. Real backend, service and persistence integration still requires tests at those components' own boundaries."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="dependency-worked-example">
+
+## <span id="dependency-problem-heading">The problem: supporting software can hide model decisions</span>
+
+A configurable decoder needs software around its mathematical operations: a
+reader for settings, storage for artifacts, and diagnostics when an operation
+fails. Adding a library can make those tasks easier while also making it less
+obvious which code chooses the model's behavior. A package name alone cannot
+show whether a call reads settings or computes attention.
+
+Failure introduces a second uncertainty. A configuration refusal, a failed
+optimizer update and an interrupted publication happen at different points.
+The caller needs to know which operation failed, which state remains usable
+and whether any provisional work must be discarded. An error message alone
+does not establish those facts.
+
+We will keep supporting roles explicit and attach typed failures to precise
+state boundaries. The tokenizer, attention, gradients, optimizer and
+checkpoint format continue to use the existing course implementations.
+
+<h3 id="dependency-graph-heading">Explain one complete synthetic graph</h3>
+
+Start with the local context `fixture-cpu-v1`. Its package labels `C`, `J` and
+`U` stand for `fixture-course@1`, `fixture-json@1` and `fixture-text@1`.
+Their source identities are `local-fixture-C`, `local-fixture-J` and
+`local-fixture-U`. These are typed teaching records, not registry packages or
+a configuration format. Each package also carries a checksum of its supplied
+fixture bytes; that is not evidence of a downloaded package's provenance.
+
+<table id="dependency-record-table" style="width: 100%; table-layout: fixed; overflow-wrap: anywhere;">
+  <caption id="dependency-record-caption">Ten tagged records in the synthetic baseline</caption>
+  <thead id="dependency-record-headers"><tr><th scope="col">Record kind</th><th scope="col">Supplied records</th><th scope="col">Count</th></tr></thead>
+  <tbody>
+    <tr id="dependency-record-packages"><th scope="row">Packages</th><td><code>C</code>, <code>J</code>, <code>U</code>, each with its exact identity</td><td><samp>3</samp></td></tr>
+    <tr id="dependency-record-edges"><th scope="row">Directed edges</th><td><code>e1: C → J</code>, alias <code>json</code>; <code>e2: J → U</code>, alias <code>text</code>. Both are normal dependencies with no target restriction.</td><td><samp>2</samp></td></tr>
+    <tr id="dependency-record-features"><th scope="row">Enabled features</th><td><code>J/std</code> and <code>U/std</code></td><td><samp>2</samp></td></tr>
+    <tr id="dependency-record-roles"><th scope="row">Roles</th><td><code>r1</code> labels <code>e1</code> as JSON support; <code>r2</code> labels <code>e2</code> likewise; <code>r3</code> binds the fixture call <code>decode_config</code> to <code>J</code>, JSON syntax and course validation.</td><td><samp>3</samp></td></tr>
+  </tbody>
+</table>
+
+Change `U` to `fixture-text@2`. The package record changes. The destination of
+`e2` and the package reference in `U/std` must change with it. Relative to the
+baseline, the observation therefore has three added records and three missing
+records. The role `r2` refers to the stable edge ID `e2`, so its own record is
+unchanged in this representation. An unchanged role label does not preserve
+approval after its underlying dependency changes.
+
+The other mutations below each start again from the same baseline. Added and
+missing count records, not packages alone. A null delta means validation
+refused the input before ordinary set comparison.
+
+<table id="dependency-mutation-table" style="width: 100%; table-layout: fixed; overflow-wrap: anywhere;">
+  <caption id="dependency-mutation-caption">Independent changes from the ten-record synthetic baseline</caption>
+  <thead id="dependency-mutation-headers"><tr><th scope="col">Change</th><th scope="col">Added / missing records</th><th scope="col">Observed result</th></tr></thead>
+  <tbody>
+    <tr id="dependency-mutation-baseline"><th scope="row">Keep every baseline record</th><td><samp>0 / 0</samp></td><td>Structural match</td></tr>
+    <tr id="dependency-mutation-version"><th scope="row">G03: change U's version and update its edge and feature references</th><td><samp>3 / 3</samp></td><td><code>dependency/package_identity_mismatch</code></td></tr>
+    <tr id="dependency-mutation-kind"><th scope="row">G07: change e2 from normal to build dependency</th><td><samp>1 / 1</samp></td><td><code>dependency/edge_kind_mismatch</code></td></tr>
+    <tr id="dependency-mutation-feature"><th scope="row">G10: add J/automatic_attention</th><td><samp>1 / 0</samp></td><td><code>dependency/feature_unapproved</code></td></tr>
+    <tr id="dependency-mutation-role"><th scope="row">G12: remove the call-role record r3</th><td><samp>0 / 1</samp></td><td><code>dependency/call_site_uncovered</code></td></tr>
+    <tr id="dependency-mutation-ambiguous"><th scope="row">G13: add a conflicting role for r3</th><td>No set comparison</td><td><code>dependency/call_site_role_ambiguous</code></td></tr>
+    <tr id="dependency-mutation-source"><th scope="row">G15: retain graph records but change the separately supplied source bytes</th><td><samp>0 / 0</samp></td><td>Structural match; source binding refuses with <code>dependency/call_site_source_mismatch</code></td></tr>
+  </tbody>
+</table>
+
+{/* chapter-section:formula */}
+
+## <span id="dependency-formula-heading">Generalize the record comparison</span>
+
+Keep each record's kind as a tag:
+
+$$
+A=P\uplus E\uplus F\uplus R
+$$
+
+{/* chapter-section:symbol-glossary */}
+
+## <span id="dependency-symbols-heading">Name the record kinds and context</span>
+
+<dl id="dependency-symbols">
+  <div id="dependency-symbol-a"><dt><InlineMath latex="A" /></dt><dd>The approved union of differently tagged records for one dependency context.</dd></div>
+  <div id="dependency-symbol-p"><dt><InlineMath latex="P" /></dt><dd>Package-identity records, including version, source and checksum binding.</dd></div>
+  <div id="dependency-symbol-e"><dt><InlineMath latex="E" /></dt><dd>Directed dependency edges with their source, destination, alias, kind and target condition.</dd></div>
+  <div id="dependency-symbol-f"><dt><InlineMath latex="F" /></dt><dd>Enabled-feature records keyed to a package identity.</dd></div>
+  <div id="dependency-symbol-r"><dt><InlineMath latex="R" /></dt><dd>Supporting-role records for dependency edges and course call sites.</dd></div>
+  <div id="dependency-symbol-c"><dt><InlineMath latex="c" /></dt><dd>The fixed roots, toolchain, target matrix, requested features, dependency kinds and policy revision of one comparison.</dd></div>
+  <div id="dependency-symbol-approved"><dt><InlineMath latex="A_c" /></dt><dd>The independently approved exact snapshot for context <InlineMath latex="c" />.</dd></div>
+  <div id="dependency-symbol-observed"><dt><InlineMath latex="O_c" /></dt><dd>The observed tagged records for the same context <InlineMath latex="c" />.</dd></div>
+  <div id="dependency-symbol-added"><dt><InlineMath latex="\Delta_c^+" /></dt><dd>Observed records absent from the approved snapshot for the same context.</dd></div>
+  <div id="dependency-symbol-missing"><dt><InlineMath latex="\Delta_c^-" /></dt><dd>Approved records missing from the observation for the same context.</dd></div>
+</dl>
+
+The disjoint union keeps a feature record distinct from a package record even
+if they contain the same text. Our baseline has $3+2+2+3=10$ records. With
+approved and observed inputs fixed to the same context, compute
+
+$$
+\Delta_c^+=O_c\setminus A_c,
+$$
+
+$$
+\Delta_c^-=A_c\setminus O_c.
+$$
+
+The plus difference contains additions; the minus difference contains missing
+approved records. Structural equality requires both to be empty:
+
+$$
+\operatorname{structural\_match}(c)
+=[\Delta_c^+=\varnothing]\land[\Delta_c^-=\varnothing].
+$$
+
+A broader permission catalog can allow several alternatives. It does not
+replace this exact snapshot. An intentional removal or feature reduction needs
+an approved replacement snapshot; the checker must not copy the current
+observation into its expected input.
+
+{/* chapter-section:rust-implementation */}
+
+## <span id="dependency-rust-heading">Connect the comparison to Rust</span>
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/support/dependency_role.rs"
+  region="dependency-snapshot-comparison" captionId="dependency-rust-comparison"
+  caption="Compare independently supplied tagged snapshots for the same build context; report sorted added and missing records."
+  label="Rust source: exact tagged dependency snapshot comparison" />
+
+`compare_graph` returns the differences. `require_graph_match` turns drift
+into a typed refusal. Both first validate the records and context. Package
+names cannot stand in for version, source, checksum, dependency alias, edge
+kind, target condition or enabled features.
+
+<h3 id="dependency-role-heading">Bind source bytes, then judge the call's role</h3>
+
+G15 leaves the tagged graph unchanged but changes the actual source bytes
+supplied to the binding check. The stored source digest no longer matches,
+so the call loses its binding. Conversely, a matching hash says which bytes
+are present; it does not decide what those bytes do. A permitted library used
+to compute attention would violate its role even with unchanged dependencies.
+
+The practical core uses `config_lib` for native settings, Serde for record
+syntax and `sha2` for hashing. Course code still owns model dimensions and
+policy, canonical artifact identity, tagged graph decisions and terminal-error
+consistency. Transitive package presence does not approve a new direct API.
+The synthetic graph's JSON labels are fixture values; the native settings path
+uses the configuration role.
+
+The current checker can bind an exact graph and source inventory to supplied
+role assessments. Full dependency admission also needs its own provenance,
+license, advisory and build-behavior evidence. Neither this toy graph nor a
+source scan establishes package safety or admits a future GPU or server stack.
+
+</div>
+
+<div id="dependency-native-config">
+
+## <span id="dependency-config-heading">Decode native settings before validating the model</span>
+
+The shipped `decoder-profiles.conf` already supplies complete model records.
+The existing path loads native CONF syntax through `Config::from_string` and
+passes the resulting library values to `ModelConfig::from_config`:
+
+```rust
+let settings = Config::from_string(source, Some("conf"))?;
+let model = ModelConfig::from_config(&settings)?;
+```
+
+The library reads settings syntax and checks general field types and presence.
+The existing course validator checks the decoder's dimensions, head grouping,
+policies and identities. This is the same `ModelConfig` used by Chapter 7.
+
+For residual width $d$ and query-head count $h_q$, a head-width calculation
+requires positive dimensions and exact divisibility:
+
+$$
+d>0,\qquad h_q>0,\qquad d\bmod h_q=0.
+$$
+
+Only after those checks is $d_{\mathrm{head}}=d/h_q$ meaningful. The complete
+validator also checks key/value-head grouping and even RoPE head width; this
+formula is not a replacement model schema. The shipped reference has $d=4$
+and $h_q=1$, giving head width $4$.
+
+<table id="dependency-config-table" style="width: 100%; table-layout: fixed; overflow-wrap: anywhere;">
+  <caption id="dependency-config-caption">Native CONF and existing ModelConfig outcomes; all other fields come from the complete reference model unless stated</caption>
+  <thead id="dependency-config-headers"><tr><th scope="col">Input or change</th><th scope="col">Observed boundary result</th></tr></thead>
+  <tbody>
+    <tr id="dependency-config-valid"><th scope="row">Complete shipped reference record</th><td>Valid descriptor; head width <samp>4</samp></td></tr>
+    <tr id="dependency-config-syntax"><th scope="row">F13: malformed section <code>[unterminated-section</code></th><td><code>config/syntax</code> during <code>config_admission</code></td></tr>
+    <tr id="dependency-config-divisibility"><th scope="row">F14: set <code>d = 5</code> and <code>hq = 2</code></th><td>Syntax is readable; existing model validation refuses with <code>config/invalid_value</code></td></tr>
+    <tr id="dependency-config-zero"><th scope="row">F15: set <code>hq = 0</code></th><td><code>config/invalid_value</code>, before head-width division</td></tr>
+    <tr id="dependency-config-missing"><th scope="row">F16: supply only <code>schema_version = 1</code></th><td>Required fields are missing; <code>config/invalid_value</code></td></tr>
+    <tr id="dependency-config-type"><th scope="row">F17: set <code>hq</code> to floating value <code>0.5</code></th><td>Wrong field type; <code>config/invalid_value</code></td></tr>
+    <tr id="dependency-config-unknown"><th scope="row">Add <code>automatic_attention = true</code></th><td>Accepted without changing the resulting model fields; no attention implementation is selected by this extra setting</td></tr>
+    <tr id="dependency-config-duplicate"><th scope="row">Append <code>vocabulary_id = replacement-v1</code></th><td>The native library uses the last value; the resulting vocabulary ID is <code>replacement-v1</code></td></tr>
+  </tbody>
+</table>
+
+Unknown and duplicate keys therefore do not have a strict-rejection policy in
+this native path. A duplicate can change the resulting model descriptor.
+Use the actual loaded values and their identity when admitting a configuration.
+The existing `ConfigError::Invalid` is deliberately coarse: the boundary maps
+it to `config/invalid_value` and retains the typed source. It does not inspect
+an English message to invent a finer divisibility or field-error token.
+
+These APIs return descriptors and receive no live decoder, dropout counter or
+cache owner. Reading or refusing settings cannot itself publish a model or
+advance those owners.
+
+</div>
+
+<div id="dependency-failure-contract">
+
+## <span id="dependency-error-heading">Read failure identity and state effect separately</span>
+
+F14 gives a concrete example. Its category is `config`, its reason is
+`invalid_value`, and its phase is `config_admission`. Its terminal state is
+`rejected`. Its disposition is `reject_unchanged`: the operation refused the
+candidate before changing the declared live state. The reason identifies the
+failed contract; the disposition states the allowed continuation. Neither
+field is inferred from a display string.
+
+`FunctionalError` wraps existing component errors. Its live `Error::source`
+retains the original typed cause where one exists. The public record instead
+contains stable tokens and bounded requested/actual identity digests, with a
+maximum encoded size of $4096$ bytes. If selection never occurred, actual
+identity is `not_selected`; copying the request into that field would falsely
+claim that the requested implementation ran.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/support/functional_error.rs"
+  region="terminal-error-contract" captionId="dependency-rust-error"
+  caption="Construct only valid failure tuples and use the trusted caller identity when refusing an invalid diagnostic artifact record."
+  label="Rust source: typed terminal failure and strict diagnostic-record decoding" />
+
+The diagnostic artifact decoder rejects unknown fields, unknown categories,
+unsupported versions and impossible category/reason/phase/disposition/terminal
+combinations. For example, changing F27's rejected admission record to claim
+terminal state `failed` produces `schema/invalid_error_tuple`. An invalid
+record's identity is untrusted, so its refusal uses the caller's trusted
+identity. A serialized record preserves the public diagnostic fields; reading
+it cannot recreate the original private live source object.
+
+An unexpected supporting error becomes `internal/unmapped_source` with its
+source retained and disposition `stop_job`. There is no conversion to success
+or automatic substitute. Ordinary successful generation stops remain success.
+
+<h3 id="dependency-state-heading">Name the snapshot and commit point</h3>
+
+The local transition fixture starts with model revision `7`, dropout next
+counter `192`, cache logical length `3` and published-output count `0`.
+Those are four literal harness counters, not a claim that a real decoder
+stores all its state in one structure. The transition validates a candidate
+and assigns committed state only after its checked work succeeds.
+
+<table id="dependency-state-table" style="width: 100%; table-layout: fixed; overflow-wrap: anywhere;">
+  <caption id="dependency-state-caption">Local harness failures preserve the four committed counters while provisional ownership differs</caption>
+  <thead id="dependency-state-headers"><tr><th scope="col">Observed failure boundary</th><th scope="col">Terminal state and disposition</th><th scope="col">Owned payload after the failed call</th></tr></thead>
+  <tbody>
+    <tr id="dependency-state-entry"><th scope="row">F31/F33: deadline or cancellation at entry, before allocation</th><td><code>timed_out</code> or <code>cancelled</code>; <code>reject_unchanged</code></td><td><samp>0 bytes</samp>; no provisional allocation</td></tr>
+    <tr id="dependency-state-barrier"><th scope="row">F32/F34: deadline or cancellation after allocation, before commit</th><td><code>timed_out</code> or <code>cancelled</code>; <code>abort_provisional</code></td><td><samp>0 bytes</samp> live; <samp>16 bytes</samp> allocated and released</td></tr>
+    <tr id="dependency-state-cleanup"><th scope="row">F44: execution fails, then cleanup fails</th><td><code>failed</code>; <code>stop_job</code>; reuse forbidden</td><td><samp>16 bytes</samp> still owned at the observation boundary; both causes retained</td></tr>
+    <tr id="dependency-state-evaluation"><th scope="row">F49: required evaluation cannot complete</th><td><code>failed</code>; <code>stop_job</code>; reuse forbidden</td><td><samp>0 bytes</samp> live after discard; last-good committed counters remain</td></tr>
+  </tbody>
+</table>
+
+Injected clock values and explicit barriers make these results deterministic;
+no sleep or race decides the winner. Cancellation is checked before an
+already-expired entry deadline. A disabled persistence request refuses before
+an artifact probe; malformed native configuration refuses before the injected
+device probe.
+
+The positive commit control advances revision to `8` and publication count
+to `1`, retaining counter `192` and cache length `3`. Cancellation observed
+by the next operation leaves that committed result intact and performs no
+second allocation or commit. A later flag cannot retract completed work.
+
+<RustSource path="rust/demos/practical-ch09-dependency-error-contract/src/boundary_fixtures.rs"
+  region="checked-local-transition" captionId="dependency-rust-transition"
+  caption="Check entry conditions, own one provisional payload, then publish the candidate state only after the pre-commit barrier succeeds."
+  label="Rust source: local provisional ownership and checked state commit" />
+
+The ownership counters measure this fixture's `Vec` payload capacity,
+cumulative allocation, release and high-water payload. They do not measure
+physical allocator retention. The future-boundary cases do not execute GPU
+kernels, a server, database migration or a request-page allocator.
+
+<h3 id="dependency-components-heading">Retain the real component's narrower guarantee</h3>
+
+F36 calls the existing AdamW implementation after supplying the finite
+gradient `f64::MAX` to a one-value parameter. Squaring that gradient overflows
+in the staged optimizer arithmetic. The result is
+`numeric/nonfinite_optimizer_arithmetic`, phase `execution`, terminal `failed`
+and disposition `reject_unchanged`. The snapshot is **after gradient creation,
+before update**. Parameter-node identity, parameter and gradient bits, and
+optimizer state remain unchanged; optimizer step stays `0`. This does not undo
+the preceding backward pass. A NaN seed is not used: public autograd rejects it
+before this optimizer boundary.
+
+F43 uses the existing `Checkpoint::save_atomic` on the supported Unix boundary:
+rename attempts to replace a nonempty owned directory and fails. The result
+is `artifact/publication_failed`, phase `commit`, terminal `failed`, disposition
+`abort_provisional`. The existing last-good file bytes remain intact and no
+temporary successor remains. That one filesystem operation does not establish
+recovery from every operating-system or hardware failure. The checkpoint's
+corruption cases retain its existing non-cryptographic checksum; they do not
+establish full artifact SHA-256 admission.
+
+<a id="dependency-link-dropout" href="/en/practical-llm-in-rust/08-dropout-semantics/">Chapter 8's complete-forward guarantee</a>
+likewise preserves its live dropout counter on a failed forward. A later
+training update has a separate boundary. None of these results supplies
+whole-job rollback or durable restart.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="dependency-history">
+
+## <span id="dependency-history-heading">Preserve the model operation as the surrounding software grows</span>
+
+A basic recurrent encoder-decoder can compress the source into one fixed-size vector.
+In their 2014 paper, [Bahdanau, Cho and Bengio](https://arxiv.org/abs/1409.0473) compute a new context
+as a softmax-weighted sum of encoder annotations scored against the preceding
+decoder state. The later term *additive attention* describes that scoring
+approach; the decoder still advances recurrently.
+
+The Transformer forms scaled query-key dot products for simultaneous queries,
+normalizes each query row, and uses those weights to mix values. Its
+self-attention relates positions within one sequence. This is the mechanism
+described by [Vaswani and colleagues in 2017](https://arxiv.org/abs/1706.03762).
+Forming that score grid together within one layer does not make its work
+constant or remove autoregressive generation order.
+
+The related Rust comparison calls the already existing first-course and
+practical self-attention functions. Both receive query and key tensors of
+shape $[1,2,2]$ filled with zeros: one batch, two token positions and two
+features. The value rows are $[2,0]$ and $[0,4]$. Every query-key score is zero,
+so each query gives both available positions weight $1/2$. Each output row is
+therefore $[1,2]$. The executed flat output is `[1.0,2.0,1.0,2.0]` in both
+APIs, with probabilities `[0.5,0.5,0.5,0.5]`.
+
+<RustSource path="rust/demos/practical-ch09-dependency-error-contract/src/lib.rs"
+  region="dependency-attention-contrast" captionId="dependency-rust-attention"
+  caption="Use the existing two course attention APIs on the same unmasked input and compare their output; no earlier attention mechanism is reimplemented."
+  label="Rust source: shared two-token attention input in the two existing courses" />
+
+Supporting configuration and storage must leave the decoder's attention,
+loss, gradients and update decisions visible in course Rust. This is one `f64`
+course-sequence comparison, not a comparison with an
+implementation of the 2014 mechanism, a full-model equivalence or a model-quality
+result. Supporting software leaves that taught calculation visible.
+
+Cargo's [manifest and lockfile guide](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html)
+separates dependency requirements from exact resolved information. Its
+[`cargo build` documentation](https://doc.rust-lang.org/cargo/commands/cargo-build.html)
+explains that `--locked` refuses a missing or changing lockfile, `--offline`
+prevents Cargo network access, and `--frozen` combines them. Offline resolution
+can depend on locally cached availability. These flags do not sandbox build
+scripts or the resulting program. This tooling context does not explain the
+historical improvement in attention or prove a dependency's teaching role.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="dependency-evidence-scope">
+
+## <span id="dependency-evidence-heading">Read each result at its tested boundary</span>
+
+The tables keep exact record fields, additions/removals and state effects beside
+their observations. Those field comparisons carry the evidence more directly
+than a node-link drawing. The full output contains seventy distinct failures,
+with the following scopes; positive controls are additional and do not inflate
+the failure count.
+
+<table id="dependency-scope-table" style="width: 100%; table-layout: fixed; overflow-wrap: anywhere;">
+  <caption id="dependency-scope-caption">Executed failure scopes in the seventy-row CPU fixture</caption>
+  <thead id="dependency-scope-headers"><tr><th scope="col">Output scope</th><th scope="col">Cases</th><th scope="col">What was exercised</th></tr></thead>
+  <tbody>
+    <tr id="dependency-scope-local"><th scope="row"><code>local</code></th><td><samp>23</samp></td><td>Chapter-owned graph, record and boundary logic</td></tr>
+    <tr id="dependency-scope-inherited"><th scope="row"><code>inherited</code></th><td><samp>13</samp></td><td>Existing native settings, model, checkpoint, sampling and optimizer APIs</td></tr>
+    <tr id="dependency-scope-mixed"><th scope="row"><code>inherited-plus-future-harness</code></th><td><samp>1</samp></td><td>Real native syntax refusal before an injected device probe</td></tr>
+    <tr id="dependency-scope-future"><th scope="row"><code>future-boundary-harness</code></th><td><samp>33</samp></td><td>Injected availability, substitution and local transition protocols; real future components are not executed</td></tr>
+  </tbody>
+</table>
+
+The compiled dev-profile compact fixture took about $8.03$ seconds with peak child resident
+set size $14\,757\,888$ bytes; the full-row fixture took about $4.12$ seconds
+with $14\,946\,304$ bytes. Those CPU-child measurements exclude compilation,
+container infrastructure and the measurement wrapper. They do not measure a
+future backend or physical allocator retention.
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="dependency-practice" style="overflow-wrap: anywhere;">
+
+## <span id="dependency-practice-heading">Optional practice: reproduce and explain the boundaries</span>
+
+Run from the repository root with Docker running. The existing `course`
+launcher prepares the workspace image, whose first build may need network
+access to provision the toolchain and dependencies. Set `COURSE_CORPUS=false`
+as shown to disable corpus-asset acquisition; these supplied CPU fixtures need
+no corpus or model download. After setup, the command runs locked offline
+Cargo with container networking disabled. The
+compact command prints one JSON object for `09-dependency-error-contract`:
+`synthetic_graph.records` is `10`, both baseline differences are `0`,
+`faults.total` is `70`, `positive_controls.native_head_width` is `4`, and
+`attention.same_reference_output` is `true`.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --offline --locked -p practical-ch09-dependency-error-contract
+```
+
+From the same working directory and setup, print all seventy newline-delimited
+JSON failure records, from `G01` through `G18` and `F01` through `F52`. Each
+boundary row includes its diagnostic, scope, before/after counters and ownership
+observation. `F44` reports `reuse_allowed: false` and sixteen live payload bytes;
+`F36` reports optimizer step zero and its post-gradient snapshot phase.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --offline --locked -p practical-ch09-dependency-error-contract --example practical-ch09-dependency-error-contract-faults
+```
+
+The focused checks use the same repository-root Docker setup. The first selects
+the core integration target and reports ten passing tests; the second runs the
+demo library's two tests, including all seventy distinct injections. A run that
+selects zero tests does not reproduce these checks.
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p llm-from-scratch-practical --test practical_ch09_dependency_error_contract
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch09-dependency-error-contract --lib
+```
+
+<RustSource path="rust/demos/practical-ch09-dependency-error-contract/src/main.rs"
+  captionId="dependency-rust-demo"
+  caption="Print one canonical compact JSON object from the same fixed fixtures used by the full failure output."
+  label="Rust source: Chapter 9 compact fixture output" />
+
+<ol id="dependency-practice-prompts">
+  <li id="dependency-practice-1">Inspect G03 in the full failure output. Identify the three added and three missing records when U's version and its references change, and explain why r2 is unchanged in this representation.</li>
+  <li id="dependency-practice-2">Inspect F14 and the native configuration table. Explain how readable CONF settings can still describe an invalid model, and identify the boundary's actual stable reason.</li>
+  <li id="dependency-practice-3">Explain why disabling default features on one dependency declaration cannot by itself establish the resolved feature set for the whole context.</li>
+  <li id="dependency-practice-4">Inspect F33, F34 and the after-commit cancellation control. Identify the preserved committed counters, the difference in provisional ownership and the work that later cancellation cannot retract.</li>
+  <li id="dependency-practice-5">Inspect G15. Explain why zero graph differences do not establish a source-role match, and why matching hashes would still need a substantive call-role assessment.</li>
+  <li id="dependency-practice-6">Inspect F46. Identify the explicit refusal when the requested device is unavailable and a CPU substitute is proposed; explain what would be needed to select a different configuration.</li>
+</ol>
+
+<details id="dependency-practice-answers">
+<summary id="dependency-answer-summary">Checked explanations for graph deltas, native validation, features, cancellation, source roles and refused fallback</summary>
+
+<ol>
+  <li id="dependency-answer-1">The old U package record, e2 destination and U/std package reference are missing; their version-two replacements are added. The delta is <samp>3 / 3</samp>. Role r2 stores stable edge ID e2, so its own record is unchanged. That representation detail does not approve the changed edge or preserve its previous role approval.</li>
+  <li id="dependency-answer-2">The native library can read the supplied settings, but width <InlineMath latex="5" /> is not divisible by query-head count <InlineMath latex="2" />. Existing ModelConfig validation refuses the descriptor. The boundary reports <code>config/invalid_value</code>, retains ConfigError as its live source, and does not manufacture a finer token from its English message.</li>
+  <li id="dependency-answer-3">Another activating edge can still enable the feature. Inspect the resolved package-specific features for the declared roots, targets and feature request, rather than treating one manifest line as the whole graph.</li>
+  <li id="dependency-answer-4">F33 and F34 retain fixture revision <code>7</code>, dropout counter <code>192</code>, cache length <code>3</code> and published count <code>0</code>. F33 allocates no provisional payload; F34 allocates and releases <samp>16 bytes</samp> before commit. After successful commit, the next cancellation instead retains revision <code>8</code> and publication count <code>1</code>; it does not undo that completed result.</li>
+  <li id="dependency-answer-5">G15's unchanged graph has <samp>0 / 0</samp> deltas, but the separately supplied source digest differs, producing <code>dependency/call_site_source_mismatch</code>. A matching digest would bind exact bytes, not decide whether their operation is permitted supporting work. That meaning requires the call-role assessment.</li>
+  <li id="dependency-answer-6">F46 returns <code>device/fallback_forbidden</code> at <code>startup</code>, with <code>reject_unchanged</code>, terminal <code>rejected</code> and actual selection <code>not_selected</code>. It is an injected boundary case. A different backend needs an explicitly selected, admitted configuration with its own actual identity and real integration checks; availability alone cannot authorize a silent substitute.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="dependency-handoff">
+
+## <span id="dependency-handoff-heading">Carry explicit identities into serving admission</span>
+
+The decoder's operations remain course-owned while supporting records and
+failure effects become inspectable. Chapter 10 will use the typed categories,
+dispositions and requested/actual identities to admit serving configurations
+and refuse unavailable requirements explicitly. Its real request, backend and
+publication boundaries need their own integration evidence. Full dependency
+admission, GPU execution, activation scheduling and durable job continuation
+remain separate capabilities.
+
+</div>

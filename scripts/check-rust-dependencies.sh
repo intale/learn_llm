@@ -217,3 +217,9 @@ if ((${#undeclared_dependencies[@]} > 0)); then
 fi
 
 printf 'Rust dependency policy passed: every external crate is allowlisted; concept denylist clear.\n'
+
+# A current practical record check is explicit and requires separately frozen
+# approval/source-role inputs. No arguments retain the existing name gate only.
+if (($# > 0)); then
+  node "$repository_root/scripts/check-practical-dependencies.mjs" check --root "$repository_root" "$@"
+fi

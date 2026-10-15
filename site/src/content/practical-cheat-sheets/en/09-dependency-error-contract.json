@@ -1,0 +1,16 @@
+{
+  "chapter_id":"09-dependency-error-contract",
+  "locale":"en",
+  "title":"Supporting roles and decoder failure boundaries",
+  "description":"Terms for retaining course-owned model decisions, exact dependency observations and precise state effects after failure.",
+  "terms":[
+    {"term":"Supporting operation","definition":"Work around the decoder, such as reading native settings or hashing supplied bytes. Its permitted call role leaves taught attention, tokenization, gradients and optimizer decisions in course Rust."},
+    {"term":"Exact dependency snapshot","definition":"The independently approved package, edge, feature and role records for one fixed build context. Structural match requires no added records and no missing records; a broader permission catalog is a separate input."},
+    {"term":"Call-site role","definition":"The specific supporting operation permitted at a source call. Binding its reviewed source bytes detects drift; matching hashes or package names do not decide whether the call hides a taught model operation."},
+    {"term":"Model invariant","definition":"A condition the existing decoder validator requires, such as positive head count and compatible head grouping. Reading settings syntax does not establish that the resulting model is valid or executable."},
+    {"term":"Failure disposition","definition":"The continuation rule attached to a typed failure: reject unchanged, discard provisional work, or stop the affected session or job. Its state promise applies at the declared operation boundary, not to every earlier successful update."},
+    {"term":"Terminal operation state","definition":"The explicit outcome of a failed operation: rejected, failed, cancelled or timed out. It is recorded separately from the reason and disposition; a later cancellation does not retract an already committed result."},
+    {"term":"Provisional state","definition":"Candidate output or owned payload that has not crossed its commit point. The local fixture can discard it while retaining committed counters; a failed cleanup instead reports retained ownership and forbids reuse."},
+    {"term":"Requested and actual identity","definition":"Separate bindings for the configuration requested and the implementation actually selected. Before selection, actual identity remains not_selected; an available substitute does not silently become the requested backend."}
+  ]
+}

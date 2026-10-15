@@ -8,7 +8,7 @@ import {getCheatSheetCopy,paginateCheatSheetTerms,sortCheatSheetTerms} from '../
 import {expectNoPageOverflow,expectOnlySharedDiagramClientScript,expectOrderedChapterNavigation,expectSeoDescription,expectStackedDiagramText,expectVisualizationDecision} from './chapter-helpers';
 
 const prefix='/en/practical-llm-in-rust/';
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -121,7 +121,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="/en/course/40-"]')).toHaveCount(0);
  await page.goto('/en/course/39-end-to-end-llm/');await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -144,10 +144,11 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
-  expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');expect(html).toContain('application/x-tex');
+  if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
+  expect(html).toContain('application/x-tex');
   for(const term of lesson.sheet.terms){expect(html).toContain(term.term);}
   await page.goto(lesson.path);await expect(page.locator('html')).toHaveAttribute('lang','en');
   await expect(page.locator('h1')).toHaveText(lesson.data.title);await expectSeoDescription(page,lesson.data.description);
@@ -159,8 +160,14 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
   await expect(math.locator('.katex-mathml')).toHaveCount(await math.count());
   const annotations=await page.locator('annotation[encoding="application/x-tex"]').allTextContents();expect(annotations).toContain(lesson.data.formula.latex);
   await expectVisualizationDecision(page,lesson.data.visualization);
-  const figure=figureFor(page,lesson.figureId);await expect(figure).toHaveCount(1);await expect(figure.locator('figcaption')).toHaveCount(1);
-  await expect(figure).toHaveClass(/course-diagram/);await expect(figure).toHaveAttribute('data-diagram-style','course-v1');await expect(figure.locator('[data-diagram-box]')).toHaveCount(lesson.boxCount);
+  const figure=figureFor(page,lesson.figureId);
+  if(lesson.data.visualization.decision==='useful'){
+   await expect(figure).toHaveCount(1);await expect(figure.locator('figcaption')).toHaveCount(1);
+   await expect(figure).toHaveClass(/course-diagram/);await expect(figure).toHaveAttribute('data-diagram-style','course-v1');await expect(figure.locator('[data-diagram-box]')).toHaveCount(lesson.boxCount);
+  }else{
+   await expect(page.locator('figure[data-visualization-id],[data-diagram-full-view-toggle]')).toHaveCount(0);
+   expect(await page.locator('.lesson-body table thead th').count()).toBeGreaterThan(0);
+  }
   await expect(page.locator('pre.rust-source-code')).toHaveCount(lesson.data.rust_sources.length);await expectOnlySharedDiagramClientScript(page);
   await expectOrderedChapterNavigation(page,'en',lesson.id,chapterLinks,prefix);
   await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href','/ru/');await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('data-locale-fallback','locale-home');
@@ -307,14 +314,16 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
   test(testLabel+' formula and nearest-box containment '+viewport.width,async({page},testInfo)=>{
    await page.setViewportSize(viewport);await page.goto(lesson.path);await page.locator('article[data-chapter-root] details').evaluateAll(nodes=>nodes.forEach(node=>(node as HTMLDetailsElement).open=true));await page.evaluate(()=>document.fonts.ready);
-   await expectNoPageOverflow(page);const figure=figureFor(page,lesson.figureId);const diagram=await auditDiagramContainment(figure),geometry=await figureGeometry(figure);
-   await expectStackedDiagramText(figure.locator('figcaption'),'h3','.course-diagram__description');
+   await expectNoPageOverflow(page);const figure=figureFor(page,lesson.figureId),hasFigure=lesson.data.visualization.decision==='useful';
+   const diagram=hasFigure?await auditDiagramContainment(figure):null,geometry=hasFigure?await figureGeometry(figure):null;
+   if(hasFigure)await expectStackedDiagramText(figure.locator('figcaption'),'h3','.course-diagram__description');
    const layout=await auditOrdinaryLayout(page.locator('main'));
    if(viewport.width<800)await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
    await testInfo.attach('programmatic-geometry',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,state:'inline',answerDetails:'open',viewport,geometry,diagram,layout}),contentType:'application/json'});
-   expect(diagram.errors).toEqual([]);expect(layout.errors).toEqual([]);
+   expect(diagram?.errors??[]).toEqual([]);expect(layout.errors).toEqual([]);
   });
  }
+ if(lesson.data.visualization.decision==='useful'){
  test(testLabel+' full view keyboard tree focus and bounded travel',async({page},testInfo)=>{
   const viewport={width:1280,height:900};await page.setViewportSize(viewport);await page.goto(lesson.path);await page.evaluate(()=>document.fonts.ready);
   const figure=figureFor(page,lesson.figureId),toggle=figure.locator('[data-diagram-full-view-toggle]');await expect(toggle).toHaveCount(1);
@@ -350,6 +359,17 @@ test('Practical orientation has a scoped ordered path without lesson widgets',as
   expect(expanded.diagram.errors).toEqual([]);expect(expanded.geometry.scrollHeight).toBeLessThanOrEqual(expanded.geometry.clientHeight*1.5+2);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toBeFocused();
  });
+ }else{
+ test(testLabel+' forced colors and RTL preserve table and formula evidence',async({page},testInfo)=>{
+  const viewport={width:1280,height:900};await page.setViewportSize(viewport);await page.emulateMedia({forcedColors:'active'});await page.goto(lesson.path);
+  await page.locator('html').evaluate(node=>node.setAttribute('dir','rtl'));await page.locator('article[data-chapter-root] details').evaluateAll(nodes=>nodes.forEach(node=>(node as HTMLDetailsElement).open=true));await page.evaluate(()=>document.fonts.ready);
+  const layout=await auditOrdinaryLayout(page.locator('main'));expect(layout.errors).toEqual([]);await expectNoPageOverflow(page);
+  await expect(page.locator('figure[data-visualization-id],[data-diagram-full-view-toggle]')).toHaveCount(0);
+  const tables=await page.locator('.lesson-body table').evaluateAll(nodes=>nodes.map(node=>({headers:[...node.querySelectorAll('thead th')].map(header=>header.textContent),rows:node.querySelectorAll('tbody tr').length})));
+  expect(tables.length).toBeGreaterThan(0);for(const table of tables){expect(table.headers.length).toBeGreaterThan(0);expect(table.rows).toBeGreaterThan(0);}
+  await testInfo.attach('programmatic-table-direction-geometry',{body:JSON.stringify({route:lesson.path,viewport,direction:'rtl',forcedColors:'active',tables,layout}),contentType:'application/json'});
+ });
+ }
  for(const viewport of [{width:1280,height:900},{width:320,height:480}]){
   test(testLabel+' glossary keyboard scrolling and focus '+viewport.width,async({page},testInfo)=>{
    await page.setViewportSize(viewport);await page.goto(lesson.path);
