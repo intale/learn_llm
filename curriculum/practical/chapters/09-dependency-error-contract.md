@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"09-dependency-error-contract","concept_id":"dependency-error-contract","content_revision":2,"order":9,
+  "chapter_id":"09-dependency-error-contract","concept_id":"dependency-error-contract","content_revision":3,"order":9,
   "objective":{"en":"Interpret configuration refusals and typed operation failures, and identify which model, optimizer or checkpoint state each tested boundary preserves."},
   "worked_inputs":{"en":"Load the native reference settings, explain the invalid width-five/two-head configuration, and inspect cancellation, AdamW, checkpoint publication and cleanup failures. Compare the two existing course attention APIs on one shared two-token input."},
   "formula":{
