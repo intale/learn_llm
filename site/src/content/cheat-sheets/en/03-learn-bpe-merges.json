@@ -2,43 +2,43 @@
   "chapter_id": "03-learn-bpe-merges",
   "locale": "en",
   "title": "Learning deterministic BPE merges",
-  "description": "A quick reference for the pair-counting and merge-rule terms used in this chapter.",
+  "description": "Quick definitions for fitting byte-pair rules, counting candidates, and retaining exact token bytes.",
   "terms": [
     {
       "term": "Byte Pair Encoding (BPE)",
-      "definition": "A tokenization method that repeatedly learns rules for replacing selected adjacent byte-symbol pairs."
+      "definition": "In this course, fitting starts with all 256 byte entries and learns ordered rules for merging neighboring tokens. Each new entry represents joined bytes; pieces need not be whole characters or words."
     },
     {
       "term": "Adjacent-pair candidate",
-      "definition": "An ordered pair of neighboring token IDs that may be selected for the next merge."
+      "definition": "An ordered pair of neighboring token IDs in the current sequence for one training document, eligible for selection as the next merge rule."
     },
     {
       "term": "Candidate count",
-      "definition": "The number of adjacent positions carrying one pair, including overlapping positions during selection."
+      "definition": "The number of adjacent windows carrying a particular token pair in the current training documents. Overlapping windows count separately; windows never cross documents."
     },
     {
       "term": "Merge round",
-      "definition": "One cycle of counting candidates, choosing a pair, assigning a symbol, and replacing that pair."
+      "definition": "One fitting cycle while candidates remain: count current adjacent pairs, select a winner, add an entry for its joined bytes, and replace left to right without overlap in each document. The next round recounts the changed sequences."
     },
     {
       "term": "Merge rank",
-      "definition": "The zero-based position of a learned rule in the ordered BPE table, with earlier ranks taking priority."
+      "definition": "A learned rule's zero-based position in the ordered BPE table. Rank records learning order, not frequency or token identity; the first rule has rank zero and receives token ID 256 here."
     },
     {
       "term": "Deterministic tie-break",
-      "definition": "A fixed rule that chooses the numerically smaller pair when candidate frequencies are equal."
+      "definition": "This course's rule for equal candidate counts: choose the smaller left numeric token ID, then the smaller right ID if the left IDs match."
     },
     {
       "term": "Non-overlapping replacement",
-      "definition": "A left-to-right rewrite that consumes each input token at most once."
+      "definition": "A left-to-right pass that emits one merged token ID per match and consumes the two matched input tokens once. Unmatched tokens are copied; emitted tokens are not rescanned in that pass."
     },
     {
       "term": "Byte expansion",
-      "definition": "The exact underlying byte sequence represented by either a raw token or a merged token."
+      "definition": "The exact ordered bytes represented by a token ID. Initial entries store one byte; learned entries join the two merged entries' bytes. A piece may be incomplete UTF-8."
     },
     {
       "term": "Document boundary",
-      "definition": "A hard barrier where BPE pair counting stops, preventing pairs from joining separate documents."
+      "definition": "The end of a training document, where adjacent-pair counting and replacement stop. Tokens in separate documents cannot form a pair; spaces inside one document remain ordinary bytes."
     }
   ]
 }
