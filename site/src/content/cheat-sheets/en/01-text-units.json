@@ -2,39 +2,39 @@
   "chapter_id": "01-text-units",
   "locale": "en",
   "title": "Text units and vocabulary IDs",
-  "description": "A quick reference for the text representations and tokenizer terms used in this chapter.",
+  "description": "A quick reference for Chapter 1's text units, fixed vocabulary, and decoding limit.",
   "terms": [
     {
       "term": "UTF-8 byte",
-      "definition": "One byte of UTF-8-encoded text; one visible text symbol may occupy several bytes."
+      "definition": "An eight-bit storage unit in UTF-8 text. One Unicode scalar value may occupy several bytes."
     },
     {
       "term": "Unicode scalar value",
-      "definition": "A Unicode code-point value treated as one input position by this chapter's scalar-level tokenizer."
+      "definition": "A Unicode code point other than a surrogate code point. Rust char represents one scalar, and this demo assigns one token position to each input scalar."
     },
     {
       "term": "Vocabulary",
-      "definition": "In this chapter, a demo-only fixed table from known Unicode scalar values to deterministic IDs; later tokenizers keep the mapping concept but replace its units and IDs."
+      "definition": "A fixed table associating represented units with IDs. Chapter 1 uses seven known scalars from cat кот; later byte-level BPE uses a separate table and ID namespace."
     },
     {
       "term": "Token ID",
-      "definition": "The integer representing a text unit at one sequence position and later selecting an embedding row."
+      "definition": "An integer label for a vocabulary entry, distinct from a text position, Unicode value, or semantic magnitude. Later it selects an embedding-table row."
     },
     {
       "term": "Unknown token",
-      "definition": "Chapter 1's reserved marker for an unknown scalar value; replacing that value with the marker loses its identity, while the later byte-level tokenizer covers every input byte instead."
+      "definition": "The demo's reserved ID 0, decoded as <UNK>. All absent scalars share this ID and lose their identities; the later byte tokenizer instead represents every input byte."
     },
     {
       "term": "Reversible round trip",
-      "definition": "Encoding followed by decoding that recovers the original text when every input unit is known."
+      "definition": "Encoding followed by decoding that recovers the original text. This scalar demo guarantees it only when every input scalar is in the fixed vocabulary."
     },
     {
       "term": "Grapheme cluster",
-      "definition": "A user-perceived character that may contain more than one Unicode scalar value."
+      "definition": "A unit that approximates a character as a reader perceives it and can contain several Unicode scalars. The scalar demo does not segment grapheme clusters."
     },
     {
       "term": "Subword tokenizer",
-      "definition": "A tokenizer whose learned units can represent several adjacent bytes to balance vocabulary size and sequence length; Chapters 3 and 4 build a new byte-level vocabulary rather than extending this scalar table."
+      "definition": "A tokenizer using units smaller than whole words so known units can compose new forms. The later byte-level BPE tokenizer learns units spanning adjacent bytes."
     }
   ]
 }

@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '01-text-units';
-const contentRevision = 6;
+const contentRevision = 7;
 const formulaLatex = String.raw`z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`;
 const rustDemoDirectory = resolve(
   process.cwd(),
@@ -98,20 +98,15 @@ const copy = {
     objectiveLabel: 'In this chapter',
     revisionLabel: 'Content revision',
     headings: {
-      formula: 'One lookup per scalar position',
-      history: 'Before subword tokenizers',
-      rust: 'Implement the mapping in Rust',
-      visualization: 'Trace each position across representations',
-      exercises: 'Predict, then check',
-      decoder: 'The boundary the decoder will consume',
+      formula: "One lookup at each scalar position",
+      history: "Why use units smaller than words",
+      rust: "Read the existing Rust example",
+      visualization: "Follow each scalar from bytes to its ID",
+      exercises: "Optional inspection and explanation",
+      decoder: "Carry the mapping concept into the model",
     },
-    rustCaptions: [
-      'Historical word and scalar boundaries',
-      'Two observable text representations',
-      'A deterministic scalar vocabulary',
-      'The checked chapter example',
-    ],
-    diagramTitle: 'The same three positions, represented four ways',
+    rustCaptions: ["Whitespace units and Unicode scalar units","UTF-8 storage bytes and decoded scalar values","The fixed scalar table and its two lookup directions","The fixed examples printed by the demo"],
+    diagramTitle: "cat and кот: bytes, scalars, and vocabulary IDs",
     diagramExamples: ['ASCII example: cat', 'Cyrillic example: кот'],
     diagramStages: [
       'Input units',
@@ -120,17 +115,9 @@ const copy = {
       'Vocabulary IDs',
     ],
     byteCounts: ['1 byte', '1 byte', '1 byte', '2 bytes', '2 bytes', '2 bytes'],
-    handoffEvidence: [
-      'deliberately small Chapter 1 comparison',
-      'cumulative llm-from-scratch crate neither imports nor extends it',
-      'one token for each of the 256 possible byte values',
-      'learned merge tokens that may represent several bytes',
-      'new token-ID namespace',
-      'an unseen scalar becomes <UNK>',
-      'replaced, not extended',
-    ],
-    exerciseSummary: 'Check your predictions',
-    exerciseAnswer: 'The ID sequences are [3, 2, 4] and [5, 6, 7].',
+    handoffEvidence: ["This Vocabulary belongs to the ch01-text-units demo.","llm-from-scratch crate does not import or extend it.","a base token for each of all 256 byte values","adds learned merge tokens that can represent several bytes","shifts the content IDs into its own namespace","The new tokenizer does not inherit the demo’s rule that an unseen scalar becomes <UNK>.","the idea that a fixed vocabulary gives meaning to an ordered ID sequence carries forward."],
+    exerciseSummary: "Answers to the optional inspection tasks",
+    exerciseAnswer: "The sequences are [3, 2, 4] and [5, 6, 7].",
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
@@ -139,20 +126,15 @@ const copy = {
     objectiveLabel: 'В этой главе',
     revisionLabel: 'Версия материала',
     headings: {
-      formula: 'Один поиск в словаре для каждого скалярного значения',
-      history: 'До субсловных токенизаторов',
-      rust: 'Реализуйте отображение на Rust',
-      visualization: 'Проследите каждую позицию во всех представлениях',
-      exercises: 'Сначала предскажите, затем проверьте',
-      decoder: 'Интерфейс между токенизатором и декодером',
+      formula: "Один поиск для каждой позиции",
+      history: "Зачем нужны единицы мельче слова",
+      rust: "Разберём существующий пример на Rust",
+      visualization: "Проследим путь от байтов к ID",
+      exercises: "Необязательные задания: разобрать и объяснить",
+      decoder: "Как это сопоставление используется в модели",
     },
-    rustCaptions: [
-      'Разбиение на слова и скалярные значения',
-      'Два представления текста',
-      'Детерминированный словарь скалярных значений',
-      'Проверяемый пример главы',
-    ],
-    diagramTitle: 'Одни и те же три позиции в четырёх представлениях',
+    rustCaptions: ["Разбиение по пробельным символам и по скалярным значениям Unicode","Байты строки в UTF-8 и декодированные скалярные значения","Фиксированная таблица скалярных значений и поиск в обе стороны","Вывод заданных примеров"],
+    diagramTitle: "cat и кот: байты, скалярные значения и ID токенов",
     diagramExamples: ['Пример ASCII: cat', 'Пример на кириллице: кот'],
     diagramStages: [
       'Входные единицы',
@@ -168,18 +150,10 @@ const copy = {
       'Число байтов: 2',
       'Число байтов: 2',
     ],
-    handoffEvidence: [
-      'небольшая учебная реализация для сравнения',
-      'основная библиотека llm-from-scratch его не импортирует и не расширяет',
-      'каждому из 256 возможных значений байта будет соответствовать отдельный токен',
-      'токены слияний смогут представлять последовательности из нескольких байтов',
-      'собственное пространство ID токенизатора',
-      'не наследует правило главы 1',
-      'будет заменён, а не расширен',
-    ],
-    exerciseSummary: 'Проверьте ответы',
+    handoffEvidence: ["Этот Vocabulary относится к демонстрации ch01-text-units.","llm-from-scratch не импортирует и не расширяет его.","базовым токеном для каждого из 256 возможных значений байта","добавляет обученные токены слияний, которые могут представлять несколько байтов","переносит ID содержимого в новое пространство ID с отдельной нумерацией","Новый токенизатор не наследует правило учебного примера, по которому незнакомое скалярное значение превращается в <UNK>.","фиксированный словарь придаёт смысл упорядоченной последовательности ID."],
+    exerciseSummary: "Ответы к необязательным заданиям",
     exerciseAnswer:
-      'Последовательности ID токенов: [3, 2, 4] и [5, 6, 7].',
+      "Последовательности — [3, 2, 4] и [5, 6, 7].",
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 

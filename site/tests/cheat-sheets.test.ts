@@ -28,17 +28,17 @@ const expectedSheets = {
     lesson: "01-text-units.mdx",
     title: "Text units and vocabulary IDs",
     entries: [
-      ["UTF-8 byte", "scalar occupies two UTF-8 bytes here"],
+      ["UTF-8 byte", "In `cat`, each scalar contributes one byte."],
       ["Unicode scalar value", "Unicode scalar values"],
       [
         "Vocabulary",
-        "The concrete `Vocabulary` type is a deliberately small Chapter 1 comparison",
+        "The table stays fixed during encoding",
       ],
-      ["Token ID", "the token ID at sequence position"],
-      ["Unknown token", "this tokenizer does not reuse Chapter 1's rule"],
-      ["Reversible round trip", "round trip is reversible for known units"],
-      ["Grapheme cluster", "user-perceived grapheme clusters"],
-      ["Subword tokenizer", "appends learned merge tokens"],
+      ["Token ID", "the vocabulary ID placed at the same sequence position as the input scalar"],
+      ["Unknown token", "All unknown scalars share that one ID"],
+      ["Reversible round trip", "The same reasoning applies to any sequence made entirely from this table's known scalars."],
+      ["Grapheme cluster", "forms one grapheme cluster from two scalars"],
+      ["Subword tokenizer", "adds learned merge tokens that can represent several bytes"],
     ],
   },
   "02-corpus-partitions": {
@@ -934,11 +934,11 @@ const expectedRussianChapterIds = Object.keys(expectedSheets).slice(
 const exactDefinitions = {
   "01-text-units": {
     Vocabulary:
-      "In this chapter, a demo-only fixed table from known Unicode scalar values to deterministic IDs; later tokenizers keep the mapping concept but replace its units and IDs.",
+      "A fixed table associating represented units with IDs. Chapter 1 uses seven known scalars from cat кот; later byte-level BPE uses a separate table and ID namespace.",
     "Unknown token":
-      "Chapter 1's reserved marker for an unknown scalar value; replacing that value with the marker loses its identity, while the later byte-level tokenizer covers every input byte instead.",
+      "The demo's reserved ID 0, decoded as <UNK>. All absent scalars share this ID and lose their identities; the later byte tokenizer instead represents every input byte.",
     "Subword tokenizer":
-      "A tokenizer whose learned units can represent several adjacent bytes to balance vocabulary size and sequence length; Chapters 3 and 4 build a new byte-level vocabulary rather than extending this scalar table.",
+      "A tokenizer using units smaller than whole words so known units can compose new forms. The later byte-level BPE tokenizer learns units spanning adjacent bytes.",
   },
   "02-corpus-partitions": {
     "Test partition":
@@ -1939,23 +1939,23 @@ describe("Russian chapter cheat-sheet localization", () => {
       {
         term: "Словарь",
         definition:
-          "В этой главе — фиксированная учебная таблица, которая сопоставляет известным скалярным значениям Unicode однозначно заданные ID. В следующих главах сохраняется сам принцип соответствия, но единицы и ID будут другими.",
+          "Фиксированная таблица, сопоставляющая представляемые единицы с ID. В главе 1 в неё входят семь известных скалярных значений из cat кот; последующий BPE-токенизатор на уровне байтов использует другую таблицу и новое пространство ID.",
         lessonEvidence:
-          "`Vocabulary` здесь — небольшая учебная реализация для сравнения, а не токенизатор из следующих глав.",
+          "Этот `Vocabulary` относится к демонстрации `ch01-text-units`.",
       },
       {
         term: "Неизвестный токен",
         definition:
-          "В главе 1 — зарезервированный маркер для незнакомого скалярного значения. После замены на этот маркер исходное значение теряется. В BPE-токенизаторе следующих глав каждому возможному байту соответствует базовый токен, поэтому такой маркер для скалярных значений не используется.",
+          "Зарезервированный в примере ID 0, который декодируется в <UNK>. Все отсутствующие в словаре скалярные значения получают этот ID, и сведения о том, какое значение было на входе, теряются; токенизатор на уровне байтов из следующих глав представляет каждый входной байт.",
         lessonEvidence:
-          "Каждому байту UTF-8 соответствует базовый токен, поэтому новый токенизатор не наследует правило главы 1",
+          "Новый токенизатор не наследует правило учебного примера, по которому незнакомое скалярное значение превращается в `<UNK>`.",
       },
       {
-        term: "Субсловный токенизатор",
+        term: "Подсловный токенизатор",
         definition:
-          "Токенизатор, обученные единицы которого могут представлять несколько соседних байтов. Это позволяет выбирать компромисс между размером словаря и длиной последовательности. В главах 3 и 4 для этого строится новый словарь на уровне байтов, а не расширяется таблица скалярных значений.",
+          "Токенизатор с единицами мельче целого слова. Из известных единиц можно составлять новые формы слов. BPE-токенизатор из следующих глав обучает единицы, охватывающие соседние байты.",
         lessonEvidence:
-          "обученные токены слияний смогут представлять последовательности из нескольких байтов",
+          "добавляет обученные токены слияний, которые могут представлять несколько байтов",
       },
     ];
 

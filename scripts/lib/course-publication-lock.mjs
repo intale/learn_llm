@@ -21,7 +21,7 @@ export const PRODUCT_FILES = Object.freeze([
 export const PRACTICAL_CHAPTER_IDS = Object.freeze([
   '00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution',
 ]);
-const FIRST_REVISIONS = Object.freeze([5,6,9,7,9,8,5,7,5,6,5,5,8,6,6,9,7,5,8,5,3,3,8,5,3,5,2,2,2,3,2,2,4,12,7,5,6,6,6,9]);
+const FIRST_REVISIONS = Object.freeze([5,7,9,7,9,8,5,7,5,6,5,5,8,6,6,9,7,5,8,5,3,3,8,5,3,5,2,2,2,3,2,2,4,12,7,5,6,6,6,9]);
 const PRACTICAL_REVISIONS = Object.freeze([5,1,1,2,1,1,1,2,3,5,1,1]);
 const compare = (a,b) => Buffer.compare(Buffer.from(a),Buffer.from(b));
 
