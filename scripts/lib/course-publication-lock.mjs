@@ -10,7 +10,7 @@ import {validateCourseBoundaries,validateCourseChapterIdentity} from './course-b
 export const PRODUCT_LOCK_PATH = 'configs/course-publication-v1.json';
 export const PRODUCT_DIRECTORIES = Object.freeze([
   'site/src', 'curriculum/chapters', 'curriculum/practical/chapters',
-  'rust/demos', 'rust/crates/llm-from-scratch', 'rust/crates/llm-from-scratch-practical',
+  'rust/demos', 'rust/crates/llm-from-scratch', 'rust/crates/llm-from-scratch-practical', 'rust/crates/llm-cuda-adapter',
 ]);
 export const PRODUCT_FILES = Object.freeze([
   'Cargo.toml', 'Cargo.lock', 'configs/course-boundaries-v1.json',
@@ -19,10 +19,10 @@ export const PRODUCT_FILES = Object.freeze([
   'site/astro.config.mjs','site/sitemap.config.mjs','site/tsconfig.json',
 ]);
 export const PRACTICAL_CHAPTER_IDS = Object.freeze([
-  '00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary',
+  '00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution',
 ]);
 const FIRST_REVISIONS = Object.freeze([5,6,9,7,9,8,5,7,5,6,5,5,8,6,6,9,7,5,8,5,3,3,8,5,3,5,2,2,2,3,2,2,4,12,7,5,6,6,6,9]);
-const PRACTICAL_REVISIONS = Object.freeze([5,1,1,2,1,1,1,2,3,5,1]);
+const PRACTICAL_REVISIONS = Object.freeze([5,1,1,2,1,1,1,2,3,5,1,1]);
 const compare = (a,b) => Buffer.compare(Buffer.from(a),Buffer.from(b));
 
 function regularFiles(root,path) {

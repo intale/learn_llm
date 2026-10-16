@@ -38,6 +38,7 @@ for marker in \
   'release                       Atomically export that image to site/dist.' \
   'review RUN_ID [PORT]' \
   'review RUN_ID --check' \
+  'run --cuda --cuda-library-dir ABSOLUTE_DIRECTORY' \
   'audit-host'; do
   [[ $help == *"$marker"* ]] || { printf 'missing help marker: %s\n' "$marker" >&2; exit 1; }
 done
@@ -51,6 +52,12 @@ expect_failure "$course" review 20260719T160959Z-valid-step-01 --unknown
 expect_failure "$course" review 20260719T160959Z-does-not-exist-01 --check
 expect_failure "$course" release unexpected
 expect_failure "$course" unknown
+expect_failure "$course" run --cuda
+expect_failure "$course" run --cuda -- true
+expect_failure "$course" run --cuda-library-dir /missing -- true
+expect_failure "$course" run --cuda --cuda-library-dir relative -- true
+expect_failure "$course" run --cuda --cuda -- true
+expect_failure "$course" run --unknown -- true
 
 host_audit_run="$root/.build/runs/20260812T000000Z-host-audit-fixture-${BASHPID}-01"
 test_paths+=("$host_audit_run")
@@ -184,7 +191,7 @@ if [[ -f $mock_docker_pid_file ]]; then
 fi
 
 for marker in \
-  './course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01' \
+  './course review RUN_ID' \
   './course release' \
   'site/dist' \
   'Ctrl+C'; do

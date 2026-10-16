@@ -77,6 +77,7 @@ pub mod nn {
 
 /// Contiguous storage, borrowed views, and checked tensor operations.
 pub mod tensor {
+    pub mod execution;
     pub mod matmul;
     pub mod ops;
     pub mod storage;

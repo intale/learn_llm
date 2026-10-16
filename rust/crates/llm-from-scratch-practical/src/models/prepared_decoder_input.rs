@@ -125,11 +125,11 @@ impl SequenceLayout {
 /// the implementation; the transformer receives only the checked result.
 pub trait InputEncoder {
     type Error: std::error::Error;
-    fn encode(
+    fn encode<'execution>(
         &self,
-        context: AutogradContext,
+        context: AutogradContext<'execution>,
         backbone: &DecoderBackbone<'_>,
-    ) -> Result<PreparedDecoderInput, Self::Error>;
+    ) -> Result<PreparedDecoderInput<'execution>, Self::Error>;
 }
 // endregion:input-encoder
 
@@ -141,10 +141,10 @@ pub trait InputEncoder {
 /// Learned encoders must list every live parameter used to produce the vectors.
 /// Handles are retained without copying learned values. A changed parameter
 /// invalidates a prepared result before the transformer performs any work.
-pub struct PreparedDecoderInput {
+pub struct PreparedDecoderInput<'execution> {
     embedding: TensorValue,
     embedding_binding: TensorValueBinding,
-    context: AutogradContext,
+    context: AutogradContext<'execution>,
     layout: SequenceLayout,
     provenance: String,
     config: DecoderBlockConfig,
@@ -153,10 +153,10 @@ pub struct PreparedDecoderInput {
     parameters: Vec<TensorValueBinding>,
     producer_parameters: Vec<TensorValueBinding>,
 }
-impl PreparedDecoderInput {
+impl<'execution> PreparedDecoderInput<'execution> {
     pub fn new(
         backbone: &DecoderBackbone<'_>,
-        context: AutogradContext,
+        context: AutogradContext<'execution>,
         embedding: TensorValue,
         layout: SequenceLayout,
         provenance: impl Into<String>,
@@ -241,7 +241,7 @@ impl PreparedDecoderInput {
     pub fn embeddings(&self) -> &TensorValue {
         &self.embedding
     }
-    pub fn context(&self) -> AutogradContext {
+    pub fn context(&self) -> AutogradContext<'execution> {
         self.context
     }
     pub fn layout(&self) -> &SequenceLayout {

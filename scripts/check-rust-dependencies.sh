@@ -8,6 +8,7 @@ readonly repository_root
 # in concurrentDevelopmentMCP decisions. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
   aho-corasick
+  anstyle
   arc-swap
   atomic-waker
   base64
@@ -19,12 +20,17 @@ readonly -a allowed_supporting_crates=(
   bytes
   cc
   cfg-if
+  clap
+  clap_builder
+  clap_derive
+  clap_lex
   config-lib
   core-foundation
   core-foundation-sys
   cpufeatures
   crossbeam-utils
   crypto-common
+  cudarc
   dashmap
   digest
   displaydoc
@@ -44,6 +50,7 @@ readonly -a allowed_supporting_crates=(
   generic-array
   getrandom
   hashbrown
+  heck
   http
   http-body
   http-body-util
@@ -64,6 +71,7 @@ readonly -a allowed_supporting_crates=(
   itoa
   js-sys
   libc
+  libloading
   linux-raw-sys
   litemap
   lock_api
@@ -182,7 +190,7 @@ is_listed() {
 }
 
 dependency_tree=$(cd "$repository_root" && \
-  cargo tree --workspace --locked --offline --edges normal,build,dev --prefix none --format '{p}')
+  cargo tree --workspace --all-features --locked --offline --edges normal,build,dev --prefix none --format '{p}')
 
 declare -a concept_violations=()
 declare -a undeclared_dependencies=()

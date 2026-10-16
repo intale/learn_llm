@@ -3,12 +3,16 @@
 use std::error::Error;
 use std::fmt;
 
+use super::execution::{ExecutionError, TensorExecution};
 use super::storage::{Tensor, TensorError, checked_row_major_layout};
 use super::view::{TensorView, TensorViewError};
+use llm_cuda_adapter::MatrixDimensions;
 
 /// A rejected elementwise operation, broadcast plan, or axis reduction.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TensorOpError {
+    /// An explicitly selected execution backend refused or failed the request.
+    Execution(ExecutionError),
     /// An owned output layout or buffer violates the tensor storage invariant.
     Tensor(TensorError),
     /// A checked logical read from an input view failed.
@@ -32,6 +36,7 @@ pub enum TensorOpError {
 impl fmt::Display for TensorOpError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Execution(error) => error.fmt(formatter),
             Self::Tensor(error) => error.fmt(formatter),
             Self::View(error) => error.fmt(formatter),
             Self::IncompatibleBroadcast {
@@ -65,6 +70,7 @@ impl fmt::Display for TensorOpError {
 impl Error for TensorOpError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
+            Self::Execution(error) => Some(error),
             Self::Tensor(error) => Some(error),
             Self::View(error) => Some(error),
             _ => None,
@@ -172,7 +178,7 @@ where
 // endregion:elementwise-maps
 
 // region:axis-reductions
-/// Sums one explicit axis in ascending index order.
+/// Sums one explicit axis (ascending index order on the CPU reference path).
 ///
 /// An empty selected axis uses the additive identity, so every output group is
 /// `0.0`. `keep_dim` replaces the selected extent with one instead of removing
@@ -182,16 +188,16 @@ pub fn sum_axis(
     axis: usize,
     keep_dim: bool,
 ) -> Result<Tensor, TensorOpError> {
-    reduce_axis(input, axis, keep_dim, Reduction::Sum)
+    sum_axis_with_execution(input, axis, keep_dim, &TensorExecution::cpu())
 }
 
-/// Averages one explicit nonempty axis in ascending index order.
+/// Averages one explicit nonempty axis (ascending order on CPU).
 pub fn mean_axis(
     input: &TensorView<'_>,
     axis: usize,
     keep_dim: bool,
 ) -> Result<Tensor, TensorOpError> {
-    reduce_axis(input, axis, keep_dim, Reduction::Mean)
+    mean_axis_with_execution(input, axis, keep_dim, &TensorExecution::cpu())
 }
 
 /// Selects the maximum over one explicit nonempty axis.
@@ -203,7 +209,31 @@ pub fn max_axis(
     axis: usize,
     keep_dim: bool,
 ) -> Result<Tensor, TensorOpError> {
-    reduce_axis(input, axis, keep_dim, Reduction::Max)
+    reduce_axis(
+        input,
+        axis,
+        keep_dim,
+        Reduction::Max,
+        &TensorExecution::cpu(),
+    )
+}
+
+pub(crate) fn sum_axis_with_execution(
+    input: &TensorView<'_>,
+    axis: usize,
+    keep_dim: bool,
+    execution: &TensorExecution,
+) -> Result<Tensor, TensorOpError> {
+    reduce_axis(input, axis, keep_dim, Reduction::Sum, execution)
+}
+
+pub(crate) fn mean_axis_with_execution(
+    input: &TensorView<'_>,
+    axis: usize,
+    keep_dim: bool,
+    execution: &TensorExecution,
+) -> Result<Tensor, TensorOpError> {
+    reduce_axis(input, axis, keep_dim, Reduction::Mean, execution)
 }
 
 #[derive(Clone, Copy)]
@@ -219,6 +249,7 @@ fn reduce_axis(
     axis: usize,
     keep_dim: bool,
     reduction: Reduction,
+    execution: &TensorExecution,
 ) -> Result<Tensor, TensorOpError> {
     if axis >= input.rank() {
         return Err(TensorOpError::ReductionAxisOutOfBounds {
@@ -253,6 +284,47 @@ fn reduce_axis(
         .projected_offsets(&output_shape, &group_strides, output_len)
         .expect("a checked reduction retains a valid group traversal plan");
     let axis_stride = input.strides()[axis];
+
+    // region:pack-checked-reduction
+    if output_len != 0
+        && !matches!(reduction, Reduction::Max)
+        && let Some(cuda) = execution.cuda_executor()
+    {
+        let packed_len = output_len.checked_mul(axis_len).ok_or_else(|| {
+            TensorOpError::Execution(ExecutionError::new(
+                "packing",
+                "reduction group length overflows usize",
+            ))
+        })?;
+        let mut groups = output_buffer(packed_len)?;
+        for group_offset in group_offsets {
+            for k in 0..axis_len {
+                groups.push(input.value_at_storage_offset(group_offset + k * axis_stride));
+            }
+        }
+        let mut ones = output_buffer(axis_len)?;
+        ones.resize(axis_len, 1.0);
+        let alpha = if matches!(reduction, Reduction::Mean) {
+            1.0 / axis_len as f64
+        } else {
+            1.0
+        };
+        let result = cuda
+            .matmul(
+                &groups,
+                &ones,
+                MatrixDimensions {
+                    batches: 1,
+                    rows: output_len,
+                    inner: axis_len,
+                    columns: 1,
+                },
+                alpha,
+            )
+            .map_err(TensorOpError::Execution)?;
+        return Tensor::from_vec(output_shape, result).map_err(Into::into);
+    }
+    // endregion:pack-checked-reduction
 
     for group_offset in group_offsets {
         let value = match reduction {

@@ -1,0 +1,15 @@
+{
+  "chapter_id":"11-accelerated-tensor-execution",
+  "locale":"en",
+  "title":"GPU primitives with a CPU reference",
+  "description":"Terms for selecting matrix and reduction execution, moving host values to a device, and comparing the existing text model numerically.",
+  "terms":[
+    {"term":"Explicit tensor execution","definition":"A CPU or CUDA execution choice passed to the operations that should use it. The choice must reach reverse-mode primitives as well as forward primitives; it is independent of graph recording and learned weights."},
+    {"term":"Host memory","definition":"Memory used by the Rust process for its ordinary tensor values. This chapter's tensors remain host-backed f64 vectors, including tensors returned after CUDA arithmetic completes."},
+    {"term":"Device memory","definition":"GPU memory allocated for a primitive request. The adapter copies packed input values into it and copies output values back before returning a completed host tensor."},
+    {"term":"Packing","definition":"Copying a checked tensor view's logical values into contiguous matrices for a device primitive. The existing shape and stride plan still determines transpose and broadcast meaning; packing does not redefine those rules."},
+    {"term":"Matrix contraction","definition":"The sum of pairwise products along the shared feature axis for one output cell. Different output cells are mathematically independent after their inputs are fixed; each cell still needs that feature reduction."},
+    {"term":"Logical transfer bytes","definition":"The number of input and output value bytes requested by the adapter's host-to-device and device-to-host copies. These counters do not measure exact bus traffic, memory peaks or elapsed time."},
+    {"term":"Numerical tolerance","definition":"The declared absolute plus relative error allowance used to compare every finite CUDA result with its CPU reference value. Nonfinite values and shape changes fail the comparison. Passing the bounded f64 fixture does not establish universal bitwise equality or a model-quality result."}
+  ]
+}

@@ -7,8 +7,8 @@ use super::tensor_core::{
     AutogradContext, TensorAutodiffError, TensorOperation, TensorValue, accumulate_unbroadcast,
 };
 use crate::nn::probability::{indexed_mean_nll_forward, log_softmax_forward};
-use crate::tensor::matmul::{matmul, matmul_with_transpose};
-use crate::tensor::ops::{map_binary, map_unary, sum_axis as tensor_sum_axis};
+use crate::tensor::execution::TensorExecution;
+use crate::tensor::ops::{map_binary, map_unary};
 use crate::tensor::storage::{Tensor, TensorError, checked_row_major_layout};
 
 // region:model-op-errors
@@ -311,7 +311,7 @@ impl TensorValue {
             |primals| {
                 let left = primals[0];
                 let right = primals[1];
-                let value = matmul(&left.view(), &right.view())?;
+                let value = context.execution().matmul(&left.view(), &right.view())?;
                 let output_shape = value.shape().to_vec();
                 Ok((
                     value,
@@ -859,6 +859,7 @@ fn canonical_zero(value: f64) -> f64 {
 pub(crate) fn apply_model_vjp(
     upstream: &Tensor,
     saved: &ModelSavedContext,
+    execution: &TensorExecution,
 ) -> Result<Tensor, TensorAutodiffError> {
     match saved {
         ModelSavedContext::MatmulLeft {
@@ -867,7 +868,8 @@ pub(crate) fn apply_model_vjp(
             output_shape,
         } => {
             debug_assert_eq!(upstream.shape(), output_shape);
-            let expanded = matmul_with_transpose(&upstream.view(), &right.view(), false, true)?;
+            let expanded =
+                execution.matmul_with_transpose(&upstream.view(), &right.view(), false, true)?;
             unbroadcast(&expanded, input_shape)
         }
         ModelSavedContext::MatmulRight {
@@ -876,7 +878,8 @@ pub(crate) fn apply_model_vjp(
             output_shape,
         } => {
             debug_assert_eq!(upstream.shape(), output_shape);
-            let expanded = matmul_with_transpose(&left.view(), &upstream.view(), true, false)?;
+            let expanded =
+                execution.matmul_with_transpose(&left.view(), &upstream.view(), true, false)?;
             unbroadcast(&expanded, input_shape)
         }
         // region:model-row-gather-vjp
@@ -931,7 +934,7 @@ pub(crate) fn apply_model_vjp(
             input_shape,
         } => {
             debug_assert_eq!(upstream.shape(), input_shape);
-            let row_sum = tensor_sum_axis(&upstream.view(), *axis, true)?;
+            let row_sum = execution.sum_axis(&upstream.view(), *axis, true)?;
             let correction = map_binary(
                 &probabilities.view(),
                 &row_sum.view(),

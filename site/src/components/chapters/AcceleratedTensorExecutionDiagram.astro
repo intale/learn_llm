@@ -1,0 +1,117 @@
+---
+import fixtureSource from '../../../../rust/demos/practical-ch11-accelerated-tensor-execution/expected.txt?raw';
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string; flowTitle: string;
+  hostInputsTitle: string; hostInputs: string; leftShape: string; rightShape: string; packing: string;
+  deviceTitle: string; copyInputs: string; deviceProduct: string;
+  hostResultTitle: string; copyResult: string; hostResult: string;
+  contractionTitle: string; selectedRow: string; selectedColumn: string;
+  products: string; reduction: string; flatIndex: string; independence: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+const labelKeys = [
+  'title', 'description', 'flowTitle', 'hostInputsTitle', 'hostInputs',
+  'leftShape', 'rightShape', 'packing', 'deviceTitle', 'copyInputs',
+  'deviceProduct', 'hostResultTitle', 'copyResult', 'hostResult',
+  'contractionTitle', 'selectedRow', 'selectedColumn', 'products',
+  'reduction', 'flatIndex', 'independence',
+] satisfies (keyof Labels)[];
+for (const key of labelKeys) {
+  const value = labels[key];
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error('accelerated-tensor-execution-diagram-copy');
+  }
+}
+const fixture: unknown = JSON.parse(fixtureSource);
+const record = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+const numbers = (value: unknown, expected: readonly number[]): value is number[] =>
+  Array.isArray(value) && value.length === expected.length &&
+  value.every((item, index) => typeof item === 'number' && item === expected[index]);
+if (!record(fixture) || fixture.chapter !== '11-accelerated-tensor-execution' ||
+    !record(fixture.device) || fixture.device.kind !== 'cpu' ||
+    !record(fixture.matrix) || !numbers(fixture.matrix.shape, [2, 2]) ||
+    !numbers(fixture.matrix.values, [58, 64, 139, 154]) ||
+    !numbers(fixture.sum_axis_1, [6, 15]) || !numbers(fixture.mean_axis_1, [2, 5])) {
+  throw new Error('accelerated-tensor-execution-diagram-fixture');
+}
+const matrixValues = fixture.matrix.values;
+const resultLatex = String.raw`\begin{bmatrix}${matrixValues[0]}&${matrixValues[1]}\\${matrixValues[2]}&${matrixValues[3]}\end{bmatrix}`;
+const contractionLatex = `Y_{0,1}=8+20+36=${matrixValues[1]}`;
+---
+<figure class="course-diagram accelerated-tensor-diagram" data-diagram-style="course-v1"
+  data-visualization-id="accelerated-tensor-execution" tabindex="0"
+  aria-labelledby="accelerated-tensor-figure-title" aria-describedby="accelerated-tensor-figure-description">
+  <figcaption class="course-diagram__caption" id="accelerated-tensor-figure-caption">
+    <h3 id="accelerated-tensor-figure-title">{labels.title}</h3>
+    <p id="accelerated-tensor-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section data-diagram-box aria-labelledby="accelerated-tensor-flow-title">
+    <h4 id="accelerated-tensor-flow-title">{labels.flowTitle}</h4>
+    <ol class="course-diagram__grid accelerated-tensor-flow" id="accelerated-tensor-figure-flow">
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="accelerated-tensor-figure-host-inputs">
+        <div class="course-diagram__card-heading"><h5>{labels.hostInputsTitle}</h5></div>
+        <p>{labels.hostInputs} <code dir="ltr">f64</code>.</p>
+        <p>{labels.leftShape} <InlineMath latex="A\;[2,3]" /></p>
+        <p>{labels.rightShape} <InlineMath latex="W\;[3,2]" /></p>
+        <p>{labels.packing}</p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="accelerated-tensor-figure-device">
+        <div class="course-diagram__card-heading"><h5>{labels.deviceTitle}</h5></div>
+        <p>{labels.copyInputs}</p>
+        <p>{labels.deviceProduct}</p>
+        <p class="course-diagram__technical"><InlineMath latex="Y=A W" /></p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="accelerated-tensor-figure-host-result">
+        <div class="course-diagram__card-heading"><h5>{labels.hostResultTitle}</h5></div>
+        <p>{labels.copyResult}</p>
+        <p>{labels.hostResult} <InlineMath latex="Y\;[2,2]" /></p>
+        <p class="course-diagram__technical"><InlineMath latex={resultLatex} /></p>
+      </li>
+    </ol>
+  </section>
+
+  <section data-diagram-box aria-labelledby="accelerated-tensor-contraction-title" id="accelerated-tensor-figure-contraction">
+    <h4 id="accelerated-tensor-contraction-title">{labels.contractionTitle}</h4>
+    <div class="course-diagram__grid accelerated-tensor-selected-inputs" id="accelerated-tensor-figure-selected-inputs">
+      <p>{labels.selectedRow} <InlineMath latex="[1,2,3]" /></p>
+      <p>{labels.selectedColumn} <InlineMath latex="[8,10,12]" /></p>
+    </div>
+    <p>{labels.products}</p>
+    <p class="course-diagram__technical" id="accelerated-tensor-figure-products">
+      <InlineMath latex="1\cdot8=8" />
+      <InlineMath latex="2\cdot10=20" />
+      <InlineMath latex="3\cdot12=36" />
+    </p>
+    <p>{labels.reduction} <InlineMath latex={contractionLatex} /></p>
+    <p>{labels.flatIndex} <InlineMath latex="q=1" />.</p>
+    <p>{labels.independence}</p>
+  </section>
+</figure>
+
+<style>
+  .accelerated-tensor-flow,
+  .accelerated-tensor-selected-inputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .accelerated-tensor-diagram :global(.course-diagram__technical) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.65rem;
+  }
+  @container course-diagram (min-width: 38rem) {
+    .accelerated-tensor-selected-inputs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container course-diagram (min-width: 54rem) {
+    .accelerated-tensor-flow {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

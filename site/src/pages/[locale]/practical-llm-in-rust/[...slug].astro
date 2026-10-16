@@ -4,6 +4,7 @@ import CourseChapter from '../course/[...slug].astro';
 import { practicalCourse } from '../../../lib/course-configuration';
 import { buildCourseChapterPaths } from '../../../lib/course-page-paths';
 import { findPublishablePracticalChapterSets } from '../../../lib/course-build';
+import '../../../styles/practical-course.css';
 
 export async function getStaticPaths() {
   const chapters=await getCollection('practicalChapters');
@@ -13,4 +14,4 @@ export async function getStaticPaths() {
 ---
 
 <CourseChapter {...Astro.props} chapterLabelByLocale={{ en: 'Chapter' }}
-  cheatSheetTermIdPrefix={Astro.props.entry.data.chapter_id === '04-padded-variable-batches' ? 'padded-variable-term' : Astro.props.entry.data.chapter_id === '05-packed-sequence-masks' ? 'packed-sequence-term' : Astro.props.entry.data.chapter_id === '06-depth-stable-decoder' ? 'depth-stable-term' : Astro.props.entry.data.chapter_id === '07-configurable-decoder-core' ? 'configurable-decoder-term' : Astro.props.entry.data.chapter_id === '08-dropout-semantics' ? 'dropout-semantics-term' : Astro.props.entry.data.chapter_id === '09-dependency-error-contract' ? 'dependency-error-term' : Astro.props.entry.data.chapter_id === '10-input-encoding-boundary' ? 'input-encoding-term' : undefined} />
+  cheatSheetTermIdPrefix={Astro.props.entry.data.chapter_id === '04-padded-variable-batches' ? 'padded-variable-term' : Astro.props.entry.data.chapter_id === '05-packed-sequence-masks' ? 'packed-sequence-term' : Astro.props.entry.data.chapter_id === '06-depth-stable-decoder' ? 'depth-stable-term' : Astro.props.entry.data.chapter_id === '07-configurable-decoder-core' ? 'configurable-decoder-term' : Astro.props.entry.data.chapter_id === '08-dropout-semantics' ? 'dropout-semantics-term' : Astro.props.entry.data.chapter_id === '09-dependency-error-contract' ? 'dependency-error-term' : Astro.props.entry.data.chapter_id === '10-input-encoding-boundary' ? 'input-encoding-term' : Astro.props.entry.data.chapter_id === '11-accelerated-tensor-execution' ? 'accelerated-tensor-term' : undefined} />

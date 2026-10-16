@@ -31,6 +31,8 @@ Commands:
   review RUN_ID --port PORT     Choose a loopback port (default: 4321).
   review RUN_ID --check         Build and verify the staged site without serving.
   run COMMAND [ARGUMENTS]       Run one command in the workspace image.
+  run --cuda --cuda-library-dir ABSOLUTE_DIRECTORY -- COMMAND [ARGUMENTS]
+                                Explicitly expose GPU 0 and read-only CUDA libraries.
   check                         Build the validated workspace image.
   preview                       Serve the canonical deployable image on port 4321.
   smoke                         Check the canonical preview at 127.0.0.1:4321.
@@ -51,6 +53,56 @@ build_workspace_image() {
 
 build_site_image() {
   docker build --target site -t "$site_image" --build-arg "COURSE_CORPUS=$course_corpus_mode" "$repository_root"
+}
+
+run_workspace_command() {
+  local cuda=false library_directory= canonical_directory library target absolute_alias
+  local -a cuda_args=()
+  while (($#)); do
+    case $1 in
+      --cuda)
+        [[ $cuda == false ]] || fail 'duplicate --cuda option'
+        cuda=true
+        shift
+        ;;
+      --cuda-library-dir)
+        [[ -z $library_directory ]] || fail 'duplicate --cuda-library-dir option'
+        (($# >= 2)) || fail '--cuda-library-dir requires an absolute directory'
+        library_directory=$2
+        [[ -n $library_directory ]] || fail '--cuda-library-dir requires an absolute directory'
+        shift 2
+        ;;
+      --) shift; break ;;
+      --*) fail "unknown run option: $1" ;;
+      *) break ;;
+    esac
+  done
+  (($# > 0)) || fail 'run requires a command'
+  if [[ $cuda == true ]]; then
+    [[ $library_directory == /* ]] || fail '--cuda requires --cuda-library-dir with an absolute directory'
+    [[ $library_directory != *','* && $library_directory != *$'\n'* && $library_directory != *$'\r'* ]] ||
+      fail 'CUDA library directory contains an unsupported mount delimiter'
+    [[ -d $library_directory && -r $library_directory && -x $library_directory ]] ||
+      fail 'CUDA library directory is missing or unreadable'
+    canonical_directory=$(realpath -e -- "$library_directory") || fail 'cannot resolve CUDA library directory'
+    absolute_alias=$(find -P "$canonical_directory" -type l -lname '/*' -print -quit) ||
+      fail 'cannot inspect CUDA library symlinks'
+    [[ -z $absolute_alias ]] || fail 'CUDA library aliases must use relative contained symlink targets'
+    for library in libcublas.so.12 libcublasLt.so.12; do
+      [[ -f $canonical_directory/$library && -r $canonical_directory/$library ]] ||
+        fail "CUDA library is missing or unreadable: $library"
+      target=$(realpath -e -- "$canonical_directory/$library") || fail "cannot resolve CUDA library: $library"
+      [[ $target == "$canonical_directory/"* ]] || fail "CUDA library target escapes selected directory: $library"
+    done
+    cuda_args=(--gpus device=0
+      --mount "type=bind,source=$canonical_directory,target=/opt/course-cuda-libs,readonly"
+      --env LD_LIBRARY_PATH=/opt/course-cuda-libs
+      --env NVIDIA_DRIVER_CAPABILITIES=compute,utility)
+  else
+    [[ -z $library_directory ]] || fail '--cuda-library-dir requires explicit --cuda'
+  fi
+  build_workspace_image >/dev/null
+  docker run --rm -i --network none "${cuda_args[@]}" "$workspace_image" "$@"
 }
 
 tools_source_hash() {
@@ -545,9 +597,7 @@ case "$command" in
     ;;
   run)
     shift
-    (($# > 0)) || fail 'run requires a command'
-    build_workspace_image >/dev/null
-    docker run --rm -i --network none "$workspace_image" "$@"
+    run_workspace_command "$@"
     ;;
   check)
     (($# == 1)) || fail 'check takes no arguments'

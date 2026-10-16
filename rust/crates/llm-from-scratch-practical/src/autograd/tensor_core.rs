@@ -8,11 +8,9 @@ use std::rc::Rc;
 
 use super::model_ops::{ModelOpError, ModelSavedContext, apply_model_vjp};
 use crate::nn::probability::ProbabilityError;
+use crate::tensor::execution::TensorExecution;
 use crate::tensor::matmul::MatmulError;
-use crate::tensor::ops::{
-    TensorOpError, broadcast_shape, map_binary, mean_axis as tensor_mean_axis,
-    sum_axis as tensor_sum_axis,
-};
+use crate::tensor::ops::{TensorOpError, broadcast_shape, map_binary};
 use crate::tensor::storage::{Tensor, TensorError};
 use crate::tensor::view::{TensorView, TensorViewError};
 
@@ -21,15 +19,17 @@ type NodeKey = *const Node;
 // region:autograd-context
 /// Explicitly selects whether newly created operations record reverse-mode edges.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct AutogradContext {
+pub struct AutogradContext<'execution> {
     records_graph: bool,
+    execution: Option<&'execution TensorExecution>,
 }
 
-impl AutogradContext {
+impl AutogradContext<'_> {
     /// Creates the default training context that records eligible parent edges.
     pub const fn recording() -> Self {
         Self {
             records_graph: true,
+            execution: None,
         }
     }
 
@@ -37,6 +37,7 @@ impl AutogradContext {
     pub const fn no_grad() -> Self {
         Self {
             records_graph: false,
+            execution: None,
         }
     }
 
@@ -44,9 +45,27 @@ impl AutogradContext {
     pub const fn records_graph(self) -> bool {
         self.records_graph
     }
+
+    // region:explicit-autograd-execution
+    /// Borrows a numerical executor independently of the graph-recording choice.
+    pub const fn with_execution<'execution>(
+        self,
+        execution: &'execution TensorExecution,
+    ) -> AutogradContext<'execution> {
+        AutogradContext {
+            records_graph: self.records_graph,
+            execution: Some(execution),
+        }
+    }
+
+    /// Returns the explicit session, or the CPU reference for legacy callers.
+    pub fn execution(self) -> TensorExecution {
+        self.execution.cloned().unwrap_or_default()
+    }
+    // endregion:explicit-autograd-execution
 }
 
-impl Default for AutogradContext {
+impl Default for AutogradContext<'_> {
     fn default() -> Self {
         Self::recording()
     }
@@ -1073,9 +1092,13 @@ impl TensorValue {
         ensure_operands_available(operation, &[self])?;
         let input = self.value();
         let value = if mean {
-            tensor_mean_axis(&input.view(), axis, keep_dim)?
+            context
+                .execution()
+                .mean_axis(&input.view(), axis, keep_dim)?
         } else {
-            tensor_sum_axis(&input.view(), axis, keep_dim)?
+            context
+                .execution()
+                .sum_axis(&input.view(), axis, keep_dim)?
         };
         let divisor = if mean { input.shape()[axis] } else { 1 };
         let saved = TensorSavedContext::Reduction {
@@ -1153,9 +1176,25 @@ impl TensorValue {
     }
     // endregion:completed-selected-adjoints
 
+    /// Reverses a scalar output using the explicitly supplied numerical executor.
+    pub fn backward_with_execution(
+        &self,
+        execution: &TensorExecution,
+    ) -> Result<(), TensorAutodiffError> {
+        self.backward_scalar_with_execution(NoTensorBackwardTrace, execution)
+    }
+
     fn backward_scalar<Observer: TensorBackwardObserver>(
         &self,
         observer: Observer,
+    ) -> Result<Observer::Output, TensorAutodiffError> {
+        self.backward_scalar_with_execution(observer, &TensorExecution::cpu())
+    }
+
+    fn backward_scalar_with_execution<Observer: TensorBackwardObserver>(
+        &self,
+        observer: Observer,
+        execution: &TensorExecution,
     ) -> Result<Observer::Output, TensorAutodiffError> {
         if self.is_released() {
             return Err(TensorAutodiffError::GraphReleased {
@@ -1174,7 +1213,12 @@ impl TensorValue {
             });
         }
         let seed = Tensor::from_vec(Vec::new(), vec![1.0])?;
-        self.backward_with_observer(&seed.view(), GraphRetention::Retain, observer)
+        self.backward_with_observer_and_execution(
+            &seed.view(),
+            GraphRetention::Retain,
+            observer,
+            execution,
+        )
     }
 
     /// Runs a fresh exact-shape reverse pass without creating a trace record.
@@ -1202,7 +1246,22 @@ impl TensorValue {
         &self,
         seed: &TensorView<'_>,
         retention: GraphRetention,
+        observer: Observer,
+    ) -> Result<Observer::Output, TensorAutodiffError> {
+        self.backward_with_observer_and_execution(
+            seed,
+            retention,
+            observer,
+            &TensorExecution::cpu(),
+        )
+    }
+
+    fn backward_with_observer_and_execution<Observer: TensorBackwardObserver>(
+        &self,
+        seed: &TensorView<'_>,
+        retention: GraphRetention,
         mut observer: Observer,
+        execution: &TensorExecution,
     ) -> Result<Observer::Output, TensorAutodiffError> {
         if self.is_released() {
             return Err(TensorAutodiffError::GraphReleased {
@@ -1257,7 +1316,7 @@ impl TensorValue {
             let state = topology[child].node.state.borrow();
             for (operand, edge) in state.parents.iter().enumerate() {
                 let parent = indices[&edge.parent.key()];
-                let contribution = apply_vjp(&upstream, &edge.saved)?;
+                let contribution = apply_vjp(&upstream, &edge.saved, execution)?;
                 if let Some((index, value)) = first_nonfinite(&contribution) {
                     return Err(TensorAutodiffError::NonFiniteVjp {
                         child,
@@ -1474,7 +1533,11 @@ fn broadcast_reduced_axes(input_shape: &[usize], output_shape: &[usize]) -> Vec<
         .collect()
 }
 
-fn apply_vjp(upstream: &Tensor, saved: &TensorSavedContext) -> Result<Tensor, TensorAutodiffError> {
+fn apply_vjp(
+    upstream: &Tensor,
+    saved: &TensorSavedContext,
+    execution: &TensorExecution,
+) -> Result<Tensor, TensorAutodiffError> {
     match saved {
         TensorSavedContext::Broadcast {
             input_shape,
@@ -1523,7 +1586,7 @@ fn apply_vjp(upstream: &Tensor, saved: &TensorSavedContext) -> Result<Tensor, Te
             debug_assert_eq!(upstream.shape(), output_shape);
             expand_reduction(upstream, input_shape, *axis, *keep_dim, *divisor)
         }
-        TensorSavedContext::Model(saved) => apply_model_vjp(upstream, saved),
+        TensorSavedContext::Model(saved) => apply_model_vjp(upstream, saved, execution),
     }
 }
 

@@ -1,0 +1,557 @@
+---
+{
+  "chapter_id":"11-accelerated-tensor-execution","locale":"en","content_revision":1,"order":11,"concept_id":"accelerated-tensor-execution",
+  "title":"Run tensor primitives on a GPU",
+  "description":"Select CUDA for existing matrix products and sum/mean reductions. Follow host/device copies and compare the same text model's logits, loss and gradients with a CPU reference.",
+  "objective":"Select CPU or CUDA for the existing f64 matrix products and sum/mean reductions, reuse the shared text model and reverse mode, and assess a measured comparison within a declared tolerance.",
+  "worked_inputs":"Multiply A[2,3]=[1,2,3,4,5,6] by W[3,2]=[7,8,9,10,11,12], giving Y[2,2]=[58,64,139,154]. Sum and mean A over axis 1, giving [6,15] and [2,5]. Reuse the seed-39 ab text model to compare logits, loss and every named gradient against the CPU reference.",
+  "formula":{
+    "latex":"\\begin{aligned}\nY_{b,i,j}&=\\sum_{k=0}^{K-1} A_{b,i,k}W_{b,k,j},\\\\\nq&=(bM+i)N+j.\n\\end{aligned}",
+    "symbols":[
+      {"symbol":"B","meaning":"number of effective matrices after broadcasting the leading batch axes"},
+      {"symbol":"M","meaning":"number of output rows in each matrix"},
+      {"symbol":"K","meaning":"number of features contracted for each output cell"},
+      {"symbol":"N","meaning":"number of output columns in each matrix"},
+      {"symbol":"b,i,j,k","meaning":"zero-based effective-batch, output-row, output-column and contracted-feature indices"},
+      {"symbol":"A","meaning":"effective left matrices with shape [B,M,K]"},
+      {"symbol":"W","meaning":"effective right matrices with shape [B,K,N]"},
+      {"symbol":"Y","meaning":"matrix product with shape [B,M,N]"},
+      {"symbol":"q","meaning":"flat row-major output index for the cell selected by b, i and j"}
+    ]
+  },
+  "history":{
+    "llm_evolution":{
+      "predecessor_kind":"neural-architecture",
+      "limitation":"Recurrence makes each hidden state depend on its predecessor, restricting within-example parallelism.",
+      "later_advance":"The Transformer paper's scaled dot-product attention section groups queries, keys and values into matrices.",
+      "modern_llm_role":"The existing decoder supplies projections, attention products and adjoints to the same numerical primitives, preserving causal dependencies when execution changes.",
+      "sources":[
+        {"role":"earlier","year":2014,"name":"Sequence to Sequence Learning with Neural Networks","source_url":"https://arxiv.org/abs/1409.3215","claim":"Sutskever, Vinyals and Le's 2014 sequence-to-sequence model uses a multilayer LSTM to encode an input sequence and another LSTM to decode its output."},
+        {"role":"later","year":2017,"name":"Attention Is All You Need","source_url":"https://arxiv.org/html/1706.03762v7#S1","claim":"The 2017 Transformer paper proposes an attention model without recurrence."}
+      ]
+    },
+    "approach":"Retain the existing ascending-feature CPU contraction as the reference, and execute the same checked matrix operations through a CUDA primitive when explicitly selected.",
+    "summary":"Changing numerical execution preserves the decoder formulas and causal dependencies. Compare complete represented outputs and gradients within a declared tolerance; the toy example supplies no speed or model-quality result.",
+    "rust_source":"rust/crates/llm-from-scratch-practical/src/tensor/matmul.rs"
+  },
+  "rust_sources":[
+    {"path":"rust/crates/llm-from-scratch-practical/src/tensor/execution.rs","region":"explicit-tensor-execution","purpose":"Own the explicitly chosen CPU or CUDA executor and pass it to the shared matrix and sum/mean operations."},
+    {"path":"rust/demos/practical-ch11-accelerated-tensor-execution/src/lib.rs","region":"shared-model-explicit-execution","purpose":"Pass execution through the existing text encoder, backbone, tied head and loss, then explicitly into backward using the same borrowed model."},
+    {"path":"rust/crates/llm-from-scratch-practical/src/tensor/matmul.rs","region":"cpu-matmul-contraction","purpose":"Retain the existing CPU contraction and its ascending contracted-feature order as the numerical reference."},
+    {"path":"rust/demos/practical-ch11-accelerated-tensor-execution/src/main.rs","purpose":"Construct the explicit executor from the CLI device arguments and pass it to the existing demonstration."}
+  ],
+  "visualization":{"decision":"useful","id":"accelerated-tensor-execution","component":"AcceleratedTensorExecutionDiagram","rationale":"One figure follows checked host views through packing, input copies, the GPU matrix primitive, output copying and completion back to a host tensor. A selected output cell exposes the reduction within otherwise independent output cells."},
+  "decoder_connection":"The existing text encoder, source-independent backbone, tied head and reverse mode now share an explicit CPU or CUDA primitive selection. Chapter 12 will use this fixed-f64 reference to introduce deliberate mixed-precision choices."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import AcceleratedTensorExecutionDiagram from "../../../components/chapters/AcceleratedTensorExecutionDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="accelerated-tensor-worked-example">
+
+## The problem: matrix work outgrows a scalar loop
+
+The decoder repeatedly multiplies feature vectors by learned matrices. Our
+CPU implementation computes each output cell by multiplying matching features
+and adding their products. Once the inputs are fixed, different output cells
+do not depend on one another. A GPU matrix library can use that available
+parallel work while the model keeps the same mathematical operation.
+
+Selecting a GPU also introduces a memory boundary. The Rust tensors currently
+hold `f64` values in host memory, used by the CPU. A GPU needs values in its
+device memory, and the Rust caller needs a completed result it can read.
+We will select matrix products and sum/mean reductions explicitly, preserving
+their checked shapes and the existing text model's gradient paths.
+
+### Explain one product before changing its execution
+
+Use two rows of three features and a matrix mapping those features to two
+output columns:
+
+$$
+A=\begin{bmatrix}1&2&3\\4&5&6\end{bmatrix}.
+$$
+
+$$
+W=\begin{bmatrix}7&8\\9&10\\11&12\end{bmatrix}.
+$$
+
+Each output cell pairs one row of $A$ with one column of $W$. Row zero and
+column one give the complete contraction
+
+$$
+Y_{0,1}=1\cdot8+2\cdot10+3\cdot12=64.
+$$
+
+The other three cells follow the same rule:
+
+$$
+Y=A W=\begin{bmatrix}58&64\\139&154\end{bmatrix}.
+$$
+
+The row-major output stores the first row before the second, so its literal
+values are `[58,64,139,154]`. The value $64$ occupies flat index $1$.
+Summing $A$ over feature axis $1$ gives $[6,15]$; dividing each row sum by
+its three features gives means $[2,5]$. These exact small integers also appear
+in the captured CPU demonstration. They are an arithmetic fixture, not learned
+weights or evidence of useful language generation.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="accelerated-tensor-formula">
+
+## Keep one matrix rule for both execution paths
+
+For notation, flatten the broadcast leading batch axes into $B$ effective
+matrices. Let $M$ count output rows, $K$ contracted features and $N$ output
+columns in each matrix. Effective operands have shapes $[B,M,K]$ and
+$[B,K,N]$; their product has shape $[B,M,N]$:
+
+$$
+\begin{aligned}
+Y_{b,i,j}&=\sum_{k=0}^{K-1} A_{b,i,k}W_{b,k,j},\\
+q&=(bM+i)N+j.
+\end{aligned}
+$$
+
+All indices are zero-based. Index $b$ selects an effective batch matrix,
+$i$ an output row, $j$ an output column and $k$ a contracted feature.
+$q$ is that cell's flat row-major output index. In the tiny example,
+$B=1$, $M=N=2$ and $K=3$, so row zero, column one has
+$q=(0\cdot2+0)\cdot2+1=1$.
+
+The independence is between output cells. Within one cell, all $K$ products
+must still contribute to its sum. A device library chooses its tiling,
+thread mapping and reduction strategy; the formula does not promise a
+particular schedule or simultaneous execution of every cell.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="accelerated-tensor-layout">
+
+## Preserve views, broadcasting and axis meaning
+
+`MatmulPlan::new` still checks the operands before either execution path.
+The final two axes are matrix axes; only the leading batch axes broadcast.
+The existing `TensorView` offset traversal determines which stored value
+belongs to each logical coordinate, including transposed and sliced views.
+
+*Packing* copies those checked logical values into contiguous row-major
+matrices for the device primitive. A view need not already be contiguous.
+Each effective batch gets packed matrices, including repeated values from
+a broadcast source. Packing changes the storage supplied to the primitive;
+it preserves the mathematical transpose, output shape and validation rules.
+
+The [cuBLAS 12.9 manual's layout description](https://docs.nvidia.com/cuda/archive/12.9.1/cublas/index.html#data-layout)
+specifies column-major matrices. Our adapter interprets the packed row-major
+bytes as transposed column-major matrices and reverses the operands:
+
+$$
+Y^{\mathsf T}=W^{\mathsf T}A^{\mathsf T}.
+$$
+
+The native dimensions are $m=N$, $n=M$ and $k=K$. The native leading
+dimensions `lda`, `ldb` and `ldc` are respectively $N$, $K$ and $N$ elements.
+The [cuBLAS uniform strided-batch API](https://docs.nvidia.com/cuda/archive/12.9.1/cublas/index.html#cublas-t-gemmstridedbatched)
+receives successive right, left and output matrices at strides $KN$, $MK$
+and $MN$ elements. This is a storage interpretation of the same product,
+not an extra mathematical transpose of the answer.
+
+### Express sum and mean with the same primitive
+
+For an axis reduction, the existing checked traversal supplies one group
+for each output value. Pack those groups as rows of a matrix $R$, with
+$K$ selected-axis values per row. Multiplication by a column of ones gives
+the row sums:
+
+$$
+s_g=\sum_{k=0}^{K-1}R_{g,k}=(R\mathbf1)_{g,0}.
+$$
+
+Here $g$ selects an output group, $s_g$ is its sum, and $\mathbf1$ is a
+column containing $K$ ones. For a nonempty axis, its mean is $s_g/K$.
+The CUDA mean request supplies scale $1/K$ to the matrix primitive; the CPU
+reference sums first and then divides. The real-number formulas agree,
+but their represented `f64` results need not have identical bits.
+
+An empty selected sum axis retains its zero identity. An empty mean axis
+is an error. A zero-length matrix contraction returns zeros, and an empty
+output returns no values. These cases require no native arithmetic and
+must not be counted as executed GPU work.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="accelerated-tensor-selection">
+
+## Pass execution separately from model meaning
+
+`TensorExecution::cpu()` selects the reference path.
+`TensorExecution::cuda(ordinal)` initializes the requested CUDA device and
+can fail if the feature, libraries or device are unavailable. The executor's
+`matmul`, `matmul_with_transpose`, `sum_axis` and `mean_axis` methods pass
+that explicit choice into the shared tensor operations.
+
+A failed CUDA request returns an error rather than becoming a reported CUDA
+run performed on the CPU. Ordinary tensor functions and `backward()` retain
+their CPU behavior, including after a CUDA call. The execution choice belongs
+to the calls that receive it; it does not change a thread's or process's
+default device.
+
+Default CPU builds and inference need no NVIDIA driver, toolkit or GPU.
+The optional Cargo feature `cuda` dynamically loads the fixed CUDA 12.9 API;
+it can compile without `nvcc` or an installed toolkit. Running that path
+still needs compatible NVIDIA hardware, a driver and the external libraries
+listed in the reproduction instructions below. Other GPU backends are not
+implemented here.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/execution.rs"
+  region="explicit-tensor-execution" captionId="accelerated-tensor-rust-selection"
+  caption="Pass the chosen executor directly to the existing matrix and sum/mean operations."
+  label="Rust source: explicit CPU or CUDA executor for shared tensor primitives" />
+
+For each nonempty CUDA request, the adapter checks lengths and dimensions,
+allocates device buffers through `cudarc`, copies packed inputs, calls the
+general-purpose `f64` matrix primitive, copies the result to host memory and
+completes the stream before returning. The returned `Tensor` owns ordinary
+host values. CUDA allocations, handles and addresses stay behind this boundary.
+
+This chapter therefore has a hybrid execution path: matrix products and
+sum/mean primitives can use CUDA, including calls inside composed operations.
+RMSNorm's existing mean-square reduction uses the selected mean primitive;
+its elementwise square, stabilization, log/exp and scaling keep their CPU
+implementations. Max, other elementary primitives and optimizer code also
+remain on the CPU. Transfers and completion happen at each selected primitive
+call. The model is not device-resident, and this is not a complete GPU trainer.
+
+</div>
+
+<div id="accelerated-tensor-model">
+
+## Reuse the text model and its reverse mode
+
+The fixture reuses Chapter 10's empty-merge BPE on `ab`: document IDs
+`[0,99,100,1]`, inputs `[0,99,100]` and next-token targets `[99,100,1]`.
+It uses seed `39`, vocabulary size $258$, residual width $4$, one attention
+head, feed-forward width $8$, two blocks and position capacity $8$.
+The existing RoPE base is $10000$ and RMSNorm epsilon is $10^{-6}$.
+
+The actual path is text encoder, prepared vectors, the source-independent
+backbone, tied text head, indexed mean negative log-likelihood and backward.
+Its logits have shape $[1,3,258]$, containing $774$ values. The table used
+by lookup and the head remains one live parameter node. The model has
+$1372$ learned scalars in $20$ named tensors, counting that table once.
+No tokenizer or CUDA identity becomes a requirement of the generic backbone.
+
+The demonstration borrows one model for both device snapshots and clears
+accumulated parameter gradients before each pass. It does not replace the
+learned nodes or change their values between comparisons.
+
+`AutogradContext::recording().with_execution(execution)` borrows the chosen
+executor while retaining graph recording. That context travels through text
+encoding, the prepared input, backbone, head and
+`indexed_mean_nll_with_context`. The prepared input cannot outlive its
+borrowed executor. Device execution remains separate from
+whether a call records a graph.
+With a CUDA executor, `AutogradContext::no_grad().with_execution(execution)`
+selects CUDA for these matrix and sum/mean primitives while creating no reverse graph.
+
+The execution choice must reach forward, loss and backward. For a product
+$Y=A W$ with upstream derivative $G=\partial\mathcal L/\partial Y$,
+the unbatched adjoints are
+
+$$
+\frac{\partial\mathcal L}{\partial A}=G W^{\mathsf T},
+\qquad
+\frac{\partial\mathcal L}{\partial W}=A^{\mathsf T}G.
+$$
+
+$\mathcal L$ is the scalar loss. Existing reverse mode already expresses
+these products and adds broadcasted batch contributions where needed.
+Those shared reverse-mode primitive calls also need the selected execution.
+A GPU choice is not part of the model's learned weights or mathematical meaning.
+
+Call `backward_with_execution(execution)` on the scalar loss to supply the
+choice to the existing reverse engine. The graph's parameter nodes retain
+their existing semantics; they store no CUDA handle or device address.
+
+<RustSource path="rust/demos/practical-ch11-accelerated-tensor-execution/src/lib.rs"
+  region="shared-model-explicit-execution" captionId="accelerated-tensor-rust-model"
+  caption="Borrow the same text model, pass execution through its forward context and loss, then supply it explicitly to backward."
+  label="Rust source: the existing text model and backward pass with explicit execution" />
+
+</div>
+
+<div id="accelerated-tensor-numerics">
+
+## Compare complete represented results
+
+The CPU reference loss is $5.668398842431571$ nats, with `f64` bits
+`4016ac70bf03b620`. Changing execution can change floating-point rounding
+without changing the real-number formula. The comparison therefore checks
+every logit, the scalar loss, every named gradient's shape and all $1372$
+gradient values, rather than comparing rounded display samples.
+
+For finite CPU value $c$ and CUDA value $u$, the criterion fixed before
+measurement is
+
+$$
+|u-c|\le10^{-11}+10^{-10}|c|.
+$$
+
+The absolute term covers values near zero; the relative term scales with
+the reference magnitude. Shape mismatches and nonfinite entries fail.
+This conservative allowance belongs to the bounded `f64` fixture. It is
+neither a universal error bound nor a measure of language-model quality.
+Neither execution path is an exact-real oracle for arbitrary inputs.
+
+<section id="accelerated-tensor-cuda-observation" aria-labelledby="accelerated-tensor-cuda-observation-heading">
+
+<h3 id="accelerated-tensor-cuda-observation-heading">Observed CUDA comparison for this fixture</h3>
+
+The recorded run used device zero of an NVIDIA GeForce RTX 4070 Laptop GPU,
+driver `580.178.04`, cuBLAS `12.9.1.4` and `cudarc 0.19.9` with the
+CUDA `12.9` API. It compared the same model's completed CUDA values with
+its CPU reference:
+
+<ul id="accelerated-tensor-cuda-errors">
+  <li>Across all <InlineMath latex="774" /> logits, the maximum absolute difference was <InlineMath latex="1.942890293094024\times10^{-16}" />.</li>
+  <li>Across <InlineMath latex="20" /> named gradient tensors and all <InlineMath latex="1372" /> gradient values, the maximum absolute difference was <InlineMath latex="2.220446049250313\times10^{-16}" />.</li>
+  <li>The scalar loss, tiny matrix product, row sums and row means each had maximum absolute difference <InlineMath latex="0" />.</li>
+</ul>
+
+Every compared entry met the predeclared absolute allowance $10^{-11}$ plus
+relative allowance $10^{-10}$ scaled by the CPU magnitude. The hardware tests
+also retained every parameter node and weight across the device switch.
+The session completed $65$ GEMM API requests, with $43728$ logical bytes
+copied from host to device and $21608$ bytes copied back. These observations
+establish this bounded execution and comparison, rather than a portable
+bitwise GPU golden.
+
+</section>
+
+Completed native-work counters report GEMM API requests and logical bytes
+copied from host to device and back. They stop growing at `usize::MAX`.
+They do not report vendor kernel counts, exact bus traffic, elapsed time,
+occupancy, request overlap or peak memory. The three tiny arithmetic
+operations alone request $240$ input bytes and $64$ output bytes; the text
+model adds further requests. Packing, copies and completion can dominate
+small examples, so these observations establish no speedup.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="accelerated-tensor-history">
+
+## From recurrent sequence steps to matrix work
+
+[Sutskever, Vinyals and Le's 2014 sequence-to-sequence model](https://arxiv.org/abs/1409.3215)
+uses a multilayer LSTM to encode an input sequence and another LSTM to
+decode its output. The recurrent state carries sequence information
+through successive positions.
+
+Recurrence makes each hidden state depend on its predecessor, restricting
+within-example parallelism.
+[The 2017 Transformer paper](https://arxiv.org/html/1706.03762v7#S1)
+proposes an attention model without recurrence. The
+[Transformer paper's scaled dot-product attention section](https://arxiv.org/html/1706.03762v7#S3.SS2.SSS1)
+groups queries, keys and values into matrices.
+
+The existing decoder supplies projections, attention products and adjoints
+to the same numerical primitives, preserving causal dependencies when execution
+changes. Teacher forcing supplies the training
+sequence, so multiple supplied positions can be processed together under
+their causal mask. Autoregressive generation still needs previously
+generated tokens before it can supply the next input. A GPU does not
+remove that dependency. The course's decoder-only RMSNorm, RoPE and SwiGLU
+architecture is not a reproduction of the paper's encoder-decoder model,
+and we add no recurrent model here.
+
+### Retain the CPU contraction as a numerical contrast
+
+The existing Rust loop visits contracted features in ascending order:
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/matmul.rs"
+  region="cpu-matmul-contraction" captionId="accelerated-tensor-rust-reference"
+  caption="Retain the original CPU loop, which adds feature products in ascending contracted-index order."
+  label="Rust source: the existing scalar CPU matrix contraction used as the numerical reference" />
+
+[NVIDIA's floating-point guide, sections 2.2–3.2](https://docs.nvidia.com/cuda/archive/12.9.1/floating-point/index.html)
+explains why regrouping a dot product or using fused multiply-add can change
+rounding. This supports using a declared numerical comparison; it does not
+identify the GPU library's internal reduction tree or make one backend
+universally more accurate. The [cuBLAS reproducibility conditions](https://docs.nvidia.com/cuda/archive/12.9.1/cublas/index.html#results-reproducibility)
+also do not promise CPU/GPU bitwise equivalence.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="accelerated-tensor-visualization">
+
+## Follow a matrix product across the memory boundary
+
+The formula stays fixed while its values move. The selected cell makes the
+feature reduction visible inside the larger independent output matrix.
+
+<AcceleratedTensorExecutionDiagram labels={{
+  title: "One matrix product crosses the host/device boundary",
+  description: "Checked host views are packed into contiguous matrices, copied to GPU device memory and multiplied. The output is copied to host memory and the stream completes before an owned tensor returns. Input row zero and weight column one yield sixty-four at flat output index one. Fixed-input output cells are independent; each cell still sums its three feature products.",
+  flowTitle: "Checked host values become a completed host result",
+  hostInputsTitle: "1. Host: check and pack",
+  hostInputs: "Both checked tensor views hold host values of type",
+  leftShape: "Left input, two rows and three features per row:",
+  rightShape: "Right weight matrix, three feature rows and two output columns:",
+  packing: "The existing shape and stride plan selects logical values, then packing supplies contiguous matrices. Transpose and broadcast meaning stay fixed.",
+  deviceTitle: "2. Device: multiply",
+  copyInputs: "Copy the packed left input and right weight matrix from host memory into GPU device buffers.",
+  deviceProduct: "cuBLAS multiplies those matrices to produce the output. The library chooses its internal schedule.",
+  hostResultTitle: "3. Host: complete and return",
+  copyResult: "Copy output values from device to host memory, then complete the stream before the caller reads the result.",
+  hostResult: "Return an owned host tensor with output shape",
+  contractionTitle: "One output cell reduces three feature products",
+  selectedRow: "Input row zero:",
+  selectedColumn: "Weight column one:",
+  products: "Pair the row and column values at each contracted feature:",
+  reduction: "Sum the three products for output row zero, column one:",
+  flatIndex: "That cell occupies row-major flat output index",
+  independence: "The four output cells are mathematically independent for fixed inputs. Each cell still reduces its own feature products; this relationship does not specify GPU threads or a reduction tree."
+}} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="accelerated-tensor-practice">
+
+## Optional practice: reproduce and explain the execution
+
+<div id="accelerated-tensor-cpu-reproduction">
+
+Start in the repository root with Docker available. The launcher's first
+image build may fetch its Rust toolchain and dependencies. Each command
+below sets `COURSE_CORPUS=false`, so this fixture acquires no corpus and
+needs no downloaded model. Once the image is prepared, Cargo uses the
+lockfile and offline dependency resolution inside a container with
+networking disabled.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch11-accelerated-tensor-execution
+```
+
+The no-argument demo prints one JSON object reporting the CPU device,
+matrix values `[58,64,139,154]`, sums `[6,15]`, means `[2,5]`, loss bits
+`4016ac70bf03b620` and `lookup_and_head_same_node: true`. Its three native-work
+counters are zero, and `cpu_comparison` is `null`: this command performs
+the CPU reference alone.
+
+</div>
+
+<div id="accelerated-tensor-cuda-reproduction">
+
+For CUDA reproduction, start in the repository root with Docker available.
+Add a compatible NVIDIA GPU and driver, Docker's NVIDIA runtime, and
+an installed CUDA 12.9 library directory. The runner selects GPU zero and
+mounts that directory read-only. It must contain readable `libcublas.so.12`
+and `libcublasLt.so.12` as regular files or relative aliases. Every symlink
+in the directory must be relative, including intermediate aliases, and
+resolve inside it. Relative aliases remain valid when the directory is
+mounted inside the runner.
+Set this task-specific variable to your actual absolute library directory:
+
+```bash
+COURSE_CUDA_LIBRARY_DIR=/absolute/path/to/cuda/lib64
+```
+
+Then run the CUDA-enabled demo through the same launcher:
+
+```bash
+COURSE_CORPUS=false ./course run --cuda --cuda-library-dir "$COURSE_CUDA_LIBRARY_DIR" -- cargo run --quiet --offline --locked -p practical-ch11-accelerated-tensor-execution --features cuda -- --device cuda --ordinal 0
+```
+
+A successful run reports CUDA ordinal zero,
+`cpu_comparison.within_tolerance: true`, the complete comparison counts and
+positive completed GEMM and copy counters. The observed comparison above
+records one actual environment; GPU stdout is tolerance evidence, not a
+hardware-independent bitwise golden. An unavailable CUDA setup returns an
+error instead of silently reporting a CPU computation as CUDA.
+
+</div>
+
+<div id="accelerated-tensor-test-reproduction">
+
+From the repository root, use the [CUDA setup and library variable above](#accelerated-tensor-cuda-reproduction)
+to explicitly select the hardware tests:
+
+```bash
+COURSE_CORPUS=false ./course run --cuda --cuda-library-dir "$COURSE_CUDA_LIBRARY_DIR" -- cargo test --offline --locked -p practical-ch11-accelerated-tensor-execution --features cuda --test cuda -- --ignored --test-threads=1
+```
+
+The recorded run selected three tests: view/transpose/batch/reduction agreement,
+the complete text-model and gradient comparison, and explicit forward/backward
+execution with independent graph policy. Its result was three passed, zero
+failed and zero ignored after selection. The last test also checks that
+ordinary CPU calls stay CPU after explicit CUDA work and that an unavailable
+device ordinal is refused.
+
+</div>
+
+<div id="accelerated-tensor-cli-entrypoint">
+
+`--device` selects CPU or CUDA execution; `--ordinal` selects the requested
+GPU when CUDA is chosen. The entry point passes the explicit executor to
+the same demonstration reproduced above.
+
+<RustSource path="rust/demos/practical-ch11-accelerated-tensor-execution/src/main.rs"
+  captionId="accelerated-tensor-rust-entrypoint"
+  caption="Pass the CLI's explicit device choice to the existing tensor and text-model demonstration."
+  label="Rust source: CLI device selection passed to the existing tensor demonstration" />
+
+</div>
+
+<ol id="accelerated-tensor-practice-prompts">
+  <li id="accelerated-tensor-practice-1">Use the matrix result above to trace output row zero, column one back to its three input products and its flat output index. Explain which work is independent and which work is a reduction.</li>
+  <li id="accelerated-tensor-practice-2">Explain why a transposed or sliced tensor view must be packed according to its existing checked plan, and why a successful CUDA matrix request still returns a host-backed tensor in this chapter.</li>
+  <li id="accelerated-tensor-practice-3">Using the complete-output comparison above, explain why the execution choice must reach backward and why matching the tiny integer product would be insufficient evidence for the text model.</li>
+</ol>
+
+<details id="accelerated-tensor-practice-answers">
+<summary id="accelerated-tensor-answer-summary">Checked explanations for the contraction, host/device lifecycle and gradient comparison</summary>
+
+<ol>
+  <li id="accelerated-tensor-answer-1">Input row zero supplies <InlineMath latex="[1,2,3]" /> and weight column one supplies <InlineMath latex="[8,10,12]" />. Their paired products sum to <InlineMath latex="8+20+36=64" />. Row-major storage puts that cell at flat index <InlineMath latex="1" />. The other output cells can be computed independently for fixed inputs; this cell's three products must still be reduced to one sum.</li>
+  <li id="accelerated-tensor-answer-2">A view's strides and base offset determine its logical values; treating its backing storage as an already contiguous matrix can select different values. The shared plan checks shape, transpose and broadcasting before packing follows those logical coordinates. The adapter copies packed values to device buffers, computes, copies the result back and completes the stream. The returned tensor therefore owns host values, while the device buffers remain an execution detail.</li>
+  <li id="accelerated-tensor-answer-3">Existing reverse mode calls shared matrix primitives for its adjoints, so those calls also need the selected execution. Selecting CUDA only for forward would not establish CUDA execution of the backward products. The integer example checks a small exact contraction only. The bounded text-model comparison also checks all <InlineMath latex="774" /> logits, the loss, all <InlineMath latex="20" /> named gradient shapes and <InlineMath latex="1372" /> gradient values, with nonfinite rejection and the declared absolute plus relative tolerance. Passing it still gives no universal equality, speed or model-quality guarantee.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="accelerated-tensor-handoff">
+
+## Carry a numerical reference into mixed precision
+
+The text encoder, source-independent backbone, tied head and reverse mode
+now reuse selected tensor primitives. Device selection stays outside model
+semantics, and CPU inference remains available without CUDA. Portable
+weight saving and loading belong to Chapter 15; this chapter does not
+implement that later GPU-to-CPU persistence demonstration.
+
+Chapter 12 will introduce mixed precision: FP16/BF16 represented values,
+master weights, protected reductions, loss scaling and overflow or update-skip
+semantics. Our fixed `f64` reference and explicit comparison criterion give
+those deliberate dtype choices a numerical starting point.
+
+</div>

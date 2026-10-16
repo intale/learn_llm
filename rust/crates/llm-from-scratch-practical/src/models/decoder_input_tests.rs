@@ -17,7 +17,10 @@ fn model() -> DecoderModel {
     )
     .unwrap()
 }
-fn input(model: &DecoderModel, context: AutogradContext) -> PreparedDecoderInput {
+fn input<'execution>(
+    model: &DecoderModel,
+    context: AutogradContext<'execution>,
+) -> PreparedDecoderInput<'execution> {
     TextInputEncoder::tokens(model, &[0, 99, 100], &[1, 3])
         .encode(context, &model.backbone())
         .unwrap()

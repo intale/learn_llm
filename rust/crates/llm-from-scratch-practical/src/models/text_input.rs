@@ -72,11 +72,11 @@ impl<'a> TextInputEncoder<'a> {
 }
 impl InputEncoder for TextInputEncoder<'_> {
     type Error = PaddedDecoderError;
-    fn encode(
+    fn encode<'execution>(
         &self,
-        context: AutogradContext,
+        context: AutogradContext<'execution>,
         backbone: &DecoderBackbone<'_>,
-    ) -> Result<PreparedDecoderInput, Self::Error> {
+    ) -> Result<PreparedDecoderInput<'execution>, Self::Error> {
         let (embedding, layout, provenance) = match &self.source {
             TextSource::Tokens { ids, shape } => {
                 self.model.validate_tokens(ids, shape)?;

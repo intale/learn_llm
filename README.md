@@ -143,6 +143,16 @@ Run any chapter package inside the pinned workspace image. For example:
 ./course run cargo run --quiet --locked -p ch05-autoregressive-examples
 ```
 
+CPU execution is the default. The optional launcher interface is
+`./course run --cuda --cuda-library-dir /absolute/cuda/lib64 -- COMMAND ARGUMENTS`.
+The selected readable directory must contain `libcublas.so.12` and
+`libcublasLt.so.12`; their resolved files must stay inside that directory.
+The directory must contain no absolute symlinks, so relative aliases still work
+after mounting it at the container library path.
+This explicit option exposes NVIDIA GPU 0 and mounts those libraries read-only.
+The runtime container stays offline, and the standard workspace image requires
+no CUDA toolkit or driver for CPU execution. It does not download CUDA libraries.
+
 Chapter demos live under `rust/demos/`, and each implemented demo has a committed
 deterministic output fixture. The cumulative implementation lives in
 `rust/crates/llm-from-scratch/`. No Rust artifact is written to the host.

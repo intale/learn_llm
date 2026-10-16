@@ -3,13 +3,17 @@
 use std::error::Error;
 use std::fmt;
 
+use super::execution::{ExecutionError, TensorExecution};
 use super::storage::{Tensor, TensorError, checked_row_major_layout};
 use super::view::{TensorView, TensorViewError};
+use llm_cuda_adapter::MatrixDimensions;
 
 // region:matmul-errors
 /// A rejected matrix product, output layout, allocation, or converted view operation.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum MatmulError {
+    /// An explicitly selected execution backend refused or failed the request.
+    Execution(ExecutionError),
     /// An owned output layout violates the tensor storage invariant.
     Tensor(TensorError),
     /// A tensor-view error was converted into the matrix-multiplication error type.
@@ -33,6 +37,7 @@ pub enum MatmulError {
 impl fmt::Display for MatmulError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Execution(error) => error.fmt(formatter),
             Self::Tensor(error) => error.fmt(formatter),
             Self::View(error) => error.fmt(formatter),
             Self::LeftRankTooSmall { rank } => {
@@ -70,6 +75,7 @@ impl fmt::Display for MatmulError {
 impl Error for MatmulError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
+            Self::Execution(error) => Some(error),
             Self::Tensor(error) => Some(error),
             Self::View(error) => Some(error),
             _ => None,
@@ -123,13 +129,29 @@ pub fn matmul(left: &TensorView<'_>, right: &TensorView<'_>) -> Result<Tensor, M
 ///
 /// Inputs must have rank at least two. Only axes before the final two matrix
 /// axes broadcast, using trailing alignment. The effective inner dimensions
-/// must match exactly. The scalar contraction visits `k` in ascending order and
-/// reads through offsets established by one checked strided plan per operand.
+/// must match exactly. CPU contractions visit `k` in ascending order. Explicit
+/// CUDA execution packs the same checked strided plans for a cuBLAS contraction.
 pub fn matmul_with_transpose(
     left: &TensorView<'_>,
     right: &TensorView<'_>,
     transpose_left: bool,
     transpose_right: bool,
+) -> Result<Tensor, MatmulError> {
+    matmul_with_transpose_and_execution(
+        left,
+        right,
+        transpose_left,
+        transpose_right,
+        &TensorExecution::cpu(),
+    )
+}
+
+pub(crate) fn matmul_with_transpose_and_execution(
+    left: &TensorView<'_>,
+    right: &TensorView<'_>,
+    transpose_left: bool,
+    transpose_right: bool,
+    execution: &TensorExecution,
 ) -> Result<Tensor, MatmulError> {
     let plan = MatmulPlan::new(left, right, transpose_left, transpose_right)?;
     let mut values = output_buffer(plan.output_len)?;
@@ -149,6 +171,67 @@ pub fn matmul_with_transpose(
         )
         .expect("a checked matmul plan retains valid right cell offsets");
 
+    // region:pack-checked-matmul
+    if plan.output_len != 0
+        && let Some(cuda) = execution.cuda_executor()
+    {
+        let rank = plan.output_shape.len();
+        let rows = plan.output_shape[rank - 2];
+        let columns = plan.output_shape[rank - 1];
+        let batches = plan.output_len / rows / columns;
+        let packed_len = |outer: usize| -> Result<usize, MatmulError> {
+            outer.checked_mul(plan.inner).ok_or_else(|| {
+                MatmulError::Execution(ExecutionError::new(
+                    "packing",
+                    "broadcasted operand length overflows usize",
+                ))
+            })
+        };
+        let mut packed_left = output_buffer(packed_len(batches * rows)?)?;
+        let mut packed_right = output_buffer(packed_len(batches * columns)?)?;
+        for (cell, (left_start, right_start)) in
+            left_cell_offsets.zip(right_cell_offsets).enumerate()
+        {
+            let row = (cell / columns) % rows;
+            let column = cell % columns;
+            if column == 0 {
+                for k in 0..plan.inner {
+                    packed_left.push(
+                        left.value_at_storage_offset(left_start + k * plan.left_inner_stride),
+                    );
+                }
+            }
+            if row == 0 {
+                // The traversal visits columns first; write each column into
+                // its position in the row-major K-by-N packed matrix.
+                if column == 0 {
+                    packed_right.resize(packed_right.len() + plan.inner * columns, 0.0);
+                }
+                let base = packed_right.len() - plan.inner * columns;
+                for k in 0..plan.inner {
+                    packed_right[base + k * columns + column] =
+                        right.value_at_storage_offset(right_start + k * plan.right_inner_stride);
+                }
+            }
+        }
+        let result = cuda
+            .matmul(
+                &packed_left,
+                &packed_right,
+                MatrixDimensions {
+                    batches,
+                    rows,
+                    inner: plan.inner,
+                    columns,
+                },
+                1.0,
+            )
+            .map_err(MatmulError::Execution)?;
+        return Tensor::from_vec(plan.output_shape, result).map_err(Into::into);
+    }
+    // endregion:pack-checked-matmul
+
+    // region:cpu-matmul-contraction
     for (left_cell_offset, right_cell_offset) in left_cell_offsets.zip(right_cell_offsets) {
         let mut sum = 0.0;
         let mut left_offset = left_cell_offset;
@@ -170,6 +253,7 @@ pub fn matmul_with_transpose(
         values.push(sum);
     }
 
+    // endregion:cpu-matmul-contraction
     Tensor::from_vec(plan.output_shape, values).map_err(Into::into)
 }
 

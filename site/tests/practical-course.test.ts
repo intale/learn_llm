@@ -7,7 +7,7 @@ import {getMessages,validateMessageCatalog} from '../src/i18n';
 import {COURSE_HOME_MESSAGE_KEYS,COURSE_INDEX_MESSAGE_KEYS,courseMessageKeys,hasCourseHomeMessages,hasCourseIndexMessages,hasCourseMessages} from '../src/i18n/messages';
 import {practicalCourse} from '../src/lib/course-configuration';
 
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution'] as const;
 const read=(path:string)=>readFileSync(new URL('../../'+path,import.meta.url),'utf8');
 const documents=ids.map(id=>({id,
   lesson:parseJsonFrontmatter(read('site/src/content/practical-chapters/en/'+id+'.mdx'),id),
@@ -39,11 +39,11 @@ describe('independent optional course message groups',()=>{
   });
 });
 
-describe('current practical Chapters 0–10 source bindings',()=>{
+describe('current practical Chapters 0–11 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
-    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([5,1,1,2,1,1,1,2,3,5,1]);
+    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([5,1,1,2,1,1,1,2,3,5,1,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);
@@ -184,6 +184,40 @@ describe('current practical Chapters 0–10 source bindings',()=>{
     }
     const sheet=JSON.parse(read('site/src/content/practical-cheat-sheets/en/'+id+'.json'));
     expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');
+    expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
+    for(const source of lesson.data.history.llm_evolution.sources)expect(lesson.body).toContain(']('+source.source_url+')');
+  });
+
+  it('binds Chapter 11 shared formula, actual CPU fixture, declared excerpts and glossary',()=>{
+    const {id,lesson,contract}=documents[11];
+    expect(lesson.data.concept_id).toBe('accelerated-tensor-execution');
+    expect(lesson.data.formula.latex).toBe(contract.formula.latex);
+    expect(lesson.data.formula.symbols).toEqual(contract.formula.symbols.map((symbol:{symbol:string;en:string})=>({symbol:symbol.symbol,meaning:symbol.en})));
+    expect(lesson.data.visualization).toMatchObject({decision:'useful',id:'accelerated-tensor-execution'});
+    const expected=read('rust/demos/practical-ch'+id+'/expected.txt');
+    expect(contract.rust.expected_output).toBe(expected);
+    const observed=JSON.parse(expected);
+    expect(observed.device).toEqual({kind:'cpu'});
+    expect(observed.completed_native_work).toEqual({device_to_host_bytes:0,gemm_requests:0,host_to_device_bytes:0});
+    expect(observed.matrix).toEqual({shape:[2,2],values:[58,64,139,154]});
+    expect(observed.sum_axis_1).toEqual([6,15]);expect(observed.mean_axis_1).toEqual([2,5]);
+    expect(observed.text_model.logit_shape).toEqual([1,3,258]);
+    expect(observed.text_model.lookup_and_head_same_node).toBe(true);
+    expect(observed.text_model.gradient_tensors).toBe(20);expect(observed.text_model.gradient_values).toBe(1372);
+    expect(lesson.data.rust_sources).toHaveLength(4);
+    expect(lesson.data.rust_sources.filter((entry:{region?:string})=>entry.region).map((entry:{region:string})=>entry.region).sort()).toEqual(['cpu-matmul-contraction','explicit-tensor-execution','shared-model-explicit-execution']);
+    expect(lesson.data.rust_sources.filter((entry:{region?:string})=>!entry.region).map((entry:{path:string})=>entry.path)).toEqual(['rust/demos/practical-ch11-accelerated-tensor-execution/src/main.rs']);
+    for(const entry of lesson.data.rust_sources){
+      expect(contract.rust.sources).toContain(entry.path);
+      const source=read(entry.path);
+      if(entry.region){
+        expect(source.split('// region:'+entry.region)).toHaveLength(2);
+        expect(source.split('// endregion:'+entry.region)).toHaveLength(2);
+        expect(lesson.body.split('region="'+entry.region+'"')).toHaveLength(2);
+      }else expect(lesson.body.split('<RustSource path="'+entry.path+'"')).toHaveLength(2);
+    }
+    const sheet=JSON.parse(read('site/src/content/practical-cheat-sheets/en/'+id+'.json'));
+    expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');expect(sheet.terms).toHaveLength(7);
     expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
     for(const source of lesson.data.history.llm_evolution.sources)expect(lesson.body).toContain(']('+source.source_url+')');
   });

@@ -1,0 +1,18 @@
+[package]
+name = "llm-cuda-adapter"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[features]
+default = []
+cuda = ["dep:cudarc"]
+
+[dependencies]
+cudarc = { version = "=0.19.9", optional = true, default-features = false, features = ["std", "driver", "cublas", "dynamic-loading", "cuda-12090"] }
+
+# User-approved exception: only cuda::matmul permits one documented native call.
+# All other code in this crate is denied unsafe; the workspace keeps forbid.
+[lints.rust]
+unsafe_code = "deny"

@@ -58,6 +58,17 @@ scripts/check-rust-dependencies.sh
 scripts/check-rust-demos.sh
 ```
 
+The dependency policy inspects all workspace features, including optional CUDA,
+through Cargo metadata; this does not compile a CUDA dependency or load a driver.
+
+`./course run` preserves CPU execution by default. To expose NVIDIA GPU 0, use
+`./course run --cuda --cuda-library-dir ABSOLUTE_DIRECTORY -- COMMAND ARGUMENTS`.
+The library directory is required, readable and absolute, with readable
+`libcublas.so.12` and `libcublasLt.so.12` targets contained inside it. Absolute
+symlinks anywhere in the directory are refused because the mount uses a different
+container path. The launcher passes it as a read-only mount and retains `--network none`. It adds no toolkit
+to the normal image, downloads no vendor libraries and invokes no GPU monitor.
+
 The demo checker requires the current product lock and checks exactly 39
 first-course programs and 34 diagram traces against their committed stdout.
 Its ownership scan recognizes the Practical demo directories named

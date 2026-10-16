@@ -1,0 +1,3 @@
+article[data-chapter-id="11-accelerated-tensor-execution"] .lesson-body p > code {
+  overflow-wrap: anywhere;
+}
