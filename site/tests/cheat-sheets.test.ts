@@ -46,18 +46,18 @@ const expectedSheets = {
     lesson: "02-corpus-partitions.mdx",
     title: "Corpus documents and frozen partitions",
     entries: [
-      ["Corpus", "six-document corpus"],
-      ["Whole document", "original whole document first"],
-      ["Training partition", "Only the training set may"],
-      ["Validation partition", "Validation may later guide choices"],
-      ["Test partition", "Test neither fits nor selects"],
-      ["Disjoint split", "three roles cover the entire corpus"],
-      ["Holdout", "fixed holdouts developed"],
-      ["Data leakage", "particular leakage path"],
-      ["Provenance group", "provenance group remains within one role"],
+      ["Corpus", "A **corpus** is a collection of source documents."],
+      ["Whole document", "a complete scene in one language is one document"],
+      ["Training partition", "Fit learned state: byte-pair encoding (BPE) pair counts and merge rules in Chapter 3, then model weights in later chapters."],
+      ["Validation partition", "Validation influences the chosen system"],
+      ["Test partition", "A test result used to make another choice becomes part of selection."],
+      ["Disjoint split", "all three pairwise intersections are empty."],
+      ["Holdout", "Validation and test are **holdout data** because they stay outside fitting."],
+      ["Data leakage", "Here, **data leakage** means that information available to fitting crosses a boundary meant to keep assessment separate from that fitting."],
+      ["Provenance group", "A **provenance group** joins documents known to contain related source content."],
       [
         "Byte-pair encoding (BPE)",
-        "adjacent-byte pair counter will reset at every document boundary",
+        "Validation and test supply no pair counts or learned merge rules.",
       ],
     ],
   },
@@ -942,9 +942,9 @@ const exactDefinitions = {
   },
   "02-corpus-partitions": {
     "Test partition":
-      "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
+      "Documents reserved for reporting after fitting and selection are complete; using their result to choose again makes them part of selection.",
     "Byte-pair encoding (BPE)":
-      "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+      "The tokenizer learned in Chapter 3 using pair counts from training documents only, with no pair counted across a document boundary; frozen rules can later encode holdout text.",
   },
   "12-stable-softmax": {
     Underflow:
@@ -1340,16 +1340,16 @@ describe("English chapter cheat-sheet content", () => {
     const russian = readLocalizedSheet("ru", "02-corpus-partitions.json");
 
     expect(localizedSheetSha256("en", "02-corpus-partitions.json")).toBe(
-      "71b6eb208b86191179ceae987f54bed293a6e339d06a7b016dc2dd80d1d58895",
+      "c9199d62222f007869675ca7ca7727f82e08066ff7214b791184073e28a5874a",
     );
     expect(localizedSheetSha256("ru", "02-corpus-partitions.json")).toBe(
-      "7ea7eb2a9938d89a3418b369bb77a9371ddc535e6cdb223158d240b58e9ac0b9",
+      "98c96330a9cc19fb1dca5d10eec69040e0d8ec4e3cee6ad647348c6a260dd363",
     );
     expect(canonicalTermRecordsSha256(english.terms.slice(0, 9))).toBe(
-      "13aa5a582d9a11c3a3b29e5ba242afe25dce8b814613fa4f3f3d4b2c461620cd",
+      "8db39e577100f0941e36355538a234707fa2d64cb537e23560dee81e220a9d93",
     );
     expect(canonicalTermRecordsSha256(russian.terms.slice(0, 9))).toBe(
-      "eaa643aa02f6d4a7aaacc39c76cd8a18b9143615dc4ed2b930783a50ba032271",
+      "75ff947083cdf5a3549063875bf0eb4848909f98b63bcc6097b3206c024ffc62",
     );
     expect(english.terms.map(({ term }) => term)).toEqual([
       "Corpus",
@@ -1378,22 +1378,22 @@ describe("English chapter cheat-sheet content", () => {
     expect(
       english.terms.find(({ term }) => term === "Test partition")?.definition,
     ).toBe(
-      "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
+      "Documents reserved for reporting after fitting and selection are complete; using their result to choose again makes them part of selection.",
     );
     expect(
       russian.terms.find(({ term }) => term === "Тестовая выборка")?.definition,
     ).toBe(
-      "Документы, предназначенные для оценки после завершения обучения и выбора модели. В пределах одного запуска программа обеспечивает эту границу локально; в последующих запусках известный фиксированный пример используют для регрессионной проверки, а не для новой независимой оценки.",
+      "Документы для отчёта после завершения обучения и выбора; новое решение по их результату превращает их в данные для выбора.",
     );
     expect(english.terms[9]).toEqual({
       term: "Byte-pair encoding (BPE)",
       definition:
-        "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+        "The tokenizer learned in Chapter 3 using pair counts from training documents only, with no pair counted across a document boundary; frozen rules can later encode holdout text.",
     });
     expect(russian.terms[9]).toEqual({
       term: "Кодирование пар байтов (BPE)",
       definition:
-        "В этом курсе в начале обучения BPE каждому байту каждого обучающего документа соответствует один токен. Пары соседних токенов подсчитывают только внутри каждого обучающего документа; на основе этих подсчётов строят упорядоченный список правил слияния. Ранг слияния — позиция правила в этом списке. Валидационные и тестовые документы не участвуют в подсчёте пар, а токены по разные стороны границы документа не считаются соседними.",
+        "Токенизатор из главы 3, который учится по частотам пар только в обучающих документах, без подсчёта пар через границы документов; зафиксированные правила затем могут кодировать отложенный текст.",
     });
     expect(
       paginateCheatSheetTerms(sortCheatSheetTerms(english.terms, "en")).map(

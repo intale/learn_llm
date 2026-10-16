@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = "02-corpus-partitions";
-const contentRevision = 9;
+const contentRevision = 10;
 const formulaLatex = String.raw`\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)`;
 const repositoryRoot = resolve(process.cwd(), "..");
 const manifest = JSON.parse(
@@ -70,38 +70,38 @@ const copy = {
     chapterTitle: "Corpus documents and frozen partitions",
     revisionLabel: "Content revision",
     headings: {
-      formula: "Coverage and separation in one statement",
-      history: "Before dependable holdout boundaries",
-      rust: "Enforce the boundary in Rust",
-      visualization: "Verify all twelve assignments at a glance",
-      exercises: "Predict, then validate",
-      decoder: "Hand only training documents to BPE",
+      formula: "Express coverage and separation as sets",
+      history: "Preserve the source boundary behind each ID",
+      rust: "Inspect the existing document and split checks",
+      visualization: "Follow all twelve documents in the fixed corpus",
+      exercises: "Optional inspection and reproduction",
+      decoder: "Give BPE only the training documents",
     },
     rustCaptions: [
-      "Different excerpt IDs with shared source context",
-      "Load whole documents before tokenization",
-      "Validate before exposing partition views",
-      "The deterministic Chapter 2 audit",
+      "Two overlapping windows from one source sentence",
+      "Load whole source documents in their original order",
+      "Check membership, source order, and declared provenance before returning views",
+      "Report the fixed split and its eight-document training handoff",
     ],
     roles: {
-      train: { title: "Training", purpose: "Used to learn" },
-      validation: { title: "Validation", purpose: "Used to choose" },
-      test: { title: "Test", purpose: "Reserved for post-selection evidence" },
+      train: { title: "Training", purpose: "Fits tokenizer rules and model weights" },
+      validation: { title: "Validation", purpose: "Compares choices fitted on training data" },
+      test: { title: "Test", purpose: "Reports results after choices are fixed" },
     },
-    diagramTitle: "One corpus, three disjoint document sets",
+    diagramTitle: "Twelve whole documents assigned to three roles",
     fixtureCounts:
-      "8 / 2 / 2 (eight documents in training, two in validation, and two in test)",
+      "eight documents in four groups. Validation contains the night-station pair: two documents in one group. Test contains the winter-window pair: two documents in one group.",
     overlapExplanation:
-      "Different IDs alone do not prove that the underlying text is different.",
+      "If we name those windows separately and put one in training and the other in validation, the IDs differ but source context crosses the role boundary.",
     readingGuide:
-      "Use each region heading to identify its partition, then use the stable ID on each card to verify that every document appears exactly once.",
+      "The figure lists every exact ID, language, and group. Its three lists are peer sets, not stages through which a document moves. Read each card as one whole document and read the cards within each role in corpus source order:",
     formatBoundary:
-      "Corpus::from_json accepts the JSON text as &str, so Rust guarantees valid UTF-8 before the method begins.",
+      "Its input is JSON text as &str, so valid UTF-8 is already guaranteed at that boundary.",
     semanticBoundary:
-      "Those format checks do not validate whether the document assignments satisfy the train/validation/test invariants.",
+      "successful JSON decoding alone says nothing about whether its assignments are a valid split of this corpus.",
     scopeFragments: [
-      "In the demonstrated course execution, test cannot fit or select: Chapter 34 gives one local evaluator instance access only after selection. That order does not claim that the checked-in fixture has never been read during repository development.",
-      "The generic test role is post-selection evidence. In this course, the enforceable guarantee is narrower: test cannot affect the selected state inside one execution, while the checked-in result may be rerun as repository regression evidence.",
+      "Chapter 34 later demonstrates that order with a local evaluator inside one execution. Its gate cannot enforce unique access across all callers or later executions, and its caller-supplied provenance labels do not independently establish data history.",
+      "Rerunning a known test result checks for regression; it does not supply a fresh, independent estimate of generalization each time.",
     ],
     staleScopeClaims: [
       "Test stays sealed until the final evaluation chapter.",
@@ -109,21 +109,21 @@ const copy = {
       "The checked-in test fixture has never been read.",
     ],
     documentCountLabel: "Documents",
-    wholeDocument: "Whole document",
-    assignedLabel: "Assigned documents",
-    repeatedLabel: "Repeated IDs",
+    wholeDocument: "Whole source document",
+    assignedLabel: "Assigned corpus documents",
+    repeatedLabel: "Repeated document IDs",
     invariants: [
-      "Complete: every corpus ID appears",
-      "Disjoint: no corpus ID repeats",
-      "Paired provenance stays in one partition",
+      "Complete: every corpus document is assigned",
+      "Disjoint: no document is assigned to different roles",
+      "Every declared provenance group stays in one role",
     ],
-    exerciseSummary: "Check your predictions",
+    exerciseSummary: "Read the checked explanations and reproduction results",
     exerciseAnswer:
-      "The changed corpus bytes cause a checksum mismatch first. If only the recorded checksum were refreshed, coverage validation would then report that the manifest omits doc-07.",
+      "A match reports the recorded 64-bit checksum, not guaranteed byte identity or authenticity.",
     cheatSheetBpe: {
       term: "Byte-pair encoding (BPE)",
       definition:
-        "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+        "The tokenizer learned in Chapter 3 using pair counts from training documents only, with no pair counted across a document boundary; frozen rules can later encode holdout text.",
     },
   },
   ru: {
@@ -131,44 +131,44 @@ const copy = {
     chapterTitle: "Документы корпуса и фиксированное разбиение на выборки",
     revisionLabel: "Версия материала",
     headings: {
-      formula: "Полнота и непересечение в одной записи",
+      formula: "Запишите полноту и непересечение через множества",
       history:
-        "До появления надёжного разделения обучающих и отложенных данных",
-      rust: "Проверьте границу данных в Rust",
+        "Сохраняйте исходные границы за каждым ID",
+      rust: "Изучите существующие проверки документов и разбиения",
       visualization:
-        "Проверьте распределение всех двенадцати документов на одной диаграмме",
-      exercises: "Сначала предскажите, затем проверьте",
-      decoder: "Передайте алгоритму BPE только обучающие документы",
+        "Проследите все двенадцать документов корпуса",
+      exercises: "Необязательная проверка примеров и запуск",
+      decoder: "Передайте BPE только обучающие документы",
     },
     rustCaptions: [
-      "Разные ID фрагментов с общим исходным контекстом",
-      "Загрузка целых документов до токенизации",
-      "Проверка перед возвратом заимствованных ссылок на документы",
-      "Воспроизводимая проверка главы 2",
+      "Два перекрывающихся окна из одного исходного предложения",
+      "Загрузка целых исходных документов с сохранением порядка",
+      "Проверка состава выборок, порядка и объявленных групп происхождения до возврата представлений",
+      "Фиксированное разбиение и передача восьми обучающих документов",
     ],
     roles: {
-      train: { title: "Обучающая", purpose: "Для обучения" },
-      validation: { title: "Валидационная", purpose: "Для выбора настроек" },
+      train: { title: "Обучающая", purpose: "Обучение токенизатора и весов модели" },
+      validation: { title: "Валидация", purpose: "Сравнение вариантов, обученных на обучающей выборке" },
       test: {
         title: "Тестовая",
-        purpose: "Для оценки после завершения выбора",
+        purpose: "Отчёт после завершения выбора",
       },
     },
-    diagramTitle: "Один корпус, три непересекающиеся выборки",
+    diagramTitle: "Двенадцать целых документов в трёх выборках",
     fixtureCounts:
-      "8 / 2 / 2 (восемь документов в обучающей выборке, два — в валидационной и два — в тестовой)",
+      "восемь документов в четырёх группах. Валидационная выборка содержит пару night-station — два документа одной группы. Тестовая содержит пару winter-window — также два документа одной группы.",
     overlapExplanation:
-      "Разные ID сами по себе ещё не означают, что за ними стоит разный текст.",
+      "Если дать окнам разные имена и поместить одно в обучение, а другое — в валидацию, ID будут различаться, но исходный контекст окажется по обе стороны границы.",
     readingGuide:
-      "По заголовку каждой области определите, какая это выборка, а по стабильному ID на каждой карточке проверьте, что каждый документ встречается ровно один раз.",
+      "На схеме приведены точные ID, языки и группы всех документов. Три списка — равноправные множества, а не этапы перемещения документа. Каждая карточка представляет целый документ; карточки внутри выборки идут в порядке корпуса:",
     formatBoundary:
-      "Corpus::from_json принимает текст JSON как &str. Тип &str уже гарантирует корректность UTF-8.",
+      "Его вход — текст JSON в виде &str, поэтому на этой границе уже гарантирован корректный UTF-8.",
     semanticBoundary:
-      "Эти проверки формата не определяют, соблюдены ли инварианты распределения документов между обучающей, валидационной и тестовой выборками.",
+      "успешное декодирование JSON само по себе ничего не говорит о корректности разбиения этого корпуса.",
     scopeFragments: [
-      "В показанном запуске тестовая выборка не участвует ни в обучении, ни в выборе: в главе 34 один локальный экземпляр оценщика получит к ней доступ только после завершения выбора. Такой порядок внутри запуска ничего не утверждает о том, сколько раз сохранённый в репозитории пример читали при разработке.",
-      "Общая роль тестовой выборки — предоставлять данные для оценки после завершения выбора. Гарантия, которую обеспечивает программа, имеет более узкую область: в пределах одного запуска тест не может повлиять на выбранное состояние, а проверка сохранённого в репозитории примера может выполняться повторно как регрессионная.",
-      "повторное использование известного примера в последующих запусках служит регрессионной проверкой, а не даёт новую независимую оценку",
+      "В главе 34 этот порядок показан локальным механизмом оценки внутри одного выполнения. Такой механизм не обеспечивает однократный доступ к тестовым данным за пределами одного выполнения: другие программы и будущие запуски могут прочитать их снова. Переданные вызывающей стороной метки происхождения сами по себе не дают независимого подтверждения истории данных.",
+      "Более позднее сравнение специально подобрано, а его известный результат служит проверке регрессий, не оценке обобщения на нетронутых данных.",
+      "Повторный запуск с известным тестовым результатом проверяет отсутствие регрессий, а не даёт каждый раз новую независимую оценку способности модели обобщать.",
     ],
     staleScopeClaims: [
       "Тестовая выборка остаётся закрытой до главы итоговой оценки.",
@@ -178,19 +178,19 @@ const copy = {
     documentCountLabel: "Документов",
     wholeDocument: "Целый документ",
     assignedLabel: "Распределено документов",
-    repeatedLabel: "Повторяющихся ID",
+    repeatedLabel: "Повторов ID",
     invariants: [
-      "Полнота: присутствует каждый ID корпуса",
-      "Непересечение: ID не повторяются",
-      "Документы из одной группы происхождения остаются в одной выборке",
+      "Полнота: распределён каждый документ корпуса",
+      "Непересечение: ни один документ не отнесён к разным выборкам",
+      "Каждая объявленная группа происхождения остаётся в одной выборке",
     ],
-    exerciseSummary: "Проверьте ответы",
+    exerciseSummary: "Проверенные объяснения и результаты запуска",
     exerciseAnswer:
-      "Сначала будет обнаружено несовпадение контрольной суммы, поскольку байты корпуса изменились. Если обновить только записанную контрольную сумму, проверка полноты затем сообщит, что в манифесте нет doc-07.",
+      "Совпадение сообщает о записанном 64-битном значении, но не гарантирует тождество байтов или подлинность.",
     cheatSheetBpe: {
       term: "Кодирование пар байтов (BPE)",
       definition:
-        "В этом курсе в начале обучения BPE каждому байту каждого обучающего документа соответствует один токен. Пары соседних токенов подсчитывают только внутри каждого обучающего документа; на основе этих подсчётов строят упорядоченный список правил слияния. Ранг слияния — позиция правила в этом списке. Валидационные и тестовые документы не участвуют в подсчёте пар, а токены по разные стороны границы документа не считаются соседними.",
+        "Токенизатор из главы 3, который учится по частотам пар только в обучающих документах, без подсчёта пар через границы документов; зафиксированные правила затем могут кодировать отложенный текст.",
     },
   },
 } as const satisfies Record<ChapterLocale, unknown>;

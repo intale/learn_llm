@@ -187,58 +187,58 @@ function blankLabelAt(
 describe("corpus-partitions diagram data", () => {
   it("delegates JSON decoding while keeping document and split invariants explicit", () => {
     const contract = contractMetadata();
-    expect(contract.content_revision).toBe(9);
-    expect(lessonSources.en).toContain('"content_revision": 9');
-    expect(lessonSources.ru).toContain('"content_revision": 9');
+    expect(contract.content_revision).toBe(10);
+    expect(lessonSources.en).toContain("\"content_revision\": 10");
+    expect(lessonSources.ru).toContain("\"content_revision\": 10");
     expect(normalizeWhitespace(contractSource)).toContain(
       normalizeWhitespace(
-        "`Corpus::from_json` accepts the JSON text as `&str`, so Rust guarantees valid UTF-8 before the method begins.",
+        "JSON text arrives as `&str`, which already guarantees valid UTF-8. `serde_json::from_str` handles JSON syntax and typed fields.",
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
       normalizeWhitespace(
-        "`Corpus::from_json` accepts the JSON text as `&str`, so Rust guarantees valid UTF-8 before the method begins.",
+        "Its input is JSON text as `&str`, so valid UTF-8 is already guaranteed at that boundary.",
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
       normalizeWhitespace(
-        "`SplitManifest::from_json` uses a separate private Rust record for the manifest's six required fields and the same `&str` boundary.",
+        "`SplitManifest::from_json` decodes its fields",
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
       normalizeWhitespace(
-        "the text contains at least one non-whitespace character; IDs and decoded texts do not repeat; and array order is preserved",
+        "`Corpus::from_json` separately validates document metadata and nonempty text, rejects duplicate document IDs and exact duplicate decoded texts, and preserves the array's source order:",
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
-      "Those format checks do not validate whether the document assignments satisfy the train/validation/test invariants.",
+      "successful JSON decoding alone says nothing about whether its assignments are a valid split of this corpus.",
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
       normalizeWhitespace(
-        "`Corpus::from_json` принимает текст JSON как `&str`. Тип `&str` уже гарантирует корректность UTF-8.",
+        "Его вход — текст JSON в виде `&str`, поэтому на этой границе уже гарантирован корректный UTF-8.",
       ),
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
       normalizeWhitespace(
-        "`SplitManifest::from_json` использует отдельную внутреннюю структуру данных Rust для шести обязательных полей манифеста и также принимает `&str`.",
+        "`SplitManifest::from_json` декодирует поля",
       ),
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
       normalizeWhitespace(
-        "текст содержит хотя бы один непробельный символ; ID и десериализованные тексты не повторяются; порядок элементов массива сохранён",
+        "Отдельно `Corpus::from_json` проверяет метаданные документов и непустой текст, отклоняет повторяющиеся ID и точные совпадения декодированных текстов, а также сохраняет порядок исходного массива:",
       ),
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
-      "Эти проверки формата не определяют, соблюдены ли инварианты распределения документов между обучающей, валидационной и тестовой выборками.",
+      "успешное декодирование JSON само по себе ничего не говорит о корректности разбиения этого корпуса.",
     );
     expect(contract.translation_notes).toContain(
-      `English revision 9 is the canonical semantic source with SHA-256 ${createHash("sha256").update(lessonSources.en).digest("hex")}. Russian revision 9 is translated directly from it and has SHA-256 ${createHash("sha256").update(lessonSources.ru).digest("hex")}. Keep serde_json::from_str, Corpus::from_json, SplitManifest::from_json, partition, the &str UTF-8 guarantee, and the distinction between format decoding, document invariants, and split invariants explicit in every locale.`,
+      "Preserve the distinction between serde_json format decoding, document validation, and split validation; Rust's &str boundary already guarantees valid UTF-8.",
     );
     expect(createHash("sha256").update(lessonSources.en).digest("hex")).toBe(
-      "0293c0b191630908fc816be82cbc5d85089cf71813d0f4414bc11a3d1f2a4199",
+      "70e7433388b3be76ad388d908e62964c1f93d5da6b4ade9e7dbc3b1edcbcc91a",
     );
     expect(createHash("sha256").update(lessonSources.ru).digest("hex")).toBe(
-      "f6c5448680e9cc37154292651ec01d2520314f69e5288e69fe97a6e9791ccfe1",
+      "eb46d2ea88e1f6568ae24f6c13c23c1ae137e89a0af045e062dc7f1c88c7251a",
     );
     expect(rustCorpusSource).toContain("use serde::Deserialize;");
     expect(rustCorpusSource).toContain("struct DocumentJson");
@@ -256,34 +256,34 @@ describe("corpus-partitions diagram data", () => {
   });
 
   it("explains the fixture counts and diagram evidence in every locale", () => {
-    expect(lessonSources.en).toContain('"content_revision": 9');
+    expect(lessonSources.en).toContain("\"content_revision\": 10");
     expect(lessonSources.en.replace(/\s+/g, " ")).toContain(
-      "`8 / 2 / 2` (eight documents in training, two in validation, and two in test)",
+      "eight documents in four groups. Validation contains the night-station pair: two documents in one group. Test contains the winter-window pair: two documents in one group.",
     );
-    expect(lessonSources.ru).toContain('"content_revision": 9');
+    expect(lessonSources.ru).toContain("\"content_revision\": 10");
     expect(lessonSources.ru.replace(/\s+/g, " ")).toContain(
-      "`8 / 2 / 2` (восемь документов в обучающей выборке, два — в валидационной и два — в тестовой)",
+      "восемь документов в четырёх группах. Валидационная выборка содержит пару night-station — два документа одной группы. Тестовая содержит пару winter-window — также два документа одной группы.",
     );
     expect(lessonSources.ru).not.toContain("соотношение `8 / 2 / 2`");
     expect(lessonSources.en.replace(/\s+/g, " ")).toContain(
-      "Use each region heading to identify its partition, then use the stable ID on each card to verify that every document appears exactly once.",
+      "The figure lists every exact ID, language, and group. Its three lists are peer sets, not stages through which a document moves. Read each card as one whole document and read the cards within each role in corpus source order:",
     );
     expect(lessonSources.ru.replace(/\s+/g, " ")).toContain(
-      "По заголовку каждой области определите, какая это выборка, а по стабильному ID на каждой карточке проверьте, что каждый документ встречается ровно один раз.",
+      "На схеме приведены точные ID, языки и группы всех документов. Три списка — равноправные множества, а не этапы перемещения документа. Каждая карточка представляет целый документ; карточки внутри выборки идут в порядке корпуса:",
     );
     expect(lessonSources.en).not.toContain("without relying on color");
     expect(lessonSources.ru).not.toContain("без опоры на цвет");
     expect(lessonSources.en.replace(/\s+/g, " ")).toContain(
-      "Different IDs alone do not prove that the underlying text is different. For example, imagine cutting `north star glows softly` into two windows: call them `window-A` (`north star glows`) and `window-B` (`star glows softly`).",
+      "The existing Rust contrast shows one way a holdout label can conceal shared source context. It takes the single sentence `north star glows softly` and calls `overlapping_word_windows(\"north star glows softly\", 3)`. The two resulting windows are `[\"north\", \"star\", \"glows\"]` and `[\"star\", \"glows\", \"softly\"]`. `shared_words` reports `[\"star\", \"glows\"]` in the first window's order:",
     );
     expect(lessonSources.en.replace(/\s+/g, " ")).toContain(
-      "assign the original whole document first. Place it in exactly one partition, tokenize it, and keep every window created from it in that same partition.",
+      "Assign whole source documents and known provenance groups first. Fit tokenizer statistics only on training documents, freeze the learned rules, and apply those rules separately to text in each role. Any later token windows must remain inside an original document and retain its role.",
     );
     expect(lessonSources.ru.replace(/\s+/g, " ")).toContain(
-      "Разные ID сами по себе ещё не означают, что за ними стоит разный текст. Например, строку `north star glows softly` можно разбить на два окна и назвать их `window-A` (`north star glows`) и `window-B` (`star glows softly`).",
+      "`overlapping_word_windows(\"north star glows softly\", 3)` создаёт два окна: `[\"north\", \"star\", \"glows\"]` и `[\"star\", \"glows\", \"softly\"]`.",
     );
     expect(lessonSources.ru.replace(/\s+/g, " ")).toContain(
-      "сначала целиком отнести исходный документ ровно к одной выборке, затем токенизировать его, а все созданные из него окна оставить в той же выборке.",
+      "Сначала распределяйте целые исходные документы и известные группы происхождения. Собирайте статистику для обучения токенизатора только по обучающим документам, зафиксируйте полученные правила и применяйте их отдельно к текстам каждой выборки. Любые последующие токеновые окна должны оставаться внутри исходного документа и сохранять его роль.",
     );
     expect(lessonSources.en).not.toContain("learning window");
     expect(lessonSources.ru).not.toContain("обучающие окна");
@@ -299,19 +299,19 @@ describe("corpus-partitions diagram data", () => {
     const english = normalizeWhitespace(lessonSources.en);
     const russian = normalizeWhitespace(lessonSources.ru);
     expect(english).toContain(
-      "In the demonstrated course execution, test cannot fit or select: Chapter 34 gives one local evaluator instance access only after selection. That order does not claim that the checked-in fixture has never been read during repository development.",
+      "Chapter 34 later demonstrates that order with a local evaluator inside one execution. Its gate cannot enforce unique access across all callers or later executions, and its caller-supplied provenance labels do not independently establish data history.",
     );
     expect(english).toContain(
-      "the enforceable guarantee is narrower: test cannot affect the selected state inside one execution, while the checked-in result may be rerun as repository regression evidence",
+      "Rerunning a known test result checks for regression; it does not supply a fresh, independent estimate of generalization each time.",
     );
     expect(russian).toContain(
-      "В показанном запуске тестовая выборка не участвует ни в обучении, ни в выборе: в главе 34 один локальный экземпляр оценщика получит к ней доступ только после завершения выбора. Такой порядок внутри запуска ничего не утверждает о том, сколько раз сохранённый в репозитории пример читали при разработке.",
+      "В главе 34 этот порядок показан локальным механизмом оценки внутри одного выполнения. Такой механизм не обеспечивает однократный доступ к тестовым данным за пределами одного выполнения: другие программы и будущие запуски могут прочитать их снова. Переданные вызывающей стороной метки происхождения сами по себе не дают независимого подтверждения истории данных.",
     );
     expect(russian).toContain(
-      "в пределах одного запуска тест не может повлиять на выбранное состояние, а проверка сохранённого в репозитории примера может выполняться повторно как регрессионная",
+      "Более позднее сравнение специально подобрано, а его известный результат служит проверке регрессий, не оценке обобщения на нетронутых данных.",
     );
     expect(russian).toContain(
-      "повторное использование известного примера в последующих запусках служит регрессионной проверкой, а не даёт новую независимую оценку",
+      "Повторный запуск с известным тестовым результатом проверяет отсутствие регрессий, а не даёт каждый раз новую независимую оценку способности модели обобщать.",
     );
     for (const source of [english, normalizeWhitespace(contractSource)]) {
       expect(source).not.toMatch(

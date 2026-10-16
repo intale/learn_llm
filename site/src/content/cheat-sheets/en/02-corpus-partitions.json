@@ -2,47 +2,47 @@
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
   "title": "Corpus documents and frozen partitions",
-  "description": "A quick reference for the data-boundary terms used before tokenizer or model fitting begins.",
+  "description": "The source units and data roles used before fitting a learned tokenizer or model.",
   "terms": [
     {
       "term": "Corpus",
-      "definition": "The complete collection of source documents from which tokenizer and model data are prepared."
+      "definition": "A collection of source documents from which training, validation, and test data are assigned."
     },
     {
       "term": "Whole document",
-      "definition": "The indivisible source unit assigned to a partition before token units or training windows are created."
+      "definition": "A complete source text assigned to one role, with its start and end preserved during tokenization and window creation."
     },
     {
       "term": "Training partition",
-      "definition": "The documents permitted to contribute tokenizer statistics and learned model parameters."
+      "definition": "Documents used to fit learned tokenizer rules and model weights."
     },
     {
       "term": "Validation partition",
-      "definition": "Held-out documents used to compare choices or select a checkpoint, but not to fit parameters."
+      "definition": "Documents outside fitting that guide choices among training-fitted systems or saved model states."
     },
     {
       "term": "Test partition",
-      "definition": "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate."
+      "definition": "Documents reserved for reporting after fitting and selection are complete; using their result to choose again makes them part of selection."
     },
     {
       "term": "Disjoint split",
-      "definition": "A partitioning in which every corpus document appears exactly once and no roles overlap."
+      "definition": "An assignment that covers every corpus document and gives no document to different roles; manifest lists also need checks for repeated positions and order."
     },
     {
       "term": "Holdout",
-      "definition": "Data kept outside model fitting so it can provide evidence about unseen text."
+      "definition": "Documents kept outside fitting for validation or test assessment; they may supply evaluation statistics without fitting counts or gradients."
     },
     {
       "term": "Data leakage",
-      "definition": "Training information crossing into a held-out partition and making its evaluation less independent."
+      "definition": "A breach of the intended separation between fitting and assessment, as when overlapping excerpts from one source occupy training and a holdout."
     },
     {
       "term": "Provenance group",
-      "definition": "A label joining documents derived from the same source so related versions stay in one partition."
+      "definition": "A label joining documents with known related source content, such as translations of one scene, so they stay in one role."
     },
     {
       "term": "Byte-pair encoding (BPE)",
-      "definition": "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources."
+      "definition": "The tokenizer learned in Chapter 3 using pair counts from training documents only, with no pair counted across a document boundary; frozen rules can later encode holdout text."
     }
   ]
 }

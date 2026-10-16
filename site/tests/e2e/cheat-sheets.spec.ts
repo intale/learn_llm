@@ -763,24 +763,24 @@ const chapter02BoundaryDefinitions = {
     {
       term: "Test partition",
       definition:
-        "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
+        "Documents reserved for reporting after fitting and selection are complete; using their result to choose again makes them part of selection.",
     },
     {
       term: "Byte-pair encoding (BPE)",
       definition:
-        "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+        "The tokenizer learned in Chapter 3 using pair counts from training documents only, with no pair counted across a document boundary; frozen rules can later encode holdout text.",
     },
   ],
   ru: [
     {
       term: "Тестовая выборка",
       definition:
-        "Документы, предназначенные для оценки после завершения обучения и выбора модели. В пределах одного запуска программа обеспечивает эту границу локально; в последующих запусках известный фиксированный пример используют для регрессионной проверки, а не для новой независимой оценки.",
+        "Документы для отчёта после завершения обучения и выбора; новое решение по их результату превращает их в данные для выбора.",
     },
     {
       term: "Кодирование пар байтов (BPE)",
       definition:
-        "В этом курсе в начале обучения BPE каждому байту каждого обучающего документа соответствует один токен. Пары соседних токенов подсчитывают только внутри каждого обучающего документа; на основе этих подсчётов строят упорядоченный список правил слияния. Ранг слияния — позиция правила в этом списке. Валидационные и тестовые документы не участвуют в подсчёте пар, а токены по разные стороны границы документа не считаются соседними.",
+        "Токенизатор из главы 3, который учится по частотам пар только в обучающих документах, без подсчёта пар через границы документов; зафиксированные правила затем могут кодировать отложенный текст.",
     },
   ],
 } as const;
