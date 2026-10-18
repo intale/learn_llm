@@ -1678,7 +1678,7 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
   }
   const termAnchor = extras.find(attribute => attribute.name === 'cheatSheetTermIdPrefix');
   if (termAnchor) {
-    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the declared Chapter4/5/6/7/8/9/10/11 term-anchor conditionals']); };
+    const reject = () => { throw new ContentValidationError([sourceName + ': practical presentation permits only the declared Chapter4/5/6/7/8/9/10/11/12 term-anchor conditionals']); };
     if (termAnchor.type !== 'attribute' || termAnchor.kind !== 'expression' ||
         typeof termAnchor.value !== 'string') reject();
     const anchorProgram = ts.createSourceFile(sourceName + '.term-anchor.ts', `(${termAnchor.value});`,
@@ -1695,7 +1695,8 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
       ['08-dropout-semantics', 'dropout-semantics-term'],
       ['09-dependency-error-contract', 'dependency-error-term'],
       ['10-input-encoding-boundary', 'input-encoding-term'],
-      ['11-accelerated-tensor-execution', 'accelerated-tensor-term']];
+      ['11-accelerated-tensor-execution', 'accelerated-tensor-term'],
+      ['12-mixed-precision-training', 'mixed-precision-term']];
     let branch = conditional;
     for (const [chapterId, prefix] of pairs) {
       if (!ts.isConditionalExpression(branch) || !ts.isBinaryExpression(branch.condition) ||

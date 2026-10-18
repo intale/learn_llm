@@ -110,14 +110,14 @@ const fixture = `
 
 describe("course diagram design system", () => {
   it("applies one complete source contract to every current diagram", () => {
-    expect(components).toHaveLength(54);
+    expect(components).toHaveLength(56);
     expect(validateDiagramComponents(repositoryRoot)).toBe(components.length);
 
     for (const component of components) {
       const source = read(`site/src/components/chapters/${component}`);
       expect(source.match(/class="course-diagram\s/g)).toHaveLength(1);
       expect(source.match(/data-diagram-style="course-v1"/g)).toHaveLength(1);
-      expect(source.match(/course-diagram__caption/g)).toHaveLength(1);
+      expect(source.match(/<figcaption\b[^>]*\bclass="[^"]*\bcourse-diagram__caption\b[^"]*"[^>]*>/g)).toHaveLength(1);
       expect(source).toContain("course-diagram__description");
       expect(source).not.toMatch(/@media\s*\(\s*max-width\s*:/);
       expect(source).not.toMatch(/contain\s*:\s*paint\b/);

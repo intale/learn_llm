@@ -32,6 +32,27 @@ fn gradient_bits(model: &DecoderModel) -> Vec<u64> {
 }
 
 #[test]
+fn precision_changes_run_identity_without_changing_model_identity_or_weights() {
+    use crate::tensor::{execution::TensorExecution, precision::MatmulPrecision};
+    let model = model();
+    let before = DecoderModelState::snapshot(&model).bit_pattern();
+    let reference = model.input_identity(1, 3, AutogradContext::recording());
+    let fp16 = TensorExecution::cpu_with_precision(MatmulPrecision::F16F32);
+    let bf16 = TensorExecution::cpu_with_precision(MatmulPrecision::Bf16F32);
+    let a = model.input_identity(1, 3, AutogradContext::recording().with_execution(&fp16));
+    let b = model.input_identity(1, 3, AutogradContext::recording().with_execution(&bf16));
+    assert_eq!(reference.semantic_sha256, a.semantic_sha256);
+    assert_eq!(reference.semantic_sha256, b.semantic_sha256);
+    assert_ne!(reference.run_sha256, a.run_sha256);
+    assert_ne!(a.run_sha256, b.run_sha256);
+    assert_eq!(
+        reference,
+        model.input_identity(1, 3, AutogradContext::recording())
+    );
+    assert_eq!(before, DecoderModelState::snapshot(&model).bit_pattern());
+}
+
+#[test]
 fn late_forward_failure_discards_all_earlier_site_counter_commits() {
     let model = model();
     let policy = DropoutRunPolicy::new(0.5, 39).unwrap();

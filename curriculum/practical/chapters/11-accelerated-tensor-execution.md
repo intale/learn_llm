@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"11-accelerated-tensor-execution","concept_id":"accelerated-tensor-execution","content_revision":1,"order":11,
+  "chapter_id":"11-accelerated-tensor-execution","concept_id":"accelerated-tensor-execution","content_revision":2,"order":11,
   "objective":{"en":"Select CPU or CUDA for the existing f64 matrix products and sum/mean reductions, reuse the shared text model and reverse mode, and assess a measured comparison within a declared tolerance."},
   "worked_inputs":{"en":"Multiply A[2,3]=[1,2,3,4,5,6] by W[3,2]=[7,8,9,10,11,12], giving Y[2,2]=[58,64,139,154]. Sum and mean A over axis 1, giving [6,15] and [2,5]. Reuse the seed-39 ab text model to compare logits, loss and every named gradient against the CPU reference."},
   "formula":{

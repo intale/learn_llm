@@ -1,0 +1,14 @@
+{
+  "chapter_id": "12-mixed-precision-training",
+  "locale": "en",
+  "title": "Mixed precision and safe update skips",
+  "description": "Keep track of represented matrix values, higher-precision state and the order of a loss-scaled update.",
+  "terms": [
+    {"term": "FP16 and BF16", "definition": "Two 16-bit floating-point formats. FP16 has 5 exponent bits and 10 explicit fraction bits; BF16 has 8 and 7. BF16 spans a wider range, while FP16 has finer spacing near one. Either can round a value or overflow."},
+    {"term": "Master weights", "definition": "The higher-precision weights updated by the optimizer, from which lower-precision matrix operands are rounded. This implementation retains existing f64 master weights and f64 AdamW moments; rounding an operand does not replace its master."},
+    {"term": "Protected computation", "definition": "Arithmetic retained at higher precision where sums, normalization or nonlinear operations are sensitive to rounding. This CPU reference keeps non-matrix operations in f64 and accumulates half-format matrix products in f32. All host tensor buffers remain f64."},
+    {"term": "Loss scaling", "definition": "Start reverse mode with a finite positive scale S, producing scaled gradients. Divide by S before measuring the gradient norm, clipping and updating AdamW moments. Scaling can preserve a tiny backward signal before half rounding; it cannot recover information already lost in forward."},
+    {"term": "Overflow skip", "definition": "A nonfinite local pullback or gradient accumulation aborts the existing transactional backward pass. The scaled update returns Skipped, preserves weights, gradients, revisions, AdamW moments, beta powers and step count, and halves the scale down to its minimum. Structural errors propagate instead of becoming skips."},
+    {"term": "Dynamic scale policy", "definition": "The course policy halves the scale after an overflow and doubles it after a configured interval of committed finite updates, within declared bounds. A skip resets that interval and consumes no learning-rate-schedule step; a caller may retry the same batch."}
+  ]
+}

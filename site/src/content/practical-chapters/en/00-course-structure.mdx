@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
@@ -23,7 +23,7 @@
     "component": "PracticalLlmSystemDiagram",
     "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and planned saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
   },
-  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; planned Chapters 12–32 extend numerical training, persistence, evaluation, inference and adaptation."
+  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Planned Chapters 13–32 extend training, persistence, evaluation, inference and adaptation."
 }
 ---
 
@@ -101,8 +101,8 @@ export const diagramLabels = {
     {
       id: "execution",
       title: "Numerical execution",
-      description: "CPU/CUDA matrix and reduction primitives support forward and backward. Precision and memory changes come later.",
-      chapters: "Chapter 11; planned extensions: Chapters 12–14",
+      description: "CPU/CUDA matrix and reduction primitives support forward and backward. CPU half-format matrix policies and loss-scaled updates add deliberate numerical choices; further training and memory changes remain planned.",
+      chapters: "Chapters 11–12; planned extensions: Chapters 13–14",
     },
     {
       id: "saved-state",
@@ -149,7 +149,7 @@ export const roadmap = [
     title: "Extend numerical training and preserve its results",
     first: 12,
     chapters: [
-      { number: 12, title: "Mixed precision", planned: true, purpose: "Study lower-precision values, protected reductions, loss scaling and the state preserved when an overflowing update is skipped." },
+      { number: 12, purpose: "Use CPU half-format matrix arithmetic and loss-scaled updates, inspect actual dtypes and preserve model and optimizer state when an overflowing update is skipped." },
       { number: 13, title: "Gradient accumulation and activation recomputation", planned: true, purpose: "Combine smaller training batches with the correct token denominator, and trade saved activations for recomputation with matching randomness." },
       { number: 14, title: "Optimizer schedules and gradient clipping", planned: true, purpose: "Extend AdamW with warmup, decay and global gradient-norm clipping in an explicit update order." },
       { number: 15, title: "Save, load, and resume a model", planned: true, purpose: "Save the composed model, exit and load it for local inference; then restore the additional state needed for training resume." },
@@ -300,11 +300,11 @@ save/load path and the CUDA-to-CPU experiment remain planned work.
 
 ## Read the complete chapter roadmap
 
-Chapter 0 is this orientation; Chapters 1–11 are published. Chapters 12–32 are
+<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–12 are published. Chapters 13–32 are
 planned and appear without links. A planned lesson may extend an existing
 mechanism, such as sampling or checkpointing. Its status describes the lesson's
 availability. The <a href={localePath(practicalCourse.referenceLocale, `/${practicalCourse.route}/`)}>practical course index</a>
-lists the available lessons.
+lists the available lessons.</p>
 
 {roadmap.map((phase) => (
   <section aria-labelledby={`practical-roadmap-phase-${phase.first}`} data-practical-roadmap-phase={phase.first}>

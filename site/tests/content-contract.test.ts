@@ -1506,11 +1506,11 @@ describe("curriculum and catalog contracts", () => {
 
   it("keeps the Chapter 1 scalar vocabulary local while carrying the mapping boundary into BPE", () => {
     const contract = canonicalContract();
-    expect(contract.data.content_revision).toBe(6);
+    expect(contract.data.content_revision).toBe(7);
 
     for (const locale of ["en", "ru"] as const) {
       const lesson = canonicalLesson(locale);
-      expect(lesson.data.content_revision).toBe(6);
+      expect(lesson.data.content_revision).toBe(7);
       expect(() =>
         validateContractLesson(
           contract.data,
@@ -1523,52 +1523,57 @@ describe("curriculum and catalog contracts", () => {
 
     const englishRust = canonicalLessonSection("en", "rust-implementation");
     for (const evidence of [
-      "This `Vocabulary` is defined only in the `ch01-text-units` demo",
-      "the cumulative `llm-from-scratch` crate neither imports nor extends it",
-      "freeze one mapping between token IDs and represented units",
-      "make encoding deterministic",
-      "decode represented units exactly",
-      "coverage versus sequence-length tradeoff",
+      "This `Vocabulary` belongs to the `ch01-text-units` demo",
+      "`llm-from-scratch` crate does not import or extend it",
+      "`Vocabulary::from_training_text` sorts and deduplicates the scalars",
+      "The stored order determines known IDs",
+      "`encode` performs one lookup for each scalar",
+      "`decode` recovers known scalars"
     ]) {
       expect(englishRust).toContain(evidence);
     }
 
     const englishHandoff = canonicalLessonSection("en", "decoder-connection");
     for (const evidence of [
-      "does not contribute the concrete Rust ID type or token table",
-      "one token for each of the 256 possible byte values",
-      "learned merge tokens that may represent several bytes",
-      "new token-ID namespace",
-      "does not reuse Chapter 1's rule that an unseen scalar becomes `<UNK>`",
-      "replaced, not extended",
+      "scalar table, its ID assignments, and its concrete `Vec<usize>` stay in Chapter 1",
+      "a base token for each of all 256 byte values",
+      "learned merge tokens that can represent several bytes",
+      "shifts the content IDs into its own namespace",
+      "The new tokenizer does not inherit the demo's rule that an unseen scalar becomes `<UNK>`",
+      "The next chapters replace this scalar demo in a deliberate order"
     ]) {
       expect(englishHandoff).toContain(evidence);
     }
 
     const russianRust = canonicalLessonSection("ru", "rust-implementation");
     for (const evidence of [
-      "Тип `Vocabulary` определён только в демонстрационном пакете `ch01-text-units`",
-      "основная библиотека `llm-from-scratch` его не импортирует и не расширяет",
-      "зафиксировать соответствие между ID токенов и представляемыми ими единицами",
-      "при одинаковом входе получать одинаковые ID",
-      "точно восстанавливать при декодировании единицы, представленные в словаре",
-      "компромисс между охватом текста и длиной последовательности",
+      "Этот `Vocabulary` относится к демонстрации `ch01-text-units`",
+      "`llm-from-scratch` не импортирует и не расширяет его",
+      "`Vocabulary::from_training_text` сортирует скалярные значения и удаляет повторы",
+      "Сохранённый порядок определяет ID известных значений",
+      "`encode` выполняет один поиск для каждого скалярного значения",
+      "`decode` восстанавливает известные значения"
     ]) {
       expect(russianRust).toContain(evidence);
     }
 
     const russianHandoff = canonicalLessonSection("ru", "decoder-connection");
     for (const evidence of [
-      "Конкретный тип ID в Rust и таблица токенов из учебного примера не переходят",
-      "каждому из 256 возможных значений байта будет соответствовать отдельный токен",
-      "токены слияний смогут представлять последовательности из нескольких байтов",
-      "собственное пространство ID токенизатора",
-      "не наследует правило главы 1",
-      "учебный `Vocabulary` будет заменён, а не расширен",
+      "`Vec<usize>` остаются в главе 1",
+      "базовым токеном для каждого из 256 возможных значений байта",
+      "обученные токены слияний, которые могут представлять несколько байтов",
+      "переносит ID содержимого в новое пространство ID",
+      "Новый токенизатор не наследует правило учебного примера",
+      "учебный словарь скалярных значений заменяется поэтапно"
     ]) {
       expect(russianHandoff).toContain(evidence);
     }
+
+    expect(canonicalLessonSection("en", "history")).toContain("Vocabulary size, text coverage, and sequence length are separate parts of the tradeoff");
+    expect(canonicalLessonSection("ru", "history")).toContain("Размер словаря, охват текста и длина последовательности — разные стороны компромисса");
   });
+
+
 });
 
 describe("published order and chapter navigation", () => {

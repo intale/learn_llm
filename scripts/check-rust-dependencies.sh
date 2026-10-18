@@ -29,6 +29,7 @@ readonly -a allowed_supporting_crates=(
   core-foundation-sys
   cpufeatures
   crossbeam-utils
+  crunchy
   crypto-common
   cudarc
   dashmap
@@ -49,6 +50,7 @@ readonly -a allowed_supporting_crates=(
   futures-util
   generic-array
   getrandom
+  half
   hashbrown
   heck
   http
@@ -149,6 +151,8 @@ readonly -a allowed_supporting_crates=(
   writeable
   yoke
   yoke-derive
+  zerocopy
+  zerocopy-derive
   zerofrom
   zerofrom-derive
   zeroize

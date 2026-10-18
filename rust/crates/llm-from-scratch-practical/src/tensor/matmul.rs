@@ -4,6 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 use super::execution::{ExecutionError, TensorExecution};
+use super::precision::MatmulPrecision;
 use super::storage::{Tensor, TensorError, checked_row_major_layout};
 use super::view::{TensorView, TensorViewError};
 use llm_cuda_adapter::MatrixDimensions;
@@ -232,14 +233,22 @@ pub(crate) fn matmul_with_transpose_and_execution(
     // endregion:pack-checked-matmul
 
     // region:cpu-matmul-contraction
+    let precision = execution.matmul_precision();
     for (left_cell_offset, right_cell_offset) in left_cell_offsets.zip(right_cell_offsets) {
         let mut sum = 0.0;
+        let mut sum_f32 = 0.0_f32;
         let mut left_offset = left_cell_offset;
         let mut right_offset = right_cell_offset;
         for inner_index in 0..plan.inner {
             let left_value = left.value_at_storage_offset(left_offset);
             let right_value = right.value_at_storage_offset(right_offset);
-            sum += left_value * right_value;
+            match precision {
+                MatmulPrecision::F64 => sum += left_value * right_value,
+                MatmulPrecision::F16F32 | MatmulPrecision::Bf16F32 => {
+                    sum_f32 +=
+                        precision.operand_f32(left_value) * precision.operand_f32(right_value);
+                }
+            }
 
             if inner_index + 1 < plan.inner {
                 left_offset = left_offset
@@ -250,7 +259,12 @@ pub(crate) fn matmul_with_transpose_and_execution(
                     .expect("a checked matmul plan cannot overflow along the right inner axis");
             }
         }
-        values.push(sum);
+        values.push(match precision {
+            MatmulPrecision::F64 => sum,
+            MatmulPrecision::F16F32 | MatmulPrecision::Bf16F32 => {
+                precision.round(f64::from(sum_f32))
+            }
+        });
     }
 
     // endregion:cpu-matmul-contraction

@@ -174,12 +174,16 @@ const suspiciousCode =
   /(?:[=+*/−×÷≤≥≠≈∞→]|->|\b(?:T|S|N|p|q|x|y|z|i|j|k|r)\b|\\(?:frac|sum|ln|log|exp)|_[{A-Za-z0-9])/;
 const documentedLiteralData = [
   {
-    name: "Unicode scalar notation",
-    pattern: /^(?:U\+[0-9A-F]+|\[[^\]]*\bU\+[0-9A-F]+\b[^\]]*\])$/i,
+    name: "literal Rust pair-selection predicate",
+    pattern: /^count > best_count$/,
   },
   {
-    name: "literal count ratios emitted by examples",
-    pattern: /^\d+(?:\s*\/\s*\d+)+$/,
+    name: "literal provenance group prefix",
+    pattern: /^pair-\*$/,
+  },
+  {
+    name: "Unicode scalar notation",
+    pattern: /^(?:U\+(?:[0-9A-F]+|\.\.\.)|\[[^\]]*\bU\+[0-9A-F]+\b[^\]]*\])$/i,
   },
   {
     name: "literal Rust ranges",
@@ -209,10 +213,6 @@ const documentedLiteralData = [
   {
     name: "literal serde_json decoding API",
     pattern: /^serde_json::from_str$/,
-  },
-  {
-    name: "concrete Rust macro identifiers",
-    pattern: /^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z][A-Za-z0-9]*)+!$/,
   },
   {
     name: "literal token-transition records",

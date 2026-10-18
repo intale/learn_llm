@@ -1,0 +1,76 @@
+---
+import fixtureSource from '../../../../rust/demos/practical-ch12-mixed-precision-training/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string; forwardTitle: string;
+  masterTitle: string; masterBody: string; matrixTitle: string; matrixBody: string;
+  protectedTitle: string; protectedBody: string; reverseTitle: string; reverseBody: string;
+  finiteTitle: string; finiteBody: string; overflowTitle: string; overflowBody: string;
+  recordedSkip: string; scaleChange: string; stepPreserved: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+const labelKeys = [
+  'title', 'description', 'forwardTitle', 'masterTitle', 'masterBody',
+  'matrixTitle', 'matrixBody', 'protectedTitle', 'protectedBody',
+  'reverseTitle', 'reverseBody', 'finiteTitle', 'finiteBody',
+  'overflowTitle', 'overflowBody', 'recordedSkip', 'scaleChange', 'stepPreserved',
+] satisfies (keyof Labels)[];
+for (const key of labelKeys) {
+  const value = labels[key];
+  if (typeof value !== 'string' || !value.trim()) throw new Error('mixed-precision-diagram-copy');
+}
+const fixture = JSON.parse(fixtureSource);
+if (fixture.chapter !== '12-mixed-precision-training' ||
+    fixture.overflow_probe.first_skip.optimizer_step_before !== 1 ||
+    fixture.overflow_probe.first_skip.optimizer_step_after !== 1 ||
+    !fixture.overflow_probe.first_skip.weights_moments_powers_gradients_revisions_preserved) {
+  throw new Error('mixed-precision-diagram-fixture');
+}
+const skip = fixture.overflow_probe.first_skip;
+---
+<figure class="course-diagram mixed-precision-diagram" data-diagram-style="course-v1"
+  data-visualization-id="mixed-precision-training" tabindex="0"
+  aria-labelledby="mixed-precision-figure-title" aria-describedby="mixed-precision-figure-description">
+  <figcaption class="course-diagram__caption" id="mixed-precision-figure-caption">
+    <h3 id="mixed-precision-figure-title">{labels.title}</h3>
+    <p id="mixed-precision-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+  <section data-diagram-box aria-labelledby="mixed-precision-forward-title">
+    <h4 id="mixed-precision-forward-title">{labels.forwardTitle}</h4>
+    <ol class="course-diagram__grid mixed-precision-forward">
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="mixed-precision-master-card">
+        <h5>{labels.masterTitle}</h5><p>{labels.masterBody}</p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="mixed-precision-matrix-card">
+        <h5>{labels.matrixTitle}</h5><p>{labels.matrixBody}</p>
+      </li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box id="mixed-precision-protected-card">
+        <h5>{labels.protectedTitle}</h5><p>{labels.protectedBody}</p>
+      </li>
+    </ol>
+  </section>
+  <section class="course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby="mixed-precision-reverse-title">
+    <h4 id="mixed-precision-reverse-title">{labels.reverseTitle}</h4><p id="mixed-precision-reverse-description">{labels.reverseBody}</p>
+    <div class="course-diagram__grid mixed-precision-outcomes">
+      <section class="course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby="mixed-precision-finite-title">
+        <h5 id="mixed-precision-finite-title">{labels.finiteTitle}</h5><p>{labels.finiteBody}</p>
+      </section>
+      <section class="course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby="mixed-precision-overflow-title">
+        <h5 id="mixed-precision-overflow-title">{labels.overflowTitle}</h5><p>{labels.overflowBody}</p>
+        <p>{labels.recordedSkip}</p>
+        <p>{labels.scaleChange} <code dir="ltr">{skip.loss_scale} → {skip.next_loss_scale}</code></p>
+        <p>{labels.stepPreserved} <code dir="ltr">1 → 1</code></p>
+      </section>
+    </div>
+  </section>
+</figure>
+<style>
+  .mixed-precision-forward, .mixed-precision-outcomes { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 45rem) {
+    .mixed-precision-outcomes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container course-diagram (min-width: 56rem) {
+    .mixed-precision-forward { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

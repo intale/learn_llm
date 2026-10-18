@@ -130,11 +130,13 @@ impl Error for ModelOpError {}
 pub enum ModelSavedContext {
     MatmulLeft {
         right: Tensor,
+        precision: crate::tensor::precision::MatmulPrecision,
         input_shape: Vec<usize>,
         output_shape: Vec<usize>,
     },
     MatmulRight {
         left: Tensor,
+        precision: crate::tensor::precision::MatmulPrecision,
         input_shape: Vec<usize>,
         output_shape: Vec<usize>,
     },
@@ -318,11 +320,13 @@ impl TensorValue {
                     [
                         ModelSavedContext::MatmulLeft {
                             right: Tensor::clone(right),
+                            precision: context.execution().matmul_precision(),
                             input_shape: left.shape().to_vec(),
                             output_shape: output_shape.clone(),
                         },
                         ModelSavedContext::MatmulRight {
                             left: Tensor::clone(left),
+                            precision: context.execution().matmul_precision(),
                             input_shape: right.shape().to_vec(),
                             output_shape,
                         },
@@ -864,20 +868,28 @@ pub(crate) fn apply_model_vjp(
     match saved {
         ModelSavedContext::MatmulLeft {
             right,
+            precision,
             input_shape,
             output_shape,
         } => {
             debug_assert_eq!(upstream.shape(), output_shape);
+            let execution = execution
+                .with_matmul_precision(*precision)
+                .map_err(crate::tensor::matmul::MatmulError::Execution)?;
             let expanded =
                 execution.matmul_with_transpose(&upstream.view(), &right.view(), false, true)?;
             unbroadcast(&expanded, input_shape)
         }
         ModelSavedContext::MatmulRight {
             left,
+            precision,
             input_shape,
             output_shape,
         } => {
             debug_assert_eq!(upstream.shape(), output_shape);
+            let execution = execution
+                .with_matmul_precision(*precision)
+                .map_err(crate::tensor::matmul::MatmulError::Execution)?;
             let expanded =
                 execution.matmul_with_transpose(&left.view(), &upstream.view(), true, false)?;
             unbroadcast(&expanded, input_shape)

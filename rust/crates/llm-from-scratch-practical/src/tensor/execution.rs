@@ -1,4 +1,5 @@
 //! Explicit primitive execution for the existing host-backed tensors.
+use super::precision::MatmulPrecision;
 use super::{
     matmul::{MatmulError, matmul_with_transpose_and_execution},
     ops::{TensorOpError, mean_axis_with_execution, sum_axis_with_execution},
@@ -23,17 +24,62 @@ pub enum ExecutionDevice {
 #[derive(Clone, Debug, Default)]
 pub struct TensorExecution {
     cuda: Option<Rc<CudaExecutor>>,
+    matmul_precision: MatmulPrecision,
 }
 
 impl TensorExecution {
     pub const fn cpu() -> Self {
-        Self { cuda: None }
+        Self::cpu_with_precision(MatmulPrecision::F64)
+    }
+
+    /// Selects represented matrix arithmetic without changing host storage.
+    pub const fn cpu_with_precision(matmul_precision: MatmulPrecision) -> Self {
+        Self {
+            cuda: None,
+            matmul_precision,
+        }
     }
 
     /// Initializes the requested device now; unavailable CUDA is an error.
     pub fn cuda(ordinal: usize) -> Result<Self, ExecutionError> {
         Ok(Self {
             cuda: Some(Rc::new(CudaExecutor::new(ordinal)?)),
+            matmul_precision: MatmulPrecision::F64,
+        })
+    }
+
+    /// Refuses unsupported arithmetic before loading a driver or opening a GPU.
+    pub fn cuda_with_precision(
+        ordinal: usize,
+        precision: MatmulPrecision,
+    ) -> Result<Self, ExecutionError> {
+        if precision != MatmulPrecision::F64 {
+            return Err(ExecutionError::new(
+                "precision",
+                "CUDA mixed-precision matrix arithmetic is not implemented; select the CPU numerical reference explicitly",
+            ));
+        }
+        Self::cuda(ordinal)
+    }
+
+    pub const fn matmul_precision(&self) -> MatmulPrecision {
+        self.matmul_precision
+    }
+
+    /// Reuses the selected device with the precision recorded by a matrix node.
+    pub fn with_matmul_precision(
+        &self,
+        precision: MatmulPrecision,
+    ) -> Result<Self, ExecutionError> {
+        if self.cuda.is_some() && precision != MatmulPrecision::F64 {
+            return Err(ExecutionError::new(
+                "precision",
+                "CUDA mixed-precision matrix arithmetic is not implemented",
+            ));
+        }
+        Ok(Self {
+            cuda: self.cuda.clone(),
+            matmul_precision: precision,
         })
     }
 
@@ -92,6 +138,9 @@ impl TensorExecution {
 
 impl PartialEq for TensorExecution {
     fn eq(&self, other: &Self) -> bool {
+        if self.matmul_precision != other.matmul_precision {
+            return false;
+        }
         match (&self.cuda, &other.cuda) {
             (None, None) => true,
             (Some(left), Some(right)) => Rc::ptr_eq(left, right),
@@ -110,6 +159,17 @@ impl TensorExecution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn mixed_cuda_request_fails_before_any_driver_access() {
+        for precision in [MatmulPrecision::F16F32, MatmulPrecision::Bf16F32] {
+            let error = TensorExecution::cuda_with_precision(usize::MAX, precision).unwrap_err();
+            assert!(error.to_string().contains("not implemented"));
+            assert_ne!(
+                TensorExecution::cpu(),
+                TensorExecution::cpu_with_precision(precision)
+            );
+        }
+    }
     #[test]
     fn explicit_cpu_operations_reuse_the_default_tensor_path() {
         let cpu = TensorExecution::cpu();

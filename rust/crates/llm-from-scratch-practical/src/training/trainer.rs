@@ -12,9 +12,11 @@ use crate::models::decoder::{
     validate_parameter_layout,
 };
 use crate::nn::init::{InitializationError, NamedParameter};
+use crate::tensor::execution::TensorExecution;
 use crate::tensor::storage::{Tensor, TensorError};
 use crate::training::adamw::{AdamW, AdamWError, AdamWGradientTransform, AdamWState, AdamWStep};
 use crate::training::batch::MiniBatchEpoch;
+use crate::training::loss_scaling::{DynamicLossScaler, is_backward_overflow};
 
 // region:training-plan
 /// The exact learner-visible order of one successful parameter update.
@@ -242,6 +244,9 @@ pub enum TrainerError {
         index: usize,
         value: f64,
     },
+    ScaledUpdateRequiresZeroGradient {
+        name: String,
+    },
     Model(DecoderModelError),
     Optimizer(AdamWError),
     Autodiff(TensorAutodiffError),
@@ -368,6 +373,10 @@ impl fmt::Display for TrainerError {
             Self::ParameterGradientNotZero { name, index, value } => write!(
                 formatter,
                 "updated parameter {name:?} retained gradient {value} at flat index {index}"
+            ),
+            Self::ScaledUpdateRequiresZeroGradient { name } => write!(
+                formatter,
+                "scaled update requires cleared gradients; parameter {name:?} has a nonzero gradient"
             ),
             Self::Model(error) => error.fmt(formatter),
             Self::Optimizer(error) => error.fmt(formatter),
@@ -943,6 +952,14 @@ struct GradientNorm {
 }
 
 fn gradient_norm(model: &DecoderModel, maximum: f64) -> Result<GradientNorm, TrainerError> {
+    gradient_norm_with_loss_scale(model, maximum, 1.0)
+}
+
+fn gradient_norm_with_loss_scale(
+    model: &DecoderModel,
+    maximum: f64,
+    loss_scale: f64,
+) -> Result<GradientNorm, TrainerError> {
     let mut scale = 0.0_f64;
     let mut scaled_squares = 1.0_f64;
     for parameter in model.parameters() {
@@ -984,17 +1001,22 @@ fn gradient_norm(model: &DecoderModel, maximum: f64) -> Result<GradientNorm, Tra
         });
     }
     let root = scaled_squares.sqrt();
-    let raw_norm = scale * root;
+    let unscaled_maximum = scale / loss_scale;
+    let raw_norm = unscaled_maximum * root;
     let before = if raw_norm.is_finite() {
         raw_norm
     } else {
         f64::MAX
     };
-    if scale <= maximum / root {
+    if unscaled_maximum <= maximum / root {
         return Ok(GradientNorm {
             before,
             after: before,
-            transform: AdamWGradientTransform::uniform(1.0),
+            transform: if loss_scale == 1.0 {
+                AdamWGradientTransform::uniform(1.0)
+            } else {
+                AdamWGradientTransform::normalized(loss_scale, 1.0)
+            },
             clipped: false,
         });
     }
@@ -1082,6 +1104,68 @@ pub struct DecoderUpdateExecution {
     pub optimizer_trace: Option<AdamWStep>,
 }
 
+/// Outcome of one attempted scaled update. A skip consumes no optimizer or
+/// learning-rate-schedule step. The caller chooses whether to retry the batch.
+pub enum ScaledDecoderUpdate {
+    Applied {
+        execution: DecoderUpdateExecution,
+        loss_scale: f64,
+        next_loss_scale: f64,
+    },
+    Skipped {
+        train_loss: f64,
+        loss_scale: f64,
+        next_loss_scale: f64,
+        overflow: TensorAutodiffError,
+    },
+}
+
+// region:scaled-decoder-update
+/// Extends the same update owner with a scaled backward seed and skip outcome.
+/// Start with cleared gradients. Forward receives the explicit execution
+/// context; the reverse pass remains transactional on numerical overflow.
+#[allow(clippy::too_many_arguments)]
+pub fn decoder_update_with_loss_scaling<F, O>(
+    model: &DecoderModel,
+    optimizer: &mut AdamW,
+    config: &TrainerConfig,
+    step: usize,
+    execution: &TensorExecution,
+    scaler: &mut DynamicLossScaler,
+    forward: F,
+    observer: &mut O,
+) -> Result<ScaledDecoderUpdate, TrainerError>
+where
+    F: FnOnce(AutogradContext<'_>) -> Result<TensorValue, TrainerError>,
+    O: DecoderUpdateObserver,
+{
+    for parameter in model.parameters() {
+        let gradient =
+            parameter
+                .tensor()
+                .gradient()
+                .ok_or_else(|| TrainerError::MissingGradient {
+                    name: parameter.name().to_owned(),
+                })?;
+        if gradient.as_slice().iter().any(|&value| value != 0.0) {
+            return Err(TrainerError::ScaledUpdateRequiresZeroGradient {
+                name: parameter.name().to_owned(),
+            });
+        }
+    }
+    decoder_update_attempt(
+        model,
+        optimizer,
+        config,
+        step,
+        execution,
+        Some(scaler),
+        || forward(AutogradContext::recording().with_execution(execution)),
+        observer,
+    )
+}
+// endregion:scaled-decoder-update
+
 /// The existing update owner accepts the caller's text forward and phase observer.
 pub fn decoder_update_with_forward<F, O>(
     model: &DecoderModel,
@@ -1091,6 +1175,38 @@ pub fn decoder_update_with_forward<F, O>(
     forward: F,
     observer: &mut O,
 ) -> Result<DecoderUpdateExecution, TrainerError>
+where
+    F: FnOnce() -> Result<TensorValue, TrainerError>,
+    O: DecoderUpdateObserver,
+{
+    match decoder_update_attempt(
+        model,
+        optimizer,
+        config,
+        step,
+        &TensorExecution::cpu(),
+        None,
+        forward,
+        observer,
+    )? {
+        ScaledDecoderUpdate::Applied { execution, .. } => Ok(execution),
+        ScaledDecoderUpdate::Skipped { .. } => {
+            unreachable!("unscaled legacy updates propagate backward errors")
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn decoder_update_attempt<F, O>(
+    model: &DecoderModel,
+    optimizer: &mut AdamW,
+    config: &TrainerConfig,
+    step: usize,
+    execution: &TensorExecution,
+    mut scaler: Option<&mut DynamicLossScaler>,
+    forward: F,
+    observer: &mut O,
+) -> Result<ScaledDecoderUpdate, TrainerError>
 where
     F: FnOnce() -> Result<TensorValue, TrainerError>,
     O: DecoderUpdateObserver,
@@ -1110,12 +1226,32 @@ where
     let loss = forward()?;
     let train_loss = scalar_loss(&loss)?;
     observer.after_forward(&loss)?;
-    loss.backward_with_seed(
-        &Tensor::from_vec(Vec::new(), vec![1.0])?.view(),
+    let loss_scale = scaler.as_ref().map_or(1.0, |scaler| scaler.scale());
+    let backward = loss.backward_with_seed_and_execution(
+        &Tensor::from_vec(Vec::new(), vec![loss_scale])?.view(),
         GraphRetention::Release,
-    )?;
+        execution,
+    );
+    if let Err(overflow) = backward {
+        if is_backward_overflow(&overflow)
+            && let Some(scaler) = scaler.as_deref_mut()
+        {
+            scaler.overflow();
+            return Ok(ScaledDecoderUpdate::Skipped {
+                train_loss,
+                loss_scale,
+                next_loss_scale: scaler.scale(),
+                overflow,
+            });
+        }
+        return Err(overflow.into());
+    }
     drop(loss);
-    let norm = gradient_norm(model, config.max_gradient_norm)?;
+    let norm = if loss_scale == 1.0 {
+        gradient_norm(model, config.max_gradient_norm)?
+    } else {
+        gradient_norm_with_loss_scale(model, config.max_gradient_norm, loss_scale)?
+    };
     observer.before_update(model, norm.transform)?;
     let (optimizer_step, optimizer_trace) = if observer.records_update_trace() {
         let trace = optimizer.step_with_learning_rate_and_gradient_transform_and_trace(
@@ -1141,22 +1277,32 @@ where
         });
     }
     clear_and_verify_gradients(model)?;
-    Ok(DecoderUpdateExecution {
-        step: TrainingStep {
-            step,
-            batch_windows: Vec::new(),
-            learning_rate,
-            train_loss,
-            gradient_norm_before: norm.before,
-            gradient_norm_after: norm.after,
-            gradient_transform: norm.transform,
-            clipped: norm.clipped,
-            finite_gradients: true,
-            parameter_nodes_preserved: true,
-            cleared_gradients: true,
-            events: UPDATE_EVENT_ORDER,
+    let next_loss_scale = if let Some(scaler) = scaler {
+        scaler.committed();
+        scaler.scale()
+    } else {
+        loss_scale
+    };
+    Ok(ScaledDecoderUpdate::Applied {
+        loss_scale,
+        next_loss_scale,
+        execution: DecoderUpdateExecution {
+            step: TrainingStep {
+                step,
+                batch_windows: Vec::new(),
+                learning_rate,
+                train_loss,
+                gradient_norm_before: norm.before,
+                gradient_norm_after: norm.after,
+                gradient_transform: norm.transform,
+                clipped: norm.clipped,
+                finite_gradients: true,
+                parameter_nodes_preserved: true,
+                cleared_gradients: true,
+                events: UPDATE_EVENT_ORDER,
+            },
+            optimizer_trace,
         },
-        optimizer_trace,
     })
 }
 

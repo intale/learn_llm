@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"11-accelerated-tensor-execution","locale":"en","content_revision":1,"order":11,"concept_id":"accelerated-tensor-execution",
+  "chapter_id":"11-accelerated-tensor-execution","locale":"en","content_revision":2,"order":11,"concept_id":"accelerated-tensor-execution",
   "title":"Run tensor primitives on a GPU",
   "description":"Select CUDA for existing matrix products and sum/mean reductions. Follow host/device copies and compare the same text model's logits, loss and gradients with a CPU reference.",
   "objective":"Select CPU or CUDA for the existing f64 matrix products and sum/mean reductions, reuse the shared text model and reverse mode, and assess a measured comparison within a declared tolerance.",
@@ -549,7 +549,7 @@ semantics, and CPU inference remains available without CUDA. Portable
 weight saving and loading belong to Chapter 15; this chapter does not
 implement that later GPU-to-CPU persistence demonstration.
 
-Chapter 12 will introduce mixed precision: FP16/BF16 represented values,
+[Chapter 12](../12-mixed-precision-training/) will introduce mixed precision: FP16/BF16 represented values,
 master weights, protected reductions, loss scaling and overflow or update-skip
 semantics. Our fixed `f64` reference and explicit comparison criterion give
 those deliberate dtype choices a numerical starting point.

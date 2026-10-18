@@ -15,7 +15,7 @@ const deploymentBase=normalizeSiteBase(process.env.SITE_BASE??'/');
 const deploymentPath=(path:string)=>sitePathForBase(path,deploymentBase);
 const practicalCourseRoute='/en/practical-llm-in-rust/';
 const prefix=deploymentPath(practicalCourseRoute);
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -30,12 +30,13 @@ const configurableTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/
 const dropoutTrace=JSON.parse(readFileSync(new URL('../../../site/src/data/course/dropout-semantics-trace.json',import.meta.url),'utf8'));
 const inputBoundary=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch10-input-encoding-boundary/expected.txt',import.meta.url),'utf8'));
 const acceleratedTensor=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch11-accelerated-tensor-execution/expected.txt',import.meta.url),'utf8'));
+const mixedPrecision=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch12-mixed-precision-training/expected.txt',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
+  boxCount:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -64,7 +65,7 @@ async function auditOrdinaryLayout(container:Locator) {
     const parent=walker.currentNode.parentElement;
     if(!parent||!visible(parent)||!walker.currentNode.textContent?.trim()||parent.closest('.katex,.visually-hidden,pre'))continue;
     const range=document.createRange();range.selectNodeContents(walker.currentNode);
-    for(const rect of range.getClientRects())if(rect.width>0&&(rect.left<box.left-2||rect.right>box.right+2))errors.push('ordinary ink outside its containing box');
+    for(const rect of range.getClientRects())if(rect.width>0&&(rect.left<box.left-2||rect.right>box.right+2)){errors.push('ordinary ink outside its containing box');records.push({kind:'ordinary-text-overflow',text:walker.currentNode.textContent,owner:{tag:element.tagName,id:element.id,box:box.toJSON()},nearestTextParent:{tag:parent.tagName,id:parent.id,text:parent.textContent,box:parent.getBoundingClientRect().toJSON()},inkRect:rect.toJSON()});}
    }
   }
   for(const formula of root.querySelectorAll<HTMLElement>('.katex-display')){
@@ -130,7 +131,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="'+deploymentPath('/en/course/40-')+'"]')).toHaveCount(0);
  await page.goto(deploymentPath('/en/course/39-end-to-end-llm/'));await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -174,12 +175,12 @@ test('Practical orientation @chapter:practical-00-course-structure has the compl
    await expect(row).toHaveAttribute('data-course-chapter-status','planned');await expect(row.locator('em')).toHaveText('Planned.');await expect(row.locator('a,[role="link"]')).toHaveCount(0);
   }
  }
- await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(11);
- await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(21);
+ await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(12);
+ await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(20);
  await expectOnlySharedDiagramClientScript(page);await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
  await expect(page.locator('head link[hreflang="ru"]')).toHaveCount(0);
  await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href',deploymentPath('/ru/'));
- await testInfo.attach('orientation-built-source',{body:JSON.stringify({route:document.path,servedHTMLSHA256:createHash('sha256').update(html).digest('hex'),servedHTMLBytes:new TextEncoder().encode(html).length,servedMatchesBuilt:true,roadmapRows:33,publishedRows:11,plannedRows:21}),contentType:'application/json'});
+ await testInfo.attach('orientation-built-source',{body:JSON.stringify({route:document.path,servedHTMLSHA256:createHash('sha256').update(html).digest('hex'),servedHTMLBytes:new TextEncoder().encode(html).length,servedMatchesBuilt:true,roadmapRows:33,publishedRows:12,plannedRows:20}),contentType:'application/json'});
 });
 
 for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
@@ -232,7 +233,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
@@ -421,17 +422,41 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    await expect(figure.locator('#accelerated-tensor-figure-products annotation[encoding="application/x-tex"]')).toHaveText(['1\\cdot8=8','2\\cdot10=20','3\\cdot12=36']);
    await testInfo.attach('programmatic-accelerated-tensor-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,source:'actual CPU golden stdout',matrix:acceleratedTensor.matrix,sum:acceleratedTensor.sum_axis_1,mean:acceleratedTensor.mean_axis_1,annotations,flow:await flow.ariaSnapshot(),contraction:await figure.locator('#accelerated-tensor-figure-contraction').ariaSnapshot(),figureTitle:await figure.locator('#accelerated-tensor-figure-title').textContent(),figureDescription:await figure.locator('#accelerated-tensor-figure-description').textContent(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
   }
+  else if(lesson.id===ids[12]){
+   await expect(figure).toHaveAttribute('aria-labelledby','mixed-precision-figure-title');
+   await expect(figure).toHaveAttribute('aria-describedby','mixed-precision-figure-description');
+   const forward=figure.locator('section[aria-labelledby="mixed-precision-forward-title"]');
+   await expect(forward.locator('ol > li')).toHaveCount(3);
+   for(const literal of ['f64','FP16','BF16','FP32'])await expect(figure).toContainText(literal);
+   const skip=mixedPrecision.overflow_probe.first_skip;
+   const overflow=figure.locator('section[aria-labelledby="mixed-precision-overflow-title"]');
+   await expect(overflow.locator('code')).toHaveText([String(skip.loss_scale)+' → '+String(skip.next_loss_scale),String(skip.optimizer_step_before)+' → '+String(skip.optimizer_step_after)]);
+   for(const value of await overflow.locator('code').all())await expect(value).toHaveAttribute('dir','ltr');
+   await expect(page.locator('.lesson-body figure.rust-source figcaption')).toHaveCount(5);
+   const defaultCommand='COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch12-mixed-precision-training';
+   const practiceCommands=[];
+   for(const number of [1,3]){
+    const prompt=page.locator('#mixed-precision-practice-'+number),code=prompt.locator('pre > code');
+    await expect(code).toHaveCount(1);
+    const text=await code.textContent();expect(text?.trimEnd()).toBe(defaultCommand);
+    const selected=await code.evaluate(node=>{const range=document.createRange();range.selectNodeContents(node);const selection=window.getSelection();if(!selection)throw Error('Native text selection unavailable');selection.removeAllRanges();selection.addRange(range);const value=selection.toString();selection.removeAllRanges();return value;});
+    expect(selected.trimEnd()).toBe(defaultCommand);practiceCommands.push({number,text,selected});
+   }
+   await testInfo.attach('programmatic-native-practice-commands',{body:JSON.stringify({route:lesson.path,source:'actual native li code and Firefox text selection',practiceCommands}),contentType:'application/json'});
+   await testInfo.attach('programmatic-mixed-precision-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,source:'actual default CPU golden stdout',dtypes:mixedPrecision.dtypes,firstSkip:skip,annotations,figure:await figure.ariaSnapshot(),figureTitle:await figure.locator('#mixed-precision-figure-title').textContent(),figureDescription:await figure.locator('#mixed-precision-figure-description').textContent(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents(),fullViewControls:await page.locator('[data-diagram-full-view-toggle]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})))}),contentType:'application/json'});
+  }
+
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
   test(testLabel+' formula and nearest-box containment '+viewport.width,async({page},testInfo)=>{
    await page.setViewportSize(viewport);await page.goto(lesson.path);await page.locator('article[data-chapter-root] details').evaluateAll(nodes=>nodes.forEach(node=>(node as HTMLDetailsElement).open=true));await page.evaluate(()=>document.fonts.ready);
-   await expectNoPageOverflow(page);const figure=figureFor(page,lesson.figureId),hasFigure=lesson.data.visualization.decision==='useful';
+   const figure=figureFor(page,lesson.figureId),hasFigure=lesson.data.visualization.decision==='useful';
    const diagram=hasFigure?await auditDiagramContainment(figure):null,geometry=hasFigure?await figureGeometry(figure):null;
    if(hasFigure)await expectStackedDiagramText(figure.locator('figcaption'),'h3','.course-diagram__description');
    const layout=await auditOrdinaryLayout(page.locator('main'));
    if(viewport.width<800)await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
    await testInfo.attach('programmatic-geometry',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,state:'inline',answerDetails:'open',viewport,geometry,diagram,layout}),contentType:'application/json'});
-   expect(diagram?.errors??[]).toEqual([]);expect(layout.errors).toEqual([]);
+   await expectNoPageOverflow(page);expect(diagram?.errors??[]).toEqual([]);expect(layout.errors).toEqual([]);
   });
  }
  if(lesson.data.visualization.decision==='useful'){
@@ -496,9 +521,10 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    const geometry=await dialog.evaluate(node=>{const errors:string[]=[],bounds=node.getBoundingClientRect();if(bounds.left<-2||bounds.right>innerWidth+2||bounds.top<-2||bounds.bottom>innerHeight+2)errors.push('dialog outside viewport');if(node.scrollWidth>node.clientWidth+2)errors.push('horizontal dialog overflow');for(const element of node.querySelectorAll<HTMLElement>('dt,dd,.cheat-sheet-term')){const box=element.getBoundingClientRect(),style=getComputedStyle(element);if([style.overflowX,style.overflowY].some(value=>value==='hidden'||value==='clip')||style.textOverflow==='ellipsis')errors.push('concealed term');const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);while(walker.nextNode()){const range=document.createRange();range.selectNodeContents(walker.currentNode);for(const rect of range.getClientRects())if(rect.width>0&&(rect.left<box.left-2||rect.right>box.right+2))errors.push('term ink outside nearest box');}}node.scrollTop=node.scrollHeight;return{errors,reachedEnd:node.scrollTop+node.clientHeight>=node.scrollHeight-2,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight};});
    await testInfo.attach('programmatic-glossary-geometry',{body:JSON.stringify({route:lesson.path,state:'dialog-open',viewport,geometry}),contentType:'application/json'});
    if(lesson.id===ids[6])await testInfo.attach('programmatic-depth-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({ariaLabel:node.getAttribute('aria-label'),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
-   if(lesson.id===ids[7]){
-    expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'configurable-decoder-term-'+(index+1)));
-    await testInfo.attach('programmatic-configurable-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
+   if(lesson.id===ids[7]||lesson.id===ids[12]){
+    const termPrefix=lesson.id===ids[7]?'configurable-decoder-term':'mixed-precision-term';
+    expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>termPrefix+'-'+(index+1)));
+    await testInfo.attach(lesson.id===ids[7]?'programmatic-configurable-glossary-associations':'programmatic-mixed-precision-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
    }
    if(lesson.id===ids[8]){
     expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'dropout-semantics-term-'+(index+1)));

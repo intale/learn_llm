@@ -9,6 +9,7 @@ const cases = [
   { chapter: '00-course-structure', label: 'practical course index', target: 'en/practical-llm-in-rust/' },
   { chapter: '03-scalable-bpe-tokenizer', label: 'Chapter 3', target: 'en/course/03-learn-bpe-merges/' },
   { chapter: '03-scalable-bpe-tokenizer', label: 'Chapter 4', target: 'en/course/04-apply-bpe-tokenizer/' },
+  { chapter: '11-accelerated-tensor-execution', label: 'Chapter 12', target: 'en/practical-llm-in-rust/12-mixed-precision-training/' },
 ] as const;
 
 for (const viewport of [{ width: 1364, height: 900 }, { width: 390, height: 844 }]) {

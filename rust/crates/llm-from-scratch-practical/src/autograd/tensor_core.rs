@@ -711,8 +711,9 @@ impl TensorValueWriteGuard<'_> {
 }
 
 impl TensorValue {
-    /// Returns the internal version of this node's primal value.
-    pub(crate) fn value_revision(&self) -> u64 {
+    /// Returns the primal's version. A committed optimizer update advances it;
+    /// an aborted reverse pass leaves it unchanged.
+    pub fn value_revision(&self) -> u64 {
         self.node.value_revision.get()
     }
 
@@ -1231,6 +1232,17 @@ impl TensorValue {
         retention: GraphRetention,
     ) -> Result<(), TensorAutodiffError> {
         self.backward_with_observer(seed, retention, NoTensorBackwardTrace)
+    }
+
+    /// Seeds the same transactional reverse pass using an explicit executor.
+    /// A scale seed differentiates `scale * loss` without another tape node.
+    pub fn backward_with_seed_and_execution(
+        &self,
+        seed: &TensorView<'_>,
+        retention: GraphRetention,
+        execution: &TensorExecution,
+    ) -> Result<(), TensorAutodiffError> {
+        self.backward_with_observer_and_execution(seed, retention, NoTensorBackwardTrace, execution)
     }
 
     /// Runs a fresh exact-shape reverse pass and records its trace.

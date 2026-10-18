@@ -1,0 +1,486 @@
+---
+{
+  "chapter_id": "12-mixed-precision-training",
+  "content_revision": 1,
+  "order": 12,
+  "concept_id": "mixed-precision-training",
+  "title": "Train with deliberate precision choices",
+  "description": "Inspect FP16 and BF16 rounding in the existing decoder, retain higher-precision weights and reductions, and skip overflowing loss-scaled updates safely.",
+  "objective": "Use explicit half-format matrix arithmetic in the existing decoder and reverse mode, unscale gradients before clipping and AdamW, and explain the state preserved by an overflow skip.",
+  "worked_inputs": "Round halfway values near one and a tiny value in FP16 and BF16; compare the seed-39 ab text fixture with f64; perform two finite scaled updates; deliberately overflow backward after AdamW already has moments, then retry the same scheduled step with a smaller scale.",
+  "formula": {
+    "latex": "\\begin{aligned}\n\\widetilde g&=\\nabla_\\theta(SL),\\\\\ng&=\\widetilde g/S,\\\\\ng_{\\mathrm{clip}}&=g\\min(1,C/\\lVert g\\rVert_2).\n\\end{aligned}",
+    "symbols": [
+      {
+        "symbol": "L",
+        "meaning": "scalar mean next-token negative log likelihood before scaling"
+      },
+      {
+        "symbol": "S",
+        "meaning": "finite positive loss scale, held fixed during one attempted update"
+      },
+      {
+        "symbol": "\\theta",
+        "meaning": "the existing higher-precision master parameters"
+      },
+      {
+        "symbol": "\\widetilde g",
+        "meaning": "scaled parameter gradient produced by reverse mode"
+      },
+      {
+        "symbol": "g",
+        "meaning": "gradient after division by the loss scale"
+      },
+      {
+        "symbol": "C",
+        "meaning": "positive maximum global gradient norm"
+      },
+      {
+        "symbol": "g_{\\mathrm{clip}}",
+        "meaning": "unscaled gradient passed to AdamW after enforcing the maximum global norm, with zero gradient left zero"
+      }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "FP16 saves representation bits but can erase small updates and gradients or overflow; choosing a lower dtype for every operation does not address those failures.",
+      "later_advance": "BF16 provides a wider exponent range than FP16, while using fewer fraction bits; the precision choice must still match the numerical operation.",
+      "modern_llm_role": "Decoder projections, attention products and their adjoints reuse matrix operations whose representation and accumulation precision affect training.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2017,
+          "name": "Mixed Precision Training",
+          "source_url": "https://arxiv.org/html/1710.03740v3",
+          "claim": "Micikevicius and colleagues' 2017 paper, Mixed Precision Training, describes FP16 training with FP32 master weights, loss scaling and FP32 accumulation, including language-model experiments."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "A Study of BFLOAT16 for Deep Learning Training",
+          "source_url": "https://arxiv.org/abs/1905.12322",
+          "claim": "Kalamkar and colleagues' 2019 BF16 study examines training across tasks including language modeling, emphasizing BF16's FP32-like exponent range."
+        }
+      ]
+    },
+    "approach": "Keep the existing f64 implementation as a numerical reference and use the half library to round matrix operands and results, with f32 accumulation and existing f64 protected operations and optimizer state.",
+    "summary": "A precision policy selects where rounding occurs; a loss-scale controller governs whether the shared update commits. The bounded CPU fixture establishes numerical behavior, not hardware speed or language-model quality.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/tensor/precision.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/tensor/precision.rs",
+      "region": "matmul-precision",
+      "purpose": "Declare actual matrix rounding and accumulation choices using the half library while preserving f64 host storage."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/training/trainer.rs",
+      "region": "scaled-decoder-update",
+      "purpose": "Enter the shared decoder update with explicit execution, a loss scale and cleared gradients."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/training/loss_scaling.rs",
+      "region": "dynamic-loss-scale",
+      "purpose": "Track bounded scale backoff and growth after skipped or committed updates."
+    },
+    {
+      "path": "rust/demos/practical-ch12-mixed-precision-training/src/lib.rs",
+      "region": "overflow-skip-fixture",
+      "purpose": "Observe preserved populated AdamW state and retries of the same scheduled update after numerical overflow."
+    },
+    {
+      "path": "rust/demos/practical-ch12-mixed-precision-training/src/main.rs",
+      "purpose": "Pass clap's precision choice to the existing CPU numerical demonstration."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "mixed-precision-training",
+    "component": "MixedPrecisionTrainingDiagram",
+    "rationale": "Follow master weights through matrix rounding and protected loss computation, then distinguish the finite update path from the state-preserving overflow branch."
+  },
+  "decoder_connection": "The existing text encoder, source-independent transformer and tied output head now use an explicit matrix precision policy. Chapter 13 will cover gradient accumulation and activation recomputation; this chapter retains a CPU numerical reference and does not add a CUDA mixed-precision kernel."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import MixedPrecisionTrainingDiagram from "../../../components/chapters/MixedPrecisionTrainingDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="mixed-precision-worked-example">
+
+## The problem: a small gradient can disappear
+
+The decoder's matrix products carry activations and gradients through many
+layers. Using fewer bits for those values can reduce memory traffic and make
+supported hardware arithmetic faster, but it also changes which numbers survive.
+A useful backward signal may round to zero before AdamW ever sees it. A large
+signal may become infinity instead. Moving an operation to a GPU does not solve
+either numerical problem.
+
+Start with a tiny gradient equal to $2^{-25}$. In FP16, the smallest positive
+subnormal value is $2^{-24}$. Our value lies halfway between zero and that value;
+rounding to nearest with ties to even gives zero. Multiplying by a loss scale
+$S=128$ first gives $2^{-18}$, which FP16 can represent. Dividing the surviving
+gradient by $128$ afterward recovers the tiny value in higher precision. Scaling
+after it has rounded to zero would preserve only zero.
+
+This chapter extends the same matrix product, reverse pass and decoder update.
+The CPU example rounds matrix operands and results to FP16 or BF16 and
+accumulates matrix products in FP32. It keeps the existing `f64` master weights,
+AdamW moments and non-matrix operations. All tensor buffers still contain
+`f64` values: this is an inspectable numerical reference, with no demonstrated
+storage saving or speedup. The existing CUDA path remains `f64`; requesting a
+mixed CUDA policy returns an explicit error.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="mixed-precision-formula">
+
+## Scale backward, then unscale before clipping
+
+Let $L$ be the scalar mean next-token negative log likelihood, $\theta$ the
+master parameters and $S$ a finite positive scale fixed for one attempt.
+Ignoring rounding for the moment, the exact-arithmetic chain rule gives
+
+$$
+\begin{aligned}
+\widetilde g&=\nabla_\theta(SL),\\
+g&=\widetilde g/S,\\
+g_{\mathrm{clip}}&=g\min(1,C/\lVert g\rVert_2).
+\end{aligned}
+$$
+
+$\widetilde g$ is the scaled parameter gradient; $g$ is its unscaled value,
+and $g_{\mathrm{clip}}$ is the gradient passed to AdamW. The notation
+$\nabla_\theta$ means the gradient with respect to all master parameters, and
+$\lVert g\rVert_2$ is their global Euclidean gradient norm.
+$C$ is the positive maximum allowed norm. When the norm is zero,
+leave the zero gradient unchanged. Otherwise the last line limits the norm
+to $C$. The global norm includes all named parameter gradients, counting the
+tied embedding/output table once.
+
+For a one-coordinate scaled gradient of $8$, scale $4$ and norm limit $1$,
+unscale to $2$, measure norm $2$, then clip to $1$. Clipping $8$ to $1$
+before division would produce $0.25$ instead. That would change the gradient
+passed to AdamW. Loss scaling also leaves AdamW's decoupled weight decay
+unscaled.
+
+Represented computation does not cancel the scale perfectly. Rounding occurs
+inside backward, and a larger scale can move a signal away from zero or into
+overflow. The scale cannot restore a forward activation already lost to
+rounding. The numerical policy and the update decision must therefore be
+observable separately.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="mixed-precision-representations">
+
+## Choose the representation at each operation
+
+Both formats use sixteen bits, including a sign bit. FP16 has five exponent
+bits and ten explicit fraction bits; BF16 has eight and seven. The exponent
+controls range, while fraction bits control spacing within a magnitude range.
+Around one, the next FP16 value is $1+2^{-10}$ and the next BF16 value is
+$1+2^{-7}$. Thus BF16 spans a wider range but has coarser spacing there.
+The halfway inputs $1+2^{-11}$ for FP16 and $1+2^{-8}$ for BF16 both round
+to $1$ under ties-to-even conversion. BF16 preserves $2^{-25}$ in this
+fixture, whereas FP16 rounds it to zero. Neither format represents arbitrary
+real numbers exactly.
+
+For one matrix output cell, let $a_k$ and $w_k$ be its paired input values,
+and let $K$ count contracted features. For $K>0$, the zero-based index $k$
+runs from $0$ through $K-1$. Write $Q_h$ for rounding to the chosen half
+format $h$ and $\operatorname{RN}_{32}$ for FP32 rounding. Let $p_k$ be the rounded
+product for input pair $k$, $s_k$ the FP32 running sum after $k$ paired
+products and $y$ the represented output value.
+The CPU policy is
+
+$$
+s_0=0.
+$$
+
+$$
+p_k=\operatorname{RN}_{32}\!\left(Q_h(a_k)Q_h(w_k)\right).
+$$
+
+$$
+s_{k+1}=\operatorname{RN}_{32}(s_k+p_k).
+$$
+
+$$
+y=Q_h(s_K).
+$$
+
+The loop visits $k$ in ascending order; when $K=0$, the empty contraction
+returns zero. The rounded result $y$ is then widened exactly into an `f64`
+tensor slot. FP32 accumulation protects the running sum
+from repeated half rounding; it cannot repair rounded inputs or prevent the
+final half result from overflowing. The default `f64` policy retains the
+original contraction.
+
+Softmax, RMSNorm, general reductions, residual arithmetic and parameter-gradient
+accumulation retain their existing `f64` implementations. A half-precision
+matrix product inside those larger computations still follows the selected
+matrix policy. The trace distinguishes this limited policy from a model whose
+every activation and operation uses a half dtype.
+
+A master weight is the higher-precision value AdamW updates. In the fixture,
+subtracting $0.0001$ from an `f64` master initialized to $1$ produces the
+displayed value $0.9999$, while its FP16 copy still rounds to $1$.
+Later updates can accumulate in the master even when an individual rounded
+copy does not change. We retain `f64` masters here;
+FP32 masters are common in the historical method discussed below.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="mixed-precision-rust">
+
+## Extend the existing numerical and update paths
+
+`MatmulPrecision` delegates format conversion to the
+[half library](https://docs.rs/half/2.7.1/half/). `TensorExecution::cpu_with_precision`
+selects the matrix policy explicitly. The existing checked matrix plan still
+owns shapes, broadcasting, views and transposes. No new tensor shape checker or
+floating-point codec is needed.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/precision.rs"
+  region="matmul-precision" captionId="mixed-precision-rust-policy"
+  caption="Select half-format rounding and FP32 accumulation while retaining f64 tensor storage."
+  label="Rust source: FP16/BF16 rounding, FP32 accumulation and f64 tensor storage" />
+
+Each matrix operation saves its precision on the existing tape. Its pullback
+uses the recorded policy, including when ordinary CPU `backward()` is called.
+The matrix derivative is evaluated with represented operands; casts are treated
+as identity paths for training. This is the usual training approximation,
+not the mathematical derivative of the discontinuous rounding function.
+The text encoder, shared transformer and tied text head keep their existing
+composition; precision introduces no tokenizer requirement into the backbone.
+
+`decoder_update_with_loss_scaling` enters the existing update owner. It supplies
+a recording context with the selected execution and starts backward with seed
+$S$. This differentiates $SL$ without adding a separate multiplication node.
+The shared norm calculation uses gradients divided by $S$, and the existing
+AdamW gradient transform applies unscale and clipping to moment inputs. Raw
+stored gradients need no intermediate rewrite.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/trainer.rs"
+  region="scaled-decoder-update" captionId="mixed-precision-rust-update"
+  caption="Pass execution and scale into the existing decoder update, starting from cleared gradients."
+  label="Rust source: shared decoder update with explicit execution, loss scale and cleared initial gradients" />
+
+The scaled entry requires zero initial gradients. Otherwise a new scale could
+be applied to previously accumulated work that used another scale. A dirty
+gradient, stale tape, shape error or unavailable backend is an error to fix;
+it is not reported as an overflow skip.
+
+The existing backward pass stages all local pullbacks and gradient additions
+before writing parameter gradients. If one becomes nonfinite, it returns a
+numerical error without committing those writes. The scaled update turns that
+specific failure into `Skipped`, halves the scale and returns before AdamW.
+Weights, gradients, parameter revisions, moments, beta powers and optimizer
+step remain unchanged. No weight decay is applied, and no learning-rate-schedule
+step is consumed. A skip therefore differs from an AdamW step with zero
+gradients, which can still decay weights and advance optimizer state.
+This does not undo arbitrary side effects inside a caller's
+forward function or observer.
+
+The controller accepts finite power-of-two scales of at least $1$, with a
+minimum, maximum and positive growth interval. After that many committed finite
+updates, it doubles the scale up to its maximum. An overflow resets the count
+and halves the scale down to its minimum. At the minimum, a persistent overflow
+still returns a skip; the caller must decide whether to retry or stop.
+There is no unbounded automatic
+retry loop in the trainer.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/loss_scaling.rs"
+  region="dynamic-loss-scale" captionId="mixed-precision-rust-scaler"
+  caption="Track bounded loss-scale backoff and growth as run state, independent of learned weights."
+  label="Rust source: bounded dynamic loss-scale state" />
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="mixed-precision-history">
+
+## From FP16 range problems to deliberate mixed precision
+
+FP16 saves representation bits but can erase small updates and gradients or
+overflow; choosing a lower dtype for every operation does not address those
+failures. Micikevicius and colleagues' 2017 paper,
+[Mixed Precision Training](https://arxiv.org/html/1710.03740v3), describes FP16
+training with FP32 master weights, loss scaling and FP32 accumulation, including
+language-model experiments.
+
+BF16 provides a wider exponent range than FP16, while using fewer fraction bits;
+the precision choice must still match the numerical operation. Kalamkar and
+colleagues' [2019 BF16 study](https://arxiv.org/abs/1905.12322) examines training
+across tasks including language modeling, emphasizing BF16's FP32-like exponent range.
+
+Our Rust contrast is narrower: run the same decoder under both half-format
+matrix policies and the retained `f64` reference, then inspect an overflowing
+update. It illustrates numerical mechanisms with existing `f64` masters and
+protected operations. It does not reproduce either paper's training results
+or demonstrate accelerated mixed-precision GPU training.
+
+Decoder projections, attention products and their adjoints reuse matrix
+operations whose representation and accumulation precision affect training.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="mixed-precision-visualization">
+
+## Follow the values and the update decision
+
+export const mixedPrecisionLabels = {
+  title: "One model, two update outcomes",
+  description: "The same f64 master weights supply rounded FP16 or BF16 matrix operands. Matrix products accumulate in FP32, while protected loss computation stays f64. Scaled backward uses the recorded matrix policy. Finite gradients are unscaled and clipped before f64 AdamW commits; an overflow skips AdamW, preserves weights, gradients, revisions, moments, beta powers and the step, and backs off the scale within its bounds for a later attempt.",
+  forwardTitle: "Forward computation from the existing master weights",
+  masterTitle: "1. Retain the masters",
+  masterBody: "AdamW updates f64 parameter values and keeps f64 moments. Rounding a matrix operand does not overwrite its master weight.",
+  matrixTitle: "2. Round matrix values",
+  matrixBody: "Use FP16 or BF16 transient operands, FP32 products and accumulation, then round the matrix result to the chosen half format. Store that represented result in an f64 tensor slot.",
+  protectedTitle: "3. Protect the loss calculation",
+  protectedBody: "Keep non-matrix operations, including softmax and general reductions, in f64. The scalar next-token loss supplies the starting point for reverse mode.",
+  reverseTitle: "Scaled backward leads to one of two outcomes",
+  reverseBody: "Seed the existing reverse pass with the loss scale. Matrix pullbacks retain their forward precision; parameter-gradient additions are staged before any commit.",
+  finiteTitle: "Finite backward: unscale, clip, update",
+  finiteBody: "The shared update divides gradients by the loss scale before norm measurement and clipping. Existing f64 AdamW commits once and advances the optimizer step; the shared update then clears gradients and counts the commit toward scale growth.",
+  overflowTitle: "Nonfinite backward: preserve state and skip",
+  overflowBody: "Abort the gradient transaction before AdamW. Preserve masters, gradients, revisions, moments, beta powers and step count; halve the scale within its bounds and reset the growth interval.",
+  recordedSkip: "The bounded FP16 probe starts after optimizer step 1, with populated moments.",
+  scaleChange: "First skipped attempt changes the loss scale:",
+  stepPreserved: "The optimizer step stays unchanged:",
+};
+
+<MixedPrecisionTrainingDiagram labels={mixedPrecisionLabels} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="mixed-precision-exercises">
+
+## Reproduce and inspect the bounded examples
+
+The existing `clap` CLI passes the selected precision to the CPU numerical
+demonstration.
+
+<RustSource path="rust/demos/practical-ch12-mixed-precision-training/src/main.rs"
+  captionId="mixed-precision-rust-entrypoint"
+  caption="Use the existing clap CLI to pass the selected precision to the CPU numerical example."
+  label="Rust source: clap precision selection passed to the CPU numerical demonstration" />
+
+From the repository root, with the course Docker setup available, run the default
+FP16 CPU example. It needs no GPU, external corpus or downloaded model:
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch12-mixed-precision-training
+```
+
+The command prints one JSON record. Its `dtypes` object reports actual host
+storage and matrix arithmetic separately. `representation` records the rounding
+examples. `finite_updates` contains two committed updates, growing scale from
+$128$ to $256$ after the second. `text_reference` compares the existing
+seed-39 `ab` model against `f64`, retaining $20$ named gradient tensors,
+$1372$ learned scalars and the tied input/output table.
+
+The `overflow_probe` first commits a warm-up update so AdamW already has
+moments, then deliberately starts a separate scale controller at $16777216$.
+Its first skip halves that scale to $8388608$ and keeps optimizer step $1$.
+The fixture checks all preserved state on each skip and retries scheduled
+step $2$, allowing at most $32$ attempts. The recorded run skips $8$ attempts,
+then commits that same step at scale $65536$ and clears gradients.
+These are numerical examples, not evidence of a trained language model's quality.
+
+Use the same setup and working directory to inspect BF16, then select the
+chapter's four focused reproduction tests:
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch12-mixed-precision-training -- --precision bf16
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch12-mixed-precision-training
+```
+
+The BF16 command prints the same record structure with the selected matrix
+dtype changed; the deliberately overflowing probe remains explicitly FP16.
+The test command should report four passing library tests. They cover
+preserved populated optimizer state with a successful retry,
+both half formats through the existing text model, agreement with the original
+clipped update under scaled `f64` arithmetic, and refusal of structural errors
+and dirty gradients.
+
+<RustSource path="rust/demos/practical-ch12-mixed-precision-training/src/lib.rs"
+  region="overflow-skip-fixture" captionId="mixed-precision-rust-overflow"
+  caption="Compare model and optimizer state from before the attempted update with state after its overflow skip, then retry the same scheduled update."
+  label="Rust source: compare preserved model and optimizer state after an overflow skip, then retry the same scheduled update" />
+
+<ol id="mixed-precision-practice-prompts">
+  <li id="mixed-precision-practice-1">
+
+With the course Docker setup available, run from the repository root:
+
+```text
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch12-mixed-precision-training
+```
+
+Inspect the dtype record. Explain why half-format matrix arithmetic does not imply that the host tensors use two bytes per element.
+
+  </li>
+  <li id="mixed-precision-practice-2">Work through the explained scaled-gradient example: gradient <InlineMath latex="8" />, scale <InlineMath latex="4" /> and norm limit <InlineMath latex="1" />. State the gradient passed to AdamW and why unscaling must precede clipping.</li>
+  <li id="mixed-precision-practice-3">
+
+With the course Docker setup available, run from the repository root:
+
+```text
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch12-mixed-precision-training
+```
+
+Inspect <code>overflow_probe</code> in the JSON output. Identify the state preserved on its first skip and the scheduled step used by its successful retry.
+
+  </li>
+</ol>
+
+<details id="mixed-precision-practice-answers">
+<summary id="mixed-precision-answer-summary">Checked explanations for storage, clipping order and skipped updates</summary>
+<ol>
+  <li id="mixed-precision-answer-1">The represented operands and matrix result use FP16 or BF16 rounding, and matrix products accumulate in FP32. Their containing tensor buffers remain <code>Vec&lt;f64&gt;</code>. Master weights, moments and protected operations also remain <code>f64</code>. The example therefore demonstrates rounding behavior without compact tensor storage.</li>
+  <li id="mixed-precision-answer-2">For a scaled gradient of <InlineMath latex="8" />, loss scale <InlineMath latex="4" /> and clipping norm limit <InlineMath latex="1" />, divide <InlineMath latex="8" /> by <InlineMath latex="4" /> to obtain <InlineMath latex="2" />, measure norm <InlineMath latex="2" />, then clip to <InlineMath latex="1" />. Clipping before division would yield <InlineMath latex="0.25" /> and change the AdamW moment input.</li>
+  <li id="mixed-precision-answer-3">The first skip leaves weight and gradient bits, parameter revisions, AdamW moments, beta powers and optimizer step <InlineMath latex="1" /> intact. Only loss-scale run state backs off and resets its growth interval. Retrying scheduled step <InlineMath latex="2" /> eventually commits optimizer step <InlineMath latex="2" />; skipped attempts apply neither weight decay nor a scheduled update.</li>
+</ol>
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="mixed-precision-handoff">
+
+## Carry numerical policy into larger batches
+
+The existing text encoder, source-independent transformer and tied head now
+share a recorded matrix precision policy. Matrix precision and loss scale are
+run choices. Selecting them leaves the master parameters and logical model
+architecture unchanged. A committed AdamW update changes the master parameter values.
+CPU inference remains available, and native mixed-precision CUDA execution
+requires a later primitive implementation and its own validation.
+
+Chapter 13 will cover gradient accumulation and activation recomputation. Combining gradients
+from several contributions must preserve their intended normalization and
+scale. This chapter deliberately requires cleared gradients for each scaled
+update; it does not yet implement that accumulation policy. Portable model
+saving and loading remain in Chapter 15.
+
+</div>

@@ -1,3 +1,4 @@
-article[data-chapter-id="11-accelerated-tensor-execution"] .lesson-body p > code {
+article[data-chapter-id="11-accelerated-tensor-execution"] .lesson-body p > code,
+article[data-chapter-id="12-mixed-precision-training"] .lesson-body p > code {
   overflow-wrap: anywhere;
 }

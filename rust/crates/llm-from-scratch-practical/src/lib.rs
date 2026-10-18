@@ -44,6 +44,7 @@ pub mod models {
 pub mod training {
     pub mod adamw;
     pub mod batch;
+    pub mod loss_scaling;
     pub mod packed_batch;
     pub mod packer;
     pub mod sequence_example;
@@ -80,6 +81,7 @@ pub mod tensor {
     pub mod execution;
     pub mod matmul;
     pub mod ops;
+    pub mod precision;
     pub mod storage;
     pub mod view;
 }

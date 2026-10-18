@@ -1045,7 +1045,7 @@ impl DecoderModel {
         context: AutogradContext,
     ) -> CoreIdentity {
         if let Some(id) = self.execution_identity.borrow().as_ref() {
-            return id.clone();
+            return Self::bind_precision_run(id.clone(), context);
         }
         // Legacy entry points have no persisted run/artifact receipt. Their
         // descriptive identities never replace the actual live node bindings.
@@ -1093,12 +1093,32 @@ impl DecoderModel {
         )
         .and_then(|v| v.digest())
         .expect("bounded entry metadata");
-        CoreIdentity {
-            semantic_sha256: semantic.to_string(),
-            run_sha256: run.to_string(),
-            construction_id: "legacy-live-nodes-no-artifact".into(),
-            max_rows: usize::MAX,
+        Self::bind_precision_run(
+            CoreIdentity {
+                semantic_sha256: semantic.to_string(),
+                run_sha256: run.to_string(),
+                construction_id: "legacy-live-nodes-no-artifact".into(),
+                max_rows: usize::MAX,
+            },
+            context,
+        )
+    }
+
+    fn bind_precision_run(mut identity: CoreIdentity, context: AutogradContext) -> CoreIdentity {
+        let precision = context.execution().matmul_precision();
+        if precision != crate::tensor::precision::MatmulPrecision::F64 {
+            identity.run_sha256 = crate::artifact_identity::ArtifactIdentity::new(
+                "decoder-matmul-precision-run-v1",
+                [
+                    ("base-run-sha256", identity.run_sha256.as_str()),
+                    ("matmul-precision", precision.as_str()),
+                ],
+            )
+            .and_then(|v| v.digest())
+            .expect("bounded precision run metadata")
+            .to_string();
         }
+        identity
     }
 
     /// Computes one mean next-token loss over the vocabulary axis.
