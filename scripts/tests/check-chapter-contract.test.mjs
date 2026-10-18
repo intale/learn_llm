@@ -103,17 +103,24 @@ test('first-course orientation and low-numbered lesson keep their historical sch
   validateChapterContractText(contractSource(first, '01-text-units'));
 });
 
-test('practical orientation is course-scoped and has no formula, Rust sample or diagram', () => {
+test('practical orientation is course-scoped with one useful map and no formula or Rust sample', () => {
   const id = practical.orientationChapterId;
   const parsed = lesson(practical, id);
   assert.equal(parsed.data.formula, null);
   assert.deepEqual(parsed.data.rust_sources, []);
   assert.equal(parsed.data.history.rust_source, null);
-  assert.equal(parsed.data.visualization.decision, 'not-useful');
+  assert.equal(parsed.data.visualization.decision, 'useful');
+  assert.equal(parsed.data.visualization.id, 'practical-llm-system-map');
+  assert.equal(parsed.data.visualization.component, 'PracticalLlmSystemDiagram');
+  assert.deepEqual(parsed.data.visualization.supplementary ?? [], []);
   assert.equal(contract(practical, id).data.rust, null);
   assert.throws(() => validateChapterDocument(source(practical, id), { checkSourceFiles: false }), /orientation/);
   assert.throws(() => validateChapterContractText(contractSource(practical, id)), /orientation/);
   for (const change of [
+    parsed => { parsed.data.visualization = {decision: 'not-useful', id: null, rationale: 'Missing required course map.'}; },
+    parsed => { parsed.data.visualization.id = 'llm-system-map'; },
+    parsed => { parsed.data.visualization.component = 'LlmSystemDiagram'; },
+    parsed => { parsed.data.visualization.supplementary = [{id: 'extra-map', component: 'ReferenceCoreHandoffDiagram'}]; },
     parsed => { parsed.data.formula = { latex: 'x' }; },
     parsed => { parsed.data.history.rust_source = 'rust/demos/practical-ch01-reference-core-handoff/src/lib.rs'; },
     parsed => { parsed.data.rust_sources = [{ path: 'rust/crates/llm-from-scratch-practical/src/lib.rs', purpose: 'Fixture.' }]; },

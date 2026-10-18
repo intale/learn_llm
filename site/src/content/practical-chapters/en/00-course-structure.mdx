@@ -3,151 +3,353 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
-  "description": "Follow the practical Rust model from its published foundations to planned CUDA training, portable saved weights and local CPU inference.",
-  "objective": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs.",
-  "worked_inputs": "Trace the path from a fixed reference experiment, prepared documents and extended BPE through batching and decoder configuration to the planned training and inference chapters.",
+  "description": "Connect the practical text model's data, learning, generation and saved state, then follow every published and planned chapter from 0 to 32.",
+  "objective": "Understand how the practical course extends one complete text model, connect its data, model, learning, generation and saved state, and locate every published or planned chapter.",
+  "worked_inputs": "Trace prepared text through tokenization, document-aware batches, the text encoder, causal transformer and tied text head; follow learning and generation feedback, then place Chapters 0–32 on the roadmap.",
   "formula": null,
   "history": {
     "approach": "The first course builds the mechanisms of a small causal language model.",
-    "summary": "This course starts from that completed implementation and studies how its data handling, execution, training and inference must change for larger workloads.",
+    "summary": "This course starts from that completed implementation and extends its data handling, numerical execution, training and inference while keeping one connected model as the subject.",
     "rust_source": null
   },
   "rust_sources": [],
   "visualization": {
-    "decision": "not-useful",
-    "id": null,
-    "rationale": "The chapter list maps the first lessons to their purposes, and the roadmap table locates the later learning topics. Together they provide the navigation this orientation needs."
+    "decision": "useful",
+    "id": "practical-llm-system-map",
+    "component": "PracticalLlmSystemDiagram",
+    "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and planned saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
   },
-  "decoder_connection": "The course extends a separate copy of the completed causal decoder. Chapter 10 will implement the input-encoding boundary used by that text model: the encoder will supply embedding vectors to a shared transformer, and a text output head will map its hidden features to token logits. Text will be the course's sole encoder and output-head example. Later chapters will extend the composed model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
+  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; planned Chapters 12–32 extend numerical training, persistence, evaluation, inference and adaptation."
 }
 ---
 
+import { getCollection } from "astro:content";
+import { localePath } from "../../../i18n";
+import { findPublishablePracticalChapterSets } from "../../../lib/course-build";
+import { practicalCourse } from "../../../lib/course-configuration";
+import PracticalLlmSystemDiagram from "../../../components/chapters/PracticalLlmSystemDiagram.astro";
+
+export const publishedChapterSets = findPublishablePracticalChapterSets(await getCollection("practicalChapters"));
+
+export const publishedChapterByNumber = new Map(publishedChapterSets.map((chapterSet) => [chapterSet.reference.data.order, chapterSet]));
+
+export const practicalChapter = (number) => {
+  const chapterSet = publishedChapterByNumber.get(number);
+  if (!chapterSet) throw new Error(`Practical orientation cannot link unpublished Chapter ${number}`);
+  return chapterSet.byLocale[practicalCourse.referenceLocale] ?? chapterSet.reference;
+};
+
+export const chapterHref = (number) => {
+  const chapter = practicalChapter(number);
+  return localePath(chapter.data.locale, `/${practicalCourse.route}/${chapter.data.chapter_id}/`);
+};
+
+export const diagramLabels = {
+  title: "One text model, two uses of its scores",
+  description: "Prepared documents become document-aware token batches. Embedding lookup in the text encoder turns input IDs into vectors; the causal transformer turns those vectors into hidden features; the tied text head uses the same embedding table to produce vocabulary scores. Learning compares scores with observed targets and updates the model's weights through loss, gradients and an optimizer. Generation uses those same weights, returns a chosen token ID to embedding lookup and reuses compatible cached attention state. Numerical execution supports both paths; planned saving and loading preserve the composed model for later inference.",
+  forwardTitle: "The shared forward path",
+  forwardRelationship: "Prepared text supplies token batches; encoding, transformation and the text head produce next-token scores in that order.",
+  forward: [
+    {
+      id: "data",
+      title: "Prepared text and batches",
+      description: "Tokenize documents and arrange examples without joining unrelated contexts.",
+      chapters: "Chapters 2–5",
+    },
+    {
+      id: "text-encoder",
+      title: "Text encoder",
+      description: "Embedding lookup turns input token IDs into vectors with positions and attention layout.",
+      chapters: "Chapter 10",
+    },
+    {
+      id: "transformer",
+      title: "Causal transformer",
+      description: "Repeated decoder blocks transform vectors into hidden features using the permitted prefix.",
+      chapters: "Chapters 6–10",
+    },
+    {
+      id: "text-head",
+      title: "Tied text head",
+      description: "The text head reuses the input embedding lookup table to map hidden features to one score per vocabulary token.",
+      chapters: "Chapter 10",
+    },
+  ],
+  branchesTitle: "Learning and generation use that forward path",
+  branches: [
+    {
+      id: "learning",
+      title: "Learning changes weights",
+      description: "Scores and observed targets give loss; gradients and the optimizer change the model weights.",
+      feedback: "Updated weights feed the next forward calculation.",
+      chapters: "Planned extensions: Chapters 13–14, 23–25",
+    },
+    {
+      id: "generation",
+      title: "Generation extends a sequence",
+      description: "A decoding policy chooses a token from the scores.",
+      feedback: "The chosen token ID returns to embedding lookup for the next cached decoder step.",
+      chapters: "Planned extensions: Chapters 18–22, 26–27, 29–30",
+    },
+  ],
+  supportTitle: "Execution and state support the same model",
+  support: [
+    {
+      id: "execution",
+      title: "Numerical execution",
+      description: "CPU/CUDA matrix and reduction primitives support forward and backward. Precision and memory changes come later.",
+      chapters: "Chapter 11; planned extensions: Chapters 12–14",
+    },
+    {
+      id: "saved-state",
+      title: "Save and load the composition — planned",
+      description: "Preserve the model, weights, settings and tokenizer for later inference. Exact training resume needs additional state.",
+      chapters: "Planned: Chapter 15",
+    },
+  ],
+};
+
+export const roadmapLabels = {
+  chapter: "Chapter",
+  current: "You are here",
+  published: "Published",
+  planned: "Planned",
+};
+
+export const roadmap = [
+  {
+    title: "Establish the reference and the data path",
+    first: 0,
+    chapters: [
+      { number: 0, purpose: "Connect the model's roles and find each step in the practical course." },
+      { number: 1, purpose: "Fix the small reference experiment's inputs and results before extending its decoder." },
+      { number: 2, purpose: "Separate external text preparation from Rust loading while retaining document and split identity." },
+      { number: 3, purpose: "Extend byte-pair encoding (BPE) with bounded ingestion, local pair updates and ranked application of learned merges." },
+      { number: 4, purpose: "Batch unequal examples while excluding padding from context, targets and mean loss." },
+      { number: 5, purpose: "Place examples together in storage while keeping each example's causal context and loss contribution separate." },
+    ],
+  },
+  {
+    title: "Make the model and its execution explicit",
+    first: 6,
+    chapters: [
+      { number: 6, purpose: "Scale fresh residual projection weights for decoder depth and inspect activations and gradients before training." },
+      { number: 7, purpose: "Check dimensions and resource plans before constructing one core shared by full and cached text paths." },
+      { number: 8, purpose: "Distinguish training from evaluation and preserve saved-mask gradients and local random replay." },
+      { number: 9, purpose: "Identify refused operations and the model, optimizer or checkpoint state preserved by each failure boundary." },
+      { number: 10, purpose: "Compose the implemented text encoder, source-independent backbone and tied head while preserving values and gradients." },
+      { number: 11, purpose: "Select CPU or CUDA for existing matrix products and sum/mean reductions used by the shared model and reverse mode." },
+    ],
+  },
+  {
+    title: "Extend numerical training and preserve its results",
+    first: 12,
+    chapters: [
+      { number: 12, title: "Mixed precision", planned: true, purpose: "Study lower-precision values, protected reductions, loss scaling and the state preserved when an overflowing update is skipped." },
+      { number: 13, title: "Gradient accumulation and activation recomputation", planned: true, purpose: "Combine smaller training batches with the correct token denominator, and trade saved activations for recomputation with matching randomness." },
+      { number: 14, title: "Optimizer schedules and gradient clipping", planned: true, purpose: "Extend AdamW with warmup, decay and global gradient-norm clipping in an explicit update order." },
+      { number: 15, title: "Save, load, and resume a model", planned: true, purpose: "Save the composed model, exit and load it for local inference; then restore the additional state needed for training resume." },
+      { number: 16, title: "Language-model evaluation", planned: true, purpose: "Compare training and held-out loss, a simple baseline and seed variation to bound conclusions about overfitting and quality." },
+      { number: 17, title: "Weight quantization", planned: true, purpose: "Represent weights with scales and rounding, then compare storage and numerical error using a portable dequantization path." },
+    ],
+  },
+  {
+    title: "Extend attention, caches and token selection",
+    first: 18,
+    chapters: [
+      { number: 18, title: "Grouped-query attention and context masks", planned: true, purpose: "Share key/value heads among query heads and preserve the intended causal or windowed context in full and cached computation." },
+      { number: 19, title: "Online and tiled attention", planned: true, purpose: "Accumulate attention through running normalization and tiles, comparing outputs and memory use with reference attention." },
+      { number: 20, title: "Paged key/value-cache layout", planned: true, purpose: "Map logical token positions to cache pages, account for unused storage and preserve cached model scores." },
+      { number: 21, title: "Sampling distributions", planned: true, purpose: "Transform next-token probabilities with top-p selection, repetition penalties and allowed-token masks, keeping processor order explicit." },
+      { number: 22, title: "Batched autoregressive inference", planned: true, purpose: "Generate unequal sequences together while retaining each row's positions, masks, cache and token decisions." },
+    ],
+  },
+  {
+    title: "Adapt the same model and complete a local workflow",
+    first: 23,
+    chapters: [
+      { number: 23, title: "Response-masked SFT and LoRA", planned: true, purpose: "Use response-only supervised fine-tuning (SFT) and low-rank adaptation (LoRA), tracing adapter gradients while base weights stay frozen." },
+      { number: 24, title: "Direct preference optimization", planned: true, purpose: "Use chosen and rejected response probabilities from policy and reference models to explain a preference loss and its gradients." },
+      { number: 25, title: "LoRA over a quantized base", planned: true, purpose: "Combine the existing quantization and adapter paths, exposing dequantization and gradients without updating the frozen base." },
+      { number: 26, title: "Prefix key/value-cache reuse", planned: true, purpose: "Reuse prepared-prefix state only when encoding, layout, model, adapter and position identities remain compatible." },
+      { number: 27, title: "RoPE and context scaling", planned: true, purpose: "Extend rotary position embeddings (RoPE) with explicit rotation and context-scaling choices, keeping position changes distinct from learned weights." },
+      { number: 28, title: "Local training and adaptation capstone", planned: true, purpose: "Connect training or adaptation, saving, loading, resuming, evaluation, quantization and generation in one bounded local workflow." },
+    ],
+  },
+  {
+    title: "Study further decoding and model mathematics",
+    first: 29,
+    chapters: [
+      { number: 29, title: "Beam search", planned: true, purpose: "Expand and prune candidate sequences using cumulative scores while keeping each branch's cache consistent." },
+      { number: 30, title: "Speculative verification", planned: true, purpose: "Use fixed proposals to trace acceptance and correction probabilities with the target decoder, without inferring a speedup." },
+      { number: 31, title: "Distributed-training mathematics", planned: true, purpose: "Explain sharding, normalized gradient aggregation, ring collectives and pipeline occupancy through bounded local examples." },
+      { number: 32, title: "Mixture-of-experts mathematics", planned: true, purpose: "Reuse feed-forward blocks to study routing, expert capacity, weighted outputs and load-balancing gradients in a tiny model." },
+    ],
+  },
+];
+
 {/* chapter-section:overview */}
 
-## Start from a working model
+## Extend a complete model to larger workloads
 
-This course starts from a working language model and studies what must change as
-the data, model and workload grow. The starting implementation is a separate
-copy of the model completed in *LLM from scratch*. It already contains byte-pair
-tokenization, tensors, automatic differentiation, a causal decoder, training,
-evaluation, checkpoints and cached generation. Here we extend those parts.
+A working small language model makes every operation visible. Larger workloads
+put pressure on several connected parts at once: more text increases
+tokenization and batching work; deeper models carry more weights and intermediate
+activations; learning retains gradients and optimizer state. Reducing numerical
+precision can shrink that storage while changing rounding and overflow behavior.
+Generation repeatedly reads an expanding prefix. A change that saves storage can
+also change which tokens contribute to loss or which earlier positions attention
+can read. The practical task is to improve how the model runs while keeping those
+mathematical choices explicit.
 
-Chapter 0 is an orientation. Chapter 1 begins the learning material by recording
-exactly what the small reference model demonstrates. That record gives later
-changes a concrete comparison point.
+*Practical LLM in Rust* starts from the completed model in *LLM from scratch*.
+Its separate implementation lives in `rust/crates/llm-from-scratch-practical`.
+We extend its tokenizer, tensors, automatic differentiation, causal decoder,
+training, evaluation, checkpoints and cached generation as one continuing
+system. Chapter 0 locates those parts and the course chapters; Chapter 1 begins
+the experiments.
 
-## Before starting
+## Bring the first course's model with you
 
-Complete [LLM from scratch](../../course/) or bring equivalent experience with
-Rust, byte-pair encoding, causal attention, gradients and next-token training.
-The first course's [Chapter 39](../../course/39-end-to-end-llm/) shows the complete
-small model. Familiarity with that model matters more than memorizing its
-chapter numbers.
+Complete [LLM from scratch through Chapter 39](../../course/39-end-to-end-llm/)
+or bring equivalent experience with Rust, byte-pair encoding, tensors, gradients,
+causal attention and next-token training. The [first course](../../course/)
+derives and implements those mechanisms. This course uses that foundation to
+explain changes in data layout, numerical execution, training and inference.
 
-The initial reference and Rust loading of an already prepared corpus run on a
-CPU. The planned accelerated training path will use CUDA and require a compatible
-NVIDIA GPU. CPU inference remains part of the planned path.
+The default CPU build and CPU inference work without NVIDIA hardware. Published
+<a href={chapterHref(11)}>Chapter 11</a> adds explicit CPU or CUDA selection for
+matrix products and sum/mean reductions in the shared forward and backward
+paths. Selecting CUDA requires compatible NVIDIA hardware and runtime libraries;
+an unavailable CUDA request is refused. This boundary does not make every
+operation GPU-resident, and other GPU backends are not implemented.
 
-The external corpus-preparation example separately uses NVIDIA NeMo Curator. It
-needs a GPU and driver compatible with its pinned CUDA/RAPIDS environment. NeMo
-prepares text outside the Rust model; another tool can supply the same
-prepared-document format.
+The external corpus-preparation example separately uses NVIDIA NeMo Curator and
+needs a device and driver compatible with its pinned CUDA/RAPIDS environment.
+NeMo prepares text outside the Rust model. Another preparation tool can supply
+the same document format, and Rust can load already prepared documents on CPU.
 
 {/* chapter-section:history */}
 
-## Keep the completed model as the starting point
+## Continue from the completed small model
 
-The first course builds the mechanisms of a small causal language model. This
-course begins with its completed implementation and studies how data handling,
-execution, training and inference must change for larger workloads. The Rust
-implementation for this course lives in
-`rust/crates/llm-from-scratch-practical`. Its examples extend that copy; the first
-course keeps its own implementation.
-
-{/* chapter-section:course-path */}
-
-## Follow the practical path
-
-1. [Chapter 1: Record the reference model](../01-reference-core-handoff/) binds
-   the tiny experiment to its inputs and separates repeatable results from
-   claims about language quality or speed.
-2. [Chapter 2: Prepare a corpus](../02-corpus-preparation/) separates external
-   text preparation from Rust loading, and preserves document and split identity.
-3. [Chapter 3](../03-scalable-bpe-tokenizer/) extends byte-pair encoding. It adds
-   bounded ingestion, local pair updates and efficient application of frozen
-   merge ranks to the existing tokenizer.
-
-The [practical course index](../) links to the lessons currently available.
-Published Chapters 4–9 continue with variable-length batches and packing,
-configurable decoder depth and shape, optional dropout and explicit failure
-boundaries.
-
-The planned continuation extends that same causal text model through 23 future
-lessons, Chapters 10–32. These chapters describe planned work, not completed
-implementations or measurements.
-
-| Chapter(s) | Learning focus |
-| --- | --- |
-| 10–15 | Chapter 10, “Separate input encoding from the transformer”, will implement the existing text model's input boundary. Chapter 11 will add GPU tensor execution, followed by mixed precision, gradient accumulation and activation recomputation, then optimizer schedules and clipping. Chapter 15 will add saving and loading of the composed model for local use, then training resume. |
-| 16–22 | Evaluate loss and overfitting, quantize weights, extend attention and its key/value cache, transform sampling distributions, and generate in batches. |
-| 23–27 | Supervised fine-tuning (SFT) on response tokens; low-rank adaptation (LoRA), including over quantized weights; direct preference optimization (DPO) from chosen/rejected responses. Then reuse prefix caches and study rotary position embeddings (RoPE) with context scaling. |
-| 28 | A local capstone combines training or adaptation, saving, resuming, evaluation, quantization and generation with the same model. |
-| 29–32 | Beam search, speculative proposal verification, distributed-training mathematics through local sharding and collective examples, and a tiny mixture-of-experts (MoE) model built from existing feed-forward blocks. |
-
-Chapter 10 will route the existing model's forward calculation, training and
-cached generation through the input boundary. Its text encoder will reuse
-tokenization and embedding lookup to prepare a checked sequence of embedding
-vectors with position and attention information. The shared transformer will
-accept that sequence without requiring text tokens or a tokenizer and return
-hidden features. The text output head will reuse the existing tied projection
-to map those features to token logits.
-
-Separating these responsibilities will let other compatible source encoders
-supply vectors without changing the shared transformer. The course will
-implement only this text encoder and text output head. Other sources will still
-need suitable encoding and training.
-
-Chapter 15 will save the composition, weights and settings of the text encoder,
-shared transformer and text output head, keeping tied weights shared and
-including the tokenizer assets needed to restore this text model. It will then
-load the model in a fresh local process for generation. The saved model is
-intended to be independent of the training GPU:
-the portability check will be to train or update with CUDA, save, exit, and load
-the same weights on CPU without retraining. CUDA training is not intended to
-make inference NVIDIA-only. Exact training resume will add optimizer,
-random-generator, data-position and accumulation state and may require a more
-specific execution environment.
-
-A shared local command-line interface is planned for experimenting with this
-same model: training, saving and loading, evaluating, and generating text.
-Application integration is outside this roadmap.
-
-## Read the examples at their stated scale
-
-Small fixtures make intermediate values inspectable: a pair count, a token
-sequence, a loss or a restored state. They establish the behavior shown for
-those inputs. They do not establish full-corpus throughput, useful generated
-language, or a larger model's memory use. Full-data runs and hardware
-measurements supply that separate evidence.
+The first course builds the mechanisms and assembles a complete causal language
+model. The practical course begins at that completed system and changes how its
+parts handle larger workloads. The first course keeps its own implementation;
+the practical copy evolves independently. Each extension should therefore have
+a clear connection to the model already present and a concrete reference for
+comparison.
 
 {/* chapter-section:visualization */}
 
-## Use the sequence to navigate
+## Follow one model through learning and generation
 
-The list connects the first lessons to their purposes, and the table places
-later learning goals in order. That sequence gives you a route through the
-course. The individual lessons introduce diagrams where a computation or
-comparison benefits from one.
+Prepared documents become token IDs and document-aware examples. Batching keeps
+each example's permitted context and real next-token targets intact. The text
+encoder uses embedding lookup to turn input IDs into vectors, accompanied by
+position and attention information. The causal transformer turns those vectors
+into hidden features. The text head uses the same learned embedding table to
+map the features to vocabulary scores, called logits.
+
+Learning and generation use those scores differently. Learning compares scores
+with observed next-token targets to calculate loss. Gradients describe how
+changes in weights affect that loss, and the optimizer changes the same weights
+used by the next forward calculation. Generation chooses another token according
+to a decoding policy, returns its ID to the text encoder and runs a subsequent
+decoder step. Compatible cached attention keys and values let that step reuse
+earlier prefix work.
+
+<PracticalLlmSystemDiagram labels={diagramLabels} />
+
+The figure follows model computation. The roadmap below follows the order in
+which the course studies and extends that computation. For example, tensor
+execution supports both learning and generation; saving a model preserves a
+state that later inference can use. Neither is another token-processing stage
+between the encoder and the text head.
+
+<a href={chapterHref(10)}>Chapter 10</a> already implements the text
+encoder, source-independent transformer backbone and tied text head. The
+backbone consumes vectors and their layout without requiring a tokenizer or
+vocabulary. Observed targets enter the learning branch outside that backbone.
+Text remains the only worked input and output modality. A compatible
+encoder for images, binary data or entities would still need suitable encoding
+and training; the shared vector boundary alone does not give the text model
+those capabilities.
+
+## Preserve learned weights for later use
+
+The starting model already has checkpoint mechanisms. Planned Chapter 15 extends
+that work to saving and loading the encoder, backbone and head composition. It
+will save named weights, settings and the tokenizer assets needed by the complete
+text model, preserving the shared identity of tied weights. The first goal is to
+save, exit and load the model in a fresh local process for inference.
+
+Portable saved weights must not depend on device addresses or CUDA handles. The
+planned portability experiment performs a CUDA training update, saves the model,
+exits and loads the same learned weights on CPU without retraining. CUDA training
+must keep CPU inference available. Exact training resume needs additional
+optimizer, random-generator, data-position and accumulation state, so its
+execution requirements can be narrower than those of inference. This composition
+save/load path and the CUDA-to-CPU experiment remain planned work.
+
+{/* chapter-section:course-path */}
+
+## Read the complete chapter roadmap
+
+Chapter 0 is this orientation; Chapters 1–11 are published. Chapters 12–32 are
+planned and appear without links. A planned lesson may extend an existing
+mechanism, such as sampling or checkpointing. Its status describes the lesson's
+availability. The <a href={localePath(practicalCourse.referenceLocale, `/${practicalCourse.route}/`)}>practical course index</a>
+lists the available lessons.
+
+{roadmap.map((phase) => (
+  <section aria-labelledby={`practical-roadmap-phase-${phase.first}`} data-practical-roadmap-phase={phase.first}>
+    <h3 id={`practical-roadmap-phase-${phase.first}`}>{phase.title}</h3>
+    <ol start={phase.first}>
+      {phase.chapters.map((chapter) => (
+        <li id={`practical-roadmap-chapter-${chapter.number}`} data-course-chapter-number={chapter.number} data-course-chapter-status={chapter.number === 0 ? "current" : chapter.planned ? "planned" : "published"}>
+          <p>
+            <strong>
+              {chapter.number === 0 || chapter.planned ? (
+                <span>{roadmapLabels.chapter} {chapter.number}: {chapter.planned ? chapter.title : practicalChapter(0).data.title}</span>
+              ) : (
+                <a href={chapterHref(chapter.number)} data-chapter-link={practicalChapter(chapter.number).data.chapter_id}>{roadmapLabels.chapter} {chapter.number}: {practicalChapter(chapter.number).data.title}</a>
+              )}
+            </strong>{" "}
+            <em>{chapter.number === 0 ? roadmapLabels.current : chapter.planned ? roadmapLabels.planned : roadmapLabels.published}.</em>{" "}
+            {chapter.purpose}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </section>
+))}
+
+## Keep the experiments at their stated scale
+
+Small fixtures expose values that are easy to inspect: token boundaries, allowed
+attention positions, a loss, a gradient or a restored state. They establish the
+behavior shown for those inputs. A CPU fixture cannot establish a physical-GPU
+result; a bounded CUDA primitive comparison cannot establish whole-model training
+throughput. Neither by itself establishes full-corpus throughput, broad language
+quality or a larger model's memory use. Full-data preparation and larger hardware
+experiments need their own measurements.
+
+The course focuses on LLM mathematics, numerical choices, training and inference.
+A thin local command-line interface is intended to make experiments with this
+same model convenient. Application-specific web services, retrieval and tool
+frameworks are outside the roadmap.
 
 {/* chapter-section:decoder-connection */}
 
-## Continue with the reference experiment
+## Begin with the fixed reference experiment
 
-Corpus preparation and tokenization supply the causal decoder's inputs. Later
-chapters change how that same model is configured, trained, evaluated and used
-for generation. Start by establishing the reference experiment in
-[Chapter 1](../01-reference-core-handoff/).
+The data path supplies the model's inputs; learning changes its weights;
+generation uses those weights to extend a sequence. Later lessons extend these
+connected roles and compare the result with a declared reference. Start with
+<a href={chapterHref(1)}>Chapter 1: Keep a fixed reference before extending the decoder</a>
+to establish the small experiment and the limits of what it demonstrates.

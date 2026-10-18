@@ -1,0 +1,235 @@
+---
+interface MapCard {
+  id: string;
+  title: string;
+  description: string;
+  chapters: string;
+}
+
+interface FeedbackCard extends MapCard {
+  feedback: string;
+}
+
+interface Labels {
+  title: string;
+  description: string;
+  forwardTitle: string;
+  forwardRelationship: string;
+  forward: MapCard[];
+  branchesTitle: string;
+  branches: FeedbackCard[];
+  supportTitle: string;
+  support: MapCard[];
+}
+
+interface Props {
+  labels: Labels;
+}
+
+const { labels } = Astro.props;
+const titleId = 'practical-llm-system-map-title';
+const descriptionId = 'practical-llm-system-map-description';
+---
+
+<figure
+  class="course-diagram practical-llm-system-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="practical-llm-system-map"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section class="practical-forward-panel" data-diagram-box aria-labelledby="practical-llm-forward-title">
+    <h4 id="practical-llm-forward-title">{labels.forwardTitle}</h4>
+    <p id="practical-llm-forward-relationship">{labels.forwardRelationship}</p>
+    <ol class="course-diagram__grid practical-forward" aria-describedby="practical-llm-forward-relationship">
+      {labels.forward.map((card, index) => (
+        <li class="practical-forward-step">
+          <article
+            class="course-diagram__card-stack"
+            id={`practical-llm-${card.id}`}
+            data-diagram-card
+            data-diagram-box
+            data-practical-model-role={card.id}
+            data-flow-order={index + 1}
+          >
+            <header class="course-diagram__card-heading">
+              <h5><span class="state-symbol" aria-hidden="true">{index + 1}</span> {card.title}</h5>
+            </header>
+            <p>{card.description}</p>
+            <p>{card.chapters}</p>
+          </article>
+          {index < labels.forward.length - 1 && <span class="practical-forward-connector" aria-hidden="true">↓</span>}
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <div class="practical-score-split" aria-hidden="true">
+    <svg class="practical-stacked-split" viewBox="0 0 100 24" preserveAspectRatio="none" focusable="false">
+      <path d="M50 1 V9 M25 9 H75 M25 9 V22 M75 9 V22 M23.5 18 L25 22 L26.5 18 M73.5 18 L75 22 L76.5 18"
+        fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    </svg>
+    <svg class="practical-wide-split" viewBox="0 0 100 24" preserveAspectRatio="none" focusable="false">
+      <path d="M87.5 1 V5 H50 V9 M25 9 H75 M25 9 V22 M75 9 V22 M23.5 18 L25 22 L26.5 18 M73.5 18 L75 22 L76.5 18"
+        fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    </svg>
+  </div>
+
+  <section class="practical-branches-panel" data-diagram-box aria-labelledby="practical-llm-branches-title">
+    <h4 id="practical-llm-branches-title">{labels.branchesTitle}</h4>
+    <div class="course-diagram__grid practical-branches">
+      {labels.branches.map((card) => (
+        <article
+          class="course-diagram__card-stack"
+          id={`practical-llm-${card.id}`}
+          data-diagram-card
+          data-diagram-box
+          data-practical-model-role={card.id}
+        >
+          <header class="course-diagram__card-heading"><h5>{card.title}</h5></header>
+          <p>{card.description}</p>
+          <p><span aria-hidden="true">↺ </span>{card.feedback}</p>
+          <p>{card.chapters}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="practical-support-panel" data-diagram-box aria-labelledby="practical-llm-support-title">
+    <h4 id="practical-llm-support-title">{labels.supportTitle}</h4>
+    <div class="course-diagram__grid practical-support">
+      {labels.support.map((card) => (
+        <article
+          class="course-diagram__card-stack"
+          id={`practical-llm-${card.id}`}
+          data-diagram-card
+          data-diagram-box
+          data-practical-model-role={card.id}
+        >
+          <header class="course-diagram__card-heading"><h5>{card.title}</h5></header>
+          <p>{card.description}</p>
+          <p>{card.chapters}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+</figure>
+
+<style>
+  .practical-forward,
+  .practical-branches,
+  .practical-support {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .practical-forward-step {
+    display: grid;
+    min-inline-size: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--diagram-gap);
+  }
+
+  .practical-forward-connector {
+    display: grid;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    place-items: center;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .practical-score-split > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 2.5rem;
+  }
+
+  .practical-score-split > .practical-wide-split {
+    display: none;
+  }
+
+  :global(html[dir='rtl']) .practical-wide-split {
+    transform: scaleX(-1);
+  }
+
+  @container course-diagram (min-width: 36rem) {
+    .practical-branches,
+    .practical-support {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container course-diagram (min-width: 62rem) {
+    .practical-forward {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .practical-forward-step:not(:last-child) {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .practical-forward-connector {
+      transform: rotate(-90deg);
+    }
+
+    :global(html[dir='rtl']) .practical-forward-connector {
+      transform: rotate(90deg);
+    }
+
+    .practical-score-split > .practical-stacked-split {
+      display: none;
+    }
+
+    .practical-score-split > .practical-wide-split {
+      display: block;
+    }
+  }
+
+  .practical-llm-system-diagram:fullscreen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .practical-llm-system-diagram:fullscreen > .course-diagram__caption,
+  .practical-llm-system-diagram:fullscreen > .practical-forward-panel,
+  .practical-llm-system-diagram:fullscreen > .practical-score-split,
+  .practical-llm-system-diagram:fullscreen > .practical-branches-panel,
+  .practical-llm-system-diagram:fullscreen > .practical-support-panel {
+    grid-column: 1 / -1;
+  }
+
+  .practical-llm-system-diagram:fullscreen .practical-forward {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .practical-llm-system-diagram:fullscreen .practical-forward-step:not(:last-child) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .practical-llm-system-diagram:fullscreen .practical-forward-connector {
+    transform: rotate(-90deg);
+  }
+
+  :global(html[dir='rtl']) .practical-llm-system-diagram:fullscreen .practical-forward-connector {
+    transform: rotate(90deg);
+  }
+
+  .practical-llm-system-diagram:fullscreen .practical-score-split > .practical-stacked-split {
+    display: none;
+  }
+
+  .practical-llm-system-diagram:fullscreen .practical-score-split > .practical-wide-split {
+    display: block;
+  }
+
+  .practical-llm-system-diagram:fullscreen .practical-branches,
+  .practical-llm-system-diagram:fullscreen .practical-support {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+</style>

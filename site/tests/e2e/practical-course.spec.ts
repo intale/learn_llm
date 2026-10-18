@@ -1,6 +1,8 @@
 import {expect,test,type Locator,type Page} from '@playwright/test';
 // @ts-ignore Node filesystem APIs are supplied only by Playwright.
 import {readFileSync} from 'node:fs';
+// @ts-ignore Node crypto is supplied only by Playwright.
+import {createHash} from 'node:crypto';
 // @ts-ignore The maintained parser is a Node module, shared with content checks.
 import {parseJsonFrontmatter} from '../../../scripts/check-site-content.mjs';
 import {auditDiagramContainment} from './helpers/diagram-containment';
@@ -139,15 +141,94 @@ test('English chooser and course indexes use independent current routes',async({
  for(const route of ['/ru/practical-llm-in-rust/',...ids.map(id=>'/ru/practical-llm-in-rust/'+id+'/'),practicalCourseRoute+'04-variable-length-batches/','/en/course/40-reference-core-handoff/','/en/course/41-corpus-preparation/'])expect((await request.get(deploymentPath(route))).status()).toBe(404);
 });
 
-test('Practical orientation has a scoped ordered path without lesson widgets',async({page})=>{
- const document=documents[0];await page.goto(document.path);
+test('Practical orientation @chapter:practical-00-course-structure has the complete scoped roadmap and static map',async({page,request},testInfo)=>{
+ const document=documents[0],response=await request.get(document.path);expect(response.ok()).toBe(true);
+ const html=await response.text(),built=readFileSync(new URL('../../dist/en/practical-llm-in-rust/00-course-structure/index.html',import.meta.url),'utf8');
+ expect(html).toBe(built);
+ for(let number=0;number<=32;number++)expect(html).toContain('data-course-chapter-number="'+number+'"');
+ expect(html).toContain('data-visualization-id="practical-llm-system-map"');
+ await page.goto(document.path);
  await expect(page.locator('h1')).toHaveText(document.data.title);await expectSeoDescription(page,document.data.description);
  const article=page.locator('article[data-chapter-root]');await expect(article).toHaveAttribute('data-chapter-id',document.id);
  await expect(article.locator('.lesson-header .eyebrow')).toHaveText('Chapter 00 · '+home.contentRevisionLabel+' '+document.data.content_revision);
- await expect(article.locator('figure,.katex,pre.rust-source-code,[data-cheat-sheet-open],[data-cheat-sheet-dialog]')).toHaveCount(0);
- const links=article.locator('.lesson-body ol a');
- expect(await links.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).toEqual(ids.slice(1,4).map(id=>'../'+id+'/'));
- await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
+ await expect(article.locator('.katex,pre.rust-source-code,[data-cheat-sheet-open],[data-cheat-sheet-dialog]')).toHaveCount(0);
+ await expectVisualizationDecision(page,document.data.visualization);
+ const figure=figureFor(page,'practical-llm-system-map');await expect(figure).toHaveCount(1);
+ await expect(figure).toHaveClass(/course-diagram/);await expect(figure).toHaveAttribute('data-diagram-style','course-v1');
+ await expect(figure.locator('[data-diagram-card]')).toHaveCount(8);
+ expect(await figure.locator('[data-practical-model-role]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-practical-model-role')))).toEqual(['data','text-encoder','transformer','text-head','learning','generation','execution','saved-state']);
+ await expect(figure.locator('.practical-forward-connector')).toHaveCount(3);await expect(figure.locator('.practical-score-split svg:visible')).toHaveCount(1);
+ const rows=article.locator('[data-course-chapter-number]');await expect(rows).toHaveCount(33);
+ expect(await rows.evaluateAll(nodes=>nodes.map(node=>Number(node.getAttribute('data-course-chapter-number'))))).toEqual(Array.from({length:33},(_,number)=>number));
+ for(let number=0;number<=32;number++){
+  const row=article.locator('[data-course-chapter-number="'+number+'"]');
+  await expect(row.locator('strong')).toContainText('Chapter '+number+':');
+  expect(await row.locator('p').evaluate(node=>[...node.childNodes].some(child=>child.nodeType===Node.TEXT_NODE&&Boolean(child.textContent?.trim())))).toBe(true);
+  if(number===0){
+   await expect(row).toHaveAttribute('data-course-chapter-status','current');await expect(row.locator('em')).toHaveText('You are here.');await expect(row.locator('a,[role="link"]')).toHaveCount(0);
+  }else if(number<documents.length){
+   await expect(row).toHaveAttribute('data-course-chapter-status','published');await expect(row.locator('em')).toHaveText('Published.');
+   const link=row.locator('a');await expect(link).toHaveCount(1);await expect(link).toHaveAttribute('href',documents[number].path);await expect(link).toHaveAttribute('data-chapter-link',documents[number].id);
+   await expect(link).toHaveText('Chapter '+number+': '+documents[number].data.title);
+  }else{
+   await expect(row).toHaveAttribute('data-course-chapter-status','planned');await expect(row.locator('em')).toHaveText('Planned.');await expect(row.locator('a,[role="link"]')).toHaveCount(0);
+  }
+ }
+ await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(11);
+ await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(21);
+ await expectOnlySharedDiagramClientScript(page);await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
+ await expect(page.locator('head link[hreflang="ru"]')).toHaveCount(0);
+ await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href',deploymentPath('/ru/'));
+ await testInfo.attach('orientation-built-source',{body:JSON.stringify({route:document.path,servedHTMLSHA256:createHash('sha256').update(html).digest('hex'),servedHTMLBytes:new TextEncoder().encode(html).length,servedMatchesBuilt:true,roadmapRows:33,publishedRows:11,plannedRows:21}),contentType:'application/json'});
+});
+
+for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
+ test('Practical orientation @chapter:practical-00-course-structure inline containment and accessibility '+viewport.width,async({page},testInfo)=>{
+  await page.setViewportSize(viewport);await page.goto(documents[0].path);await page.evaluate(()=>document.fonts.ready);
+  const figure=figureFor(page,'practical-llm-system-map'),diagram=await auditDiagramContainment(figure),geometry=await figureGeometry(figure),layout=await auditOrdinaryLayout(page.locator('main'));
+  await expectNoPageOverflow(page);await expectStackedDiagramText(figure.locator('figcaption'),'h3','.course-diagram__description');
+  expect(diagram.errors).toEqual([]);expect(layout.errors).toEqual([]);
+  if(viewport.width<800)await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);else await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(1);
+  await testInfo.attach('orientation-inline-aria',{body:await figure.ariaSnapshot(),contentType:'text/yaml'});
+  await testInfo.attach('orientation-inline-geometry',{body:JSON.stringify({route:documents[0].path,viewport,state:'inline',diagram,geometry,layout}),contentType:'application/json'});
+ });
+}
+
+test('Practical orientation @chapter:practical-00-course-structure full view reuses the tree and restores keyboard focus',async({page},testInfo)=>{
+ const viewport={width:1280,height:900};await page.setViewportSize(viewport);await page.goto(documents[0].path);await page.evaluate(()=>document.fonts.ready);
+ const figure=figureFor(page,'practical-llm-system-map'),toggle=figure.locator('[data-diagram-full-view-toggle]');await expect(toggle).toHaveCount(1);
+ const before=await figure.evaluate(node=>({text:[...node.querySelectorAll('figcaption,[data-diagram-box]')].map(element=>element.textContent),font:parseFloat(getComputedStyle(node).fontSize),fonts:[...node.querySelectorAll('h3,h4,h5,p')].map(element=>parseFloat(getComputedStyle(element).fontSize))}));
+ const inlineControl=await controlValues(toggle),inlineARIA=await figure.ariaSnapshot();
+ await figure.evaluate(node=>{(window as typeof window&{__practicalOrientationFigure?:Element}).__practicalOrientationFigure=node;});
+ await toggle.focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>document.fullscreenElement!==null);
+ expect(await figure.evaluate(node=>(window as typeof window&{__practicalOrientationFigure?:Element}).__practicalOrientationFigure===node)).toBe(true);
+ expect(await figure.locator('figcaption,[data-diagram-box]').allTextContents()).toEqual(before.text);
+ expect(await figure.evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(before.font);
+ const fonts=await figure.locator('h3,h4,h5,p').evaluateAll(nodes=>nodes.map(node=>parseFloat(getComputedStyle(node).fontSize)));expect(fonts).toHaveLength(before.fonts.length);for(const [index,font] of fonts.entries())expect(font).toBeGreaterThanOrEqual(before.fonts[index]);
+ const diagram=await auditDiagramContainment(figure),geometry=await figureGeometry(figure),fullViewControl=await controlValues(toggle),fullViewARIA=await figure.ariaSnapshot();
+ expect(diagram.errors).toEqual([]);expect(geometry.scrollHeight,'full view must not require more than50% additional vertical travel').toBeLessThanOrEqual(geometry.clientHeight*1.5+2);
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toHaveAttribute('aria-expanded','false');await expect(toggle).toBeFocused();await expect(figure).toHaveCount(1);
+ const restoredControl=await controlValues(toggle);expect(restoredControl).toEqual(inlineControl);
+ await testInfo.attach('orientation-full-view-aria',{body:fullViewARIA,contentType:'text/yaml'});
+ await testInfo.attach('orientation-live-controls',{body:JSON.stringify({route:documents[0].path,viewport,inline: inlineControl,fullView:fullViewControl,restored:restoredControl,inlineARIA,fullViewARIA,bodyTemplates:await page.locator('body').evaluate(node=>({open:node.getAttribute('data-diagram-full-view-open'),close:node.getAttribute('data-diagram-full-view-close')})),sameFigure:true}),contentType:'application/json'});
+ await testInfo.attach('orientation-full-view-geometry',{body:JSON.stringify({route:documents[0].path,viewport,state:'full-view',diagram,geometry,fontsBefore:before.fonts,fontsExpanded:fonts}),contentType:'application/json'});
+});
+
+test('Practical orientation @chapter:practical-00-course-structure keeps the static map without Fullscreen API support',async({page})=>{
+ await page.addInitScript(()=>{Object.defineProperty(document,'fullscreenEnabled',{get:()=>false,configurable:true});});
+ await page.setViewportSize({width:1280,height:900});await page.goto(documents[0].path);
+ await expect(figureFor(page,'practical-llm-system-map')).toHaveCount(1);await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+});
+
+test('Practical orientation @chapter:practical-00-course-structure forced colors and RTL preserve inline and full-view evidence',async({page},testInfo)=>{
+ const viewport={width:1280,height:900};await page.setViewportSize(viewport);await page.emulateMedia({forcedColors:'active'});await page.goto(documents[0].path);await page.locator('html').evaluate(node=>node.setAttribute('dir','rtl'));await page.evaluate(()=>document.fonts.ready);
+ const figure=figureFor(page,'practical-llm-system-map'),ordinary={diagram:await auditDiagramContainment(figure),geometry:await figureGeometry(figure),layout:await auditOrdinaryLayout(page.locator('main'))};
+ expect(ordinary.diagram.errors).toEqual([]);expect(ordinary.layout.errors).toEqual([]);await expectNoPageOverflow(page);
+ const toggle=figure.locator('[data-diagram-full-view-toggle]');await toggle.focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>document.fullscreenElement!==null);
+ const expanded={diagram:await auditDiagramContainment(figure),geometry:await figureGeometry(figure)};
+ expect(expanded.diagram.errors).toEqual([]);expect(expanded.geometry.scrollHeight).toBeLessThanOrEqual(expanded.geometry.clientHeight*1.5+2);
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>document.fullscreenElement===null);await expect(toggle).toBeFocused();
+ await testInfo.attach('orientation-direction-geometry',{body:JSON.stringify({route:documents[0].path,viewport,direction:'rtl',forcedColors:'active',ordinary,expanded}),contentType:'application/json'});
 });
 
  for(const lesson of lessons){

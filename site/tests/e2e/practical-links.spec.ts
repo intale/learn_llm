@@ -4,8 +4,8 @@ declare const process: { env: Record<string, string | undefined> };
 
 const siteBase = process.env.SITE_BASE ?? '/';
 const cases = [
-  { chapter: '00-course-structure', label: 'LLM from scratch', target: 'en/course/' },
-  { chapter: '00-course-structure', label: 'Chapter 39', target: 'en/course/39-end-to-end-llm/' },
+  { chapter: '00-course-structure', label: 'first course', target: 'en/course/' },
+  { chapter: '00-course-structure', label: 'LLM from scratch through Chapter 39', target: 'en/course/39-end-to-end-llm/' },
   { chapter: '00-course-structure', label: 'practical course index', target: 'en/practical-llm-in-rust/' },
   { chapter: '03-scalable-bpe-tokenizer', label: 'Chapter 3', target: 'en/course/03-learn-bpe-merges/' },
   { chapter: '03-scalable-bpe-tokenizer', label: 'Chapter 4', target: 'en/course/04-apply-bpe-tokenizer/' },

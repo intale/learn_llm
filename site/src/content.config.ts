@@ -292,8 +292,13 @@ const chapterSchema = (course: CourseConfiguration) => z
               'The orientation must register llm-system-map with llm-parts-map as its sole supplementary visualization.',
           });
         }
-        if (course.id === 'practical-llm-in-rust' && chapter.visualization.decision !== 'not-useful') {
-          context.addIssue({code: 'custom', path: ['visualization'], message: 'The practical orientation has no registered visualization.'});
+        if (course.id === 'practical-llm-in-rust' && (
+          chapter.visualization.decision !== 'useful' ||
+          chapter.visualization.id !== 'practical-llm-system-map' ||
+          chapter.visualization.component !== 'PracticalLlmSystemDiagram' ||
+          (chapter.visualization.supplementary?.length ?? 0) !== 0
+        )) {
+          context.addIssue({code: 'custom', path: ['visualization'], message: 'The practical orientation must register only PracticalLlmSystemDiagram as practical-llm-system-map.'});
         }
       } else if (
         chapter.formula === null ||

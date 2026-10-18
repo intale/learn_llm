@@ -3,13 +3,13 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "concept_id": "practical-course-structure",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 0,
   "objective": {
-    "en": "Understand the practical course's starting implementation, prerequisites and chapter sequence, and distinguish small examples from larger measured runs."
+    "en": "Understand how the practical course extends one complete text model, connect its data, model, learning, generation and saved state, and locate every published or planned chapter."
   },
   "worked_inputs": {
-    "en": "Trace the path from a fixed reference experiment, prepared documents and extended BPE through batching and decoder configuration to the planned training and inference chapters."
+    "en": "Trace prepared text through tokenization, document-aware batches, the text encoder, causal transformer and tied text head; follow learning and generation feedback, then place Chapters 0–32 on the roadmap."
   },
   "formula": null,
   "history": {
@@ -17,37 +17,47 @@
       "en": "The first course builds the mechanisms of a small causal language model."
     },
     "summary": {
-      "en": "This course starts from that completed implementation and studies how its data handling, execution, training and inference must change for larger workloads."
+      "en": "This course starts from that completed implementation and extends its data handling, numerical execution, training and inference while keeping one connected model as the subject."
     },
     "rust_contrast": null
   },
   "rust": null,
   "visualization": {
-    "decision": "not-useful",
-    "id": null,
+    "decision": "useful",
+    "id": "practical-llm-system-map",
+    "component": "PracticalLlmSystemDiagram",
     "rationale": {
-      "en": "The chapter list maps the first lessons to their purposes, and the roadmap table locates the later learning topics. Together they provide the navigation this orientation needs."
+      "en": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and planned saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
     }
   },
   "decoder_connection": {
-    "en": "The course extends a separate copy of the completed causal decoder. Chapter 10 will implement the input-encoding boundary used by that text model: the encoder will supply embedding vectors to a shared transformer, and a text output head will map its hidden features to token logits. Text will be the course's sole encoder and output-head example. Later chapters will extend the composed model's training, evaluation, saving, loading and local generation while keeping model settings distinct from execution choices."
+    "en": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; planned Chapters 12–32 extend numerical training, persistence, evaluation, inference and adaptation."
   },
   "terminology": [],
   "translation_notes": [
-    "English is the sole active locale of the practical course. Retain registered-locale support; do not create Russian practical lessons, catalogs or cheat sheets until that locale is explicitly activated."
+    "English is the sole active practical-course locale. Preserve registered-locale support; all diagram labels, relationship descriptions, roadmap purposes and availability labels are authored data for future localization.",
+    "Keep every planned Chapter 12–32 entry and any planned diagram chapter reference as plain text. Derive available Chapter 1–11 titles and destinations from the existing practical publication selector and locale-aware route helper."
   ],
   "acceptance_examples": [
     {
-      "input": "Open the practical course",
-      "expected": "Its Chapter 0 explains structure and prerequisites; learning material begins at Chapter 1."
+      "input": "Open the practical orientation",
+      "expected": "Chapter 0 explains why a complete small model needs changes in data layout, numerical execution, training memory and inference as workloads grow, and names the first-course or equivalent prerequisite."
     },
     {
-      "input": "Follow the available chapters",
-      "expected": "The practical reference, prepared-corpus and tokenizer lessons are scoped to the practical course and link in that order."
+      "input": "Read the connected map without its arrows or colors",
+      "expected": "Text identifies the data-to-vector-to-hidden-feature-to-score relationship, the learning weight update, the chosen-token feedback and compatible cache reuse, and the supporting roles of execution and planned saved state."
     },
     {
-      "input": "Inspect the language and execution boundaries",
-      "expected": "English practical lessons remain distinct from the bilingual first course. Planned CUDA training retains CPU inference and saved weights independent of the training GPU as goals. The external NeMo example separately needs its compatible NVIDIA CUDA/RAPIDS environment. Fixtures do not discharge full-data or hardware gates."
+      "input": "Inspect every roadmap entry",
+      "expected": "All 33 chapters, 0–32, appear individually with a concise purpose. Chapter 0 is current, published Chapters 1–11 link to their actual practical destinations, and each planned Chapter 12–32 is explicitly planned with no anchor or placeholder destination."
+    },
+    {
+      "input": "Compare current implementation with future goals",
+      "expected": "Input encoding and CPU/CUDA primitive selection are already implemented in Chapters 10 and 11. Only text is worked. Full mixed-precision training, portable composed-model save/load and the CUDA-to-CPU portability experiment remain planned. CPU builds and inference remain usable without NVIDIA; external NeMo preparation has separate NVIDIA requirements."
+    },
+    {
+      "input": "Interpret the evidence and next step",
+      "expected": "Small fixtures establish behavior for their stated inputs. A CPU fixture does not establish a physical-GPU result, and a bounded CUDA primitive comparison does not establish whole-model training throughput. Full-data and larger hardware experiments need separate measurements. The lesson ends with a link to Chapter 1's fixed reference experiment."
     }
   ]
 }
@@ -58,106 +68,165 @@
 <!-- contract-section:scope -->
 ## Scope
 
-Orientation only: identify the independent copied implementation, prerequisites,
-published foundation through Chapter 9 and 23 planned lessons in Chapters 10–32.
-Explain the required future input-encoding boundary, planned CUDA training path,
-retained CPU inference, portable save/load and local CLI use. Do not introduce a
-second algorithm, formula lesson, Rust implementation sample, exercise, answer,
-diagram or cheat sheet.
+Reauthor the English orientation around the connected practical text model and
+the complete individual Chapter 0–32 roadmap. Explain why larger workloads put
+pressure on data layout, numerical execution, saved training state and repeated
+inference. The practical crate is the separately evolved copy at
+`rust/crates/llm-from-scratch-practical`; extend its existing algorithms rather
+than rebuilding them. Keep the first course and all other practical chapters
+unchanged. This is an overview: no formula, Rust source sample, exercise, answer
+or cheat sheet.
 
 <!-- contract-section:overview -->
 ## Orientation commitments
 
-The practical crate starts from the restored first-course implementation and is
-evolved independently. First-course lessons and algorithms stay unchanged.
-Chapter 1 records the fixed baseline experiment; Chapter 2 separates external
-preparation from Rust loading; Chapter 3 extends the existing BPE implementation.
-Available links must correspond to published practical chapters. Keep the first
-three published links and their purposes; the course index remains authoritative
-for current availability. Do not link unpublished chapters.
+Require completion through the first course's Chapter 39 or equivalent Rust and
+LLM knowledge. Identify byte-pair encoding, tensors, automatic differentiation,
+causal attention, next-token learning and cached generation as existing starting
+points. Introduce one continuing text model whose data, computation, learning,
+generation and preservation remain connected throughout the course.
+
+Explain CPU usability and the actual execution boundary. Published Chapter 11
+selects CPU or CUDA for existing matrix products and sum/mean reductions in
+shared forward and backward paths. It does not put every operation permanently
+on the GPU or by itself establish whole-model training throughput. Selecting CUDA requires compatible
+NVIDIA hardware and runtime libraries; an unavailable request must fail rather
+than be reported as CUDA while running on CPU. Other GPU backends are not
+implemented. The default CPU build and CPU inference need no NVIDIA hardware.
+The external NeMo preparation example has its own compatible NVIDIA CUDA/RAPIDS
+requirements; loading already prepared documents remains CPU-capable.
 
 <!-- contract-section:history -->
 ## Starting point
 
-The historical comparison for this orientation is course-local: building small
-mechanisms first, then extending the completed model. Make no new primary-source
-historical claim and reuse no first-course diagram as a new taught mechanism.
+Use the course-local progression as the historical comparison: the first course
+builds a complete small model; this course extends the practical copy to study
+larger workloads. Preserve the first course's implementation and content. Make
+no new paper-history or performance claim.
 
 <!-- contract-section:course-path -->
 ## Chapter sequence
 
-Give each initial chapter its concrete purpose: identified reference inputs and
-scope, external preparation and Rust loading, then extension of existing BPE.
-Link available practical Chapters 1, 2 and 3, keeping each chapter's concrete
-purpose next to its link. Link the course index for current availability. Briefly
-place the existing batching/packing and configurable decoder foundations in
-Chapters 4–9 before the planned continuation.
+Present all 33 chapters individually. Use actual published contracts and
+catalogs for Chapters 0–11, and the accepted revision-9 design subjects for
+Chapters 12–32. The published lessons are:
 
-Use a small Markdown table with chapter(s) and learning focus. Group planned
-Chapters 10–15, 16–22, 23–27, 28 and 29–32. Explicitly name Chapter 10,
-"Separate input encoding from the transformer", as the required implementation
-of the input boundary used by the existing text model, before GPU execution in
-Chapter 11. Retain numerical training; evaluation, quantization, attention,
-sampling and batched generation; SFT, LoRA, DPO and prefix/context work; the local
-capstone; and beam search, speculative verification, distributed-training
-mathematics and MoE. Name Chapter 15 for saving the composed model, exiting and
-loading it in a fresh local inference process before extending whole-job
-training resume. Present these as future learning goals, not completed
-implementations or measurements. Keep application integration outside the
-roadmap.
+- 0: this orientation and its connected model/course map;
+- 1: the fixed reference experiment and its evidence limits;
+- 2: external preparation followed by Rust loading of prepared documents;
+- 3: bounded local updates and ranked application of existing BPE;
+- 4: padded variable batches without extra targets;
+- 5: packing without joining unrelated contexts;
+- 6: depth-aware initialization of residual projection weights;
+- 7: checked dimensions and construction of one configurable decoder core;
+- 8: explicit optional dropout, saved-mask gradients and local replay;
+- 9: model-operation refusals and preserved state at failure boundaries;
+- 10: implemented text encoder, source-independent backbone and tied text head;
+- 11: explicit CPU/CUDA matrix and sum/mean primitive selection.
 
-Explain the input boundary at orientation level. The text encoder will reuse
-existing tokenization and embedding lookup to prepare a checked sequence of
-embedding vectors with position and attention information. The shared
-transformer will accept that sequence without requiring text tokens or a
-tokenizer and return hidden features; the text output head will reuse the tied
-projection to map those features to token logits. Chapter 10 will route the real
-text forward, training and cached-generation paths through that composition by
-extending the existing model. The course will implement only the text encoder
-and text output head. Other compatible source encoders may supply vectors later,
-but their inputs will still require suitable encoding and training.
+The planned continuation is:
+
+- 12: mixed precision;
+- 13: gradient accumulation and activation recomputation;
+- 14: optimizer schedules and gradient clipping;
+- 15: save, load and resume the composed model;
+- 16: language-model evaluation;
+- 17: weight quantization;
+- 18: grouped-query attention and context masks;
+- 19: online and tiled attention;
+- 20: paged key/value-cache layout;
+- 21: sampling distributions;
+- 22: batched autoregressive inference;
+- 23: response-masked supervised fine-tuning and low-rank adaptation;
+- 24: direct preference optimization;
+- 25: low-rank adaptation over a quantized base;
+- 26: prefix key/value-cache reuse;
+- 27: rotary position embeddings and context scaling;
+- 28: local training and adaptation capstone;
+- 29: beam search;
+- 30: speculative verification;
+- 31: distributed-training mathematics;
+- 32: mixture-of-experts mathematics.
+
+Give each row its own concise purpose. Mark Chapter 0 as current, link available
+Chapters 1–11 through the existing publication and locale-route helpers, and
+mark every future row planned without an anchor or fabricated destination.
+Use `findPublishablePracticalChapterSets`, `getCollection('practicalChapters')`,
+`practicalCourse` and `localePath`; do not add another publication registry.
+Retain the published-lessons index. Lesson availability and mechanism existence
+are different: a planned lesson may extend sampling, checkpointing or another
+mechanism already present in the starting model.
 
 <!-- contract-section:visualization -->
-## Navigation evidence
+## Connected system map
 
-The ordered list maps the first lessons to their purposes, and the roadmap table
-places later learning goals in order. Explain how that sequence helps the learner
-navigate; no figure is required. Do not refer to rendering or build machinery.
+Register only `practical-llm-system-map` through
+`PracticalLlmSystemDiagram`. Show prepared text and document-aware batches
+feeding the text encoder, its vectors feeding the causal transformer, and hidden
+features feeding the tied text head. Name the scores-to-loss-to-gradients-to-
+optimizer learning relationship and its return to the same model's weights.
+Name the scores-to-chosen-token generation relationship, its return to encoding
+and reuse of compatible cached attention state. Attach execution and planned
+save/load to these model roles. Relate the roles to course chapters without
+turning the figure into the full 33-entry roadmap.
+
+Supply every learner-facing label and description as authored data. Use one
+static semantic figure, shared `course-diagram` roles and the shared localized
+full-view enhancement; component CSS expresses geometry only. Preserve meaningful
+reading order and explanatory text without relying on arrows or color. Reflow
+at ordinary text size and keep the expanded figure compact enough to inspect as
+a connected system.
 
 <!-- contract-section:decoder-connection -->
 ## Practical path
 
-Keep one causal text model as the subject. Distinguish small examples from
-full-corpus or hardware measurements. CPU reference and loading of prepared
-documents remain available. CUDA is the planned accelerated training path and
-requires compatible NVIDIA hardware; retain CPU inference as a future requirement.
-Chapter 15 will save the composition, weights and settings of the text encoder,
-shared transformer and text output head, keeping tied weights shared and
-including the tokenizer assets needed to restore the text model. That saved
-model is intended to load independently of the training GPU. The planned
-portability check is CUDA training or an update, save, exit, then CPU loading and
-generation with the same weights without retraining. CUDA training must not
-imply NVIDIA-only inference.
-Exact training resume adds optimizer, RNG, data-position and accumulation state
-and may have narrower execution compatibility. Do not claim that these future
-capabilities or arbitrary model/backend loading already work.
+Published Chapter 10 implements the text encoder/backbone/head separation. The
+encoder reuses embedding lookup to supply vectors with position and attention
+layout. The backbone transforms vectors into hidden features without depending
+on a tokenizer or vocabulary; the tied text head maps those features to token
+scores. Text is the only worked source and output modality. A later compatible
+image, binary or entity encoder would still need suitable encoding and training;
+the interface alone gives the text model none of those capabilities.
 
-The existing external NeMo preparation example separately requires a GPU and
-driver compatible with its pinned CUDA/RAPIDS environment. Another tool can
-provide the same prepared documents. Describe a shared local CLI as the intended
-way to experiment with the course model, without inventing a command.
+Planned Chapter 15 extends existing checkpoint work to portable preservation of
+the composed model. First save the composition, named weights, settings,
+necessary tokenizer assets and shared-parameter aliases; exit; then load in a
+fresh local process for inference. Keep trained weights independent of CUDA
+handles and device memory. The planned portability experiment performs a CUDA
+training update, saves, exits and loads the learned weights on CPU without
+retraining. Exact training resume additionally needs optimizer, random-generator,
+data-position and accumulation state and can have a narrower execution envelope.
+None of these planned composition-persistence or physical-portability results
+is already established by the orientation.
+
+Tie later evaluation, inference efficiency, adaptation and the local capstone to
+this same model. A thin local command-line interface is intended for experiments;
+invent no commands or universal interface. Application-specific web services,
+RAG, tool frameworks, GPU monitoring, Cargo audits and custom configuration
+parsers are outside this course's subjects.
+
+Small fixtures expose intermediate values and behavior for their stated inputs.
+A CPU fixture cannot establish a physical-GPU result; a bounded CUDA primitive
+comparison cannot establish whole-model training throughput. Neither alone
+establishes full-data throughput, broad language quality or larger-model memory
+use. Keep pending full-corpus and larger hardware experiments separate, and
+retain existing bounded hardware evidence at its observed scope. End by linking
+Chapter 1's fixed reference experiment.
 
 <!-- contract-section:localization -->
 ## Locale scope
 
-Practical lessons are English only, including order zero; locale configuration
-and future activation remain supported. Russian home may link explicitly to the
-English practical destination. No Russian practical lesson is emitted.
+Practical lessons remain English only, including order zero. Keep locale
+configuration, localized route construction and future activation support.
+Create no Russian practical lesson, catalog or cheat sheet.
 
 <!-- contract-section:acceptance -->
 ## Acceptance
 
-Scoped orientation schema, no cheat sheet, static links and locale semantics,
-English independent reviews and adjudications, and sole-Firefox desktop/narrow
-containment and navigation. The foundation checkpoint retains pending full-data
-preparation and hardware gates; small fixtures do not discharge them.
+Validate the orientation identity and schema, the one registered static figure,
+all 33 chapter rows, published-only links and the no-cheat-sheet boundary.
+Require fresh independent English reviews and same-role adjudications over the
+exact candidate and built documents. Check shared-diagram behavior, containment,
+keyboard use and navigation in the supported Firefox desktop, narrow,
+full-view, forced-color and direction states at both deployment bases. Do not
+run unrelated Rust or GPU work for this orientation.

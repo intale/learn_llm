@@ -51,13 +51,7 @@ export const ORIENTATION_CHAPTER_SECTIONS = Object.freeze([
   'decoder-connection',
 ]);
 
-export const PRACTICAL_ORIENTATION_CHAPTER_SECTIONS = Object.freeze([
-  'overview',
-  'history',
-  'course-path',
-  'visualization',
-  'decoder-connection',
-]);
+export const PRACTICAL_ORIENTATION_CHAPTER_SECTIONS = ORIENTATION_CHAPTER_SECTIONS;
 
 const SOLUTION_RUST_CHAPTER_SECTIONS = Object.freeze([
   'worked-example', 'formula', 'symbol-glossary', 'rust-implementation',
@@ -895,10 +889,11 @@ export function validateChapterMetadata(
   }
   validateVisualization(data.visualization, issues, sourceName);
   if (orientation && isPracticalCourse(course)) {
-    if (data.visualization?.decision !== 'not-useful' ||
-        data.visualization.id !== null || data.visualization.component !== undefined ||
+    if (data.visualization?.decision !== 'useful' ||
+        data.visualization.id !== 'practical-llm-system-map' ||
+        data.visualization.component !== 'PracticalLlmSystemDiagram' ||
         (data.visualization.supplementary?.length ?? 0) !== 0) {
-      issues.push(sourceName + ': practical orientation must have no diagram');
+      issues.push(sourceName + ': practical orientation must register only PracticalLlmSystemDiagram as practical-llm-system-map');
     }
   } else if (orientation) {
     if (

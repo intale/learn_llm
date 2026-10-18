@@ -663,10 +663,11 @@ export function validateChapterContractText(
     supportedLocales,
   );
   if (orientation && isPracticalCourse(course)) {
-    if (data.visualization?.decision !== 'not-useful' ||
-        data.visualization.id !== null || data.visualization.component !== undefined ||
+    if (data.visualization?.decision !== 'useful' ||
+        data.visualization.id !== 'practical-llm-system-map' ||
+        data.visualization.component !== 'PracticalLlmSystemDiagram' ||
         (data.visualization.supplementary?.length ?? 0) !== 0) {
-      issues.push(sourceName + ': practical orientation must have no diagram');
+      issues.push(sourceName + ': practical orientation must register only PracticalLlmSystemDiagram as practical-llm-system-map');
     }
   } else if (orientation) {
     if (

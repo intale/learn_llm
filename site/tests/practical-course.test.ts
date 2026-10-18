@@ -43,7 +43,7 @@ describe('current practical Chapters 0–11 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
     expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([5,1,1,2,1,1,1,2,3,5,1,1]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([6,1,1,2,1,1,1,2,3,5,1,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);
@@ -59,13 +59,15 @@ describe('current practical Chapters 0–11 source bindings',()=>{
       }
     }
   });
-  it('links all three available lessons from the orientation without adding lesson-only surfaces',()=>{
+  it('registers one practical overview map without adding lesson-only surfaces',()=>{
     const {lesson,contract}=documents[0];
     expect(lesson.data.chapter_kind).toBe('orientation');expect(lesson.data.formula).toBeNull();
-    expect(lesson.data.rust_sources).toEqual([]);expect(lesson.data.visualization).toMatchObject({decision:'not-useful',id:null});
-    expect(contract.terminology).toEqual([]);
+    expect(lesson.data.history.rust_source).toBeNull();expect(lesson.data.rust_sources).toEqual([]);
+    expect(lesson.data.visualization).toMatchObject({decision:'useful',id:'practical-llm-system-map',component:'PracticalLlmSystemDiagram'});
+    expect(lesson.data.visualization.supplementary??[]).toEqual([]);
+    expect(contract.visualization).toMatchObject({decision:'useful',id:'practical-llm-system-map',component:'PracticalLlmSystemDiagram'});
+    expect(contract.rust).toBeNull();expect(contract.terminology).toEqual([]);
     expect(existsSync(new URL('../src/content/practical-cheat-sheets/en/'+ids[0]+'.json',import.meta.url))).toBe(false);
-    expect([...new Set([...lesson.body.matchAll(/\[Chapter [123](?::[^\]]+)?\]\(\.\.\/([^/]+)\/\)/g)].map(match=>match[1]))]).toEqual(ids.slice(1,4));
   });
   it('binds the new concept formula, registered figure and glossary to their existing contract fields',()=>{
     const {id,lesson,contract}=documents[3];
