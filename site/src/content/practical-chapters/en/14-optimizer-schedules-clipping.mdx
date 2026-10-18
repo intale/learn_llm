@@ -1,0 +1,620 @@
+---
+{
+  "chapter_id": "14-optimizer-schedules-clipping",
+  "content_revision": 1,
+  "order": 14,
+  "concept_id": "optimizer-schedules-clipping",
+  "title": "Schedule AdamW updates and clip global gradients",
+  "description": "Build a warmup and cosine schedule around existing AdamW, inspect a shared clipping factor, and keep successful updates separate from refused or skipped attempts.",
+  "objective": "Generate linear-warmup and cosine learning rates for successful AdamW updates, inspect one global gradient-clipping factor, and distinguish refused or overflow-skipped attempts from committed steps.",
+  "worked_inputs": "Use six CPU f64 text updates with default two-update warmup, peak rate 0.002 and final rate 0.0002; separately inspect a constructed gradient with nonzero coordinates 3, 4 and 12 across two tensors and reuse Chapter 12's fixed-rate overflow retries.",
+  "formula": {
+    "latex": "\\begin{aligned}\nr&=\\sqrt{\\sum_j g_j^2},&\na&=\\begin{cases}1,&r=0,\\\\ \\min(1,c/r),&r>0,\\end{cases}&\nq_j&=a\\,g_j,\\\\\n\\eta_t&=\\begin{cases}\nP\\,t/W,&W>0,\\ 1\\le t\\le W,\\\\\nF+\\dfrac{P-F}{2}\\!\\left[1+\\cos\\!\\left(\\pi\\dfrac{t-W}{T-W}\\right)\\right],&W>0,\\ W<t\\le T,\\\\\nF+\\dfrac{P-F}{2}\\!\\left[1+\\cos\\!\\left(\\pi\\dfrac{t-1}{T-1}\\right)\\right],&W=0,\\ 1\\le t\\le T.\n\\end{cases}\n\\end{aligned}",
+    "symbols": [
+      {
+        "symbol": "j",
+        "meaning": "index of a scalar coordinate across all distinct named parameter tensors, counting tied parameters once"
+      },
+      {
+        "symbol": "g_j",
+        "meaning": "parameter-gradient coordinate after any unscaling and before clipping"
+      },
+      {
+        "symbol": "r",
+        "meaning": "Euclidean norm of the complete parameter-gradient vector"
+      },
+      {
+        "symbol": "c",
+        "meaning": "finite positive limit for the global gradient norm"
+      },
+      {
+        "symbol": "a",
+        "meaning": "one common clipping factor between zero and one, inclusive"
+      },
+      {
+        "symbol": "q_j",
+        "meaning": "effective gradient coordinate supplied to AdamW's moment calculation"
+      },
+      {
+        "symbol": "t",
+        "meaning": "one-based index of a successful logical optimizer update"
+      },
+      {
+        "symbol": "T",
+        "meaning": "total number of planned successful optimizer updates"
+      },
+      {
+        "symbol": "W",
+        "meaning": "number of warmup updates, which may be zero"
+      },
+      {
+        "symbol": "P",
+        "meaning": "finite positive peak learning rate"
+      },
+      {
+        "symbol": "F",
+        "meaning": "finite positive final decay rate, no greater than the peak"
+      },
+      {
+        "symbol": "\\eta_t",
+        "meaning": "learning rate used by successful optimizer update t"
+      },
+      {
+        "symbol": "\\pi",
+        "meaning": "the circle constant, with cosine angles measured in radians"
+      }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "Exploding gradients made recurrent-network optimization difficult; controlling their norm addresses gradient size rather than defining a complete training schedule.",
+      "later_advance": "LLaMA combines AdamW with gradient clipping and a learning-rate schedule for transformer language-model training.",
+      "modern_llm_role": "In this decoder, clipping controls the gradient entering AdamW, while the schedule chooses the rate associated with each successful optimizer update.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2013,
+          "name": "On the difficulty of training Recurrent Neural Networks",
+          "source_url": "https://arxiv.org/abs/1211.5063v2",
+          "claim": "Pascanu, Mikolov and Bengio propose gradient norm clipping for exploding gradients in recurrent neural networks."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "Decoupled Weight Decay Regularization",
+          "source_url": "https://arxiv.org/abs/1711.05101v3",
+          "claim": "Loshchilov and Hutter separate weight decay from the loss-gradient update in adaptive optimization."
+        },
+        {
+          "role": "later",
+          "year": 2023,
+          "name": "LLaMA: Open and Efficient Foundation Language Models",
+          "source_url": "https://arxiv.org/html/2302.13971v1#S2.SS3",
+          "claim": "Touvron and colleagues' 2023 LLaMA report uses AdamW, a cosine schedule ending at one tenth of the maximum rate, two thousand warmup steps and gradient clipping with threshold one."
+        }
+      ]
+    },
+    "approach": "Reuse the existing global clipping and AdamW update, adding linear warmup followed by one cosine decay over successful optimizer updates.",
+    "summary": "The Rust example makes norm control, scheduled rates and preserved state inspectable on tiny text-model fixtures; it does not reproduce the papers' training runs or establish comparative language-model quality.",
+    "rust_source": "rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/training/trainer.rs",
+      "region": "warmup-cosine-schedule",
+      "purpose": "Construct positive rates with explicit peak and final endpoints for one-based successful updates."
+    },
+    {
+      "path": "rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs",
+      "region": "constructed-global-gradient",
+      "purpose": "Build a scalar diagnostic with nonzero gradient coordinates three, four and twelve across two existing model tensors."
+    },
+    {
+      "path": "rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs",
+      "region": "global-clipping-probe",
+      "purpose": "Observe the existing shared clipping transform, AdamW moment and decay evidence, and cleared gradients."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/training/trainer.rs",
+      "region": "scheduled-update-clock",
+      "purpose": "Check the requested schedule entry against the next committed optimizer step before forward."
+    },
+    {
+      "path": "rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs",
+      "region": "scheduled-text-updates",
+      "purpose": "Apply six generated rates to one continuing text model and optimizer, preserving state on an out-of-order refusal."
+    },
+    {
+      "path": "rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs",
+      "region": "chapter14-evidence-composition",
+      "purpose": "Keep the generated-rate text run, scalar clipping diagnostic and original Chapter 12 fixed-rate overflow retries separately identified."
+    },
+    {
+      "path": "rust/demos/practical-ch14-optimizer-schedules-clipping/src/main.rs",
+      "purpose": "Use the existing clap CLI to select zero through five warmup updates, default to two, and print one JSON record."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "optimizer-schedules-clipping",
+    "component": "OptimizerScheduleDiagram",
+    "rationale": "Relate each default learning rate to its successful update, join two named tensors under one clipping factor, and show why refusing update three after update one leaves update two next."
+  },
+  "decoder_connection": "The text encoder, source-independent transformer, tied head and existing AdamW now share generated rates indexed by committed logical updates. Global clipping still transforms the complete gradient before moments; refused and overflow-skipped attempts consume no optimizer step. Chapter 15 will address portable model saving and loading in a fresh process, followed by the additional state needed for training continuation."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import OptimizerScheduleDiagram from "../../../components/chapters/OptimizerScheduleDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="optimizer-schedule-worked-example">
+
+## Control gradient magnitude and the rate of each update
+
+A backward pass can produce a gradient dominated by a few large coordinates.
+Feeding that gradient directly into the optimizer lets its magnitude determine
+the optimizer's new moment values. Independently, a fixed learning rate gives
+the same multiplier to the first and last updates. A training experiment may
+instead call for a gradual increase at the start and smaller rates near the end.
+These are two separate choices: control the gradient entering AdamW, and choose
+the rate used by each successful update.
+
+The existing trainer already performs global gradient-norm clipping and AdamW.
+We will inspect that clipping operation and extend its existing learning-rate
+schedule with linear warmup followed by one cosine decay. The optimizer, model
+and update owner stay the same.
+
+### One factor for gradients in two tensors
+
+Start with a constructed scalar diagnostic on the text model. Its derivative
+has values $3$ and $4$ in the first two coordinates of
+`token_embedding.weight`, and $12$ in the first coordinate of
+`blocks.0.attention_norm.gain`. Every other parameter-gradient coordinate is
+zero. This is an inspection objective chosen to make its gradient easy to
+check; it is not a next-token likelihood.
+
+The complete gradient has Euclidean norm
+$\sqrt{3^2+4^2+12^2}=\sqrt{169}=13$. Set the global norm limit to $6.5$.
+Multiplying every coordinate by the same factor $6.5/13=0.5$ gives
+$1.5$, $2$ and $6$, whose combined norm is $6.5$. The nonzero vector keeps
+its direction. Clipping each tensor independently would change the relationship
+between the two tensors' contributions.
+
+The Rust diagnostic observes exactly those three effective gradient values,
+applies one existing AdamW update at rate $0.001$, and clears gradients. It
+uses its own fresh model and optimizer; the text-training experiment below
+starts separately.
+
+### Six successful updates, with two warmup updates
+
+For the text experiment, plan six successful optimizer updates. Choose a peak
+rate of $0.002$, a final decay rate of $0.0002$, and two warmup updates.
+Linear warmup uses half the peak, $0.001$, on update $1$ and reaches
+$0.002$ on update $2$. The four following updates move along one cosine
+decay to the final rate.
+
+The recorded rates for updates $3$, $4$ and $5$ are
+$0.0017363961030678928$, $0.0011$ and $0.0004636038969321073$.
+Update $6$ uses $0.0002$. These are the reported `f64` values, rather than
+a claim that decimal arithmetic or every backend gives identical bits.
+A successful update owns one rate; an attempted call that is refused or skipped
+does not consume a rate.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="optimizer-schedule-formula">
+
+## Define one global clip and one warmup–cosine schedule
+
+Let $j$ enumerate scalar coordinates across all distinct named parameter
+tensors, counting a tied parameter once. Let $g_j$ be a gradient coordinate
+after any loss unscaling and before clipping. The complete gradient's Euclidean
+norm is $r$, its finite positive limit is $c$, and $a$ is the one common
+nonamplifying factor. AdamW receives effective coordinate $q_j$.
+
+For the schedule, $t$ is the one-based successful optimizer-update index and
+$T$ is the total planned number of those updates. $W$ counts warmup updates;
+$P$ is the positive peak rate; $F$ is the positive final decay rate; and
+$\eta_t$ is the rate assigned to update $t$. The constant $\pi$ is the usual
+circle constant, and the cosine angles use radians. The ideal rules are
+
+$$
+\begin{aligned}
+r&=\sqrt{\sum_j g_j^2},&
+a&=\begin{cases}1,&r=0,\\ \min(1,c/r),&r>0,\end{cases}&
+q_j&=a\,g_j,\\
+\eta_t&=\begin{cases}
+P\,t/W,&W>0,\ 1\le t\le W,\\
+F+\dfrac{P-F}{2}\!\left[1+\cos\!\left(\pi\dfrac{t-W}{T-W}\right)\right],&W>0,\ W<t\le T,\\
+F+\dfrac{P-F}{2}\!\left[1+\cos\!\left(\pi\dfrac{t-1}{T-1}\right)\right],&W=0,\ 1\le t\le T.
+\end{cases}
+\end{aligned}
+$$
+
+The zero-norm branch avoids division by zero and leaves the gradient zero.
+For a nonzero gradient, the factor is $1$ when the norm already fits and
+$c/r$ when it exceeds the limit. Thus in exact arithmetic the effective
+gradient has norm at most $c$, and a nonzero vector retains its direction.
+
+With positive warmup, $t/W$ reaches $1$ on update $W$. The subsequent cosine
+argument moves from $0$ toward $\pi$ as updates approach $T$, moving the
+rate from $P$ to $F$. With zero warmup, update $1$ must already use $P$;
+the cosine progress therefore starts from $t-1$ over $T-1$.
+There is one decay and no restart. $F$ is the decay endpoint, not a lower
+bound on rates earlier in warmup.
+
+The warmup–cosine constructor requires $2\le T\le2^{53}$, $0\le W<T$ and finite rates
+$0<F\le P$. The integer bound lets every index convert exactly to `f64`;
+leaving $W<T$ reserves a decay update and a nonzero denominator. Allocation
+must also succeed. The Rust code assigns peak and final endpoints explicitly
+and passes every generated rate through the existing positive-rate validator.
+Even positive ideal warmup values can underflow to stored zero and be refused.
+
+The existing norm calculation rescales its sum of squares to avoid avoidable
+overflow. Its gradient transform supports both uniform multiplication and a
+normalized representation for numerical range. The equations describe the
+ideal transformation; the implementation still performs represented `f64`
+operations. When clipping occurs, the trainer's after-norm field records the
+chosen limit. That field is not an independent remeasurement of every effective
+coordinate. The three-coordinate diagnostic above supplies a separate hand
+calculation of its resulting norm.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="optimizer-schedule-symbols">
+
+## Keep clipping, Adam moments and weight decay separate
+
+Clipping limits the gradient supplied to AdamW's moments. It does not directly
+limit the final parameter displacement, because AdamW also uses coordinatewise
+moment normalization and a separate weight-decay term.
+
+For one coordinate, write its effective gradient at update $t$ as $q_t$.
+Let $m_t$ and $v_t$ be its first and second moments, with initial
+$m_0=v_0=0$. Their coefficients $\beta_1$ and $\beta_2$ lie in $[0,1)$;
+the bias-corrected moments are $\widehat m_t$ and $\widehat v_t$. Let $\epsilon>0$ be the
+denominator offset, $\theta_{t-1}$ the old weight, and $\lambda$ its decay
+coefficient. For a coordinate selected for decay, the existing AdamW rule is,
+in exact arithmetic,
+
+$$
+\begin{aligned}
+m_t&=\beta_1m_{t-1}+(1-\beta_1)q_t,\\
+v_t&=\beta_2v_{t-1}+(1-\beta_2)q_t^2,\\
+\widehat m_t&=\frac{m_t}{1-\beta_1^t},&
+\widehat v_t&=\frac{v_t}{1-\beta_2^t},\\
+\theta_t&=\theta_{t-1}
+-\eta_t\frac{\widehat m_t}{\sqrt{\widehat v_t}+\epsilon}
+-\eta_t\lambda\theta_{t-1}.
+\end{aligned}
+$$
+
+**Schedule decay** lowers the learning rate $\eta_t$ across updates.
+**Weight decay** subtracts $\eta_t\lambda\theta_{t-1}$ during an update,
+outside the loss-gradient and moment calculation. Do not add that decay term
+to the gradient before clipping. Both subtractions use the scheduled rate,
+but they perform different operations.
+
+The diagnostic and six-update text run use $\beta_1=0.9$, $\beta_2=0.95$,
+$\epsilon=10^{-8}$ and $\lambda=0.01$. In the diagnostic's first coordinate,
+the effective gradient is $1.5$. The stored first and second moments are
+$0.14999999999999997$ and $0.1125000000000001$; the corrected moments are
+$1.5$ and $2.25$. At rate $0.001$, the adaptive subtraction is
+$0.0009999999933333335$ and the separate decay subtraction is
+$9.270782062966737\times10^{-7}$. Starting from weight
+$0.09270782062966737$, the stored result is $0.09170689355812774$.
+These represented values expose the two branches; the cap on the input
+gradient is not a cap on their combined parameter change.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="optimizer-schedule-history">
+
+## From recurrent-gradient control to scheduled transformer training
+
+Exploding gradients made recurrent-network optimization difficult; controlling
+their norm addresses gradient size rather than defining a complete training
+schedule. Pascanu, Mikolov and Bengio propose gradient norm clipping for
+exploding gradients in recurrent neural networks. Their paper,
+[On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063v2),
+was first submitted in 2012; the cited revision is from 2013. This supports
+the norm-control idea, not a guarantee about vanishing gradients or AdamW
+convergence.
+
+Loshchilov and Hutter separate weight decay from the loss-gradient update in
+adaptive optimization.
+[Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101v3)
+was first submitted in 2017; the cited revision is from 2019. That distinction
+is why this lesson leaves decay outside the clipping and moment branch and
+reuses the course's existing AdamW implementation.
+
+LLaMA combines AdamW with gradient clipping and a learning-rate schedule for
+transformer language-model training. Touvron and colleagues' 2023 LLaMA report
+uses AdamW, a cosine schedule ending at one tenth of the maximum rate, two
+thousand warmup steps and gradient clipping with threshold one. See its
+[optimizer section](https://arxiv.org/html/2302.13971v1#S2.SS3).
+Our six-update experiment and two warmup updates are a small teaching choice.
+Its text-run norm limit $0.5$ and decay coefficient $0.01$ also belong to this
+experiment; this run does not reproduce LLaMA training.
+
+In this decoder, clipping controls the gradient entering AdamW, while the
+schedule chooses the rate associated with each successful optimizer update.
+Reuse the existing global clipping and AdamW update, adding linear warmup
+followed by one cosine decay over successful optimizer updates. The Rust
+example makes norm control, scheduled rates and preserved state inspectable
+on tiny text-model fixtures; it does not reproduce the papers' training runs
+or establish comparative language-model quality.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="optimizer-schedule-rust">
+
+## Extend rate construction and reuse the update owner
+
+`LearningRateSchedule::linear_warmup_cosine_decay` returns the same schedule
+type as the explicit-rate constructor. Its vector contains one rate per planned
+successful update, with no mutable cursor. Changing a rate does not recreate
+AdamW or reset its moments.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/trainer.rs"
+  region="warmup-cosine-schedule" captionId="optimizer-schedule-rust-constructor"
+  caption="Construct one warmup and cosine decay, validating represented rates and assigning peak and final endpoints explicitly."
+  label="Rust source: checked linear-warmup and single-cosine learning-rate construction" />
+
+The diagnostic constructs its scalar objective from existing parameter leaves.
+Coefficients make the two selected tensors contribute the explained gradient
+coordinates; the existing reverse engine calculates their derivatives.
+
+<RustSource path="rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs"
+  region="constructed-global-gradient" captionId="optimizer-schedule-rust-diagnostic"
+  caption="Construct an inspection objective with gradient coordinates three and four in one model tensor and twelve in another."
+  label="Rust source: constructed scalar diagnostic across two existing text-model tensors" />
+
+The probe passes that scalar through `decoder_update_with_forward`. It observes
+the existing trainer's common gradient transform and AdamW's effective
+gradient, moment and decay trace, then checks the cleared gradients. The
+transform supplies effective moment inputs without overwriting the raw gradient
+buffers; the trainer clears those buffers after the update commits. In scaled
+paths, unscaling and clipping can be combined in that transform rather than
+performed as separate in-place changes.
+
+<RustSource path="rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs"
+  region="global-clipping-probe" captionId="optimizer-schedule-rust-clip"
+  caption="Observe the existing global clip and AdamW trace for the two-tensor diagnostic, then verify cleared gradients."
+  label="Rust source: shared global clipping and existing AdamW applied to the scalar diagnostic" />
+
+### Advance the clock only when AdamW commits
+
+The requested update must equal the optimizer's committed count plus one.
+This check runs before the forward callback. Looking up a rate does not
+consume it.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/trainer.rs"
+  region="scheduled-update-clock" captionId="optimizer-schedule-rust-clock"
+  caption="Require the requested learning-rate entry to match the next optimizer update before running forward."
+  label="Rust source: one-based schedule lookup and next-optimizer-step validation" />
+
+The text run reuses Chapter 11's seed-$39$ model fixture: vocabulary $258$,
+residual width $4$, one attention head, feed-forward width $8$, two decoder
+blocks and capacity for $8$ positions. It has $20$ named parameter tensors
+and $1372$ learned scalars. Input IDs `[0,99,100]` have shape $[1,3]$, meaning
+one row and three positions; targets `[99,100,1]` provide three next-token
+targets for the mean negative log likelihood. The same fixed text is reused
+at every update.
+
+Within this run, one live model and one AdamW instance continue through all
+six generated rates. Computation is CPU `f64`, dropout is disabled and the
+loss scale is $1$. The unscaled entry and the scaled/accumulated entries share
+the same finish owner. After contributions combine, its logical operations are
+unscaling when applicable, checking the finite global gradient, clipping once,
+applying scheduled AdamW once and clearing gradients. The gradient transform
+can fuse unscaling and clipping before the moment calculation. Microbatches and
+recomputed forwards do not create extra schedule steps.
+
+After committing update $1$, the run deliberately requests update $3$.
+It receives `OptimizerStepMismatch` with
+`"optimizer committed step 1, expected 3"`, and `forward_called` is `false`.
+The error's expected index comes from the requested $3$; the next eligible
+update is still $1+1=2$. Weight and gradient bits, parameter revisions,
+populated moments, beta powers and optimizer step remain unchanged.
+The default schedule still supplies $0.002$ for update $2$.
+The run then actually executes update $2$ and continues through $6$.
+Executing the next valid update is not retrying the refused request for $3$.
+
+<RustSource path="rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs"
+  region="scheduled-text-updates" captionId="optimizer-schedule-rust-text"
+  caption="Reuse one live text model and optimizer across six rates; refuse an out-of-order request before forward, then apply the next valid update."
+  label="Rust source: six continuing scheduled text updates and preserved state on out-of-order refusal" />
+
+Every default text update is marked clipped at threshold $0.5$ and clears its
+gradients. The first measured before-norm is $1.2630253079143638$; the
+trainer reports after-norm $0.5$ as the chosen clipping cap. Its first recorded
+forward mean loss is $5.668398842431571$, before update $1$. The sixth
+recorded forward mean loss is $5.610984283272283$, before update $6$.
+There is no loss measurement after the sixth commit and no held-out or
+comparative model-quality result.
+
+The first coordinate of `token_embedding.weight` makes moment continuity
+visible. Update $1$ receives effective gradient $0.07471210553828579$
+and stores first moment $0.0074712105538285774$. Update $2$ reads that
+same previous moment, receives effective gradient $0.062260867053383434$
+and stores $0.012950176203784062$, using rate $0.002$. AdamW reaches
+step $6$, while its base configuration rate remains $0.002$; the per-update
+override changes the rate used for that step without resetting optimizer state.
+
+### Inspect actual same-step retries in a separate fixed-rate fixture
+
+The demonstration also calls Chapter 12's existing public `overflow_fixture`.
+That experiment creates another model and optimizer, retains the fixed rates
+`[0.001,0.001]`, and uses the existing CPU FP16/F32 matrix policy and its
+original settings, including $\beta_2=0.999$. These rates are separate from
+the generated cosine schedule.
+
+After successful update $1$ populates moments, scheduled update $2$ overflows
+and is skipped eight times. The first skip lowers the loss scale from
+$16777216$ to $8388608$ and preserves weight and gradient bits, parameter
+revisions, AdamW moments, beta powers and optimizer step $1$. The fixture
+actually retries that same scheduled update $2$; it succeeds at scale
+$65536$, commits optimizer step $2$ and clears gradients.
+
+A numerical skip performs no AdamW update or decoupled weight decay and consumes
+no learning-rate step. Its loss-scale run state can change. This state boundary
+does not promise rollback of arbitrary caller effects, a data cursor or live
+random-number state. Applying AdamW to zero gradients would still be an optimizer
+step and could decay weights; an overflow skip does neither.
+
+<RustSource path="rust/demos/practical-ch14-optimizer-schedules-clipping/src/lib.rs"
+  region="chapter14-evidence-composition" captionId="optimizer-schedule-rust-composition"
+  caption="Report the generated schedule, separate scalar diagnostic and text run, and the original fixed-rate Chapter 12 overflow retries."
+  label="Rust source: separately identified schedule, clipping diagnostic, text updates and reused fixed-rate overflow evidence" />
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="optimizer-schedule-visualization">
+
+## Follow rates, one global factor and the next valid update
+
+export const optimizerScheduleLabels = {
+  title: "One global clip; rates indexed by successful updates",
+  description: "The default text run assigns six rates to six successful updates, reaching the peak after two warmup updates and the final rate at update six. A separate scalar diagnostic joins coordinates from two named tensors under one global norm and one common clipping factor. After the text run commits update one, an out-of-order request for three is refused before forward, preserving model and AdamW state; update two remains next and is then applied.",
+  scheduleTitle: "Default text run: warmup, then one cosine decay",
+  scheduleCaption: "Learning rate for each successful update; displayed rates are rounded to seven significant digits.",
+  stepHeader: "Successful update",
+  rateHeader: "Learning rate",
+  scheduleScope: "The JSON record retains the full reported f64 values. These six updates use one continuing text model and optimizer.",
+  clippingTitle: "Separate diagnostic: one factor across two tensors",
+  clippingBody: "Only the listed coordinates are nonzero. Join both tensors when measuring the gradient; multiply every coordinate by the same factor before AdamW.",
+  parameterHeader: "Named parameter tensor",
+  rawHeader: "Raw gradient coordinates",
+  effectiveHeader: "Effective gradient coordinates",
+  normBeforeLabel: "Combined raw gradient norm",
+  thresholdLabel: "Global norm limit",
+  factorLabel: "Common clipping factor",
+  normAfterLabel: "Hand-checked effective gradient norm",
+  clockTitle: "Text-run refusal preserves the next valid update",
+  committedLabel: "Committed optimizer step before refusal",
+  refusedLabel: "Requested update refused before forward",
+  preservedBody: "Weight and gradient bits, parameter revisions, populated moments, beta powers and optimizer step are preserved.",
+  afterRefusalLabel: "Committed optimizer step after refusal",
+  nextLabel: "Next valid update, then actually applied",
+  nextRateLabel: "Rate for that next valid update",
+  scope: "The scalar diagnostic is not text likelihood. Global clipping bounds the gradient entering AdamW in ideal arithmetic; moment normalization and separate weight decay determine the final parameter change. The actual same-step overflow retries are a separate Chapter 12 CPU precision experiment with its original fixed rates.",
+};
+
+<OptimizerScheduleDiagram labels={optimizerScheduleLabels} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="optimizer-schedule-exercises">
+
+## Reproduce the rates and inspect the update boundaries
+
+The existing `clap` CLI accepts `--warmup-steps` from $0$ through $5$ and
+defaults to $2$. Each command below starts its own demonstration and prints
+one JSON record; separate invocations do not continue each other's optimizer.
+
+<RustSource path="rust/demos/practical-ch14-optimizer-schedules-clipping/src/main.rs"
+  captionId="optimizer-schedule-rust-entrypoint"
+  caption="Select zero through five warmup updates with existing clap, default to two, and print the bounded demonstration JSON."
+  label="Rust source: bounded warmup CLI and JSON entry point" />
+
+<p id="optimizer-schedule-run-default">From the repository root, with the existing
+course Docker setup available, run the default CPU example. It needs no GPU,
+external corpus or downloaded model:</p>
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch14-optimizer-schedules-clipping
+```
+
+The record has `schedule`, `clipping`, `text_training` and
+`reused_fixed_rate_overflow` objects. The default `schedule.rates` starts
+with `[0.001,0.002]` and ends with `0.0002`. `text_training.updates` contains
+six committed steps, each with `gradients_cleared: true`.
+`text_training.refused_update.forward_called` is `false`.
+The reused overflow observation reports eight skips and a successful
+scheduled-step-two retry.
+
+<p id="optimizer-schedule-run-variants">Keep the same repository-root working
+directory and existing Docker setup to run both boundary warmup choices and
+the focused tests:</p>
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch14-optimizer-schedules-clipping -- --warmup-steps 0
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch14-optimizer-schedules-clipping -- --warmup-steps 5
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch14-optimizer-schedules-clipping
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p llm-from-scratch-practical warmup_cosine
+```
+
+Both variants print six successful text updates and finish at rate $0.0002$.
+The zero-warmup variant peaks on update $1$; the five-update warmup variant
+peaks on update $5$. The demo test command runs three library tests for
+the shared clip, continuing optimizer and supported warmup boundaries.
+The `warmup_cosine` selector runs three core constructor tests, covering
+rates, endpoint conventions, invalid inputs and warmup underflow refusal.
+
+The following practice is optional; the explanations above supply the rules
+and observed results.
+
+<ol id="optimizer-schedule-practice-prompts">
+  <li id="optimizer-schedule-practice-1">Explain the diagnostic's shared clipping factor for gradient coordinates <InlineMath latex="3" />, <InlineMath latex="4" /> and <InlineMath latex="12" /> across two tensors, using global limit <InlineMath latex="6.5" />. Identify the effective coordinates and explain why this scalar diagnostic is separate from text likelihood.</li>
+  <li id="optimizer-schedule-practice-2">Use the <a href="#optimizer-schedule-run-variants">zero- and five-warmup commands and setup above</a>. Inspect <code>schedule.rates</code> and <code>text_training.final_optimizer_step</code>; identify each peak update and the common final update and rate.</li>
+  <li id="optimizer-schedule-practice-3">Use the <a href="#optimizer-schedule-run-default">default command and setup above</a>. Inspect the first two <code>text_training.updates</code> records for first-moment continuity, then inspect <code>clipping.first_coordinate</code> for the adaptive and weight-decay subtractions. Explain which quantity global clipping bounds.</li>
+  <li id="optimizer-schedule-practice-4">Use the <a href="#optimizer-schedule-run-default">default command and setup above</a>. Compare <code>text_training.refused_update</code> with <code>reused_fixed_rate_overflow.observation</code>. Identify the next valid update after refusal and the actual same-step retry after numerical skips, retaining each experiment's rates.</li>
+</ol>
+
+<details id="optimizer-schedule-practice-answers">
+<summary id="optimizer-schedule-answer-summary">Checked explanations for the global factor, schedule endpoints, AdamW state and distinct refusal/retry experiments</summary>
+<ol>
+  <li id="optimizer-schedule-answer-1">For the diagnostic's nonzero gradient coordinates <InlineMath latex="3,4,12" /> across two tensors, the full norm is <InlineMath latex={"\\sqrt{3^2+4^2+12^2}=13"} />. The global norm limit is <InlineMath latex="6.5" />, so the common factor is <InlineMath latex="6.5/13=0.5" />. Apply it to all coordinates to obtain <InlineMath latex="1.5,2,6" />, with norm <InlineMath latex="6.5" />. The two tensors share one factor; per-tensor clipping would be a different transformation. These derivatives come from a constructed scalar inspection objective, not a next-token likelihood.</li>
+  <li id="optimizer-schedule-answer-2">With zero warmup, update <InlineMath latex="1" /> uses the peak rate <InlineMath latex="0.002" />. With five warmup updates, update <InlineMath latex="5" /> reaches <InlineMath latex="0.002" />. Both experiments commit six updates and use <InlineMath latex="0.0002" /> on update <InlineMath latex="6" />. Each command starts another model and optimizer; these are separate six-update runs.</li>
+  <li id="optimizer-schedule-answer-3">In the default text run, the first coordinate of <code>token_embedding.weight</code> has first moment <InlineMath latex="0.0074712105538285774" /> after update <InlineMath latex="1" />. That is the previous moment read by update <InlineMath latex="2" />. Its next first moment is <InlineMath latex="0.012950176203784062" />; the optimizer was not reset. In the separate scalar diagnostic, the adaptive subtraction is <InlineMath latex="0.0009999999933333335" /> and the decay subtraction is <InlineMath latex={"9.270782062966737\\times10^{-7}"} />, taking weight <InlineMath latex="0.09270782062966737" /> to <InlineMath latex="0.09170689355812774" />. Global clipping bounds the effective input-gradient norm in ideal arithmetic; it does not directly cap AdamW's combined parameter displacement.</li>
+  <li id="optimizer-schedule-answer-4">The generated-rate text run commits <InlineMath latex="1" />, refuses requested <InlineMath latex="3" /> without calling forward, preserves its model and populated optimizer state, and then applies next valid update <InlineMath latex="2" /> at <InlineMath latex="0.002" />. That is not a retry of requested <InlineMath latex="3" />. The separate Chapter 12 CPU FP16/F32 fixture keeps fixed rates <code>[0.001,0.001]</code>; it skips scheduled <InlineMath latex="2" /> eight times, first backing off scale <InlineMath latex="16777216" /> to <InlineMath latex="8388608" />, then actually commits the same scheduled <InlineMath latex="2" /> at scale <InlineMath latex="65536" /> and clears gradients. Skips consume no optimizer step or weight decay; loss-scale state can change.</li>
+</ol>
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="optimizer-schedule-handoff">
+
+## Preserve the update clock before preserving model state
+
+The text encoder, source-independent transformer, tied head and existing AdamW
+now share generated rates indexed by committed logical updates. Global clipping
+still transforms the complete gradient before moments; refused and
+overflow-skipped attempts consume no optimizer step. The backbone continues to
+consume vectors, positions and attention layout without requiring a tokenizer
+or vocabulary. Text remains the worked input and output.
+
+Chapter 15 will address portable model saving and loading in a fresh process,
+followed by the additional state needed for training continuation. Saving the
+learned composition, weights, settings and required assets for inference is a
+different responsibility from retaining optimizer, random-generator and data
+position state for exact continuation.
+
+Full-corpus training, physical-GPU measurements and accelerated mixed-precision
+execution still need their own evidence. The reused CPU FP16/F32 fixture is a
+precision experiment, not a physical-GPU result.
+
+</div>
+
+
+

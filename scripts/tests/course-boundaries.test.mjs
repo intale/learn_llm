@@ -188,14 +188,14 @@ test('sheet identity cannot cross course lessons and orientation has no sheet',t
   assert.throws(()=>checkPracticalAuxiliarySurfaces(root),/orientation/);
 });
 
-test('current fourteen-chapter auxiliary surfaces reuse the maintained catalog and sheet checks',t=>{
+test('current fifteen-chapter auxiliary surfaces reuse the maintained catalog and sheet checks',t=>{
   const {root}=fixture(t,CURRENT_CHAPTER_IDS);
   for(const chapterId of CURRENT_CHAPTER_IDS){
     const paths=['site/src/content/practical-chapters/en/'+chapterId+'.mdx'];
     if(chapterId!==CURRENT_CHAPTER_IDS[0])paths.push('site/src/i18n/practical-catalogs/en/'+chapterId+'.json','site/src/content/practical-cheat-sheets/en/'+chapterId+'.json');
     for(const path of paths)write(root,path,readFileSync(resolve(project,path)));
   }
-  assert.deepEqual(checkPracticalAuxiliarySurfaces(root,CURRENT_CHAPTER_IDS),{catalogCount:13,sheetCount:13});
+  assert.deepEqual(checkPracticalAuxiliarySurfaces(root,CURRENT_CHAPTER_IDS),{catalogCount:14,sheetCount:14});
   const path='site/src/i18n/practical-catalogs/en/04-padded-variable-batches.json',bytes=readFileSync(resolve(root,path)),catalog=JSON.parse(bytes);
   write(root,path,JSON.stringify({...catalog,contentRevision:catalog.contentRevision+1}));
   assert.throws(()=>checkPracticalAuxiliarySurfaces(root,CURRENT_CHAPTER_IDS),/catalog metadata drift/);

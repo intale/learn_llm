@@ -139,6 +139,142 @@ impl TrainerConfig {
 }
 // endregion:training-plan
 
+// region:warmup-cosine-schedule
+impl LearningRateSchedule {
+    /// Builds one linear warmup and one cosine decay over successful updates.
+    ///
+    /// Updates are numbered `1..=total_steps`. Positive warmup reaches the peak
+    /// at `warmup_steps`; zero warmup starts at the peak on update one. The last
+    /// update always uses `final_rate`, which is a decay endpoint rather than a
+    /// lower bound on the warmup rates. Both endpoints must be positive under
+    /// the existing AdamW policy. There are no restarts or mutable schedule
+    /// counters: callers select the next successful optimizer-update index.
+    pub fn linear_warmup_cosine_decay(
+        total_steps: usize,
+        warmup_steps: usize,
+        peak_rate: f64,
+        final_rate: f64,
+    ) -> Result<Self, TrainerError> {
+        let invalid = |reason| TrainerError::InvalidWarmupCosineSchedule { reason };
+        if total_steps < 2 || total_steps as u128 > (1_u128 << 53) {
+            return Err(invalid("total steps must be between 2 and 2^53"));
+        }
+        if warmup_steps >= total_steps {
+            return Err(invalid("warmup must leave at least one decay update"));
+        }
+        if !peak_rate.is_finite() || peak_rate <= 0.0 {
+            return Err(invalid("the peak rate must be finite and positive"));
+        }
+        if !final_rate.is_finite() || final_rate <= 0.0 || final_rate > peak_rate {
+            return Err(invalid(
+                "the final rate must be finite, positive and no greater than the peak",
+            ));
+        }
+        let mut rates = Vec::new();
+        rates
+            .try_reserve_exact(total_steps)
+            .map_err(|_| invalid("the schedule cannot be allocated"))?;
+        for step in 1..=total_steps {
+            let rate = if step == total_steps {
+                final_rate
+            } else if step == warmup_steps || (warmup_steps == 0 && step == 1) {
+                peak_rate
+            } else if step < warmup_steps {
+                peak_rate * (step as f64 / warmup_steps as f64)
+            } else {
+                let (elapsed, duration) = if warmup_steps == 0 {
+                    (step - 1, total_steps - 1)
+                } else {
+                    (step - warmup_steps, total_steps - warmup_steps)
+                };
+                let progress = elapsed as f64 / duration as f64;
+                let weight = 0.5 * (1.0 + (std::f64::consts::PI * progress).cos());
+                final_rate + (peak_rate - final_rate) * weight
+            };
+            rates.push(rate);
+        }
+        // Preserve the existing positive-rate validation, including a warmup
+        // value that rounds to zero even though its mathematical value is positive.
+        Self::new(rates)
+    }
+}
+// endregion:warmup-cosine-schedule
+
+#[cfg(test)]
+mod warmup_cosine_tests {
+    use super::{LearningRateSchedule, TrainerError};
+
+    #[test]
+    fn warmup_cosine_reaches_peak_and_final_on_the_declared_updates() {
+        let schedule =
+            LearningRateSchedule::linear_warmup_cosine_decay(6, 2, 0.002, 0.0002).unwrap();
+        let expected = [
+            0.001,
+            0.002,
+            0.0017363961030678928,
+            0.0011,
+            0.0004636038969321073,
+            0.0002,
+        ];
+        assert_eq!(schedule.steps(), 6);
+        for (index, expected) in expected.into_iter().enumerate() {
+            assert!((schedule.learning_rate(index + 1).unwrap() - expected).abs() < 1e-18);
+        }
+        assert_eq!(schedule.learning_rate(0), None);
+        assert_eq!(schedule.learning_rate(7), None);
+        assert_eq!(schedule.learning_rate(2), Some(0.002));
+        assert_eq!(schedule.learning_rate(6), Some(0.0002));
+    }
+
+    #[test]
+    fn no_warmup_and_one_decay_update_keep_their_endpoint_conventions() {
+        let none = LearningRateSchedule::linear_warmup_cosine_decay(6, 0, 0.002, 0.0002).unwrap();
+        assert_eq!(none.learning_rate(1), Some(0.002));
+        assert_eq!(none.learning_rate(6), Some(0.0002));
+        assert!(none.rates().windows(2).all(|rates| rates[0] > rates[1]));
+        let long = LearningRateSchedule::linear_warmup_cosine_decay(6, 5, 0.002, 0.0002).unwrap();
+        assert_eq!(long.learning_rate(5), Some(0.002));
+        assert_eq!(long.learning_rate(6), Some(0.0002));
+        for warmup in [0, 1] {
+            let two =
+                LearningRateSchedule::linear_warmup_cosine_decay(2, warmup, 0.002, 0.0002).unwrap();
+            assert_eq!(two.rates(), &[0.002, 0.0002]);
+        }
+        let equal = LearningRateSchedule::linear_warmup_cosine_decay(4, 2, 0.002, 0.002).unwrap();
+        assert_eq!(equal.rates(), &[0.001, 0.002, 0.002, 0.002]);
+    }
+
+    #[test]
+    fn invalid_schedule_shapes_rates_and_unrepresentable_warmup_are_refused() {
+        for (steps, warmup) in [(0, 0), (1, 0), (6, 6), (6, 7), (usize::MAX, 0)] {
+            assert!(
+                LearningRateSchedule::linear_warmup_cosine_decay(steps, warmup, 0.002, 0.0002)
+                    .is_err()
+            );
+        }
+        for peak in [0.0, -1.0, f64::NAN, f64::INFINITY] {
+            assert!(LearningRateSchedule::linear_warmup_cosine_decay(6, 2, peak, 0.0002).is_err());
+        }
+        for final_rate in [0.0, -1.0, 0.003, f64::NAN, f64::INFINITY] {
+            assert!(
+                LearningRateSchedule::linear_warmup_cosine_decay(6, 2, 0.002, final_rate).is_err()
+            );
+        }
+        assert!(matches!(
+            LearningRateSchedule::linear_warmup_cosine_decay(
+                3,
+                2,
+                f64::from_bits(1),
+                f64::from_bits(1)
+            ),
+            Err(TrainerError::InvalidScheduledLearningRate {
+                step: 1,
+                value: 0.0
+            })
+        ));
+    }
+}
+
 /// Which trainer input violated the train/validation information boundary.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrainerEpochRole {
@@ -171,6 +307,9 @@ pub enum TrainerError {
     },
     ObserverRejected(&'static str),
     EmptyLearningRateSchedule,
+    InvalidWarmupCosineSchedule {
+        reason: &'static str,
+    },
     InvalidScheduledLearningRate {
         step: usize,
         value: f64,
@@ -279,6 +418,9 @@ impl fmt::Display for TrainerError {
             }
             Self::EmptyLearningRateSchedule => {
                 formatter.write_str("the learning-rate schedule must contain at least one step")
+            }
+            Self::InvalidWarmupCosineSchedule { reason } => {
+                write!(formatter, "warmup/cosine schedule: {reason}")
             }
             Self::InvalidScheduledLearningRate { step, value } => write!(
                 formatter,
@@ -1290,6 +1432,7 @@ where
     })
 }
 
+// region:scheduled-update-clock
 fn validate_update_step(
     optimizer: &AdamW,
     config: &TrainerConfig,
@@ -1308,7 +1451,9 @@ fn validate_update_step(
     }
     Ok((learning_rate, expected))
 }
+// endregion:scheduled-update-clock
 
+// region:logical-update-finish
 #[allow(clippy::too_many_arguments)]
 fn finish_decoder_update<O: DecoderUpdateObserver>(
     model: &DecoderModel,
@@ -1369,6 +1514,7 @@ fn finish_decoder_update<O: DecoderUpdateObserver>(
         optimizer_trace,
     })
 }
+// endregion:logical-update-finish
 
 pub enum AccumulatedDecoderUpdate {
     Applied {

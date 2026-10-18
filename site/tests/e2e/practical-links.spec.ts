@@ -41,4 +41,23 @@ for (const viewport of [{ width: 1364, height: 900 }, { width: 390, height: 844 
       }) });
     });
   }
+  test(`@chapter:13-gradient-accumulation-recomputation Chapter 13 next navigation reaches Chapter 14 at ${viewport.width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize(viewport);
+    const sourcePath = siteBase + 'en/practical-llm-in-rust/13-gradient-accumulation-recomputation/';
+    const targetPath = siteBase + 'en/practical-llm-in-rust/14-optimizer-schedules-clipping/';
+    const response = await page.goto(sourcePath);
+    expect(response?.status()).toBe(200);
+    const link = page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]');
+    await expect(link).toHaveCount(1);
+    await expect(link).toHaveAttribute('rel', 'next');
+    await expect(link).toHaveAttribute('href', targetPath);
+    const observed = {sourcePath, targetPath, href: await link.getAttribute('href'), text: await link.innerText(), accessibleTree: await link.ariaSnapshot(), viewport};
+    await link.focus();
+    await expect(link).toBeFocused();
+    await link.press('Enter');
+    await expect(page).toHaveURL(new URL(targetPath, page.url()).href);
+    await expect(page.locator('[data-chapter-root]')).toHaveAttribute('data-chapter-id', '14-optimizer-schedules-clipping');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await testInfo.attach('programmatic-chapter13-next14-navigation', {body: JSON.stringify({...observed, destinationUrl: page.url()}), contentType: 'application/json'});
+  });
 }

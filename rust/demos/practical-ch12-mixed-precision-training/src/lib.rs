@@ -46,7 +46,8 @@ fn update(
     )?)
 }
 
-fn gradients(model: &DecoderModel) -> Vec<u64> {
+/// Snapshot the existing named-parameter gradient bits for bounded comparisons.
+pub fn gradients(model: &DecoderModel) -> Vec<u64> {
     model
         .parameters()
         .iter()
@@ -62,7 +63,8 @@ fn gradients(model: &DecoderModel) -> Vec<u64> {
         .collect()
 }
 
-fn revisions(model: &DecoderModel) -> Vec<u64> {
+/// Snapshot the existing named-parameter revisions without changing live leaves.
+pub fn revisions(model: &DecoderModel) -> Vec<u64> {
     model
         .parameters()
         .iter()
@@ -70,7 +72,8 @@ fn revisions(model: &DecoderModel) -> Vec<u64> {
         .collect()
 }
 
-fn same_optimizer_bits(left: &AdamWState, right: &AdamWState) -> bool {
+/// Reuse the complete optimizer-state comparison in later numerical examples.
+pub fn same_optimizer_bits(left: &AdamWState, right: &AdamWState) -> bool {
     left.config() == right.config()
         && left.parameter_groups() == right.parameter_groups()
         && left.step_count() == right.step_count()

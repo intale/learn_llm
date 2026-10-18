@@ -7,7 +7,7 @@ import {getMessages,validateMessageCatalog} from '../src/i18n';
 import {COURSE_HOME_MESSAGE_KEYS,COURSE_INDEX_MESSAGE_KEYS,courseMessageKeys,hasCourseHomeMessages,hasCourseIndexMessages,hasCourseMessages} from '../src/i18n/messages';
 import {practicalCourse} from '../src/lib/course-configuration';
 
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping'] as const;
 const read=(path:string)=>readFileSync(new URL('../../'+path,import.meta.url),'utf8');
 const documents=ids.map(id=>({id,
   lesson:parseJsonFrontmatter(read('site/src/content/practical-chapters/en/'+id+'.mdx'),id),
@@ -39,11 +39,11 @@ describe('independent optional course message groups',()=>{
   });
 });
 
-describe('current practical Chapters 0–13 source bindings',()=>{
+describe('current practical Chapters 0–14 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
-    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([8,1,1,2,1,1,1,3,3,5,2,2,2,1]);
+    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([9,1,1,2,1,1,1,3,3,5,2,2,2,1,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);

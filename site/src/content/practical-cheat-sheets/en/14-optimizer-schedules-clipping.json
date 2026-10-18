@@ -1,0 +1,40 @@
+{
+  "chapter_id": "14-optimizer-schedules-clipping",
+  "locale": "en",
+  "title": "Scheduled updates and one global clipping factor",
+  "description": "Distinguish the gradient entering AdamW, the rate for a successful update and the state preserved by an uncommitted attempt.",
+  "terms": [
+    {
+      "term": "Learning-rate schedule",
+      "definition": "A rate assigned to each successful logical optimizer update. The existing schedule stores positive rates and has no mutable cursor; looking up a rate does not consume it."
+    },
+    {
+      "term": "Linear warmup",
+      "definition": "Increase early update rates in proportion to their one-based update index until the final warmup update reaches the peak rate. Zero warmup starts at the peak on the first update; warmup does not reset AdamW moments."
+    },
+    {
+      "term": "Cosine decay",
+      "definition": "After warmup, move the learning rate along one cosine curve from the peak to the declared final rate, with no restart. The final rate is a decay endpoint, not a lower bound on earlier warmup values."
+    },
+    {
+      "term": "Successful update index",
+      "definition": "The committed AdamW step count plus one for the next eligible update. Microbatches, recomputed forwards, refused requests and numerical skips do not each advance this clock."
+    },
+    {
+      "term": "Global gradient norm",
+      "definition": "The Euclidean norm across gradient coordinates of all distinct named parameter tensors after any unscaling. Count a tied parameter once, rather than measuring each tensor as an independent clipping problem."
+    },
+    {
+      "term": "Global norm clipping",
+      "definition": "Use one nonamplifying factor across the full gradient when its norm exceeds the limit. The existing transform supplies effective AdamW moment inputs without overwriting raw gradient buffers. The cap concerns the effective gradient in ideal arithmetic, not the final parameter displacement; the trainer's after-norm field reports its chosen cap when clipped."
+    },
+    {
+      "term": "Decoupled weight decay",
+      "definition": "Subtract a rate-scaled contribution from the old weight separately from the loss-gradient and moment calculation. Learning-rate decay changes rates over updates; weight decay acts on weights during an update."
+    },
+    {
+      "term": "Skipped update attempt",
+      "definition": "A numerical overflow attempt that commits no AdamW step or weight decay and leaves the same schedule index available, while loss-scale state may change. The reused Chapter 12 fixture actually retries that same step at its original fixed rate; an out-of-order refusal is a separate validation error."
+    }
+  ]
+}

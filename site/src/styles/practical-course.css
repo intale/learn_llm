@@ -1,5 +1,7 @@
 article[data-chapter-id="11-accelerated-tensor-execution"] .lesson-body p > code,
 article[data-chapter-id="12-mixed-precision-training"] .lesson-body p > code,
-article[data-chapter-id="13-gradient-accumulation-recomputation"] .lesson-body p > code {
+article[data-chapter-id="13-gradient-accumulation-recomputation"] .lesson-body p > code,
+article[data-chapter-id="14-optimizer-schedules-clipping"] .lesson-body p > code,
+article[data-chapter-id="14-optimizer-schedules-clipping"] .lesson-body li > code {
   overflow-wrap: anywhere;
 }

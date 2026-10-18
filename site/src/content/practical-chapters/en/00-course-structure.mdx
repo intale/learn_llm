@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
@@ -23,7 +23,7 @@
     "component": "PracticalLlmSystemDiagram",
     "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and planned saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
   },
-  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Planned Chapters 14–32 extend training, persistence, evaluation, inference and adaptation."
+  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Planned Chapters 15–32 extend persistence, evaluation, inference and adaptation."
 }
 ---
 
@@ -86,7 +86,7 @@ export const diagramLabels = {
       title: "Learning changes weights",
       description: "Scores and observed targets give loss; gradients and the optimizer change the model weights.",
       feedback: "Updated weights feed the next forward calculation.",
-      chapters: "Chapter 13; planned extensions: Chapters 14, 23–25",
+      chapters: "Chapters 13–14; planned extensions: Chapters 23–25",
     },
     {
       id: "generation",
@@ -101,8 +101,8 @@ export const diagramLabels = {
     {
       id: "execution",
       title: "Numerical execution",
-      description: "CPU/CUDA matrix and reduction primitives support forward and backward. CPU half-format matrix policies and loss-scaled updates add deliberate numerical choices; further training and memory changes remain planned.",
-      chapters: "Chapters 11–13; planned extensions: Chapter 14",
+      description: "CPU/CUDA matrix and reduction primitives support forward and backward. CPU half-format matrix policies and loss-scaled updates add deliberate numerical choices; accumulation, recomputation and scheduled updates extend training.",
+      chapters: "Chapters 11–14",
     },
     {
       id: "saved-state",
@@ -151,7 +151,7 @@ export const roadmap = [
     chapters: [
       { number: 12, purpose: "Use CPU half-format matrix arithmetic and loss-scaled updates, inspect actual dtypes and preserve model and optimizer state when an overflowing update is skipped." },
       { number: 13, purpose: "Combine smaller training batches with the correct token denominator, and trade saved activations for recomputation with matching randomness." },
-      { number: 14, title: "Optimizer schedules and gradient clipping", planned: true, purpose: "Extend AdamW with warmup, decay and global gradient-norm clipping in an explicit update order." },
+      { number: 14, purpose: "Choose warmup and cosine rates by successful update while inspecting existing global clipping and AdamW state." },
       { number: 15, title: "Save, load, and resume a model", planned: true, purpose: "Save the composed model, exit and load it for local inference; then restore the additional state needed for training resume." },
       { number: 16, title: "Language-model evaluation", planned: true, purpose: "Compare training and held-out loss, a simple baseline and seed variation to bound conclusions about overfitting and quality." },
       { number: 17, title: "Weight quantization", planned: true, purpose: "Represent weights with scales and rounding, then compare storage and numerical error using a portable dequantization path." },
@@ -300,7 +300,7 @@ save/load path and the CUDA-to-CPU experiment remain planned work.
 
 ## Read the complete chapter roadmap
 
-<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–13 are published. Chapters 14–32 are
+<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–14 are published. Chapters 15–32 are
 planned and appear without links. A planned lesson may extend an existing
 mechanism, such as sampling or checkpointing. Its status describes the lesson's
 availability. The <a href={localePath(practicalCourse.referenceLocale, `/${practicalCourse.route}/`)}>practical course index</a>

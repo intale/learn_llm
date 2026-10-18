@@ -611,7 +611,8 @@
   max-inline-size: 75ch;
 }
 
-.host :global(figure.course-diagram[data-diagram-style='course-v1'][data-visualization-id='gradient-accumulation-recomputation']:fullscreen .course-diagram__description) {
+.host :global(figure.course-diagram[data-diagram-style='course-v1'][data-visualization-id='gradient-accumulation-recomputation']:fullscreen .course-diagram__description),
+.host :global(figure.course-diagram[data-diagram-style='course-v1'][data-visualization-id='practical-llm-system-map']:fullscreen .course-diagram__description) {
   max-inline-size: none;
 }
 

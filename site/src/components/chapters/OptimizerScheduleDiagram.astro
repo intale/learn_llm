@@ -1,0 +1,138 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch14-optimizer-schedules-clipping/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string;
+  scheduleTitle: string; scheduleCaption: string; stepHeader: string; rateHeader: string; scheduleScope: string;
+  clippingTitle: string; clippingBody: string; parameterHeader: string; rawHeader: string; effectiveHeader: string;
+  normBeforeLabel: string; thresholdLabel: string; factorLabel: string; normAfterLabel: string;
+  clockTitle: string; committedLabel: string; refusedLabel: string; preservedBody: string;
+  afterRefusalLabel: string; nextLabel: string; nextRateLabel: string; scope: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+const labelKeys = [
+  'title', 'description', 'scheduleTitle', 'scheduleCaption', 'stepHeader', 'rateHeader', 'scheduleScope',
+  'clippingTitle', 'clippingBody', 'parameterHeader', 'rawHeader', 'effectiveHeader',
+  'normBeforeLabel', 'thresholdLabel', 'factorLabel', 'normAfterLabel',
+  'clockTitle', 'committedLabel', 'refusedLabel', 'preservedBody', 'afterRefusalLabel',
+  'nextLabel', 'nextRateLabel', 'scope',
+] satisfies (keyof Labels)[];
+for (const key of labelKeys) {
+  if (typeof labels[key] !== 'string' || !labels[key].trim()) {
+    throw new Error('optimizer-schedule-diagram-copy');
+  }
+}
+const fixture = JSON.parse(fixtureSource);
+const schedule = fixture.schedule;
+const clip = fixture.clipping;
+const text = fixture.text_training;
+const refusal = text?.refused_update;
+if (fixture.chapter !== '14-optimizer-schedules-clipping' ||
+    schedule?.warmup_steps !== 2 || !Array.isArray(schedule.rates) ||
+    schedule.rates.length !== schedule.steps ||
+    !Array.isArray(text?.updates) || text.updates.length !== schedule.steps ||
+    schedule.rates.some((rate: number, index: number) =>
+      !Number.isFinite(rate) || rate <= 0 || text.updates[index].learning_rate !== rate) ||
+    !Array.isArray(clip?.parameter_names) || clip.parameter_names.length !== 2 ||
+    !Array.isArray(clip.raw_gradients) || clip.raw_gradients.length !== 3 ||
+    !Array.isArray(clip.effective_gradients) || clip.effective_gradients.length !== 3 ||
+    clip.transform?.kind !== 'uniform' || !Number.isFinite(clip.transform.scale) ||
+    !refusal || refusal.forward_called !== false ||
+    refusal.weights_gradients_revisions_moments_powers_step_preserved !== true) {
+  throw new Error('optimizer-schedule-diagram-fixture');
+}
+const tensors = [
+  { name: clip.parameter_names[0], raw: clip.raw_gradients.slice(0, 2), effective: clip.effective_gradients.slice(0, 2) },
+  { name: clip.parameter_names[1], raw: clip.raw_gradients.slice(2), effective: clip.effective_gradients.slice(2) },
+];
+const displayedRate = (rate: number) => String(Number(rate.toPrecision(7)));
+---
+
+<figure id="optimizer-schedule-figure" class="course-diagram optimizer-schedule-diagram"
+  data-diagram-style="course-v1" data-visualization-id="optimizer-schedules-clipping" tabindex="0"
+  aria-labelledby="optimizer-schedule-figure-title"
+  aria-describedby="optimizer-schedule-figure-description optimizer-schedule-figure-scope">
+  <figcaption id="optimizer-schedule-figure-caption" class="course-diagram__caption">
+    <h3 id="optimizer-schedule-figure-title">{labels.title}</h3>
+    <p id="optimizer-schedule-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <div class="course-diagram__grid optimizer-schedule-panels">
+    <section id="optimizer-schedule-rate-panel" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box aria-labelledby="optimizer-schedule-rate-title">
+      <h4 id="optimizer-schedule-rate-title">{labels.scheduleTitle}</h4>
+      <table id="optimizer-schedule-rate-table" data-diagram-table data-optimizer-schedule-role="schedule-rates">
+        <caption id="optimizer-schedule-rate-caption" class="course-diagram__description">{labels.scheduleCaption}</caption>
+        <thead>
+          <tr><th scope="col" id="optimizer-schedule-step-header">{labels.stepHeader}</th>
+            <th scope="col" id="optimizer-schedule-rate-header">{labels.rateHeader}</th></tr>
+        </thead>
+        <tbody>
+          {text.updates.map((update: { step: number; learning_rate: number }) => (
+            <tr data-optimizer-schedule-step={update.step} data-learning-rate={update.learning_rate}>
+              <td><InlineMath latex={String(update.step)} /></td>
+              <td><InlineMath latex={displayedRate(update.learning_rate)} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p id="optimizer-schedule-display-scope">{labels.scheduleScope}</p>
+    </section>
+
+    <section id="optimizer-schedule-clipping-panel" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box aria-labelledby="optimizer-schedule-clipping-title">
+      <h4 id="optimizer-schedule-clipping-title">{labels.clippingTitle}</h4>
+      <p id="optimizer-schedule-clipping-description">{labels.clippingBody}</p>
+      <ol class="course-diagram__grid optimizer-schedule-tensors">
+        {tensors.map((tensor) => (
+          <li class="course-diagram__card-stack" data-diagram-card data-diagram-box
+            data-optimizer-schedule-parameter={tensor.name}>
+            <p>{labels.parameterHeader}: <code dir="ltr">{tensor.name}</code></p>
+            <p data-optimizer-schedule-raw={tensor.raw.join(',')}>{labels.rawHeader}: <InlineMath latex={tensor.raw.join(',')} /></p>
+            <p data-optimizer-schedule-effective={tensor.effective.join(',')}>{labels.effectiveHeader}: <InlineMath latex={tensor.effective.join(',')} /></p>
+          </li>
+        ))}
+      </ol>
+      <p data-global-norm-before={clip.global_norm_before}>{labels.normBeforeLabel}: <InlineMath latex={String(clip.global_norm_before)} /></p>
+      <p data-global-norm-limit={clip.clip_threshold}>{labels.thresholdLabel}: <InlineMath latex={String(clip.clip_threshold)} /></p>
+      <p data-common-clipping-factor={clip.transform.scale}>{labels.factorLabel}: <InlineMath latex={String(clip.transform.scale)} /></p>
+      <p data-global-norm-after={clip.global_norm_after}>{labels.normAfterLabel}: <InlineMath latex={String(clip.global_norm_after)} /></p>
+    </section>
+
+    <section id="optimizer-schedule-clock-panel" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box aria-labelledby="optimizer-schedule-clock-title">
+      <h4 id="optimizer-schedule-clock-title">{labels.clockTitle}</h4>
+      <ol id="optimizer-schedule-clock" class="course-diagram__grid">
+        <li class="course-diagram__card-stack" data-clock-role="committed" data-optimizer-step={refusal.optimizer_step_before}>
+          <p>{labels.committedLabel}: <InlineMath latex={String(refusal.optimizer_step_before)} /></p>
+        </li>
+        <li class="course-diagram__card-stack" data-clock-role="refused" data-requested-step={refusal.attempted_step} data-forward-called={String(refusal.forward_called)}>
+          <p>{labels.refusedLabel}: <InlineMath latex={String(refusal.attempted_step)} /></p>
+          <p>{labels.preservedBody}</p>
+          <p>{labels.afterRefusalLabel}: <InlineMath latex={String(refusal.optimizer_step_after)} /></p>
+        </li>
+        <li class="course-diagram__card-stack" data-clock-role="next-valid" data-next-valid-step={refusal.next_valid_step} data-next-valid-rate={refusal.next_valid_learning_rate}>
+          <p>{labels.nextLabel}: <InlineMath latex={String(refusal.next_valid_step)} /></p>
+          <p>{labels.nextRateLabel}: <InlineMath latex={String(refusal.next_valid_learning_rate)} /></p>
+        </li>
+      </ol>
+    </section>
+  </div>
+
+  <p id="optimizer-schedule-figure-scope" class="course-diagram__description">{labels.scope}</p>
+</figure>
+
+<style>
+  .optimizer-schedule-panels { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 42rem) {
+    .optimizer-schedule-panels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #optimizer-schedule-clock-panel { grid-column: 1 / -1; }
+  }
+  @container course-diagram (min-width: 64rem) {
+    .optimizer-schedule-panels { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #optimizer-schedule-clock-panel { grid-column: auto; }
+  }
+</style>
+

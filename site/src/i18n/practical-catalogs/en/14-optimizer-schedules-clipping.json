@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "14-optimizer-schedules-clipping",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Schedule AdamW updates and clip global gradients",
+  "description": "Build a warmup and cosine schedule around existing AdamW, inspect a shared clipping factor, and keep successful updates separate from refused or skipped attempts.",
+  "objective": "Generate linear-warmup and cosine learning rates for successful AdamW updates, inspect one global gradient-clipping factor, and distinguish refused or overflow-skipped attempts from committed steps."
+}
