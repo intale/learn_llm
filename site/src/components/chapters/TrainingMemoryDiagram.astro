@@ -1,0 +1,112 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch13-gradient-accumulation-recomputation/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string;
+  accumulationTitle: string; totalLabel: string; lossScaleLabel: string; microbatchTitles: string[];
+  countLabel: string; shareLabel: string; seedLabel: string;
+  updateTitle: string; updateBody: string; stepLabel: string; scaleLabel: string;
+  recomputationTitle: string; retainedTitle: string; retainedBody: string;
+  recomputedTitle: string; recomputedBody: string;
+  bytesLabel: string; extraForwardsLabel: string; replayBody: string;
+  layoutLabel: string; counterLabel: string; scope: string;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+const labelKeys = [
+  'title', 'description', 'accumulationTitle', 'totalLabel', 'lossScaleLabel', 'countLabel',
+  'shareLabel', 'seedLabel', 'updateTitle', 'updateBody', 'stepLabel', 'scaleLabel',
+  'recomputationTitle', 'retainedTitle', 'retainedBody', 'recomputedTitle',
+  'recomputedBody', 'bytesLabel', 'extraForwardsLabel', 'replayBody',
+  'layoutLabel', 'counterLabel', 'scope',
+] satisfies (keyof Labels)[];
+for (const key of labelKeys) {
+  const value = labels[key];
+  if (typeof value !== 'string' || !value.trim()) throw new Error('training-memory-diagram-copy');
+}
+const fixture = JSON.parse(fixtureSource);
+const accumulation = fixture.accumulation;
+const recomputation = fixture.recomputation;
+const retained = recomputation?.retained_tape;
+if (fixture.chapter !== '13-gradient-accumulation-recomputation' ||
+    !Array.isArray(accumulation?.microbatch_valid_targets) ||
+    accumulation.microbatch_valid_targets.length === 0 ||
+    accumulation.microbatch_valid_targets.length !== accumulation.backward_seeds?.length ||
+    !Array.isArray(labels.microbatchTitles) ||
+    labels.microbatchTitles.length !== accumulation.microbatch_valid_targets.length ||
+    labels.microbatchTitles.some((value) => typeof value !== 'string' || !value.trim()) ||
+    !retained || !recomputation.site_tickets_equal || !recomputation.site_masks_equal ||
+    !recomputation.logit_bits_equal ||
+    !Number.isFinite(retained.ordinary_bytes) || !Number.isFinite(retained.recomputed_bytes)) {
+  throw new Error('training-memory-diagram-fixture');
+}
+const update = accumulation.accumulated_update;
+---
+
+<figure class="course-diagram training-memory-diagram" data-diagram-style="course-v1"
+  data-visualization-id="gradient-accumulation-recomputation" tabindex="0"
+  aria-labelledby="training-memory-figure-title" aria-describedby="training-memory-figure-description training-memory-measurement-scope">
+  <figcaption class="course-diagram__caption" id="training-memory-figure-caption">
+    <h3 id="training-memory-figure-title">{labels.title}</h3>
+    <p id="training-memory-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section data-diagram-box aria-labelledby="training-memory-accumulation-title">
+    <h4 id="training-memory-accumulation-title">{labels.accumulationTitle}</h4>
+    <p>{labels.totalLabel} <InlineMath latex={`N=${accumulation.target_count}`} />.
+      {labels.lossScaleLabel} <InlineMath latex={`S=${update.loss_scale}`} />.</p>
+    <ol class="course-diagram__grid training-memory-contributions">
+      {accumulation.microbatch_valid_targets.map((count: number, index: number) => (
+        <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-training-memory-role="microbatch" id={`training-memory-microbatch-${index + 1}`}>
+          <h5>{labels.microbatchTitles[index]}</h5>
+          <p>{labels.countLabel}: <InlineMath latex={String(count)} /></p>
+          <p>{labels.shareLabel}: <InlineMath latex={`\\frac{${count}}{${accumulation.target_count}}`} /></p>
+          <p>{labels.seedLabel}: <InlineMath latex={String(accumulation.backward_seeds[index])} /></p>
+        </li>
+      ))}
+      <li class="course-diagram__card-stack training-memory-update" data-diagram-card data-diagram-box id="training-memory-update-card">
+        <h5>{labels.updateTitle}</h5>
+        <p>{labels.updateBody}</p>
+        <p>{labels.stepLabel}: <InlineMath latex={String(update.optimizer_step)} /></p>
+        <p>{labels.scaleLabel}: <InlineMath latex={`${update.loss_scale}\\rightarrow${update.next_loss_scale}`} /></p>
+      </li>
+    </ol>
+  </section>
+
+  <section data-diagram-box aria-labelledby="training-memory-recomputation-title">
+    <h4 id="training-memory-recomputation-title">{labels.recomputationTitle}</h4>
+    <div class="course-diagram__grid training-memory-alternatives">
+      <section class="course-diagram__card-stack" data-diagram-card data-diagram-box data-training-memory-role="retained-tape" aria-labelledby="training-memory-retained-title">
+        <h5 id="training-memory-retained-title">{labels.retainedTitle}</h5>
+        <p>{labels.retainedBody}</p>
+        <p>{labels.bytesLabel}: <InlineMath latex={`${retained.ordinary_bytes}\\,\\mathrm{bytes}`} /></p>
+      </section>
+      <section class="course-diagram__card-stack" data-diagram-card data-diagram-box data-training-memory-role="recomputed-tape" aria-labelledby="training-memory-recomputed-title">
+        <h5 id="training-memory-recomputed-title">{labels.recomputedTitle}</h5>
+        <p>{labels.recomputedBody}</p>
+        <p>{labels.bytesLabel}: <InlineMath latex={`${retained.recomputed_bytes}\\,\\mathrm{bytes}`} /></p>
+        <p data-training-memory-role="recomputed-forwards">{labels.extraForwardsLabel}: <InlineMath latex={String(recomputation.recomputed_block_forwards)} /></p>
+      </section>
+    </div>
+    <p id="training-memory-replay-description">{labels.replayBody}</p>
+    <p>{labels.layoutLabel}: <InlineMath latex={`[B,T,D]=[${recomputation.layout.join(',')}]`} />.
+      {labels.counterLabel}: <InlineMath latex={String(recomputation.live_counter_after_forward_and_backward)} />.</p>
+  </section>
+
+  <p id="training-memory-measurement-scope" class="course-diagram__description">{labels.scope}</p>
+</figure>
+
+<style>
+  .training-memory-contributions,
+  .training-memory-alternatives { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 45rem) {
+    .training-memory-contributions,
+    .training-memory-alternatives { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .training-memory-update { grid-column: 1 / -1; }
+  }
+  @container course-diagram (min-width: 64rem) {
+    .training-memory-contributions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .training-memory-update { grid-column: auto; }
+  }
+</style>

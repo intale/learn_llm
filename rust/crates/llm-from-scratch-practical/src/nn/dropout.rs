@@ -689,8 +689,115 @@ pub(crate) enum DropoutExecution<'a> {
         limits: DropoutLimits,
         records: Vec<DropoutSiteRecord>,
     },
+    CompactFresh {
+        policy: DropoutPolicy,
+        binding: DropoutBinding,
+        candidate: DropoutCounterState,
+        limits: DropoutLimits,
+        tickets: Vec<DropoutReplayTicket>,
+    },
+    CompactReplay {
+        policy: DropoutPolicy,
+        binding: DropoutBinding,
+        tickets: &'a [DropoutReplayTicket],
+        next: usize,
+        limits: DropoutLimits,
+    },
+}
+
+/// A block's RNG descriptors, with no activation or multiplier tensor handles.
+#[derive(Clone)]
+pub(crate) struct BlockDropoutReplay {
+    policy: Option<DropoutPolicy>,
+    binding: Option<DropoutBinding>,
+    tickets: Vec<DropoutReplayTicket>,
+    limits: DropoutLimits,
+}
+impl BlockDropoutReplay {
+    pub(crate) fn execution(&self) -> DropoutExecution<'_> {
+        if let (Some(policy), Some(binding)) = (self.policy, &self.binding) {
+            DropoutExecution::CompactReplay {
+                policy,
+                binding: binding.clone(),
+                tickets: &self.tickets,
+                next: 0,
+                limits: self.limits,
+            }
+        } else {
+            DropoutExecution::Identity
+        }
+    }
 }
 impl DropoutExecution<'_> {
+    pub(crate) fn into_compact(self) -> Result<Self, DropoutError> {
+        match self {
+            Self::Identity => Ok(Self::Identity),
+            Self::Fresh {
+                policy,
+                binding,
+                candidate,
+                limits,
+                records,
+            } if records.is_empty() => Ok(Self::CompactFresh {
+                policy,
+                binding,
+                candidate,
+                limits,
+                tickets: Vec::new(),
+            }),
+            _ => Err(DropoutError::Binding(
+                "compact mode must begin before the fresh forward",
+            )),
+        }
+    }
+
+    pub(crate) fn last_block_replay(&self) -> Result<BlockDropoutReplay, DropoutError> {
+        match self {
+            Self::Identity => Ok(BlockDropoutReplay {
+                policy: None,
+                binding: None,
+                tickets: Vec::new(),
+                limits: DropoutLimits::default(),
+            }),
+            Self::CompactFresh {
+                policy,
+                binding,
+                limits,
+                tickets,
+                ..
+            } if tickets.len() >= 2 => Ok(BlockDropoutReplay {
+                policy: Some(*policy),
+                binding: Some(binding.clone()),
+                tickets: tickets[tickets.len() - 2..].to_vec(),
+                limits: *limits,
+            }),
+            _ => Err(DropoutError::Binding(
+                "a recomputed block needs its two fresh site tickets",
+            )),
+        }
+    }
+
+    pub(crate) fn finish_compact(
+        self,
+        live: Option<&mut DropoutCounterState>,
+    ) -> Result<Vec<DropoutReplayTicket>, DropoutError> {
+        match self {
+            Self::Identity => Ok(Vec::new()),
+            Self::CompactFresh {
+                candidate, tickets, ..
+            } => {
+                if let Some(live) = live {
+                    *live = candidate;
+                }
+                Ok(tickets)
+            }
+            Self::CompactReplay { tickets, next, .. } if tickets.len() == next => Ok(Vec::new()),
+            _ => Err(DropoutError::Binding(
+                "compact replay must consume exactly its site tickets",
+            )),
+        }
+    }
+
     pub(crate) fn apply(
         &mut self,
         context: AutogradContext,
@@ -700,6 +807,13 @@ impl DropoutExecution<'_> {
         let application = match self {
             Self::Identity => return Ok(input.clone()),
             Self::Fresh {
+                policy,
+                binding,
+                candidate,
+                limits,
+                ..
+            }
+            | Self::CompactFresh {
                 policy,
                 binding,
                 candidate,
@@ -733,11 +847,29 @@ impl DropoutExecution<'_> {
                 *next += 1;
                 a
             }
+            Self::CompactReplay {
+                policy,
+                binding,
+                tickets,
+                next,
+                limits,
+            } => {
+                let ticket = tickets
+                    .get(*next)
+                    .ok_or(DropoutError::Binding("missing compact site ticket"))?;
+                let a = replay_dropout_with_context(
+                    context, input, ticket, *policy, site, binding, *limits,
+                )?;
+                *next += 1;
+                a
+            }
         };
         let output = application.output;
         if let Some(record) = application.record {
             match self {
                 Self::Fresh { records, .. } | Self::Replay { records, .. } => records.push(record),
+                Self::CompactFresh { tickets, .. } => tickets.push(record.ticket().clone()),
+                Self::CompactReplay { .. } => {}
                 Self::Identity => unreachable!(),
             }
         }
@@ -784,6 +916,9 @@ impl DropoutExecution<'_> {
                 }
                 Ok(records)
             }
+            Self::CompactFresh { .. } | Self::CompactReplay { .. } => Err(DropoutError::Binding(
+                "compact execution must finish without retaining site tensors",
+            )),
         }
     }
 }

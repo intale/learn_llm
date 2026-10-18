@@ -10,7 +10,7 @@ use crate::{
     config::dropout_run::DropoutRunPolicy,
     nn::dropout::{
         DropoutBinding, DropoutCounterState, DropoutError, DropoutExecution, DropoutLimits,
-        DropoutMode, DropoutSiteId, DropoutSiteKind, DropoutSiteRecord,
+        DropoutMode, DropoutReplayTicket, DropoutSiteId, DropoutSiteKind, DropoutSiteRecord,
     },
     training::{sequence_example::BatchBinding, variable_batch::VariableBatch},
 };
@@ -21,6 +21,24 @@ pub struct DropoutModelForward {
     sites: Vec<DropoutSiteRecord>,
     binding: Option<DropoutBinding>,
     parameters: Vec<TensorValueBinding>,
+}
+
+/// Checkpointed forward retains compact RNG tickets, not dropout-site tensors.
+#[derive(Debug)]
+pub struct RecomputedModelForward {
+    forward: DecoderModelForward,
+    tickets: Vec<DropoutReplayTicket>,
+}
+impl RecomputedModelForward {
+    pub fn logits(&self) -> &TensorValue {
+        self.forward.logits()
+    }
+    pub fn tickets(&self) -> &[DropoutReplayTicket] {
+        &self.tickets
+    }
+    pub fn into_forward(self) -> DecoderModelForward {
+        self.forward
+    }
 }
 impl DropoutModelForward {
     pub const fn forward(&self) -> &DecoderModelForward {
@@ -164,6 +182,8 @@ impl DecoderModel {
             DropoutExecution::Fresh { binding, .. } | DropoutExecution::Replay { binding, .. } => {
                 Some(binding.clone())
             }
+            DropoutExecution::CompactFresh { binding, .. }
+            | DropoutExecution::CompactReplay { binding, .. } => Some(binding.clone()),
         };
         let parameters = self.capture_dropout_parameters();
         let forward = self.forward_prepared_text_with_dropout(input, &mut execution)?;
@@ -216,6 +236,54 @@ impl DecoderModel {
         self.consume_dropout_text(input, execution, Some(state))
     }
     // endregion:dropout-text-forward
+
+    // region:recomputed-text-forward
+    /// Extend the checked text path with per-block recomputation. Train mode
+    /// draws only in the initial forward; reverse replay accepts no live counter.
+    #[allow(clippy::too_many_arguments)]
+    pub fn forward_padded_recomputed_with_dropout(
+        &self,
+        context: AutogradContext,
+        batch: &VariableBatch,
+        expected: &BatchBinding,
+        mode: DropoutMode,
+        policy: &DropoutRunPolicy,
+        state: &mut DropoutCounterState,
+        limits: DropoutLimits,
+    ) -> Result<RecomputedModelForward, PaddedDecoderError> {
+        self.validate_padded_text(batch, expected)?;
+        let p = policy
+            .policy()
+            .map_err(|_| DecoderModelError::Dropout(DropoutError::Binding("invalid run policy")))?;
+        let shape = [
+            batch.shape()[0],
+            batch.shape()[1],
+            self.config().model_width(),
+        ];
+        let mut dropout = if p.active(mode) {
+            self.fresh_dropout_execution(
+                context,
+                shape,
+                policy,
+                checked_layout(batch).map_err(DecoderModelError::Dropout)?,
+                state,
+                limits,
+            )
+            .and_then(DropoutExecution::into_compact)
+            .map_err(DecoderModelError::Dropout)?
+        } else {
+            DropoutExecution::Identity
+        };
+        let input =
+            TextInputEncoder::padded(self, batch, expected).encode(context, &self.backbone())?;
+        let forward =
+            self.forward_prepared_text_with_activation_policy(input, &mut dropout, true)?;
+        let tickets = dropout
+            .finish_compact(Some(state))
+            .map_err(DecoderModelError::Dropout)?;
+        Ok(RecomputedModelForward { forward, tickets })
+    }
+    // endregion:recomputed-text-forward
 
     #[allow(clippy::too_many_arguments)]
     pub fn forward_padded_with_dropout(

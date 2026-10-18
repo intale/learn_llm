@@ -698,6 +698,15 @@ pub struct VariableBatchEpoch {
     batches: Vec<VariableBatch>,
 }
 impl VariableBatchEpoch {
+    /// Denominator for one logical update across this epoch's microbatches.
+    pub fn valid_target_count(&self) -> Result<usize, VariableBatchError> {
+        self.batches.iter().try_fold(0usize, |total, batch| {
+            total
+                .checked_add(batch.valid_target_count())
+                .ok_or(BatchError::TokenCountOverflow.into())
+        })
+    }
+
     pub fn build(
         partition: Partition,
         examples: &[SequenceExample<'_>],

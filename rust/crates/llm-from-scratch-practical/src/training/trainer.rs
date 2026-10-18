@@ -7,6 +7,7 @@ use crate::autograd::tensor_core::{
     AutogradContext, GraphRetention, TensorAutodiffError, TensorValue,
 };
 use crate::corpus::Partition;
+use crate::models::decoder::PaddedDecoderError;
 use crate::models::decoder::{
     DecoderModel, DecoderModelConfig, DecoderModelError, DecoderParameterSource,
     validate_parameter_layout,
@@ -17,6 +18,9 @@ use crate::tensor::storage::{Tensor, TensorError};
 use crate::training::adamw::{AdamW, AdamWError, AdamWGradientTransform, AdamWState, AdamWStep};
 use crate::training::batch::MiniBatchEpoch;
 use crate::training::loss_scaling::{DynamicLossScaler, is_backward_overflow};
+use crate::training::variable_batch::{
+    MaskedLoss, VariableBatch, VariableBatchEpoch, VariableBatchError,
+};
 
 // region:training-plan
 /// The exact learner-visible order of one successful parameter update.
@@ -156,6 +160,12 @@ impl fmt::Display for TrainerEpochRole {
 /// A rejected configuration, partition, numerical value, or cumulative API call.
 #[derive(Clone, Debug, PartialEq)]
 pub enum TrainerError {
+    InvalidAccumulation {
+        reason: &'static str,
+    },
+    VariableBatch {
+        message: String,
+    },
     InvalidUpdateStep {
         step: usize,
     },
@@ -257,6 +267,10 @@ pub enum TrainerError {
 impl fmt::Display for TrainerError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::InvalidAccumulation { reason } => {
+                write!(formatter, "gradient accumulation: {reason}")
+            }
+            Self::VariableBatch { message } => formatter.write_str(message),
             Self::InvalidUpdateStep { step } => {
                 write!(formatter, "trainer update {step} is outside its schedule")
             }
@@ -403,6 +417,22 @@ impl Error for TrainerError {
 impl From<DecoderModelError> for TrainerError {
     fn from(error: DecoderModelError) -> Self {
         Self::Model(error)
+    }
+}
+
+impl From<VariableBatchError> for TrainerError {
+    fn from(error: VariableBatchError) -> Self {
+        Self::VariableBatch {
+            message: error.to_string(),
+        }
+    }
+}
+impl From<PaddedDecoderError> for TrainerError {
+    fn from(error: PaddedDecoderError) -> Self {
+        match error {
+            PaddedDecoderError::Model(error) => Self::Model(error),
+            PaddedDecoderError::Batch(error) => error.into(),
+        }
     }
 }
 
@@ -1211,18 +1241,7 @@ where
     F: FnOnce() -> Result<TensorValue, TrainerError>,
     O: DecoderUpdateObserver,
 {
-    let learning_rate = config
-        .schedule
-        .learning_rate(step)
-        .ok_or(TrainerError::InvalidUpdateStep { step })?;
-    let expected_optimizer_step =
-        u64::try_from(step).map_err(|_| TrainerError::InvalidUpdateStep { step })?;
-    if optimizer.step_count().checked_add(1) != Some(expected_optimizer_step) {
-        return Err(TrainerError::OptimizerStepMismatch {
-            expected: expected_optimizer_step,
-            actual: optimizer.step_count(),
-        });
-    }
+    let (learning_rate, expected_optimizer_step) = validate_update_step(optimizer, config, step)?;
     let loss = forward()?;
     let train_loss = scalar_loss(&loss)?;
     observer.after_forward(&loss)?;
@@ -1247,6 +1266,61 @@ where
         return Err(overflow.into());
     }
     drop(loss);
+    let execution = finish_decoder_update(
+        model,
+        optimizer,
+        config,
+        step,
+        learning_rate,
+        expected_optimizer_step,
+        train_loss,
+        loss_scale,
+        observer,
+    )?;
+    let next_loss_scale = if let Some(scaler) = scaler {
+        scaler.committed();
+        scaler.scale()
+    } else {
+        loss_scale
+    };
+    Ok(ScaledDecoderUpdate::Applied {
+        execution,
+        loss_scale,
+        next_loss_scale,
+    })
+}
+
+fn validate_update_step(
+    optimizer: &AdamW,
+    config: &TrainerConfig,
+    step: usize,
+) -> Result<(f64, u64), TrainerError> {
+    let learning_rate = config
+        .schedule
+        .learning_rate(step)
+        .ok_or(TrainerError::InvalidUpdateStep { step })?;
+    let expected = u64::try_from(step).map_err(|_| TrainerError::InvalidUpdateStep { step })?;
+    if optimizer.step_count().checked_add(1) != Some(expected) {
+        return Err(TrainerError::OptimizerStepMismatch {
+            expected,
+            actual: optimizer.step_count(),
+        });
+    }
+    Ok((learning_rate, expected))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn finish_decoder_update<O: DecoderUpdateObserver>(
+    model: &DecoderModel,
+    optimizer: &mut AdamW,
+    config: &TrainerConfig,
+    step: usize,
+    learning_rate: f64,
+    expected_optimizer_step: u64,
+    train_loss: f64,
+    loss_scale: f64,
+    observer: &mut O,
+) -> Result<DecoderUpdateExecution, TrainerError> {
     let norm = if loss_scale == 1.0 {
         gradient_norm(model, config.max_gradient_norm)?
     } else {
@@ -1277,34 +1351,162 @@ where
         });
     }
     clear_and_verify_gradients(model)?;
-    let next_loss_scale = if let Some(scaler) = scaler {
-        scaler.committed();
-        scaler.scale()
-    } else {
-        loss_scale
-    };
-    Ok(ScaledDecoderUpdate::Applied {
-        loss_scale,
-        next_loss_scale,
-        execution: DecoderUpdateExecution {
-            step: TrainingStep {
-                step,
-                batch_windows: Vec::new(),
-                learning_rate,
-                train_loss,
-                gradient_norm_before: norm.before,
-                gradient_norm_after: norm.after,
-                gradient_transform: norm.transform,
-                clipped: norm.clipped,
-                finite_gradients: true,
-                parameter_nodes_preserved: true,
-                cleared_gradients: true,
-                events: UPDATE_EVENT_ORDER,
-            },
-            optimizer_trace,
+    Ok(DecoderUpdateExecution {
+        step: TrainingStep {
+            step,
+            batch_windows: Vec::new(),
+            learning_rate,
+            train_loss,
+            gradient_norm_before: norm.before,
+            gradient_norm_after: norm.after,
+            gradient_transform: norm.transform,
+            clipped: norm.clipped,
+            finite_gradients: true,
+            parameter_nodes_preserved: true,
+            cleared_gradients: true,
+            events: UPDATE_EVENT_ORDER,
         },
+        optimizer_trace,
     })
 }
+
+pub enum AccumulatedDecoderUpdate {
+    Applied {
+        execution: DecoderUpdateExecution,
+        microbatches: usize,
+        valid_target_count: usize,
+        loss_scale: f64,
+        next_loss_scale: f64,
+    },
+    Skipped {
+        microbatches_completed: usize,
+        loss_scale: f64,
+        next_loss_scale: f64,
+        overflow: TensorAutodiffError,
+    },
+}
+
+// region:accumulated-decoder-update
+/// One logical update: token-weighted microbatch backward passes, then one
+/// unscale, global clipping, AdamW step, clear and loss-scale growth decision.
+/// A failure clears all partial gradients; caller-owned forward/observer side
+/// effects (including live RNG advancement) are outside that rollback boundary.
+#[allow(clippy::too_many_arguments)]
+pub fn decoder_update_with_accumulation<F, O>(
+    model: &DecoderModel,
+    optimizer: &mut AdamW,
+    config: &TrainerConfig,
+    step: usize,
+    execution: &TensorExecution,
+    scaler: &mut DynamicLossScaler,
+    microbatches: &VariableBatchEpoch,
+    mut forward: F,
+    observer: &mut O,
+) -> Result<AccumulatedDecoderUpdate, TrainerError>
+where
+    F: FnMut(AutogradContext<'_>, &VariableBatch) -> Result<MaskedLoss, TrainerError>,
+    O: DecoderUpdateObserver,
+{
+    let (learning_rate, expected_step) = validate_update_step(optimizer, config, step)?;
+    let total = microbatches.valid_target_count()?;
+    if total == 0 || !u64::try_from(total).is_ok_and(|n| n <= (1_u64 << 53)) {
+        return Err(TrainerError::InvalidAccumulation {
+            reason: "valid-target total must be positive and exactly representable in f64",
+        });
+    }
+    if microbatches
+        .batches()
+        .iter()
+        .any(|b| b.partition() != Partition::Train || b.valid_target_count() == 0)
+    {
+        return Err(TrainerError::InvalidAccumulation {
+            reason: "every microbatch must have train targets",
+        });
+    }
+    for parameter in model.parameters() {
+        let gradient =
+            parameter
+                .tensor()
+                .gradient()
+                .ok_or_else(|| TrainerError::MissingGradient {
+                    name: parameter.name().into(),
+                })?;
+        if gradient.as_slice().iter().any(|&g| g != 0.0) {
+            return Err(TrainerError::ScaledUpdateRequiresZeroGradient {
+                name: parameter.name().into(),
+            });
+        }
+    }
+    let scale = scaler.scale();
+    let context = AutogradContext::recording().with_execution(execution);
+    let mut train_loss = 0.0;
+    for (index, batch) in microbatches.batches().iter().enumerate() {
+        let attempt = (|| {
+            let loss = forward(context, batch)?;
+            if loss.count() != batch.valid_target_count() {
+                return Err(TrainerError::InvalidAccumulation {
+                    reason: "forward loss count differs from the checked microbatch count",
+                });
+            }
+            let weight = loss.count() as f64 / total as f64;
+            train_loss += scalar_loss(loss.mean())? * weight;
+            if !train_loss.is_finite() {
+                return Err(TrainerError::NonFiniteLoss { value: train_loss });
+            }
+            observer.after_forward(loss.mean())?;
+            let seed = Tensor::from_vec(Vec::new(), vec![scale * weight])?;
+            loss.mean().backward_with_seed_and_execution(
+                &seed.view(),
+                GraphRetention::Release,
+                execution,
+            )?;
+            Ok(())
+        })();
+        if let Err(error) = attempt {
+            clear_and_verify_gradients(model)?;
+            if let TrainerError::Autodiff(overflow) = error {
+                if is_backward_overflow(&overflow) {
+                    scaler.overflow();
+                    return Ok(AccumulatedDecoderUpdate::Skipped {
+                        microbatches_completed: index,
+                        loss_scale: scale,
+                        next_loss_scale: scaler.scale(),
+                        overflow,
+                    });
+                }
+                return Err(TrainerError::Autodiff(overflow));
+            }
+            return Err(error);
+        }
+    }
+    let update = finish_decoder_update(
+        model,
+        optimizer,
+        config,
+        step,
+        learning_rate,
+        expected_step,
+        train_loss,
+        scale,
+        observer,
+    );
+    let applied = match update {
+        Ok(update) => update,
+        Err(error) => {
+            clear_and_verify_gradients(model)?;
+            return Err(error);
+        }
+    };
+    scaler.committed();
+    Ok(AccumulatedDecoderUpdate::Applied {
+        execution: applied,
+        microbatches: microbatches.batch_count(),
+        valid_target_count: total,
+        loss_scale: scale,
+        next_loss_scale: scaler.scale(),
+    })
+}
+// endregion:accumulated-decoder-update
 
 // region:complete-training-loop
 /// Executes every planned update, then restores the earliest validation minimum.

@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-mixed-precision-training",
   "concept_id": "mixed-precision-training",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 12,
   "objective": {
     "en": "Use explicit half-format matrix arithmetic in the existing decoder and reverse mode, unscale gradients before clipping and AdamW, and explain the state preserved by an overflow skip."

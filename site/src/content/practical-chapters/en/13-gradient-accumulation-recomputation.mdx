@@ -1,0 +1,491 @@
+---
+{
+  "chapter_id": "13-gradient-accumulation-recomputation",
+  "content_revision": 1,
+  "order": 13,
+  "concept_id": "gradient-accumulation-recomputation",
+  "title": "Accumulate gradients and recompute activations",
+  "description": "Preserve token-weighted loss across smaller batches, replay decoder blocks with the same dropout choices, and measure retained tensor payload at a declared point.",
+  "objective": "Combine valid-target-weighted microbatch gradients into one optimizer step, then recompute decoder blocks with exact dropout replay and a precisely scoped retained-payload measurement.",
+  "worked_inputs": "Combine three checked text examples with 2, 4 and 3 valid targets into one nine-target update; compare default microbatches with 6 and 3 targets against a full batch without dropout. Separately keep a three-block dropout layout fixed, replay all six sites, measure retained tensor payload, and inspect a constructed overflow in the second microbatch.",
+  "formula": {
+    "latex": "\\begin{aligned}\nN&=\\sum_{i=1}^{K}n_i,\\\\\nL&=\\sum_{i=1}^{K}\\frac{n_i}{N}L_i,\\\\\n\\widetilde g&=\\sum_{i=1}^{K}\\nabla_\\theta\\!\\left(S\\frac{n_i}{N}L_i\\right),\\\\\ng&=\\widetilde g/S.\n\\end{aligned}",
+    "symbols": [
+      {"symbol": "K", "meaning": "number of microbatches in one logical update"},
+      {"symbol": "i", "meaning": "microbatch index, from one through K"},
+      {"symbol": "n_i", "meaning": "positive number of valid next-token targets in microbatch i, excluding padding"},
+      {"symbol": "N", "meaning": "total valid next-token target count across the logical update"},
+      {"symbol": "L_i", "meaning": "scalar mean negative log likelihood over the valid targets of microbatch i"},
+      {"symbol": "L", "meaning": "scalar mean negative log likelihood over all N valid targets"},
+      {"symbol": "\\theta", "meaning": "the same model parameters held fixed across all microbatch forward and backward passes"},
+      {"symbol": "S", "meaning": "finite positive loss scale held fixed for the whole attempted logical update"},
+      {"symbol": "\\widetilde g", "meaning": "sum of scaled, token-weighted parameter-gradient contributions"},
+      {"symbol": "g", "meaning": "accumulated parameter gradient after division by the loss scale, before global clipping"}
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "Keeping every intermediate available for backward consumes more retained tensor storage as decoder batches, sequences and depth grow.",
+      "later_advance": "Selective recomputation chooses which intermediate calculations to repeat instead of recomputing every operation in a block.",
+      "modern_llm_role": "Transformer training must preserve each block's parameters, layout and random choices when reconstructing the values needed for its gradients.",
+      "sources": [
+        {"role": "earlier", "year": 2016, "name": "Training Deep Nets with Sublinear Memory Cost", "source_url": "https://arxiv.org/abs/1604.06174v2", "claim": "Chen and colleagues' 2016 paper, Training Deep Nets with Sublinear Memory Cost, presents a computation-versus-memory tradeoff by recomputing intermediate activations."},
+        {"role": "later", "year": 2022, "name": "Reducing Activation Recomputation in Large Transformer Models", "source_url": "https://arxiv.org/abs/2205.05198v1", "claim": "Korthikanti and colleagues' 2022 paper, Reducing Activation Recomputation in Large Transformer Models, studies selective recomputation and sequence parallelism to reduce unnecessary recomputation in large transformer language-model training."}
+      ]
+    },
+    "approach": "We retain block boundaries and repeat the existing block computation during backward, while accumulating token-weighted microbatch gradients before one shared optimizer update.",
+    "summary": "The Rust example implements bounded whole-block recomputation. Its retained-payload observation and extra-forward count do not reproduce either paper's schedules, parallelism or performance results.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs"
+  },
+  "rust_sources": [
+    {"path": "rust/crates/llm-from-scratch-practical/src/training/trainer.rs", "region": "accumulated-decoder-update", "purpose": "Seed each mean loss by its valid-target share, discard failed partial gradients and finish one shared update."},
+    {"path": "rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs", "region": "block-activation-checkpoint", "purpose": "Retain a block boundary, original parameter aliases, execution and recipe payload instead of its interior tape."},
+    {"path": "rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs", "region": "recomputed-block-vjp", "purpose": "Check the reconstructed block output and compute local derivatives without committing original parameter gradients."},
+    {"path": "rust/crates/llm-from-scratch-practical/src/models/decoder_dropout.rs", "region": "recomputed-text-forward", "purpose": "Compose the existing text encoder, recomputed shared blocks, compact dropout tickets and tied text head."},
+    {"path": "rust/demos/practical-ch13-gradient-accumulation-recomputation/src/lib.rs", "region": "logical-batch-comparison", "purpose": "Compare one full batch with token-weighted microbatches under the declared f64 tolerance and with dropout disabled."},
+    {"path": "rust/demos/practical-ch13-gradient-accumulation-recomputation/src/lib.rs", "region": "recomputation-comparison", "purpose": "Keep dropout layout fixed while comparing replay, retained tensor payload and extra block forwards."},
+    {"path": "rust/demos/practical-ch13-gradient-accumulation-recomputation/src/main.rs", "purpose": "Use existing clap to select a maximum of one to three rows per microbatch, defaulting to two, and print the bounded demonstration as JSON."}
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "gradient-accumulation-recomputation",
+    "component": "TrainingMemoryDiagram",
+    "rationale": "Connect unequal target counts to one correctly normalized update, then contrast retained block interiors with exact replay and show the measured payload and repeated forward work separately."
+  },
+  "decoder_connection": "The existing text encoder, source-independent transformer, tied head, reverse engine and AdamW now support token-weighted logical updates and per-block activation recomputation. Chapter 14 will extend schedule and clipping reasoning around this existing update owner; Chapter 15 will address portable model saving and loading and the additional state needed for training continuation."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import TrainingMemoryDiagram from "../../../components/chapters/TrainingMemoryDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="training-memory-worked-example">
+
+## The problem: one training update can retain too much
+
+A training forward pass keeps values that reverse mode will need to calculate
+gradients. More batch rows, longer sequences and more decoder blocks increase
+the amount retained. Parameters and AdamW state also occupy memory, but reducing
+the saved forward values addresses a different part of the problem.
+
+Two choices help at different points. **Gradient accumulation** processes a
+chosen logical batch in smaller microbatches, adds their gradients and delays
+the optimizer until every contribution is ready. Each microbatch's graph can
+then be released before the next forward pass. **Activation recomputation**
+keeps block boundaries and reconstructs block interiors during backward,
+exchanging retained values for extra forward calculations. Both choices must
+preserve the loss whose gradient the optimizer receives.
+
+First consider a small constructed loss example. One microbatch contains $2$
+valid next-token targets with mean loss $1$; another contains $4$ with mean loss
+$3$. Their loss sums are $2$ and $12$. The combined mean is therefore
+$14/6=7/3$. Averaging the two means equally would give $2$, because it would give
+the smaller microbatch's targets more weight. Padded positions do not add
+targets to that denominator.
+
+The decoder experiment uses three checked text examples containing $2$, $4$
+and $3$ valid targets: $9$ in all. With the default maximum of two rows per
+microbatch, their token grids have shapes $[2,4]$ and $[1,3]$, where the axes
+count rows and supplied positions per row. The first microbatch contains $6$
+valid targets and the final one contains $3$. Its final row count is smaller,
+but every real target still belongs to the same logical update.
+
+The full-batch and accumulated runs start from matching seed-$39$ models with
+three decoder blocks, residual width $4$, one attention head and feed-forward
+width $8$. They use the existing text encoder and tied text head, with $29$
+named parameter tensors and $1572$ learned scalars. Dropout is disabled for
+this comparison so that changing the grouping does not change random masks.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="training-memory-formula">
+
+## Weight each mean by the targets it represents
+
+Let $K$ count the microbatches in one logical update and let $i$ index them from
+$1$ through $K$. Microbatch $i$ has $n_i>0$ valid targets and scalar mean
+negative log likelihood $L_i$. Let $N$ be the total target count and $L$ the
+mean over that total. All forwards use the same parameters $\theta$, held
+fixed until the update. Hold the finite positive loss scale $S$ fixed as well.
+Then, in exact arithmetic,
+
+$$
+\begin{aligned}
+N&=\sum_{i=1}^{K}n_i,\\
+L&=\sum_{i=1}^{K}\frac{n_i}{N}L_i,\\
+\widetilde g&=\sum_{i=1}^{K}\nabla_\theta\!\left(S\frac{n_i}{N}L_i\right),\\
+g&=\widetilde g/S.
+\end{aligned}
+$$
+
+Here $\nabla_\theta$ takes the derivative with respect to the model parameters.
+$\widetilde g$ is the accumulated scaled gradient, and $g$ is its unscaled
+value before clipping. The target counts do not depend on the parameters, so
+linearity of differentiation gives the gradient of the combined mean when
+each microbatch represents the same per-example objective. Padding contributes
+to neither $n_i$ nor $N$.
+
+Reverse mode can multiply a scalar loss gradient by choosing its starting
+seed. With $S=128$, the recorded `f64` seed for the first microbatch's target
+share $6/9$ is $85.33333333333333$; the final microbatch's share $3/9$ uses
+$42.666666666666664$. Each backward adds its contribution to the original
+parameter leaves. The optimizer has not
+changed those leaves' values between the two passes.
+
+After all contributions succeed, divide by $S$, measure the global gradient
+norm, apply the existing norm clipping and call AdamW once. Count the tied
+input/output table once in that global norm. AdamW's moments, decoupled weight
+decay and step advance belong to that one update; clipping each microbatch
+separately would generally change the resulting gradient. Finally clear the
+gradients and make one loss-scale growth decision.
+
+In the measured CPU `f64` comparison, both groupings have mean loss
+$5.622831723383019$ and global gradient norm $0.9389921230306614$.
+The norm limit is $1$, so neither run clips. Both commit optimizer step $1$,
+clear gradients and change the scale from $128$ to $256$ because this fixture
+uses a growth interval of one committed update.
+
+The comparison checks every coordinate of all $29$ scaled gradient tensors
+and the updated weights. For reference coordinate $r$ and compared coordinate
+$x$, it requires $|x-r|\le 10^{-11}+10^{-10}|r|$. The maximum observed absolute
+scaled-gradient error is $1.7763568394002505\times10^{-15}$; the maximum weight
+error is $3.469446951953614\times10^{-18}$. These observations support the
+declared tolerance for this fixture, rather than bitwise equality for arbitrary
+groupings or backends.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="training-memory-recomputation">
+
+## Reconstruct the same block before differentiating it
+
+Accumulation shortens the lifetime of each microbatch's graph. Within a graph,
+ordinary training still retains each decoder block's intermediate values and
+saved derivative contexts. A block activation checkpoint replaces that
+interior tape with enough information to run the same block again.
+
+With graph recording enabled, the initial checkpointed block forward uses a
+no-grad context under the selected executor. After obtaining the block output,
+it drops the interior tensors and retains the input boundary, aliases to the
+original parameters, their revisions, the exact layout and positions, the
+execution session and precision, and a block recipe. The recipe also retains
+fixed rotary-position tables and compact tickets for the block's two dropout
+sites. A parameter alias refers to the original learned node; it does not copy
+another set of learned weights. Text lookup and the tied text head remain
+outside these block checkpoints.
+
+At backward time, the reverse engine first checks the original operand
+revisions. It recreates the block from a fresh tracked boundary leaf with the
+same parameter nodes, layout, execution and tickets. It checks the output's
+shape and `f64` bits against the original block output before calculating the
+block's local derivatives. Those derivatives provide a contribution for the
+input boundary and for each block parameter. The local calculation does not
+write gradients to the original parameters; the complete outer reverse pass
+stages and checks all contributions before committing leaf gradients. A
+successful releasing backward clears the checkpoint recipes and edges.
+
+Dropout replay is essential to reconstructing that same computation. The
+separate recomputation experiment keeps the layout
+$[B,T,D]=[3,4,4]$, with $B$ batch rows, $T$ positions per row and $D$ residual
+features. At dropout probability $0.5$ and seed $39$, the three blocks use six
+sites. Each site consumes $48$ counter words, including padded positions.
+Their consecutive counter ranges are $[0,48)$, $[48,96)$, $[96,144)$,
+$[144,192)$, $[192,240)$ and $[240,288)$.
+
+The compact tickets reproduce all six original masks. Reverse replay receives
+no live random counter, so it leaves the live counter at $288$ after backward.
+A seed alone would not provide this guarantee after repartitioning: changing
+microbatch shape or padding changes the existing counter assignment to sites.
+That is why the dropout replay comparison keeps the layout fixed and remains
+separate from the accumulation comparison.
+
+The retained and recomputed dropout runs have bit-identical forward logits.
+Their measured maximum scaled-gradient and updated-weight errors are both
+$0$ in this fixture. Both have mean loss $5.535604128733965$ and global norm
+$1.4853618224483591$, clipped to $1$ before their one AdamW update. Each clears
+gradients and advances the scale from $128$ to $256$. Reconstructing the three
+blocks performs three extra block forwards during backward. These are bounded
+observations, with no universal bitwise or speed claim.
+
+### Measure what remains after forward
+
+The observation point is completion of the loss forward, before backward.
+For the tape reachable from the scalar mean-loss node,
+`retained_tape_storage` counts unique nonparameter node primals,
+the tensor payload of each edge's saved context, and the fixed rotary-position
+tensors captured by checkpoint recipes. A primal is a stored forward value;
+a saved context holds values needed by a local derivative. Multiplying their
+`f64` value counts by $8$ gives the reported bytes.
+
+For the fixed-layout dropout experiment, ordinary retention keeps $16808$
+nonparameter primal values and $9736$ saved-context values: $212352$ bytes.
+Recomputation keeps $10241$ primal values, $3751$ saved-context values and
+$102$ fixed recipe values: $112752$ bytes. The last count includes, per block,
+$2$ inverse frequencies, $16$ cosines and $16$ sines, for $816$ recipe bytes
+across three blocks. The reachable tape has $210$ nodes ordinarily and $48$
+with recomputation, including its three checkpoint nodes.
+
+Saved contexts count any copied parameter primals they own. The observation
+excludes the original master-parameter buffers, gradient and optimizer buffers,
+Rust metadata, layout vectors, tickets, allocation capacity and transient
+forward or reverse work. It therefore measures **retained tensor payload at
+this point**, not total training memory, process memory, a peak or GPU storage.
+The added backward work can have a different temporary lifetime from the
+values counted here.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="training-memory-history">
+
+## Trade retained activations for repeated computation
+
+Keeping every intermediate available for backward consumes more retained
+tensor storage as decoder batches, sequences and depth grow. Chen and
+colleagues' 2016 paper,
+[Training Deep Nets with Sublinear Memory Cost](https://arxiv.org/abs/1604.06174v2),
+presents a computation-versus-memory tradeoff by recomputing intermediate
+activations. The useful intuition is to retain selected boundaries and
+reconstruct what backward needs between them. Repeating whole blocks also
+repeats forward work.
+
+Selective recomputation chooses which intermediate calculations to repeat
+instead of recomputing every operation in a block. Korthikanti and colleagues'
+2022 paper,
+[Reducing Activation Recomputation in Large Transformer Models](https://arxiv.org/abs/2205.05198v1),
+studies selective recomputation and sequence parallelism to reduce unnecessary
+recomputation in large transformer language-model training. Transformer training
+must preserve each block's parameters, layout and random choices when
+reconstructing the values needed for its gradients.
+
+We retain block boundaries and repeat the existing block
+computation during backward, while accumulating token-weighted microbatch
+gradients before one shared optimizer update. The Rust example implements
+bounded whole-block recomputation. Its retained-payload observation and
+extra-forward count do not reproduce either paper's schedules, parallelism or
+performance results.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="training-memory-rust">
+
+## Extend the existing update and reverse owners
+
+`decoder_update_with_accumulation` accepts a checked `VariableBatchEpoch` as
+the explicit group for one logical update. The caller chooses that group;
+the type's name does not add whole-dataset scheduling. The entry requires
+training batches, positive checked target counts and cleared model gradients.
+The total must be at most $2^{53}$ so its integer count converts exactly to
+`f64`. Each callback returns the existing `MaskedLoss` with the checked batch's
+target count.
+
+The entry seeds each mean backward with its scaled target share, releases that
+graph and accumulates gradients owned by the same parameter leaves. After the
+last microbatch, `finish_decoder_update` performs the shared unscale, global
+clipping, AdamW and gradient clearing. The loss-scale controller advances only
+after that successful logical update.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/trainer.rs"
+  region="accumulated-decoder-update" captionId="training-memory-rust-accumulation"
+  caption="Weight each mean loss by its valid-target share, release each graph and finish one logical update."
+  label="Rust source: token-weighted gradient accumulation through one shared decoder update" />
+
+The checkpoint node belongs to the existing tensor tape. It stores boundary
+and parameter edges plus the explicit execution and recipe; it does not
+introduce another automatic-differentiation engine.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs"
+  region="block-activation-checkpoint" captionId="training-memory-rust-checkpoint"
+  caption="Keep a block boundary and original parameter aliases with the execution and recipe needed for replay."
+  label="Rust source: block activation checkpoint retaining boundary, parameter aliases and replay recipe" />
+
+Its local pullback uses the same reverse engine in a mode that returns selected
+derivatives without committing original parameter gradients. That keeps shared
+parameter contributions under the outer transaction's control.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/autograd/tensor_core.rs"
+  region="recomputed-block-vjp" captionId="training-memory-rust-reverse"
+  caption="Verify the reconstructed block output, then return local boundary and parameter derivatives to the outer reverse pass."
+  label="Rust source: exact-output recomputation and local derivatives without original gradient writes" />
+
+The checked text path still composes `TextInputEncoder`, the source-independent
+backbone and the tied head. Compact replay tickets change what the block tape
+retains; tokenization and text loss keep their existing owners. The backbone
+continues to consume vectors, positions and attention layout without requiring
+a tokenizer or vocabulary.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/models/decoder_dropout.rs"
+  region="recomputed-text-forward" captionId="training-memory-rust-text"
+  caption="Use the checked text encoder and existing backbone with compact dropout tickets for block recomputation."
+  label="Rust source: existing text composition with recomputed blocks and compact dropout replay" />
+
+### Discard a failed partial logical update
+
+An earlier microbatch may have finished backward when a later one fails.
+The accumulation owner clears those partial model gradients before returning
+a forward, observer or reverse failure. A numerical overflow in local backward
+or gradient addition returns `Skipped` and backs off the loss scale; structural
+errors propagate as errors. Neither case applies AdamW before the shared finish
+phase. Arbitrary effects inside caller callbacks and advancement of a live RNG
+are outside this cleanup; a retry that needs identical randomness must restore
+caller-owned RNG state or use replay.
+
+The overflow example first commits a warm-up so AdamW already has moments.
+For the second microbatch of the next attempted update, it substitutes a
+constructed zero-logit branch multiplied by `f64::MAX`. Forward remains finite,
+but backward becomes nonfinite. One microbatch's model gradients have already
+accumulated. The skip clears them and preserves the original zero-gradient bits,
+weight bits and revisions, AdamW moments and beta powers, and optimizer step
+$1$. Scale changes from $128$ to $64$. Scheduled step $2$ remains available to
+the caller; this example records that eligibility without performing a retry.
+An AdamW step with zero gradients can still apply weight decay and advance
+optimizer state; the skipped attempt does neither.
+The injection is a failure probe rather than ordinary model logits.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="training-memory-visualization">
+
+## Follow one update and two ways to retain block values
+
+export const trainingMemoryLabels = {
+  title: "Accumulate one update; reconstruct block interiors",
+  description: "Microbatches contribute their valid-target shares with model parameters and loss scale fixed, then combine gradients before one unscale, global clipping decision and AdamW step. Separately, fixed-layout backward uses retained block interiors or reconstructs them from boundaries, parameter aliases and tickets that reproduce the original dropout choices. Recomputing adds block forwards and reduces the tensor payload retained at loss-forward completion under the exclusions stated with the byte counts; this observation does not measure total or peak training memory.",
+  accumulationTitle: "Count targets, accumulate contributions, update once",
+  totalLabel: "Valid targets in the logical update:",
+  lossScaleLabel: "Loss scale fixed across microbatches:",
+  microbatchTitles: ["First microbatch", "Final microbatch"],
+  countLabel: "Valid next-token targets",
+  shareLabel: "Share of the logical mean loss",
+  seedLabel: "Scaled backward seed",
+  updateTitle: "After every microbatch succeeds",
+  updateBody: "Unscale the combined gradient, measure its global norm, clip if needed and apply AdamW once. Then clear gradients and count one committed update toward loss-scale growth.",
+  stepLabel: "Optimizer step after the accumulated update",
+  scaleLabel: "Loss scale before and after the committed update",
+  recomputationTitle: "Keep layout and dropout choices fixed while changing retention",
+  retainedTitle: "Ordinary tape: retain block interiors",
+  retainedBody: "Backward uses the block primals and saved derivative contexts retained by the original forward.",
+  recomputedTitle: "Checkpointed tape: reconstruct block interiors",
+  recomputedBody: "Retain boundaries, original parameter aliases, fixed rotary tables and compact dropout tickets. Backward repeats each block and regenerates its original masks before returning local derivatives to the outer reverse pass.",
+  bytesLabel: "Tensor payload at loss-forward completion",
+  extraForwardsLabel: "Additional block forwards during backward",
+  replayBody: "Both paths use the same batch layout and dropout-site tickets. Replay consumes the recorded counter ranges without advancing the live random counter.",
+  layoutLabel: "Batch rows, positions and residual features",
+  counterLabel: "Live random counter after forward and backward",
+  scope: "Count the tape reachable from the scalar mean-loss node: nonparameter primals, owned edge saved-context tensors and fixed recipe tensors. Include copied parameter primals in saved contexts; exclude original master-parameter, gradient and optimizer buffers, Rust metadata, layout and tickets, allocation capacity and transient forward or reverse work. These bytes are retained tensor payload at one observation point, not total training memory, process memory, peak memory or GPU storage.",
+};
+
+<TrainingMemoryDiagram labels={trainingMemoryLabels} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="training-memory-exercises">
+
+## Reproduce the comparisons and explain their boundaries
+
+The existing `clap` CLI sets the maximum rows per microbatch to $1$, $2$ or
+$3$, defaulting to $2$, and prints the bounded demonstration's JSON record.
+
+<RustSource path="rust/demos/practical-ch13-gradient-accumulation-recomputation/src/main.rs"
+  captionId="training-memory-rust-entrypoint"
+  caption="Use the existing clap CLI to choose a microbatch row limit from one to three, defaulting to two, and print the bounded demonstration JSON."
+  label="Rust source: existing clap microbatch row limit from one to three, default two, and bounded JSON output" />
+
+<p id="training-memory-run-default">From the repository root, with the existing
+course Docker setup available, run the default CPU example. It needs no GPU,
+external corpus or downloaded model:</p>
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch13-gradient-accumulation-recomputation
+```
+
+The command prints one JSON record with `accumulation`, `recomputation` and
+`late_overflow` objects. `accumulation.microbatch_valid_targets` is `[6,3]`;
+the corresponding shapes are `[[2,4],[1,3]]`. Both accumulation updates reach
+optimizer step $1$. The recomputation object reports all six ticket and mask
+matches, the retained-payload counts and three extra block forwards.
+
+<RustSource path="rust/demos/practical-ch13-gradient-accumulation-recomputation/src/lib.rs"
+  region="logical-batch-comparison" captionId="training-memory-rust-comparison"
+  caption="Compare full and microbatch updates from matching initial models with dropout disabled and the declared f64 tolerance."
+  label="Rust source: full versus token-weighted microbatch update comparison without dropout" />
+
+Keep the same working directory and Docker setup to run the other supported
+row limits and the chapter's seven library tests:
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch13-gradient-accumulation-recomputation -- --microbatch-size 1
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch13-gradient-accumulation-recomputation -- --microbatch-size 3
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch13-gradient-accumulation-recomputation
+```
+
+The row-limit variants retain the nine-target logical update and print the
+same record structure with changed accumulation grouping. The test command
+reports seven passing library tests. They cover row limits $1$, $2$ and $3$,
+partial final batches, six-site replay, late overflow, structural-error cleanup,
+stale revisions before replay, packed positions with recorded `f64`, FP16 and
+BF16 execution, and refusal of dirty gradients or non-training data. The default
+measurements described in this lesson use CPU `f64` arithmetic.
+
+<RustSource path="rust/demos/practical-ch13-gradient-accumulation-recomputation/src/lib.rs"
+  region="recomputation-comparison" captionId="training-memory-rust-replay-comparison"
+  caption="Hold layout and dropout sites fixed while observing numerical agreement, retained tensor payload and repeated block forwards."
+  label="Rust source: fixed-layout dropout replay and retained tensor payload comparison" />
+
+<ol id="training-memory-practice-prompts">
+  <li id="training-memory-practice-1">Explain the constructed two-microbatch example with target counts <InlineMath latex="2" /> and <InlineMath latex="4" /> and mean losses <InlineMath latex="1" /> and <InlineMath latex="3" />. State the combined mean and why equal weighting of the two means changes the objective.</li>
+  <li id="training-memory-practice-2">Use the <a href="#training-memory-run-default">default Chapter 13 command and setup above</a>. Inspect <code>accumulation</code>; identify the final microbatch's shape, target count and backward seed, and explain why AdamW runs only once for the logical group.</li>
+  <li id="training-memory-practice-3">Use the <a href="#training-memory-run-default">default Chapter 13 command and setup above</a>. Inspect <code>recomputation</code>; explain what the two byte counts include, which work is repeated, and why the live counter stays unchanged during backward.</li>
+  <li id="training-memory-practice-4">Use the <a href="#training-memory-run-default">default Chapter 13 command and setup above</a>. Inspect <code>late_overflow</code>; identify the cleared partial work, preserved optimizer state and available scheduled step, distinguishing eligibility for a retry from an executed retry.</li>
+</ol>
+
+<details id="training-memory-practice-answers">
+<summary id="training-memory-answer-summary">Checked explanations for normalization, replay, retained payload and partial-update cleanup</summary>
+<ol>
+  <li id="training-memory-answer-1">The first microbatch has <InlineMath latex="2" /> valid next-token targets and mean loss <InlineMath latex="1" />; the second has <InlineMath latex="4" /> valid targets and mean loss <InlineMath latex="3" />. Their loss sums are <InlineMath latex={"2\\cdot1=2"} /> and <InlineMath latex={"4\\cdot3=12"} /> across <InlineMath latex="6" /> targets, so the combined mean is <InlineMath latex="14/6=7/3" />. Equal weighting gives <InlineMath latex="(1+3)/2=2" /> and assigns each target in the smaller microbatch twice the weight of each target in the larger one.</li>
+  <li id="training-memory-answer-2">The default final token grid has shape <InlineMath latex="[1,3]" />: one row and three supplied positions. It has <InlineMath latex="3" /> valid targets out of <InlineMath latex="9" />, so its scale-<InlineMath latex="128" /> backward seed is the recorded <InlineMath latex="42.666666666666664" />. The first contribution has already accumulated, with weights still fixed. One final unscale, global clipping decision and AdamW step updates the logical group; the measured norm is below the limit, so this run does not clip.</li>
+  <li id="training-memory-answer-3">In the fixed-layout three-block dropout experiment, ordinary retention reports <InlineMath latex="212352" /> bytes and recomputation <InlineMath latex="112752" /> bytes at loss-forward completion. These counts cover the tape reachable from the scalar mean-loss node: nonparameter primals, owned saved-context tensors and, for checkpoint recipes, fixed rotary tensors. They exclude original parameter, gradient and optimizer buffers, metadata, layout and tickets, capacity and transient work, so they are neither total nor peak memory. Backward performs three additional block forwards. Each block regenerates its original masks from exact tickets without a live counter, leaving the live counter at <InlineMath latex="288" />.</li>
+  <li id="training-memory-answer-4">One microbatch completed before the constructed second-microbatch backward overflowed. Cleanup discards that partial model gradient and restores the original zero-gradient bits. Weight bits and revisions, populated AdamW moments and beta powers, and optimizer step <InlineMath latex="1" /> remain unchanged; scale backs off from <InlineMath latex="128" /> to <InlineMath latex="64" />. Scheduled step <InlineMath latex="2" /> remains available to the caller, but this probe performs no retry. Caller callback effects and live RNG advancement are outside the gradient cleanup boundary.</li>
+</ol>
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="training-memory-handoff">
+
+## Carry one logical update into schedule reasoning
+
+The existing text encoder, source-independent transformer, tied head, reverse
+engine and AdamW now support token-weighted logical updates and per-block
+activation recomputation. Accumulation controls when gradients combine and the
+optimizer acts; recomputation controls which block values remain between
+forward and backward. Both preserve the existing component boundaries and use
+text as the worked input.
+
+Chapter 14 will extend schedule and clipping reasoning around this existing
+update owner, including warmup and decay. Global clipping already exists and
+is reused here. Chapter 15 will address portable model saving and loading and
+the additional state needed for training continuation. An activation checkpoint
+is a temporary differentiation recipe, not a durable file of learned weights.
+Full-corpus training, physical-GPU measurements and accelerated mixed-precision
+execution still need their own evidence.
+
+</div>

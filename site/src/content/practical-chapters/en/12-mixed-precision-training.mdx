@@ -1,7 +1,7 @@
 ---
 {
   "chapter_id": "12-mixed-precision-training",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 12,
   "concept_id": "mixed-precision-training",
   "title": "Train with deliberate precision choices",
@@ -477,7 +477,7 @@ architecture unchanged. A committed AdamW update changes the master parameter va
 CPU inference remains available, and native mixed-precision CUDA execution
 requires a later primitive implementation and its own validation.
 
-Chapter 13 will cover gradient accumulation and activation recomputation. Combining gradients
+[Chapter 13](../13-gradient-accumulation-recomputation/) will cover gradient accumulation and activation recomputation. Combining gradients
 from several contributions must preserve their intended normalization and
 scale. This chapter deliberately requires cleared gradients for each scaled
 update; it does not yet implement that accumulation policy. Portable model

@@ -10,11 +10,12 @@ const cases = [
   { chapter: '03-scalable-bpe-tokenizer', label: 'Chapter 3', target: 'en/course/03-learn-bpe-merges/' },
   { chapter: '03-scalable-bpe-tokenizer', label: 'Chapter 4', target: 'en/course/04-apply-bpe-tokenizer/' },
   { chapter: '11-accelerated-tensor-execution', label: 'Chapter 12', target: 'en/practical-llm-in-rust/12-mixed-precision-training/' },
+  { chapter: '12-mixed-precision-training', label: 'Chapter 13', target: 'en/practical-llm-in-rust/13-gradient-accumulation-recomputation/' },
 ] as const;
 
 for (const viewport of [{ width: 1364, height: 900 }, { width: 390, height: 844 }]) {
   for (const entry of cases) {
-    test(`${entry.chapter}: ${entry.label} reaches its destination at ${viewport.width}px`, async ({ page }) => {
+    test(`@chapter:${entry.chapter} ${entry.chapter}: ${entry.label} reaches its destination at ${viewport.width}px`, async ({ page }) => {
       await page.setViewportSize(viewport);
       const response = await page.goto(`${siteBase}en/practical-llm-in-rust/${entry.chapter}/`);
       expect(response?.status()).toBe(200);

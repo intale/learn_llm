@@ -29,7 +29,7 @@ use crate::training::sequence_example::BatchBinding;
 
 #[path = "decoder_dropout.rs"]
 mod dropout;
-pub use dropout::DropoutModelForward;
+pub use dropout::{DropoutModelForward, RecomputedModelForward};
 
 #[cfg(test)]
 #[path = "decoder_depth_tests.rs"]
@@ -91,6 +91,7 @@ pub enum DecoderModelStage {
     TiedWeightTranspose,
     TiedVocabularyProjection,
     IndexedMeanLoss,
+    ActivationCheckpoint,
 }
 
 impl fmt::Display for DecoderModelStage {
@@ -99,6 +100,7 @@ impl fmt::Display for DecoderModelStage {
             Self::TiedWeightTranspose => "transpose tied embedding weight",
             Self::TiedVocabularyProjection => "project tied vocabulary logits",
             Self::IndexedMeanLoss => "indexed mean negative log likelihood",
+            Self::ActivationCheckpoint => "retain decoder block activation boundary",
         })
     }
 }
@@ -894,6 +896,15 @@ impl DecoderModel {
         input: PreparedDecoderInput,
         dropout: &mut crate::nn::dropout::DropoutExecution<'_>,
     ) -> Result<DecoderModelForward, DecoderModelError> {
+        self.forward_prepared_text_with_activation_policy(input, dropout, false)
+    }
+
+    fn forward_prepared_text_with_activation_policy(
+        &self,
+        input: PreparedDecoderInput,
+        dropout: &mut crate::nn::dropout::DropoutExecution<'_>,
+        recompute_blocks: bool,
+    ) -> Result<DecoderModelForward, DecoderModelError> {
         // Keep the tied table and all transformer values stable through the head.
         let _guards: Vec<_> = self
             .parameters()
@@ -902,7 +913,12 @@ impl DecoderModel {
             .collect();
         let context = input.context();
         let embedding = input.embeddings().clone();
-        let forward = self.backbone().forward_with_dropout(input, dropout)?;
+        let forward = if recompute_blocks {
+            self.backbone()
+                .forward_recomputed_with_dropout(input, dropout)?
+        } else {
+            self.backbone().forward_with_dropout(input, dropout)?
+        };
         let logits = self.text_output_head().forward(context, forward.hidden())?;
         Ok(DecoderModelForward {
             embedding,

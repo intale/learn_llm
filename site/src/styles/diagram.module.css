@@ -611,6 +611,10 @@
   max-inline-size: 75ch;
 }
 
+.host :global(figure.course-diagram[data-diagram-style='course-v1'][data-visualization-id='gradient-accumulation-recomputation']:fullscreen .course-diagram__description) {
+  max-inline-size: none;
+}
+
 .host
   :global(
     figure.course-diagram[data-diagram-style='course-v1']:fullscreen

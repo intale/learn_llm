@@ -1,6 +1,6 @@
 ---
 {
-  "chapter_id":"10-input-encoding-boundary","concept_id":"input-encoding-boundary","content_revision":1,"order":10,
+  "chapter_id":"10-input-encoding-boundary","concept_id":"input-encoding-boundary","content_revision":2,"order":10,
   "objective":{"en":"Separate source-to-vector encoding, causal hidden features and text logits while preserving the existing model's values, gradients and shared embedding table."},
   "worked_inputs":{"en":"Encode the text ab with the existing empty-merge BPE, giving document IDs [0,99,100,1]. Compose inputs [0,99,100] and targets [99,100,1] with seed 39, vocabulary 258, residual width four and two existing decoder blocks. Inspect the shared-table gradient and cached prefill [0,99] followed by token 100."},
   "formula":{

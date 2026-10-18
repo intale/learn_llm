@@ -1,0 +1,15 @@
+{
+  "chapter_id": "13-gradient-accumulation-recomputation",
+  "locale": "en",
+  "title": "One logical update and replayed block activations",
+  "description": "Keep target normalization, optimizer timing, dropout replay and the retained-payload observation distinct.",
+  "terms": [
+    {"term": "Logical batch", "definition": "The examples whose valid next-token targets define one combined mean loss and one optimizer update. The caller chooses this group; splitting it into microbatches does not add optimizer steps."},
+    {"term": "Microbatch", "definition": "A smaller part of a logical batch processed by its own forward and backward pass. Release that graph before the next microbatch while keeping model weights and the logical update's loss scale fixed."},
+    {"term": "Token-weighted accumulation", "definition": "Add each microbatch mean-loss gradient in proportion to its valid-target count divided by the logical group's total. Padding is excluded. Equal averaging of microbatch means changes the token objective when their valid counts differ."},
+    {"term": "Logical optimizer step", "definition": "After every microbatch succeeds, unscale the combined gradient, measure its global norm, apply existing clipping and run AdamW once. Clear gradients and advance the loss-scale controller once. A later failed microbatch discards partial model gradients before this finish phase."},
+    {"term": "Activation recomputation", "definition": "In graph-recording training, retain block boundaries and a replay recipe instead of the block's interior tape, then repeat its forward calculation during backward. This adds computation; an activation checkpoint is temporary derivative state, not a saved model-weight file."},
+    {"term": "Dropout replay ticket", "definition": "A compact record that regenerates one dropout site's original random choices. Block replay keeps the same layout and exact site ranges without advancing a live random counter. A seed alone does not preserve per-token masks after changing microbatch shapes or padding."},
+    {"term": "Retained tensor payload", "definition": "The chapter's after-forward count for the tape reachable from the scalar mean-loss node: nonparameter primals, owned saved-context tensors and fixed checkpoint-recipe tensors in f64 bytes. Include copied parameter primals in saved contexts; exclude original parameter, gradient and optimizer buffers, metadata, layout and tickets, capacity and transient work. It is neither total nor peak training memory, process memory or GPU storage."}
+  ]
+}

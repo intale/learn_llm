@@ -16,6 +16,10 @@ use crate::tensor::view::{TensorView, TensorViewError};
 
 type NodeKey = *const Node;
 
+#[cfg(test)]
+#[path = "tensor_checkpoint_tests.rs"]
+mod checkpoint_tests;
+
 // region:autograd-context
 /// Explicitly selects whether newly created operations record reverse-mode edges.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -95,6 +99,7 @@ pub enum TensorOperation {
     RotaryPairs,
     IndexedMeanNll,
     IndexedSumNll,
+    Checkpoint,
 }
 
 impl TensorOperation {
@@ -121,6 +126,7 @@ impl TensorOperation {
             Self::RotaryPairs => "rotary_pairs",
             Self::IndexedMeanNll => "indexed_mean_nll",
             Self::IndexedSumNll => "indexed_sum_nll",
+            Self::Checkpoint => "checkpoint",
         }
     }
 
@@ -145,6 +151,8 @@ pub enum GraphRetention {
 /// Immutable forward facts used by one exact-shape vector-Jacobian product.
 #[derive(Clone, Debug, PartialEq)]
 pub enum TensorSavedContext {
+    /// This operand's VJP is supplied by the node's recomputed block.
+    Checkpoint,
     /// Identity derivative followed by reduction back to the operand shape.
     Broadcast {
         input_shape: Vec<usize>,
@@ -186,6 +194,9 @@ pub enum TensorSavedContext {
 /// A deterministic rejection from tensor tape construction or reversal.
 #[derive(Clone, Debug, PartialEq)]
 pub enum TensorAutodiffError {
+    Checkpoint {
+        reason: &'static str,
+    },
     Tensor(TensorError),
     View(TensorViewError),
     Operation(TensorOpError),
@@ -260,6 +271,7 @@ pub enum TensorAutodiffError {
 impl fmt::Display for TensorAutodiffError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Checkpoint { reason } => write!(formatter, "activation checkpoint: {reason}"),
             Self::Tensor(error) => error.fmt(formatter),
             Self::View(error) => error.fmt(formatter),
             Self::Operation(error) => error.fmt(formatter),
@@ -436,6 +448,48 @@ struct NodeState {
     parents: Vec<ParentEdge>,
     parameter_gradient: Option<Tensor>,
     released: bool,
+    checkpoint: Option<Checkpoint>,
+}
+
+type Recompute =
+    dyn for<'a> Fn(&TensorValue, AutogradContext<'a>) -> Result<TensorValue, TensorAutodiffError>;
+
+struct Checkpoint {
+    recompute: Rc<Recompute>,
+    execution: TensorExecution,
+    counter: RecomputationCounter,
+    recipe_tensor_values: usize,
+}
+
+/// A caller-owned observation handle; no process-global or thread-local state.
+#[derive(Clone, Debug, Default)]
+pub struct RecomputationCounter(Rc<Cell<usize>>);
+impl RecomputationCounter {
+    pub fn completed_forwards(&self) -> usize {
+        self.0.get()
+    }
+}
+
+/// Tensor payload reachable from one output, counted once per tape node.
+/// Excludes parameter/gradient buffers, Rust metadata and temporary reverse work.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct RetainedTapeStorage {
+    pub nodes: usize,
+    pub checkpoint_nodes: usize,
+    pub nonparameter_primal_values: usize,
+    pub saved_context_values: usize,
+    pub checkpoint_recipe_values: usize,
+}
+impl RetainedTapeStorage {
+    pub fn tensor_payload_bytes(self) -> Result<usize, TensorAutodiffError> {
+        self.nonparameter_primal_values
+            .checked_add(self.saved_context_values)
+            .and_then(|n| n.checked_add(self.checkpoint_recipe_values))
+            .and_then(|n| n.checked_mul(std::mem::size_of::<f64>()))
+            .ok_or(TensorAutodiffError::Checkpoint {
+                reason: "retained payload count overflows usize",
+            })
+    }
 }
 
 struct Node {
@@ -544,6 +598,7 @@ impl TensorValue {
                     parents,
                     parameter_gradient,
                     released: false,
+                    checkpoint: None,
                 }),
             }),
         }
@@ -647,6 +702,87 @@ impl TensorValue {
             false,
             None,
         )
+    }
+
+    // region:block-activation-checkpoint
+    /// Retain a boundary and parameter aliases, rather than the block's inner tape.
+    /// Account explicitly for fixed tensors captured by the crate-owned recipe.
+    pub(crate) fn checkpoint_with_context(
+        context: AutogradContext,
+        input: &Self,
+        parameters: &[Self],
+        output: Tensor,
+        recipe_tensor_values: usize,
+        recompute: impl for<'a> Fn(&Self, AutogradContext<'a>) -> Result<Self, TensorAutodiffError>
+        + 'static,
+    ) -> Result<Self, TensorAutodiffError> {
+        if !context.records_graph() {
+            return Self::constant(output);
+        }
+        let mut parents = Vec::with_capacity(parameters.len() + 1);
+        parents.push(ParentEdge::capture(input, TensorSavedContext::Checkpoint));
+        parents.extend(
+            parameters
+                .iter()
+                .map(|p| ParentEdge::capture(p, TensorSavedContext::Checkpoint)),
+        );
+        let node = Self::operation_node(context, output, TensorOperation::Checkpoint, parents)?;
+        node.node.state.borrow_mut().checkpoint = Some(Checkpoint {
+            recompute: Rc::new(recompute),
+            execution: context.execution().clone(),
+            counter: RecomputationCounter::default(),
+            recipe_tensor_values,
+        });
+        Ok(node)
+    }
+    // endregion:block-activation-checkpoint
+
+    /// Measures live tape tensor lengths, not allocator usage or training peak memory.
+    pub fn retained_tape_storage(&self) -> Result<RetainedTapeStorage, TensorAutodiffError> {
+        let topology = self.topology()?;
+        let mut count = RetainedTapeStorage {
+            nodes: topology.len(),
+            ..RetainedTapeStorage::default()
+        };
+        for node in topology {
+            if !node.is_parameter() {
+                count.nonparameter_primal_values = count
+                    .nonparameter_primal_values
+                    .checked_add(node.value().len())
+                    .ok_or(TensorError::ShapeOverflow)?;
+            }
+            let state = node.node.state.borrow();
+            count.checkpoint_nodes += usize::from(state.checkpoint.is_some());
+            if let Some(checkpoint) = &state.checkpoint {
+                count.checkpoint_recipe_values = count
+                    .checkpoint_recipe_values
+                    .checked_add(checkpoint.recipe_tensor_values)
+                    .ok_or(TensorError::ShapeOverflow)?;
+            }
+            for edge in &state.parents {
+                count.saved_context_values = count
+                    .saved_context_values
+                    .checked_add(edge.saved.tensor_values())
+                    .ok_or(TensorError::ShapeOverflow)?;
+            }
+        }
+        Ok(count)
+    }
+
+    /// Snapshot observation handles before releasing backward consumes the tape.
+    pub fn recomputation_counters(&self) -> Result<Vec<RecomputationCounter>, TensorAutodiffError> {
+        Ok(self
+            .topology()?
+            .iter()
+            .filter_map(|node| {
+                node.node
+                    .state
+                    .borrow()
+                    .checkpoint
+                    .as_ref()
+                    .map(|c| c.counter.clone())
+            })
+            .collect())
     }
 }
 // endregion:tensor-tape-values
@@ -1272,8 +1408,19 @@ impl TensorValue {
         &self,
         seed: &TensorView<'_>,
         retention: GraphRetention,
+        observer: Observer,
+        execution: &TensorExecution,
+    ) -> Result<Observer::Output, TensorAutodiffError> {
+        self.reverse_with_observer(seed, retention, observer, execution, true)
+    }
+
+    fn reverse_with_observer<Observer: TensorBackwardObserver>(
+        &self,
+        seed: &TensorView<'_>,
+        retention: GraphRetention,
         mut observer: Observer,
         execution: &TensorExecution,
+        commit_parameters: bool,
     ) -> Result<Observer::Output, TensorAutodiffError> {
         if self.is_released() {
             return Err(TensorAutodiffError::GraphReleased {
@@ -1326,9 +1473,23 @@ impl TensorValue {
                 continue;
             };
             let state = topology[child].node.state.borrow();
+            let recomputed = if let Some(checkpoint) = &state.checkpoint {
+                Some(topology[child].checkpoint_vjps(
+                    checkpoint,
+                    &state.parents,
+                    &upstream,
+                    execution,
+                )?)
+            } else {
+                None
+            };
             for (operand, edge) in state.parents.iter().enumerate() {
                 let parent = indices[&edge.parent.key()];
-                let contribution = apply_vjp(&upstream, &edge.saved, execution)?;
+                let contribution = if let Some(contributions) = &recomputed {
+                    contributions[operand].clone()
+                } else {
+                    apply_vjp(&upstream, &edge.saved, execution)?
+                };
                 if let Some((index, value)) = first_nonfinite(&contribution) {
                     return Err(TensorAutodiffError::NonFiniteVjp {
                         child,
@@ -1383,6 +1544,9 @@ impl TensorValue {
 
         let mut prospective = vec![None; topology.len()];
         for (index, value) in topology.iter().enumerate() {
+            if !commit_parameters {
+                break;
+            }
             let Some(stored) = value.gradient() else {
                 continue;
             };
@@ -1423,6 +1587,7 @@ impl TensorValue {
                 if !value.operation().is_leaf() {
                     let mut state = value.node.state.borrow_mut();
                     state.parents.clear();
+                    state.checkpoint = None;
                     state.released = true;
                 }
             }
@@ -1430,6 +1595,66 @@ impl TensorValue {
 
         Ok(observation)
     }
+
+    // region:recomputed-block-vjp
+    fn checkpoint_vjps(
+        &self,
+        checkpoint: &Checkpoint,
+        parents: &[ParentEdge],
+        upstream: &Tensor,
+        execution: &TensorExecution,
+    ) -> Result<Vec<Tensor>, TensorAutodiffError> {
+        if execution != &checkpoint.execution {
+            return Err(TensorAutodiffError::Checkpoint {
+                reason: "backward must use the forward execution session and precision",
+            });
+        }
+        let boundary = Self::parameter(parents[0].parent.value_snapshot())?;
+        let output = (checkpoint.recompute)(
+            &boundary,
+            AutogradContext::recording().with_execution(execution),
+        )?;
+        if output.shape() != self.shape()
+            || !output
+                .value()
+                .as_slice()
+                .iter()
+                .map(|x| x.to_bits())
+                .eq(self.value().as_slice().iter().map(|x| x.to_bits()))
+        {
+            return Err(TensorAutodiffError::Checkpoint {
+                reason: "recomputed output differs from the original block output",
+            });
+        }
+        checkpoint
+            .counter
+            .0
+            .set(checkpoint.counter.0.get().checked_add(1).ok_or(
+                TensorAutodiffError::Checkpoint {
+                    reason: "recomputation counter overflows usize",
+                },
+            )?);
+        let selected = std::iter::once(boundary)
+            .chain(parents.iter().skip(1).map(|e| e.parent.clone()))
+            .collect::<Vec<_>>();
+        // The existing reverse engine computes local VJPs without committing
+        // parameter gradients. Only the complete outer pass may commit them.
+        let adjoints = output.reverse_with_observer(
+            &upstream.view(),
+            GraphRetention::Release,
+            RecordSelectedAdjoints {
+                selected: &selected,
+            },
+            execution,
+            false,
+        )?;
+        adjoints
+            .into_iter()
+            .zip(selected)
+            .map(|(adjoint, parent)| adjoint.map_or_else(|| zeros(&parent.shape()), Ok))
+            .collect()
+    }
+    // endregion:recomputed-block-vjp
 
     /// Clears this parameter's accumulated gradient without changing its tape.
     pub fn zero_grad(&self) -> Result<(), TensorAutodiffError> {
@@ -1551,6 +1776,9 @@ fn apply_vjp(
     execution: &TensorExecution,
 ) -> Result<Tensor, TensorAutodiffError> {
     match saved {
+        TensorSavedContext::Checkpoint => Err(TensorAutodiffError::Checkpoint {
+            reason: "checkpoint VJPs require their block boundary",
+        }),
         TensorSavedContext::Broadcast {
             input_shape,
             output_shape,
@@ -1599,6 +1827,16 @@ fn apply_vjp(
             expand_reduction(upstream, input_shape, *axis, *keep_dim, *divisor)
         }
         TensorSavedContext::Model(saved) => apply_model_vjp(upstream, saved, execution),
+    }
+}
+
+impl TensorSavedContext {
+    fn tensor_values(&self) -> usize {
+        match self {
+            Self::Multiply { other, .. } => other.len(),
+            Self::Model(saved) => saved.tensor_values(),
+            _ => 0,
+        }
     }
 }
 

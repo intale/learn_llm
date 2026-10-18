@@ -174,14 +174,32 @@ impl<'a> DecoderBackbone<'a> {
         &self,
         input: PreparedDecoderInput,
     ) -> Result<BackboneForward, DecoderModelError> {
-        consume_with_dropout(self, input, &mut DropoutExecution::Identity).map_err(full_error)
+        consume_with_dropout(self, input, &mut DropoutExecution::Identity, false)
+            .map_err(full_error)
+    }
+
+    /// Same transformer and checked carrier, retaining only block boundaries.
+    /// With graph recording enabled, the block-intermediate list is empty;
+    /// final hidden features remain. No-grad execution needs no checkpoints.
+    pub fn forward_recomputed(
+        &self,
+        input: PreparedDecoderInput,
+    ) -> Result<BackboneForward, DecoderModelError> {
+        consume_with_dropout(self, input, &mut DropoutExecution::Identity, true).map_err(full_error)
     }
     pub(super) fn forward_with_dropout(
         &self,
         input: PreparedDecoderInput,
         dropout: &mut DropoutExecution<'_>,
     ) -> Result<BackboneForward, DecoderModelError> {
-        consume_with_dropout(self, input, dropout).map_err(full_error)
+        consume_with_dropout(self, input, dropout, false).map_err(full_error)
+    }
+    pub(super) fn forward_recomputed_with_dropout(
+        &self,
+        input: PreparedDecoderInput,
+        dropout: &mut DropoutExecution<'_>,
+    ) -> Result<BackboneForward, DecoderModelError> {
+        consume_with_dropout(self, input, dropout, true).map_err(full_error)
     }
     pub(crate) fn forward_cached(
         &self,
@@ -195,6 +213,7 @@ impl<'a> DecoderBackbone<'a> {
             Mode::Cached(layers),
             Some(prefix),
             &mut DropoutExecution::Identity,
+            false,
         )
         .map_err(|e| match e {
             CoreError::Cached(e) => e,
@@ -252,6 +271,7 @@ fn consume_with_dropout(
     backbone: &DecoderBackbone<'_>,
     input: PreparedDecoderInput,
     dropout: &mut DropoutExecution<'_>,
+    recompute_blocks: bool,
 ) -> Result<BackboneForward, CoreError> {
     // The layout borrows the carrier; keep it alive through the shared loop.
     let layout = FullLayout {
@@ -259,7 +279,14 @@ fn consume_with_dropout(
         starts: Some(input.layout().range_starts()),
         positions: Some(input.layout().positions()),
     };
-    consume(backbone, &input, Mode::Full(layout), None, dropout)
+    consume(
+        backbone,
+        &input,
+        Mode::Full(layout),
+        None,
+        dropout,
+        recompute_blocks,
+    )
 }
 fn consume(
     backbone: &DecoderBackbone<'_>,
@@ -267,6 +294,7 @@ fn consume(
     mode: Mode<'_>,
     prefix: Option<usize>,
     dropout: &mut DropoutExecution<'_>,
+    recompute_blocks: bool,
 ) -> Result<BackboneForward, CoreError> {
     let _backbone_guards: Vec<_> = backbone.parameters().map(|p| p.tensor().value()).collect();
     let _producer_guards: Vec<_> = input
@@ -309,6 +337,7 @@ fn consume(
         0,
         mode,
         dropout,
+        recompute_blocks,
     )
 }
 
@@ -328,6 +357,7 @@ pub(super) fn residual_tail(
         first_site,
         Mode::Full(layout),
         &mut DropoutExecution::Identity,
+        false,
     )
     .map_err(full_error)
 }
@@ -339,6 +369,7 @@ fn run(
     first_site: usize,
     mode: Mode<'_>,
     dropout: &mut DropoutExecution<'_>,
+    recompute_blocks: bool,
 ) -> Result<BackboneForward, CoreError> {
     let cached = matches!(mode, Mode::Cached(_));
     let site_count = 2 * backbone.blocks().len() + 1;
@@ -386,9 +417,16 @@ fn run(
     for (layer, block) in backbone.blocks().iter().enumerate().skip(first_layer) {
         match &mode {
             Mode::Full(layout) => {
+                let checkpoint = recompute_blocks && context.records_graph();
+                let execution = context.execution();
+                let block_context = if checkpoint {
+                    AutogradContext::no_grad().with_execution(&execution)
+                } else {
+                    context
+                };
                 let f = block
                     .forward_with_layout_and_dropout(
-                        context,
+                        block_context,
                         &current,
                         0,
                         layout.lengths,
@@ -400,8 +438,46 @@ fn run(
                     .map_err(|source| {
                         CoreError::Full(DecoderModelError::Block { layer, source })
                     })?;
-                current = f.output().clone();
-                blocks.push(f);
+                if checkpoint {
+                    // Drop all inspectable intermediates. The recipe captures
+                    // shared parameters, fixed RoPE tables, layout and tickets.
+                    let output = f.output().value_snapshot();
+                    drop(f);
+                    let replay = dropout
+                        .last_block_replay()
+                        .map_err(|source| CoreError::Full(DecoderModelError::Dropout(source)))?;
+                    let parameters = block
+                        .parameters()
+                        .iter()
+                        .map(|p| p.tensor().clone())
+                        .collect::<Vec<_>>();
+                    let block = block.clone();
+                    let rope = block.attention().rope();
+                    let recipe_tensor_values = rope
+                        .inverse_frequencies()
+                        .len()
+                        .checked_add(rope.cosines().len())
+                        .and_then(|n| n.checked_add(rope.sines().len()))
+                        .ok_or_else(|| {
+                            CoreError::Full(DecoderModelError::Autodiff {
+                                stage: super::decoder::DecoderModelStage::ActivationCheckpoint,
+                                source: crate::tensor::storage::TensorError::ShapeOverflow.into(),
+                            })
+                        })?;
+                    let lengths = layout.lengths.map(<[usize]>::to_vec);
+                    let starts = layout.starts.map(<[usize]>::to_vec);
+                    let positions = layout.positions.map(<[usize]>::to_vec);
+                    current = TensorValue::checkpoint_with_context(context, &current, &parameters, output, recipe_tensor_values, move |boundary, context| {
+                        let mut dropout = replay.execution();
+                        let forward = block.forward_with_layout_and_dropout(context, boundary, 0, lengths.as_deref(), starts.as_deref(), positions.as_deref(), layer, &mut dropout)
+                            .map_err(|_| crate::autograd::tensor_core::TensorAutodiffError::Checkpoint { reason: "block forward or site replay failed during recomputation" })?;
+                        dropout.finish_compact(None).map_err(|_| crate::autograd::tensor_core::TensorAutodiffError::Checkpoint { reason: "block replay did not consume its exact tickets" })?;
+                        Ok(forward.into_output())
+                    }).map_err(|source| CoreError::Full(DecoderModelError::Autodiff { stage: super::decoder::DecoderModelStage::ActivationCheckpoint, source }))?;
+                } else {
+                    current = f.output().clone();
+                    blocks.push(f);
+                }
             }
             Mode::Cached(caches) => {
                 let norm = block

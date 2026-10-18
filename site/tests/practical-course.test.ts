@@ -7,7 +7,7 @@ import {getMessages,validateMessageCatalog} from '../src/i18n';
 import {COURSE_HOME_MESSAGE_KEYS,COURSE_INDEX_MESSAGE_KEYS,courseMessageKeys,hasCourseHomeMessages,hasCourseIndexMessages,hasCourseMessages} from '../src/i18n/messages';
 import {practicalCourse} from '../src/lib/course-configuration';
 
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation'] as const;
 const read=(path:string)=>readFileSync(new URL('../../'+path,import.meta.url),'utf8');
 const documents=ids.map(id=>({id,
   lesson:parseJsonFrontmatter(read('site/src/content/practical-chapters/en/'+id+'.mdx'),id),
@@ -39,11 +39,11 @@ describe('independent optional course message groups',()=>{
   });
 });
 
-describe('current practical Chapters 0–12 source bindings',()=>{
+describe('current practical Chapters 0–13 source bindings',()=>{
   it('retains the English-only course and the current published revisions in its ordered profile',()=>{
     expect(practicalCourse.activeLocales).toEqual(['en']);
-    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12]);
-    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([7,1,1,2,1,1,1,2,3,5,1,2,1]);
+    expect(documents.map(({lesson})=>lesson.data.order)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13]);
+    expect(documents.map(({lesson})=>lesson.data.content_revision)).toEqual([8,1,1,2,1,1,1,3,3,5,2,2,2,1]);
     for(const {id,lesson,contract,catalog} of documents){
       expect(lesson.data.chapter_id).toBe(id);expect(lesson.data.locale).toBe('en');
       expect(contract.chapter_id).toBe(id);expect(contract.content_revision).toBe(lesson.data.content_revision);
@@ -256,6 +256,34 @@ describe('current practical Chapters 0–12 source bindings',()=>{
     expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');expect(sheet.terms).toHaveLength(6);
     expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
     for(const source of lesson.data.history.llm_evolution.sources)expect(lesson.body).toContain(']('+source.source_url+')');
+  });
+
+  it('binds Chapter 13 formula, actual stdout, declared source units, sources and terms',()=>{
+    const {id,lesson,contract}=documents[13];
+    expect(lesson.data.concept_id).toBe('gradient-accumulation-recomputation');
+    expect(lesson.data.formula.latex).toBe(contract.formula.latex);
+    expect(lesson.data.formula.symbols).toEqual(contract.formula.symbols.map((symbol:{symbol:string;en:string})=>({symbol:symbol.symbol,meaning:symbol.en})));
+    expect(lesson.data.visualization).toMatchObject({decision:'useful',id:'gradient-accumulation-recomputation',component:'TrainingMemoryDiagram'});
+    const expected=read('rust/demos/practical-ch'+id+'/expected.txt');
+    expect(contract.rust.expected_output).toBe(expected);
+    expect(JSON.parse(expected).chapter).toBe(id);
+    expect(lesson.data.rust_sources).toHaveLength(7);
+    for(const entry of lesson.data.rust_sources){
+      expect(contract.rust.sources).toContain(entry.path);
+      const source=read(entry.path);
+      if(entry.region){
+        expect(source.split('// region:'+entry.region)).toHaveLength(2);
+        expect(source.split('// endregion:'+entry.region)).toHaveLength(2);
+        expect(lesson.body.split('region="'+entry.region+'"')).toHaveLength(2);
+      }else expect(lesson.body.split('<RustSource path="'+entry.path+'"')).toHaveLength(2);
+    }
+    const sheet=JSON.parse(read('site/src/content/practical-cheat-sheets/en/'+id+'.json'));
+    expect(sheet.chapter_id).toBe(id);expect(sheet.locale).toBe('en');expect(sheet.terms.length).toBeGreaterThanOrEqual(5);
+    expect(sheet.terms.map((term:{term:string})=>term.term)).toEqual(contract.terminology.map((term:{en:string})=>term.en));
+    const urls=['https://arxiv.org/abs/1604.06174v2','https://arxiv.org/abs/2205.05198v1'];
+    expect(lesson.data.history.llm_evolution.sources.map((entry:{source_url:string})=>entry.source_url)).toEqual(urls);
+    for(const url of urls)expect(lesson.body).toContain(']('+url+')');
+    expect(read('site/src/components/chapters/TrainingMemoryDiagram.astro')).toContain("practical-ch13-gradient-accumulation-recomputation/expected.txt?raw");
   });
 
 });

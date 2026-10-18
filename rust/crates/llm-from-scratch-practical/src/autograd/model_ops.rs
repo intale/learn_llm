@@ -186,6 +186,24 @@ pub enum ModelSavedContext {
 }
 // endregion:model-saved-context
 
+impl ModelSavedContext {
+    /// Owned f64 tensor lengths; shape/index/layout metadata is excluded.
+    pub(super) fn tensor_values(&self) -> usize {
+        match self {
+            Self::MatmulLeft { right, .. } => right.len(),
+            Self::MatmulRight { left, .. } => left.len(),
+            Self::Exp { output } => output.len(),
+            Self::Log { input } => input.len(),
+            Self::Silu { input, sigmoid } => input.len() + sigmoid.len(),
+            Self::LogSoftmax { probabilities, .. }
+            | Self::CausalSoftmax { probabilities, .. }
+            | Self::IndexedMeanNll { probabilities, .. } => probabilities.len(),
+            Self::RotaryPairs { cosines, sines, .. } => cosines.len() + sines.len(),
+            Self::GatherRows { .. } => 0,
+        }
+    }
+}
+
 // region:model-row-gather-plan
 /// Owned row-gather facts established before materialization begins.
 #[derive(Debug)]
