@@ -1,5 +1,8 @@
 //! Versioned, self-describing decoder component checkpoints.
 
+pub mod portable;
+pub mod resume;
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
@@ -1773,61 +1776,66 @@ impl Checkpoint {
         &self,
         path: impl AsRef<Path>,
     ) -> Result<EncodedCheckpoint, CheckpointError> {
-        #[cfg(not(unix))]
-        {
-            let _ = path;
-            return Err(CheckpointError::UnsupportedAtomicReplacement);
-        }
+        let encoded = self.encode()?;
+        atomic_replace(path.as_ref(), encoded.bytes())?;
+        Ok(encoded)
+    }
+    // endregion:atomic-checkpoint-save
+}
 
-        #[cfg(unix)]
-        {
-            let path = path.as_ref();
-            let file_name = path.file_name().ok_or_else(|| {
-                CheckpointError::Layout("checkpoint destination has no file name".to_owned())
-            })?;
-            let parent = path
-                .parent()
-                .filter(|parent| !parent.as_os_str().is_empty())
-                .unwrap_or_else(|| Path::new("."));
-            let encoded = self.encode()?;
-            let (temporary_path, mut temporary) =
-                create_temporary(parent, file_name.to_string_lossy().as_ref())?;
-            let publication = (|| -> Result<(), CheckpointError> {
-                temporary
-                    .write_all(encoded.bytes())
-                    .map_err(|source| CheckpointError::Io {
-                        operation: "write temporary",
-                        path: temporary_path.clone(),
-                        source,
-                    })?;
-                temporary.sync_all().map_err(|source| CheckpointError::Io {
-                    operation: "synchronize temporary",
+/// Shared publication boundary for the legacy component and portable files.
+pub(crate) fn atomic_replace(path: &Path, bytes: &[u8]) -> Result<(), CheckpointError> {
+    #[cfg(not(unix))]
+    {
+        let _ = path;
+        return Err(CheckpointError::UnsupportedAtomicReplacement);
+    }
+
+    #[cfg(unix)]
+    {
+        let file_name = path.file_name().ok_or_else(|| {
+            CheckpointError::Layout("checkpoint destination has no file name".to_owned())
+        })?;
+        let parent = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .unwrap_or_else(|| Path::new("."));
+        let (temporary_path, mut temporary) =
+            create_temporary(parent, file_name.to_string_lossy().as_ref())?;
+        let publication = (|| -> Result<(), CheckpointError> {
+            temporary
+                .write_all(bytes)
+                .map_err(|source| CheckpointError::Io {
+                    operation: "write temporary",
                     path: temporary_path.clone(),
                     source,
                 })?;
-                drop(temporary);
-                fs::rename(&temporary_path, path).map_err(|source| CheckpointError::Io {
-                    operation: "atomically replace",
-                    path: path.to_owned(),
+            temporary.sync_all().map_err(|source| CheckpointError::Io {
+                operation: "synchronize temporary",
+                path: temporary_path.clone(),
+                source,
+            })?;
+            drop(temporary);
+            fs::rename(&temporary_path, path).map_err(|source| CheckpointError::Io {
+                operation: "atomically replace",
+                path: path.to_owned(),
+                source,
+            })?;
+            File::open(parent)
+                .and_then(|directory| directory.sync_all())
+                .map_err(|source| CheckpointError::Io {
+                    operation: "synchronize parent directory",
+                    path: parent.to_owned(),
                     source,
                 })?;
-                File::open(parent)
-                    .and_then(|directory| directory.sync_all())
-                    .map_err(|source| CheckpointError::Io {
-                        operation: "synchronize parent directory",
-                        path: parent.to_owned(),
-                        source,
-                    })?;
-                Ok(())
-            })();
-            if publication.is_err() {
-                let _ = fs::remove_file(&temporary_path);
-            }
-            publication?;
-            Ok(encoded)
+            Ok(())
+        })();
+        if publication.is_err() {
+            let _ = fs::remove_file(&temporary_path);
         }
+        publication?;
+        Ok(())
     }
-    // endregion:atomic-checkpoint-save
 }
 
 #[cfg(unix)]

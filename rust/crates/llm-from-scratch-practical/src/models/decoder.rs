@@ -679,64 +679,10 @@ impl DecoderModel {
         parameters: Vec<NamedParameter>,
     ) -> Result<Self, DecoderModelError> {
         validate_parameter_layout(config, parameters.as_slice())?;
-        let expected = parameters.len();
-
         let embedding = Embedding::from_parameter(parameters[0].clone())
             .map_err(DecoderModelError::Embedding)?;
-        let mut blocks = Vec::new();
-        blocks.try_reserve_exact(config.layers).map_err(|_| {
-            DecoderModelError::LayerAllocationFailed {
-                layers: config.layers,
-            }
-        })?;
-        for layer in 0..config.layers {
-            let start = 1 + layer * BLOCK_PARAMETER_SUFFIXES.len();
-            let attention_norm = RmsNorm::from_gain(parameters[start].clone(), config.rms_epsilon)
-                .map_err(|source| DecoderModelError::Block {
-                    layer,
-                    source: DecoderBlockError::AttentionNorm(source),
-                })?;
-            let attention = MultiHeadAttention::from_parameters(
-                parameters[start + 1].clone(),
-                parameters[start + 2].clone(),
-                parameters[start + 3].clone(),
-                parameters[start + 4].clone(),
-                config.heads,
-                config.max_positions,
-                config.rope_base,
-            )
-            .map_err(|source| DecoderModelError::Block {
-                layer,
-                source: DecoderBlockError::Attention(source),
-            })?;
-            let feed_forward_norm =
-                RmsNorm::from_gain(parameters[start + 5].clone(), config.rms_epsilon).map_err(
-                    |source| DecoderModelError::Block {
-                        layer,
-                        source: DecoderBlockError::FeedForwardNorm(source),
-                    },
-                )?;
-            let feed_forward = SwiGlu::from_parameters(
-                parameters[start + 6].clone(),
-                parameters[start + 7].clone(),
-                parameters[start + 8].clone(),
-            )
-            .map_err(|source| DecoderModelError::Block {
-                layer,
-                source: DecoderBlockError::FeedForward(source),
-            })?;
-            blocks.push(
-                DecoderBlock::from_parts(
-                    attention_norm,
-                    attention,
-                    feed_forward_norm,
-                    feed_forward,
-                )
-                .map_err(|source| DecoderModelError::Block { layer, source })?,
-            );
-        }
-        let final_norm = RmsNorm::from_gain(parameters[expected - 1].clone(), config.rms_epsilon)
-            .map_err(DecoderModelError::FinalNorm)?;
+        let (blocks, final_norm) =
+            assemble_backbone(config.block_config(), config.layers, &parameters[1..])?;
         Self::from_parts(config, embedding, blocks, final_norm)
     }
     // endregion:decoder-parameter-rebuild
@@ -1410,14 +1356,22 @@ fn validate_parameter_names<S: DecoderParameterSource + ?Sized>(
     parameters: &S,
     layers: usize,
 ) -> Result<(), DecoderModelError> {
+    validate_component_parameter_names(parameters, layers, true)
+}
+
+pub(crate) fn validate_component_parameter_names<S: DecoderParameterSource + ?Sized>(
+    parameters: &S,
+    layers: usize,
+    has_embedding: bool,
+) -> Result<(), DecoderModelError> {
     let final_index = parameters.len() - 1;
     for index in 0..parameters.len() {
-        let expected = if index == 0 {
+        let expected = if has_embedding && index == 0 {
             "token_embedding.weight".to_owned()
         } else if index == final_index {
             "final_norm.gain".to_owned()
         } else {
-            let block_offset = index - 1;
+            let block_offset = index - usize::from(has_embedding);
             let layer = block_offset / BLOCK_PARAMETER_SUFFIXES.len();
             debug_assert!(layer < layers);
             let suffix = BLOCK_PARAMETER_SUFFIXES[block_offset % BLOCK_PARAMETER_SUFFIXES.len()];
@@ -1432,6 +1386,66 @@ fn validate_parameter_names<S: DecoderParameterSource + ?Sized>(
         }
     }
     Ok(())
+}
+
+/// The same named tensor assembly serves complete text models and bare backbones.
+/// Callers establish the component count and ordered names before entering.
+pub(crate) fn assemble_backbone(
+    config: DecoderBlockConfig,
+    layers: usize,
+    parameters: &[NamedParameter],
+) -> Result<(Vec<DecoderBlock>, RmsNorm), DecoderModelError> {
+    let mut blocks = Vec::new();
+    blocks
+        .try_reserve_exact(layers)
+        .map_err(|_| DecoderModelError::LayerAllocationFailed { layers })?;
+    for layer in 0..layers {
+        let start = layer * BLOCK_PARAMETER_SUFFIXES.len();
+        let attention_norm = RmsNorm::from_gain(parameters[start].clone(), config.rms_epsilon())
+            .map_err(|source| DecoderModelError::Block {
+                layer,
+                source: DecoderBlockError::AttentionNorm(source),
+            })?;
+        let attention = MultiHeadAttention::from_parameters(
+            parameters[start + 1].clone(),
+            parameters[start + 2].clone(),
+            parameters[start + 3].clone(),
+            parameters[start + 4].clone(),
+            config.heads(),
+            config.max_positions(),
+            config.rope_base(),
+        )
+        .map_err(|source| DecoderModelError::Block {
+            layer,
+            source: DecoderBlockError::Attention(source),
+        })?;
+        let feed_forward_norm =
+            RmsNorm::from_gain(parameters[start + 5].clone(), config.rms_epsilon()).map_err(
+                |source| DecoderModelError::Block {
+                    layer,
+                    source: DecoderBlockError::FeedForwardNorm(source),
+                },
+            )?;
+        let feed_forward = SwiGlu::from_parameters(
+            parameters[start + 6].clone(),
+            parameters[start + 7].clone(),
+            parameters[start + 8].clone(),
+        )
+        .map_err(|source| DecoderModelError::Block {
+            layer,
+            source: DecoderBlockError::FeedForward(source),
+        })?;
+        blocks.push(
+            DecoderBlock::from_parts(attention_norm, attention, feed_forward_norm, feed_forward)
+                .map_err(|source| DecoderModelError::Block { layer, source })?,
+        );
+    }
+    let final_norm = RmsNorm::from_gain(
+        parameters[parameters.len() - 1].clone(),
+        config.rms_epsilon(),
+    )
+    .map_err(DecoderModelError::FinalNorm)?;
+    Ok((blocks, final_norm))
 }
 
 fn block_parameter_start(layer: usize) -> usize {

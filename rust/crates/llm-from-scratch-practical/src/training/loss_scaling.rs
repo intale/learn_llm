@@ -84,6 +84,42 @@ impl DynamicLossScaler {
 }
 // endregion:dynamic-loss-scale
 
+/// Exact state at an update boundary; numeric values remain numeric tensors.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct LossScaleState {
+    pub scale: f64,
+    pub minimum: f64,
+    pub maximum: f64,
+    pub growth_interval: usize,
+    pub finite_updates: usize,
+}
+
+impl DynamicLossScaler {
+    pub fn persistence_state(&self) -> LossScaleState {
+        LossScaleState {
+            scale: self.scale,
+            minimum: self.minimum,
+            maximum: self.maximum,
+            growth_interval: self.growth_interval,
+            finite_updates: self.finite_updates,
+        }
+    }
+
+    pub fn from_persistence_state(state: LossScaleState) -> Result<Self, InvalidLossScale> {
+        let mut scaler = Self::new(
+            state.scale,
+            state.minimum,
+            state.maximum,
+            state.growth_interval,
+        )?;
+        if state.finite_updates >= state.growth_interval {
+            return Err(InvalidLossScale);
+        }
+        scaler.finite_updates = state.finite_updates;
+        Ok(scaler)
+    }
+}
+
 /// Only numerical failures of the transactional reverse pass permit a skip.
 /// Shape, stale-tape, device, borrow and other programming errors propagate.
 pub(crate) fn is_backward_overflow(error: &TensorAutodiffError) -> bool {
@@ -98,6 +134,25 @@ pub(crate) fn is_backward_overflow(error: &TensorAutodiffError) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn restore_preserves_pending_growth_and_refuses_invalid_interval_progress() {
+        let mut original = DynamicLossScaler::new(8., 1., 32., 3).unwrap();
+        original.committed();
+        let state = original.persistence_state();
+        let mut restored = DynamicLossScaler::from_persistence_state(state).unwrap();
+        for _ in 0..5 {
+            original.committed();
+            restored.committed();
+            assert_eq!(original.persistence_state(), restored.persistence_state());
+        }
+        assert!(
+            DynamicLossScaler::from_persistence_state(LossScaleState {
+                finite_updates: state.growth_interval,
+                ..state
+            })
+            .is_err()
+        );
+    }
     #[test]
     fn scale_bounds_growth_reset_and_invalid_settings() {
         for args in [

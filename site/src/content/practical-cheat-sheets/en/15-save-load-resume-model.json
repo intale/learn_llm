@@ -1,0 +1,37 @@
+{
+  "chapter_id": "15-save-load-resume-model",
+  "locale": "en",
+  "title": "Saved model and training continuation",
+  "description": "Distinguish the state that makes a learned text model reusable from the additional history and conditions needed to continue its training.",
+  "terms": [
+    {
+      "term": "Portable model",
+      "definition": "Saved learned tensors, their semantic settings, required text-tokenizer assets and component relationships. The model can be loaded for CPU inference without its old optimizer or device handles."
+    },
+    {
+      "term": "Tied parameter alias",
+      "definition": "Two model operations refer to one learned parameter. This text model stores the embedding once and restores lookup and the transposed output head as uses of the same live autograd node."
+    },
+    {
+      "term": "Learned model identity",
+      "definition": "A digest of normalized semantic settings, named tensor dtypes, shapes and values, required assets and sharing policy. It excludes device and training-run state; matching logical identity does not require identical serialized file bytes."
+    },
+    {
+      "term": "Training checkpoint",
+      "definition": "The saved model plus optimizer history, update policy, data order and cursor, randomness, loss-scale progress and accumulation settings needed to determine the next logical update within the supported execution envelope."
+    },
+    {
+      "term": "Complete update boundary",
+      "definition": "A point with zero pending microbatches and cleared parameter gradients. This checkpoint implementation refuses partial accumulation or pending gradients and does not save an active differentiation graph."
+    },
+    {
+      "term": "Exact training continuation",
+      "definition": "Restore the saved training state and execute the remaining updates under the declared compatible execution and data. In the bounded same-binary CPU f64 fixture, the remaining observations and checked final state bits match uninterrupted training."
+    },
+    {
+      "term": "Weights-only warm start",
+      "definition": "Begin a new training history from saved learned weights. The example performs two additional updates but resets optimizer, rate clock, data cursor, dropout counter, scaler progress and sampling state together, so it is not exact continuation."
+    }
+  ]
+}
+

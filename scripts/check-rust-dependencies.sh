@@ -8,6 +8,7 @@ readonly repository_root
 # in concurrentDevelopmentMCP decisions. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
   aho-corasick
+  allocator-api2
   anstyle
   arc-swap
   atomic-waker
@@ -36,9 +37,11 @@ readonly -a allowed_supporting_crates=(
   digest
   displaydoc
   errno
+  equivalent
   fancy-regex
   fastrand
   find-msvc-tools
+  foldhash
   foreign-types
   foreign-types-shared
   form_urlencoded
@@ -102,6 +105,7 @@ readonly -a allowed_supporting_crates=(
   rustix
   rustls-pki-types
   rustversion
+  safetensors
   schannel
   scopeguard
   security-framework

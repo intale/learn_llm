@@ -27,7 +27,8 @@ use practical_ch04_padded_variable_batches::fixture_artifact;
 use practical_ch11_accelerated_tensor_execution::{DemoResult, compare_tensor};
 use serde_json::{Value, json};
 
-fn examples(partition: Partition) -> DemoResult<Vec<SequenceExample<'static>>> {
+/// The same ordered text examples are reused by later continuation fixtures.
+pub fn examples(partition: Partition) -> DemoResult<Vec<SequenceExample<'static>>> {
     let binding = BatchBinding::from_artifact(
         &fixture_artifact()?,
         TokenizerLimits::fixture(),
@@ -60,13 +61,15 @@ fn batches(rows: usize) -> DemoResult<VariableBatchEpoch> {
     )?)
 }
 
-fn model() -> DemoResult<DecoderModel> {
+/// Seeded three-block text model shared by the bounded training examples.
+pub fn model() -> DemoResult<DecoderModel> {
     Ok(DecoderModel::new(
         DecoderModelConfig::new(266, 4, 1, 8, 3, 8, 10000.0, 1e-6),
         &mut SplitMix64::from_seed(39),
     )?)
 }
-fn optimizer() -> DemoResult<AdamW> {
+/// The existing AdamW fixture; later chapters preserve and restore its state.
+pub fn optimizer() -> DemoResult<AdamW> {
     Ok(AdamW::new(AdamWConfig::new(0.001, 0.9, 0.999, 1e-8, 0.01)?))
 }
 fn plan() -> DemoResult<TrainerConfig> {

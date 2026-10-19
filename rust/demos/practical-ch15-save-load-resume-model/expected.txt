@@ -1,0 +1,197 @@
+{
+  "boundary_state": {
+    "accumulation_microbatches": 2,
+    "completed_updates": 2,
+    "cursor": 1,
+    "document_order": [
+      2,
+      0,
+      1
+    ],
+    "dropout_next_counter": 288,
+    "dropout_seed": 18446744073709551613,
+    "epoch": 1,
+    "loss_scale": 8.0,
+    "loss_scale_finite_updates": 2,
+    "loss_scale_growth_interval": 3,
+    "model_id": "8f8bb1391d98f406da73979c68f10ea79c9b6af1676f7d142fc19702cb5bec24",
+    "next_learning_rate": 0.0003250000000000001,
+    "optimizer_bits_sha256": "787eab8f5881cd83acd2be0527f49d5406e2a2569633acba9f5e73ac8501822c",
+    "pending_microbatches": 0,
+    "sampling_rng_state": 4354685564936845350,
+    "weight_bits_sha256": "c1f33fc6be874fe2007951dbcf99f4052079f74a0a2d440191f1cab241743ea7"
+  },
+  "changed_data_refused": true,
+  "changed_envelope_refused": true,
+  "evidence_scope": "bounded CPU f64 fixtures; in-memory round-trip; separate CLI commands exercise fresh processes",
+  "final_state": {
+    "accumulation_microbatches": 2,
+    "completed_updates": 4,
+    "cursor": 2,
+    "document_order": [
+      2,
+      0,
+      1
+    ],
+    "dropout_next_counter": 552,
+    "dropout_seed": 18446744073709551613,
+    "epoch": 2,
+    "loss_scale": 16.0,
+    "loss_scale_finite_updates": 1,
+    "loss_scale_growth_interval": 3,
+    "model_id": "20280485c32c54ffc07c8a0f8b529466c8b634d4804a55d4a07de62d47349cac",
+    "next_learning_rate": null,
+    "optimizer_bits_sha256": "d77687e1245bed34250159fc59d60e896416b3a32603c525a3b08a86869523fa",
+    "pending_microbatches": 0,
+    "sampling_rng_state": 8709371129873690704,
+    "weight_bits_sha256": "701d293fd7e86de6df5615ca8faa9681d20050e2eac3eb4b80a8cdf025ad1729"
+  },
+  "generic_backbone": {
+    "composition": "backbone-only",
+    "hidden_bits_equal": true,
+    "hidden_shape": [
+      1,
+      3,
+      4
+    ],
+    "named_tensors": 29,
+    "source": "existing text embedding",
+    "tokenizer_required": false
+  },
+  "optimizer_bits_equal": true,
+  "partial_accumulation_refused": true,
+  "physical_cuda_to_cpu": "pending separate hardware execution",
+  "portable_inference": {
+    "decode_error": null,
+    "device": "cpu",
+    "generated_bytes": [
+      106,
+      106,
+      53
+    ],
+    "generated_ids": [
+      108,
+      108,
+      55
+    ],
+    "logit_bits_sha256": "3e3d913d9cce9681b20583bbe95c540c4776bb56060e7f2d6f84a341407c5157",
+    "model_id": "8f8bb1391d98f406da73979c68f10ea79c9b6af1676f7d142fc19702cb5bec24",
+    "named_parameter_tensors": 29,
+    "parameter_scalars": 1572,
+    "precision": "f64",
+    "prompt": "ab",
+    "prompt_ids": [
+      0,
+      99,
+      100
+    ],
+    "tied_alias": true
+  },
+  "progress_equal": true,
+  "remaining_updates_equal": true,
+  "resumed_updates": [
+    {
+      "data_document_ids": [
+        "short/full",
+        "long/full"
+      ],
+      "dropout_next_counter": 432,
+      "epoch": 2,
+      "gradients_cleared": true,
+      "learning_rate": 0.0003250000000000001,
+      "loss_scale": 8.0,
+      "mean_loss": 5.547087507935631,
+      "microbatches": 2,
+      "monitoring_token_ids": [
+        63
+      ],
+      "next_cursor": 0,
+      "next_loss_scale": 16.0,
+      "sampling_rng_state": 15755400384260043835,
+      "step": 3,
+      "valid_targets": 6
+    },
+    {
+      "data_document_ids": [
+        "medium/full",
+        "short/full"
+      ],
+      "dropout_next_counter": 552,
+      "epoch": 2,
+      "gradients_cleared": true,
+      "learning_rate": 0.0001,
+      "loss_scale": 16.0,
+      "mean_loss": 5.641298535316402,
+      "microbatches": 2,
+      "monitoring_token_ids": [
+        23
+      ],
+      "next_cursor": 2,
+      "next_loss_scale": 16.0,
+      "sampling_rng_state": 8709371129873690704,
+      "step": 4,
+      "valid_targets": 5
+    }
+  ],
+  "saved_after_updates": 2,
+  "total_updates": 4,
+  "weight_bits_equal": true,
+  "weights_only_restart": {
+    "additional_updates_per_path": 2,
+    "continuation_optimizer_step": 4,
+    "reset_state": [
+      "AdamW moments and powers",
+      "learning-rate clock",
+      "data cursor",
+      "dropout counter",
+      "loss-scale progress",
+      "sampling RNG"
+    ],
+    "restart_optimizer_step": 2,
+    "restarted_updates": [
+      {
+        "data_document_ids": [
+          "medium/full",
+          "short/full"
+        ],
+        "dropout_next_counter": 120,
+        "epoch": 0,
+        "gradients_cleared": true,
+        "learning_rate": 0.001,
+        "loss_scale": 8.0,
+        "mean_loss": 5.6407027954272575,
+        "microbatches": 2,
+        "monitoring_token_ids": [
+          186
+        ],
+        "next_cursor": 2,
+        "next_loss_scale": 8.0,
+        "sampling_rng_state": 11400714819323198481,
+        "step": 1,
+        "valid_targets": 5
+      },
+      {
+        "data_document_ids": [
+          "long/full",
+          "medium/full"
+        ],
+        "dropout_next_counter": 288,
+        "epoch": 1,
+        "gradients_cleared": true,
+        "learning_rate": 0.0007750000000000001,
+        "loss_scale": 8.0,
+        "mean_loss": 5.608774746672861,
+        "microbatches": 2,
+        "monitoring_token_ids": [
+          186
+        ],
+        "next_cursor": 1,
+        "next_loss_scale": 8.0,
+        "sampling_rng_state": 4354685564936845350,
+        "step": 2,
+        "valid_targets": 7
+      }
+    ],
+    "weights_differ_from_continuation": true
+  }
+}

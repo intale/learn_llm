@@ -19,7 +19,7 @@ pub(super) fn schema(unsigned_fields: &[&str], string_fields: &[&str]) -> Schema
     builder
 }
 
-pub(super) fn field<'a>(value: &'a Value, key: &str) -> Result<&'a Value, ConfigError> {
+pub(crate) fn field<'a>(value: &'a Value, key: &str) -> Result<&'a Value, ConfigError> {
     value
         .get(key)
         .ok_or(ConfigError::Invalid("required settings field"))
@@ -39,11 +39,11 @@ pub(super) fn unsigned(value: &Value) -> Result<u64, ConfigError> {
     }
 }
 
-pub(super) fn number(value: &Value, key: &str) -> Result<u64, ConfigError> {
+pub(crate) fn number(value: &Value, key: &str) -> Result<u64, ConfigError> {
     unsigned(field(value, key)?)
 }
 
-pub(super) fn text(value: &Value, key: &str) -> Result<String, ConfigError> {
+pub(crate) fn text(value: &Value, key: &str) -> Result<String, ConfigError> {
     field(value, key)?
         .as_string()
         .map(str::to_owned)

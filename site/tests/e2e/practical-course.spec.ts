@@ -15,7 +15,7 @@ const deploymentBase=normalizeSiteBase(process.env.SITE_BASE??'/');
 const deploymentPath=(path:string)=>sitePathForBase(path,deploymentBase);
 const practicalCourseRoute='/en/practical-llm-in-rust/';
 const prefix=deploymentPath(practicalCourseRoute);
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -38,7 +38,7 @@ const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.js
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
+  boxCount:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -133,7 +133,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="'+deploymentPath('/en/course/40-')+'"]')).toHaveCount(0);
  await page.goto(deploymentPath('/en/course/39-end-to-end-llm/'));await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -177,12 +177,12 @@ test('Practical orientation @chapter:practical-00-course-structure has the compl
    await expect(row).toHaveAttribute('data-course-chapter-status','planned');await expect(row.locator('em')).toHaveText('Planned.');await expect(row.locator('a,[role="link"]')).toHaveCount(0);
   }
  }
- await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(14);
- await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(18);
+ await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(15);
+ await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(17);
  await expectOnlySharedDiagramClientScript(page);await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
  await expect(page.locator('head link[hreflang="ru"]')).toHaveCount(0);
  await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href',deploymentPath('/ru/'));
- await testInfo.attach('orientation-built-source',{body:JSON.stringify({route:document.path,servedHTMLSHA256:createHash('sha256').update(html).digest('hex'),servedHTMLBytes:new TextEncoder().encode(html).length,servedMatchesBuilt:true,roadmapRows:33,publishedRows:13,plannedRows:19}),contentType:'application/json'});
+ await testInfo.attach('orientation-built-source',{body:JSON.stringify({route:document.path,servedHTMLSHA256:createHash('sha256').update(html).digest('hex'),servedHTMLBytes:new TextEncoder().encode(html).length,servedMatchesBuilt:true,roadmapRows:await rows.count(),publishedRows:await article.locator('[data-course-chapter-status="published"]').count(),plannedRows:await article.locator('[data-course-chapter-status="planned"]').count()}),contentType:'application/json'});
 });
 
 for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
@@ -235,7 +235,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
@@ -514,6 +514,41 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    await testInfo.attach('programmatic-optimizer-schedule-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,source:'actual pinned default CPU stdout',explicitBoxes:await figure.locator('[data-diagram-box]').count(),borderedTableCells:await table.locator('th,td').count(),observedRates,clipping:clip,refusal,description,scope,ariaDescribedby:await figure.getAttribute('aria-describedby'),figure:await figure.ariaSnapshot(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
   }
 
+  else if(lesson.id===ids[15]){
+   await expect(figure).toHaveAttribute('id','model-persistence-figure');
+   await expect(figure).toHaveAttribute('aria-labelledby','model-persistence-figure-title');
+   await expect(figure).toHaveAttribute('aria-describedby','model-persistence-figure-description model-persistence-figure-scope');
+   const roles=['portable-model','fresh-inference','complete-resume','weights-only-warm-start'];
+   await expect(figure.locator('article[data-persistence-role]')).toHaveCount(4);
+   await expect(figure.locator('[data-diagram-box]')).toHaveCount(4);
+   for(const role of roles){
+    const card=figure.locator('article[data-persistence-role="'+role+'"]');await expect(card).toHaveCount(1);
+    await expect(card).toHaveAccessibleName(await card.locator('h4').innerText());
+   }
+   const portable=figure.locator('[data-persistence-role="portable-model"]');
+   for(const[attr,value]of[['data-saved-updates','2'],['data-parameter-tensors','29'],['data-parameter-scalars','1572']]as const)await expect(portable).toHaveAttribute(attr,value);
+   await expect(portable.locator('annotation[encoding="application/x-tex"]')).toHaveText(['29','1572']);
+   const alias=portable.locator('section[data-persistence-role="shared-alias"]');await expect(alias).toHaveCount(1);
+   await expect(alias).toHaveAttribute('data-shared-parameter','token_embedding.weight');
+   await expect(figure.locator('[data-shared-parameter="token_embedding.weight"]')).toHaveCount(1);
+   await expect(alias.locator('code')).toHaveText('token_embedding.weight');await expect(alias.locator('li')).toHaveCount(2);
+   expect(await alias.evaluate(node=>({box:node.hasAttribute('data-diagram-box'),card:node.hasAttribute('data-diagram-card'),borders:['borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth'].map(key=>getComputedStyle(node).getPropertyValue(key.replace(/[A-Z]/g,letter=>'-'+letter.toLowerCase())))}))).toEqual({box:false,card:false,borders:['0px','0px','0px','0px']});
+   const inference=figure.locator('[data-persistence-role="fresh-inference"]');
+   for(const[attr,value]of[['data-prompt-ids','0,99,100'],['data-generated-ids','108,108,55'],['data-generated-bytes','106,106,53']]as const)await expect(inference).toHaveAttribute(attr,value);
+   await expect(inference.locator('code')).toHaveText(['ab','[0,99,100]','[108,108,55]','[106,106,53]']);
+   const resume=figure.locator('[data-persistence-role="complete-resume"]');
+   for(const[attr,value]of[['data-saved-updates','2'],['data-resumed-steps','3,4'],['data-final-optimizer-step','4'],['data-additional-updates','2']]as const)await expect(resume).toHaveAttribute(attr,value);
+   await expect(resume.locator('annotation[encoding="application/x-tex"]')).toHaveText(['2','3,4','2','4']);
+   const warm=figure.locator('[data-persistence-role="weights-only-warm-start"]');
+   for(const[attr,value]of[['data-warm-start-steps','1,2'],['data-final-optimizer-step','2'],['data-additional-updates','2']]as const)await expect(warm).toHaveAttribute(attr,value);
+   await expect(warm.locator('annotation[encoding="application/x-tex"]')).toHaveText(['1,2','2','2']);
+   const description=await figure.locator('#model-persistence-figure-description').innerText(),scope=await figure.locator('#model-persistence-figure-scope').innerText();
+   await expect(figure).toHaveAccessibleName(await figure.locator('#model-persistence-figure-title').innerText());
+   await expect(figure).toHaveAccessibleDescription((description+' '+scope).replace(/\s+/g,' ').trim());
+   await testInfo.attach('programmatic-model-persistence-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,expectedSource:'Chapter 15 Rust demo expected.txt; selected fixture values are safe integers or represented f64 observations',expected:{savedUpdates:2,parameterTensors:29,parameterScalars:1572,promptIds:[0,99,100],generatedIds:[108,108,55],generatedBytes:[106,106,53],resumeSteps:[3,4],resumeFinalStep:4,warmSteps:[1,2],warmFinalStep:2,additionalUpdatesPerPath:2},cards:await figure.locator('article[data-persistence-role]').evaluateAll(nodes=>nodes.map(node=>({id:node.id,text:node.textContent,attributes:Object.fromEntries([...node.attributes].map(attr=>[attr.name,attr.value]))}))),alias:await alias.evaluate(node=>({id:node.id,text:node.textContent,outerHTML:node.outerHTML})),description,scope,ariaDescribedby:await figure.getAttribute('aria-describedby'),figure:await figure.ariaSnapshot(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
+  }
+
+
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
   test(testLabel+' formula and nearest-box containment '+viewport.width,async({page},testInfo)=>{
@@ -589,10 +624,10 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    const geometry=await dialog.evaluate(node=>{const errors:string[]=[],bounds=node.getBoundingClientRect();if(bounds.left<-2||bounds.right>innerWidth+2||bounds.top<-2||bounds.bottom>innerHeight+2)errors.push('dialog outside viewport');if(node.scrollWidth>node.clientWidth+2)errors.push('horizontal dialog overflow');for(const element of node.querySelectorAll<HTMLElement>('dt,dd,.cheat-sheet-term')){const box=element.getBoundingClientRect(),style=getComputedStyle(element);if([style.overflowX,style.overflowY].some(value=>value==='hidden'||value==='clip')||style.textOverflow==='ellipsis')errors.push('concealed term');const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);while(walker.nextNode()){const range=document.createRange();range.selectNodeContents(walker.currentNode);for(const rect of range.getClientRects())if(rect.width>0&&(rect.left<box.left-2||rect.right>box.right+2))errors.push('term ink outside nearest box');}}node.scrollTop=node.scrollHeight;return{errors,reachedEnd:node.scrollTop+node.clientHeight>=node.scrollHeight-2,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight};});
    await testInfo.attach('programmatic-glossary-geometry',{body:JSON.stringify({route:lesson.path,state:'dialog-open',viewport,geometry}),contentType:'application/json'});
    if(lesson.id===ids[6])await testInfo.attach('programmatic-depth-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({ariaLabel:node.getAttribute('aria-label'),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
-   if(lesson.id===ids[7]||lesson.id===ids[12]||lesson.id===ids[13]||lesson.id===ids[14]){
-    const termPrefix=lesson.id===ids[7]?'configurable-decoder-term':lesson.id===ids[14]?'optimizer-schedule-term':lesson.id===ids[13]?'training-memory-term':'mixed-precision-term';
+   if(lesson.id===ids[7]||lesson.id===ids[12]||lesson.id===ids[13]||lesson.id===ids[14]||lesson.id===ids[15]){
+    const termPrefix=lesson.id===ids[15]?'model-persistence-term':lesson.id===ids[7]?'configurable-decoder-term':lesson.id===ids[14]?'optimizer-schedule-term':lesson.id===ids[13]?'training-memory-term':'mixed-precision-term';
     expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>termPrefix+'-'+(index+1)));
-    await testInfo.attach(lesson.id===ids[7]?'programmatic-configurable-glossary-associations':lesson.id===ids[14]?'programmatic-optimizer-schedule-glossary-associations':lesson.id===ids[13]?'programmatic-training-memory-glossary-associations':'programmatic-mixed-precision-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
+    await testInfo.attach(lesson.id===ids[15]?'programmatic-model-persistence-glossary-associations':lesson.id===ids[7]?'programmatic-configurable-glossary-associations':lesson.id===ids[14]?'programmatic-optimizer-schedule-glossary-associations':lesson.id===ids[13]?'programmatic-training-memory-glossary-associations':'programmatic-mixed-precision-glossary-associations',{body:JSON.stringify({route:lesson.path,viewport,openControl:await trigger.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),ariaControls:node.getAttribute('aria-controls')})),closeControl:await close.evaluate(node=>({outerHTML:node.outerHTML,text:node.textContent,ariaLabel:node.getAttribute('aria-label'),title:node.getAttribute('title')})),groups:await dialog.locator('[data-cheat-sheet-page][role="group"]').evaluateAll(nodes=>nodes.map(node=>({outerHTML:node.outerHTML,ariaLabel:node.getAttribute('aria-label'),ids:[...node.querySelectorAll('.cheat-sheet-term')].map(term=>term.id),terms:[...node.querySelectorAll('dt')].map(term=>term.textContent),definitions:[...node.querySelectorAll('dd')].map(term=>term.textContent)})))}),contentType:'application/json'});
    }
    if(lesson.id===ids[8]){
     expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'dropout-semantics-term-'+(index+1)));

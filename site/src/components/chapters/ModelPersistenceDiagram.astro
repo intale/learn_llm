@@ -1,0 +1,105 @@
+---
+import InlineMath from '../InlineMath.astro';
+
+interface Labels {
+  title: string; description: string; modelTitle: string; modelBody: string;
+  tensorsLabel: string; scalarsLabel: string; aliasTitle: string;
+  lookupLabel: string; headLabel: string; inferenceTitle: string; inferenceBody: string;
+  promptLabel: string; promptIdsLabel: string; generatedIdsLabel: string; generatedBytesLabel: string;
+  resumeTitle: string; resumeBody: string; savedStepLabel: string; resumedStepsLabel: string;
+  finalStepLabel: string; equalityLabel: string; warmTitle: string; warmBody: string;
+  warmStepsLabel: string; additionalLabel: string; scope: string;
+}
+interface Evidence {
+  savedUpdates: number; parameterTensors: number; parameterScalars: number; embeddingName: string;
+  prompt: string; promptIds: number[]; generatedIds: number[]; generatedBytes: number[];
+  resumedSteps: number[]; finalStep: number; warmSteps: number[]; warmFinalStep: number; additionalUpdates: number;
+}
+interface Props { labels: Labels; evidence: Evidence }
+const { labels, evidence } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error('model-persistence-diagram-copy');
+}
+const literalIds = (ids: number[]) => '[' + ids.join(',') + ']';
+---
+
+<figure id="model-persistence-figure" class="course-diagram model-persistence-diagram"
+  data-diagram-style="course-v1" data-visualization-id="save-load-resume-model" tabindex="0"
+  aria-labelledby="model-persistence-figure-title"
+  aria-describedby="model-persistence-figure-description model-persistence-figure-scope">
+  <figcaption id="model-persistence-figure-caption" class="course-diagram__caption">
+    <h3 id="model-persistence-figure-title">{labels.title}</h3>
+    <p id="model-persistence-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <div class="course-diagram__grid model-persistence-paths">
+    <article id="model-persistence-model" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-persistence-role="portable-model"
+      data-saved-updates={evidence.savedUpdates}
+      data-parameter-tensors={evidence.parameterTensors} data-parameter-scalars={evidence.parameterScalars}
+      aria-labelledby="model-persistence-model-title">
+      <h4 id="model-persistence-model-title">{labels.modelTitle}</h4>
+      <p>{labels.modelBody}</p>
+      <p>{labels.tensorsLabel}: <InlineMath latex={String(evidence.parameterTensors)} /></p>
+      <p>{labels.scalarsLabel}: <InlineMath latex={String(evidence.parameterScalars)} /></p>
+      <section class="course-diagram__card-stack" aria-labelledby="model-persistence-alias-title"
+        data-persistence-role="shared-alias" data-shared-parameter={evidence.embeddingName}>
+        <h5 id="model-persistence-alias-title">{labels.aliasTitle}</h5>
+        <p><code dir="ltr">{evidence.embeddingName}</code></p>
+        <ul>
+          <li>{labels.lookupLabel}</li>
+          <li>{labels.headLabel}</li>
+        </ul>
+      </section>
+    </article>
+
+    <article id="model-persistence-inference" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-persistence-role="fresh-inference"
+      data-prompt-ids={evidence.promptIds.join(',')} data-generated-ids={evidence.generatedIds.join(',')}
+      data-generated-bytes={evidence.generatedBytes.join(',')}
+      aria-labelledby="model-persistence-inference-title">
+      <h4 id="model-persistence-inference-title">{labels.inferenceTitle}</h4>
+      <p>{labels.inferenceBody}</p>
+      <p>{labels.promptLabel}: <code dir="ltr">{evidence.prompt}</code></p>
+      <p>{labels.promptIdsLabel}: <code dir="ltr">{literalIds(evidence.promptIds)}</code></p>
+      <p>{labels.generatedIdsLabel}: <code dir="ltr">{literalIds(evidence.generatedIds)}</code></p>
+      <p>{labels.generatedBytesLabel}: <code dir="ltr">{literalIds(evidence.generatedBytes)}</code></p>
+    </article>
+
+    <article id="model-persistence-resume-card" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-persistence-role="complete-resume"
+      data-saved-updates={evidence.savedUpdates} data-resumed-steps={evidence.resumedSteps.join(',')}
+      data-final-optimizer-step={evidence.finalStep} data-additional-updates={evidence.additionalUpdates}
+      aria-labelledby="model-persistence-resume-title">
+      <h4 id="model-persistence-resume-title">{labels.resumeTitle}</h4>
+      <p>{labels.resumeBody}</p>
+      <p>{labels.savedStepLabel}: <InlineMath latex={String(evidence.savedUpdates)} /></p>
+      <p>{labels.resumedStepsLabel}: <InlineMath latex={evidence.resumedSteps.join(',')} /></p>
+      <p>{labels.additionalLabel}: <InlineMath latex={String(evidence.additionalUpdates)} /></p>
+      <p>{labels.finalStepLabel}: <InlineMath latex={String(evidence.finalStep)} /></p>
+      <p>{labels.equalityLabel}</p>
+    </article>
+
+    <article id="model-persistence-warm-start" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-persistence-role="weights-only-warm-start"
+      data-warm-start-steps={evidence.warmSteps.join(',')} data-final-optimizer-step={evidence.warmFinalStep}
+      data-additional-updates={evidence.additionalUpdates}
+      aria-labelledby="model-persistence-warm-start-title">
+      <h4 id="model-persistence-warm-start-title">{labels.warmTitle}</h4>
+      <p>{labels.warmBody}</p>
+      <p>{labels.warmStepsLabel}: <InlineMath latex={evidence.warmSteps.join(',')} /></p>
+      <p>{labels.additionalLabel}: <InlineMath latex={String(evidence.additionalUpdates)} /></p>
+      <p>{labels.finalStepLabel}: <InlineMath latex={String(evidence.warmFinalStep)} /></p>
+    </article>
+  </div>
+
+  <p id="model-persistence-figure-scope" class="course-diagram__description">{labels.scope}</p>
+</figure>
+
+<style>
+  .model-persistence-paths { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 42rem) {
+    .model-persistence-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+

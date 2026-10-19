@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "concept_id": "practical-course-structure",
-  "content_revision": 9,
+  "content_revision": 10,
   "order": 0,
   "objective": {
     "en": "Understand how the practical course extends one complete text model, connect its data, model, learning, generation and saved state, and locate every published or planned chapter."
@@ -27,16 +27,16 @@
     "id": "practical-llm-system-map",
     "component": "PracticalLlmSystemDiagram",
     "rationale": {
-      "en": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and planned saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
+      "en": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
     }
   },
   "decoder_connection": {
-    "en": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Planned Chapters 15–32 extend persistence, evaluation, inference and adaptation."
+    "en": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Planned Chapters 16–32 extend evaluation, inference and adaptation."
   },
   "terminology": [],
   "translation_notes": [
     "English is the sole active practical-course locale. Preserve registered-locale support; all diagram labels, relationship descriptions, roadmap purposes and availability labels are authored data for future localization.",
-    "Keep every planned Chapter 15–32 entry and any planned diagram chapter reference as plain text. Derive available Chapter 1–14 titles and destinations from the existing practical publication selector and locale-aware route helper."
+    "Keep every planned Chapter 16–32 entry and any planned diagram chapter reference as plain text. Derive available Chapter 1–15 titles and destinations from the existing practical publication selector and locale-aware route helper."
   ],
   "acceptance_examples": [
     {
@@ -45,15 +45,15 @@
     },
     {
       "input": "Read the connected map without its arrows or colors",
-      "expected": "Text identifies the data-to-vector-to-hidden-feature-to-score relationship, the learning weight update, the chosen-token feedback and compatible cache reuse, and the supporting roles of execution and planned saved state."
+      "expected": "Text identifies the data-to-vector-to-hidden-feature-to-score relationship, the learning weight update, the chosen-token feedback and compatible cache reuse, and the supporting roles of execution and saved state."
     },
     {
       "input": "Inspect every roadmap entry",
-      "expected": "All 33 chapters, 0–32, appear individually with a concise purpose. Chapter 0 is current, published Chapters 1–14 link to their actual practical destinations, and each planned Chapter 15–32 is explicitly planned with no anchor or placeholder destination."
+      "expected": "All 33 chapters, 0–32, appear individually with a concise purpose. Chapter 0 is current, published Chapters 1–15 link to their actual practical destinations, and each planned Chapter 16–32 is explicitly planned with no anchor or placeholder destination."
     },
     {
       "input": "Compare current implementation with future goals",
-      "expected": "Input encoding and CPU/CUDA primitive selection are already implemented in Chapters 10 and 11. Only text is worked. Full mixed-precision training, portable composed-model save/load and the CUDA-to-CPU portability experiment remain planned. CPU builds and inference remain usable without NVIDIA; external NeMo preparation has separate NVIDIA requirements."
+      "expected": "Input encoding and CPU/CUDA primitive selection are already implemented in Chapters 10 and 11. Chapter 15 adds portable composed-model save/load, fresh-process CPU inference and complete-boundary training continuation within a same-binary CPU f64 envelope. Only text is worked. Full accelerated mixed-precision training and the physical CUDA-to-CPU portability experiment remain separate pending work. CPU builds and inference remain usable without NVIDIA; external NeMo preparation has separate NVIDIA requirements."
     },
     {
       "input": "Interpret the evidence and next step",
@@ -73,8 +73,8 @@ the complete individual Chapter 0–32 roadmap. Explain why larger workloads put
 pressure on data layout, numerical execution, saved training state and repeated
 inference. The practical crate is the separately evolved copy at
 `rust/crates/llm-from-scratch-practical`; extend its existing algorithms rather
-than rebuilding them. Keep the first course and all other practical chapters
-unchanged. This is an overview: no formula, Rust source sample, exercise, answer
+than rebuilding them. Preserve the first course and prior practical teaching
+wording. This is an overview: no formula, Rust source sample, exercise, answer
 or cheat sheet.
 
 <!-- contract-section:overview -->
@@ -108,8 +108,8 @@ no new paper-history or performance claim.
 ## Chapter sequence
 
 Present all 33 chapters individually. Use actual published contracts and
-catalogs for Chapters 0–14, and the accepted revision-9 design subjects for
-Chapters 15–32. The published lessons are:
+catalogs for Chapters 0–15, and the accepted revision-9 design subjects for
+Chapters 16–32. The published lessons are:
 
 - 0: this orientation and its connected model/course map;
 - 1: the fixed reference experiment and its evidence limits;
@@ -125,11 +125,12 @@ Chapters 15–32. The published lessons are:
 - 11: explicit CPU/CUDA matrix and sum/mean primitive selection;
 - 12: CPU half-format matrix arithmetic and state-preserving loss-scaled updates;
 - 13: gradient accumulation and activation recomputation;
-- 14: warmup and cosine learning rates around existing global clipping and AdamW.
+- 14: warmup and cosine learning rates around existing global clipping and AdamW;
+- 15: portable composed-model saving, fresh-process CPU loading and bounded
+  complete-update training continuation.
 
 The planned continuation is:
 
-- 15: save, load and resume the composed model;
 - 16: language-model evaluation;
 - 17: weight quantization;
 - 18: grouped-query attention and context masks;
@@ -149,7 +150,7 @@ The planned continuation is:
 - 32: mixture-of-experts mathematics.
 
 Give each row its own concise purpose. Mark Chapter 0 as current, link available
-Chapters 1–14 through the existing publication and locale-route helpers, and
+Chapters 1–15 through the existing publication and locale-route helpers, and
 mark every future row planned without an anchor or fabricated destination.
 Use `findPublishablePracticalChapterSets`, `getCollection('practicalChapters')`,
 `practicalCourse` and `localePath`; do not add another publication registry.
@@ -166,7 +167,7 @@ feeding the text encoder, its vectors feeding the causal transformer, and hidden
 features feeding the tied text head. Name the scores-to-loss-to-gradients-to-
 optimizer learning relationship and its return to the same model's weights.
 Name the scores-to-chosen-token generation relationship, its return to encoding
-and reuse of compatible cached attention state. Attach execution and planned
+and reuse of compatible cached attention state. Attach execution and
 save/load to these model roles. Relate the roles to course chapters without
 turning the figure into the full 33-entry roadmap.
 
@@ -188,16 +189,21 @@ scores. Text is the only worked source and output modality. A later compatible
 image, binary or entity encoder would still need suitable encoding and training;
 the interface alone gives the text model none of those capabilities.
 
-Planned Chapter 15 extends existing checkpoint work to portable preservation of
-the composed model. First save the composition, named weights, settings,
+Published Chapter 15 extends existing checkpoint work to portable preservation
+of the composed model. Save the composition, named weights, semantic settings,
 necessary tokenizer assets and shared-parameter aliases; exit; then load in a
-fresh local process for inference. Keep trained weights independent of CUDA
-handles and device memory. The planned portability experiment performs a CUDA
-training update, saves, exits and loads the learned weights on CPU without
-retraining. Exact training resume additionally needs optimizer, random-generator,
-data-position and accumulation state and can have a narrower execution envelope.
-None of these planned composition-persistence or physical-portability results
-is already established by the orientation.
+fresh local CPU process for inference. Store the tied table once and restore one
+live shared parameter. A generic backbone remains independent of a tokenizer.
+Trained weights contain no mandatory CUDA handles or device-memory layout.
+
+The chapter also preserves optimizer, schedule, random-generator, data-position,
+loss-scaler and accumulation state for complete-update training continuation.
+Its exact comparison is bounded by matching data and the same-binary scalar
+CPU f64 execution envelope; saving is refused with pending accumulation or
+gradients. Portable inference does not require that narrower training history.
+The separate physical portability experiment—CUDA training, saving, exit and CPU
+loading without retraining—remains pending. The orientation summarizes the
+implemented CPU capability without claiming that hardware experiment has run.
 
 Tie later evaluation, inference efficiency, adaptation and the local capstone to
 this same model. A thin local command-line interface is intended for experiments;

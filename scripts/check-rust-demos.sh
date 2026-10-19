@@ -95,7 +95,7 @@ const practicalContracts = readChapterContractSummaries(repositoryRoot, {
 });
 const practicalDemoNames = practicalContracts.map(({packageName}) => packageName).sort();
 duplicate(practicalDemoNames, 'Practical demo registration');
-if (practicalDemoNames.length !== 14) fail('expected exactly fourteen registered Practical demos');
+if (practicalDemoNames.length !== 15) fail('expected exactly fifteen registered Practical demos');
 console.error(`Registered Practical demo directories: ${practicalDemoNames.join(', ')}`);
 
 const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })
@@ -535,8 +535,8 @@ if [[ ${original_checked} -ne 39 ]]; then
   exit 1
 fi
 
-if [[ ${practical_checked} -ne 14 ]]; then
-  echo "Rust demo check failed: expected fourteen checked Practical chapter demos, got ${practical_checked}." >&2
+if [[ ${practical_checked} -ne 15 ]]; then
+  echo "Rust demo check failed: expected fifteen checked Practical chapter demos, got ${practical_checked}." >&2
   exit 1
 fi
 

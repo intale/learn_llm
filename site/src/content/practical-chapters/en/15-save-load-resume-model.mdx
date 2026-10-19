@@ -1,0 +1,711 @@
+---
+{
+  "chapter_id": "15-save-load-resume-model",
+  "content_revision": 1,
+  "order": 15,
+  "concept_id": "save-load-resume-model",
+  "title": "Save, load and resume the composed model",
+  "description": "Preserve a tied text model for fresh-process CPU inference, then restore the extra state for bounded exact training continuation.",
+  "objective": "Save the composed text model for fresh-process CPU inference, restore its single tied embedding, and distinguish portable learned state from the extra state and compatibility conditions needed for exact bounded training continuation.",
+  "worked_inputs": "Reuse the three-block Chapter 13 text model, save after two of four CPU f64 updates, load prompt ab in another process, and resume updates three and four. Compare the resumed state with uninterrupted training and with two additional updates from a weights-only warm start.",
+  "formula": {
+    "latex": "\\begin{aligned}\nS_t&=(\\theta_t,O_t,P_t,D_t,R_t,L_t,A_t),\\\\\nS_{t+1}&=F_E(S_t,B_{c_t}).\n\\end{aligned}",
+    "symbols": [
+      {
+        "symbol": "t",
+        "meaning": "number of completed successful logical optimizer updates; the saved example has completed two"
+      },
+      {
+        "symbol": "S_t",
+        "meaning": "mutable training-job state after update t; fixed model composition and tokenizer assets are also required to interpret its weights"
+      },
+      {
+        "symbol": "\\theta_t",
+        "meaning": "all distinct learned parameter tensors after update t, counting the tied embedding once"
+      },
+      {
+        "symbol": "O_t",
+        "meaning": "AdamW moments, beta powers, parameter groups, settings and committed step"
+      },
+      {
+        "symbol": "P_t",
+        "meaning": "saved learning-rate schedule, global clipping limit and block-recomputation policy"
+      },
+      {
+        "symbol": "D_t",
+        "meaning": "data identity, fixed document order, next-document cursor and completed traversal count"
+      },
+      {
+        "symbol": "c_t",
+        "meaning": "index in the saved document order of the next document to use"
+      },
+      {
+        "symbol": "R_t",
+        "meaning": "dropout policy and next counter together with the independent monitoring-sampling generator state"
+      },
+      {
+        "symbol": "L_t",
+        "meaning": "dynamic loss scale, bounds, growth interval and finite-update progress"
+      },
+      {
+        "symbol": "A_t",
+        "meaning": "microbatches per logical update and pending microbatch count; a saved boundary requires zero pending microbatches"
+      },
+      {
+        "symbol": "B_{c_t}",
+        "meaning": "the next logical batch: two one-document microbatches selected cyclically from the saved order starting at cursor c_t"
+      },
+      {
+        "symbol": "E",
+        "meaning": "declared compatibility envelope: actual executable SHA-256 and same-binary scalar CPU f64 serial execution semantics"
+      },
+      {
+        "symbol": "F_E",
+        "meaning": "the existing training transition under envelope E, including the caller's data-cursor and random-state advancement after a successful update"
+      }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "model-building-practice",
+      "limitation": "Tied neural language-model embeddings serve both input lookup and output projection. Saving two equal arrays would preserve values while losing the shared parameter identity; saving weights alone also omits an optimizer's training history.",
+      "later_advance": "Model-saving practice also distinguishes learned model state for inference from optimizer and progress state needed to continue training.",
+      "modern_llm_role": "A reusable decoder must preserve the interpretation and sharing of its learned tensors, while exact continuation must also preserve the state that determines its next update.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2017,
+          "name": "Using the Output Embedding to Improve Language Models",
+          "source_url": "https://arxiv.org/abs/1608.05859v3",
+          "claim": "Press and Wolf's Using the Output Embedding to Improve Language Models recommends tying input and output embeddings in neural language models. The paper was first submitted in August 2016; the cited revision is from February 2017."
+        },
+        {
+          "role": "later",
+          "year": 2018,
+          "name": "Saving and Loading Models",
+          "source_url": "https://docs.pytorch.org/tutorials/beginner/saving_loading_models.html",
+          "claim": "The PyTorch Saving and Loading Models tutorial, created in 2018 and updated in 2025, separates model parameters from optimizer state and includes optimizer and epoch state in a general training checkpoint. Those are documentation dates, not invention dates."
+        }
+      ]
+    },
+    "approach": "Preserve the existing encoder, backbone and tied head as one model, then add optimizer, data, random and update-progress state for complete-boundary continuation.",
+    "summary": "The Rust contrast starts both paths from the same saved weights and performs two additional updates: full resume retains the training history, while a warm start resets several states together. The measured difference does not isolate one reset as its cause.",
+    "rust_source": "rust/demos/practical-ch15-save-load-resume-model/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/checkpoint/portable.rs",
+      "region": "portable-text-snapshot",
+      "purpose": "Capture named learned tensors, component settings, the tokenizer merge asset and the single tied-table alias."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/checkpoint/portable.rs",
+      "region": "portable-model-restore",
+      "purpose": "Rebuild the existing text model and its live shared table, or restore a tokenizer-independent backbone."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch-practical/src/checkpoint/resume.rs",
+      "region": "training-resume-progress",
+      "purpose": "Name caller-owned data and random progress and require zero pending accumulation."
+    },
+    {
+      "path": "rust/demos/practical-ch15-save-load-resume-model/src/lib.rs",
+      "region": "loaded-local-inference",
+      "purpose": "Load model and tokenizer from the portable archive and use CPU no-grad greedy inference without a training fixture."
+    },
+    {
+      "path": "rust/demos/practical-ch15-save-load-resume-model/src/lib.rs",
+      "region": "resumable-text-update",
+      "purpose": "Reuse accumulated training and explicit cursor/random advancement for the saved logical-update order."
+    },
+    {
+      "path": "rust/demos/practical-ch15-save-load-resume-model/src/lib.rs",
+      "region": "weights-only-restart-contrast",
+      "purpose": "Compare the same two additional updates with complete training state and with several states reset together."
+    },
+    {
+      "path": "rust/demos/practical-ch15-save-load-resume-model/src/main.rs",
+      "purpose": "Select independent train, infer and resume processes through the existing clap CLI."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "save-load-resume-model",
+    "component": "ModelPersistenceDiagram",
+    "rationale": "Connect one saved composed model and its restored shared table to fresh inference, then show how additional training state selects continuation at updates three and four rather than a new training clock."
+  },
+  "decoder_connection": "The existing text encoder, source-independent backbone, tied head and accumulated trainer now support portable composed-model files and complete-boundary training checkpoints. Fresh CPU inference uses the saved tokenizer and learned weights; exact resume also checks the saved data and same-binary CPU f64 envelope. Planned Chapter 16 will evaluate the saved language model. Physical CUDA-to-CPU execution and full-data training remain separate pending evidence."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import ModelPersistenceDiagram from "../../../components/chapters/ModelPersistenceDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="model-persistence-worked-example">
+
+## Keep the learned model when its process ends
+
+Training changes live tensors in one running process. Exiting that process
+discards those allocations. Reconstructing the architecture with its original
+seed would recreate initial weights, not the weights produced by training.
+To use the learned model later, another process needs its actual learned values
+and enough information to interpret them: the component settings, tokenizer
+assets and relationships between shared parameters.
+
+Continuing training needs more. AdamW's moments remember earlier gradients;
+the next scheduled rate, document choice and random words depend on progress
+outside the learned weights. We will first preserve a model for independent
+inference, then preserve the additional state that determines its next update.
+
+Use [Chapter 10's encoder, backbone and tied head](../10-input-encoding-boundary/),
+[Chapter 13's accumulated and recomputed updates](../13-gradient-accumulation-recomputation/)
+and [Chapter 14's successful-update schedule](../14-optimizer-schedules-clipping/)
+as the prerequisites. This chapter preserves those existing computations and
+their state across process exit.
+
+### Save after two updates, then load for CPU inference
+
+Reuse Chapter 13's text model and documents. The model has vocabulary size
+$266$, residual width $4$, one attention head, feed-forward width $8$, three
+decoder blocks and capacity for $8$ positions. Initialization uses seed $39$.
+There are $29$ distinct learned parameter tensors containing $1572$ scalar
+values. Input lookup and the output head share one of those tensors.
+
+The example plans four successful logical updates and saves after update $2$.
+Its producer exits. A new inference process loads the saved model and tokenizer,
+encodes the prompt `ab`, keeps beginning-of-sequence token `0` and removes the
+terminal end-of-sequence token `1`. Its prompt IDs are `[0,99,100]`.
+CPU `f64` greedy generation then produces IDs `[108,108,55]`. The restored
+tokenizer decodes them to bytes `[106,106,53]`, the text `jj5`.
+
+That tiny continuation makes the restored computation observable. It is not
+evidence of useful language quality. Reopening the same saved-after-two model
+after other training has continued gives the same inference result: the saved
+weights are a snapshot, not a live reference to later updates.
+
+</div>
+
+<div id="model-persistence-sharing">
+
+### Preserve the composition and the shared table
+
+A **portable model** records which text encoder, causal transformer backbone and
+text head form the model. It stores their semantic settings, named learned
+tensors and required tokenizer assets. Its tensor records identify names,
+element types, shapes and values.
+A device address or CUDA handle cannot tell a new CPU process what those
+weights mean, so neither belongs to the learned model's identity.
+
+The text archive has $31$ tensor entries: $29$ learned tensors, one tensor of
+numerical constants and one tokenizer asset. The constant tensor uses `F64` with
+shape $[2]$ for RoPE base and RMSNorm epsilon. The tokenizer asset uses `U32`
+with shape $[8,2]$ for the eight ordered merge pairs. These two entries help
+interpret the learned model; they are not additional learned weights.
+
+The embedding tensor `token_embedding.weight` is stored once. Its alias record
+says that the text head uses this same table, transposed for vocabulary
+projection. On restore, the existing model constructor makes lookup and the
+head refer to the same live autograd node. Two separately allocated arrays with
+equal numbers would preserve the first forward result but lose the shared
+parameter and its combined gradient. The restore tests check both tied paths,
+not only their initial numerical equality.
+
+A **learned model identity** hashes normalized semantic settings, the named
+tensor dtypes, shapes and values, required assets and sharing policy. Optimizer
+progress and device selection belong to other identities. Matching logical
+model identity does not promise identical SafeTensors file bytes: metadata
+ordering can differ while the model's meaning and values remain the same.
+
+The generic backbone retains its source-independent boundary. Its archive has
+$28$ learned backbone tensors and one constants tensor, with no vocabulary or
+tokenizer requirement. The probe supplies existing text-derived embedding
+vectors and a causal layout; restored hidden features have shape $[1,3,4]$
+and matching value bits. This is still a text-derived example. It implements
+no encoder for images, binary data or another source.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="model-persistence-formula">
+
+## Account for the state that determines the next update
+
+Let $t$ count completed successful logical optimizer updates. Let $S_t$ be the
+mutable training-job state after those updates; fixed model composition and
+tokenizer assets are also required to interpret its weights. One next update
+can be described as
+
+$$
+\begin{aligned}
+S_t&=(\theta_t,O_t,P_t,D_t,R_t,L_t,A_t),\\
+S_{t+1}&=F_E(S_t,B_{c_t}).
+\end{aligned}
+$$
+
+Here $\theta_t$ contains all distinct learned tensors, counting the tied table
+once. $O_t$ contains AdamW's moments, beta powers, parameter groups, settings and
+committed step. $P_t$ contains the saved learning-rate schedule, global clipping
+limit and recomputation policy.
+
+$D_t$ identifies the data and stores document order, next-document cursor $c_t$
+and completed traversal count. $B_{c_t}$ is the next logical batch: in this
+example, two one-document microbatches selected cyclically from that order.
+$R_t$ contains dropout policy and next counter plus the independent
+monitoring-sampling generator state. $L_t$ contains the dynamic loss scale,
+its bounds, growth interval and finite-update progress. $A_t$ gives the
+microbatch count per logical update and the pending count.
+
+The transition $F_E$ reuses the existing accumulated trainer and the caller's
+data and random advancement after a successful update. Its envelope $E$
+records the actual executable's SHA-256 and the declared same-binary scalar
+CPU `f64` serial execution semantics. Restore also checks the expected data
+identity. This envelope is an explicit compatibility requirement supplied by the
+caller, not an automatic proof that all processors or runtime environments
+perform identical arithmetic.
+
+The equation accounts for state; it introduces no new learning algorithm.
+In the measured fixture, restoring that state and using compatible execution
+reproduces the remaining observations and checked final state bits. It does not
+establish universal bitwise agreement across devices, builds or precisions.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="model-persistence-resume">
+
+## Resume at the next complete logical update
+
+A checkpoint is accepted only with zero pending microbatches and cleared real
+parameter gradients. These conditions put the saved state between complete
+updates: there is no partial gradient contribution or active differentiation
+graph to reconstruct. Capture refuses a nonzero pending count or actual pending
+gradients; refusal leaves those gradients intact. Mid-update resume is not
+implemented.
+
+The example uses two one-row microbatches per logical update, block
+recomputation, dropout probability $0.25$ and global gradient limit $1$.
+Its four-update schedule has one warmup update, peak rate $0.001$ and final
+rate $0.0001$. Dynamic loss scaling starts at $8$, stays between $1$ and
+$32$, and grows after every three finite successful updates.
+
+The fixed document-order array is `[2,0,1]`. Source indices `0`, `1` and `2`
+name `short/full`, `long/full` and `medium/full`, respectively. The cursor
+indexes that order array; it is not itself a source-document index or a
+shuffled iterator. After update $2$, the next cursor is $1$. The next two
+entries are therefore source indices `0` and `1`: `short/full`, then `long/full`.
+
+At this saved boundary, one traversal is complete, the dropout next counter is
+$288$, and scale $8$ has two finite updates toward its growth interval of $3$.
+The dropout seed is the full-width `u64` value `18446744073709551613`.
+The separate sampling generator's saved state is `4354685564936845350`.
+It chooses one monitoring token after each successful update; that token never
+feeds back into the training loss. Seeds and counters use standard `U64`
+tensor values, rather than passing through a floating-point number or a
+decimal string bit parser.
+
+The restored job performs the following remaining updates. Losses are forward
+means in nats per valid next-token target for each update, before that update's
+parameter commit.
+
+<table id="model-persistence-remaining-updates">
+  <caption>Remaining updates from the checkpoint saved after update two</caption>
+  <thead>
+    <tr><th scope="col">Update</th><th scope="col">Remaining-update observations</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row"><InlineMath latex="3" /></th>
+      <td>
+        <p><code>short/full</code>, then <code>long/full</code>; <InlineMath latex="6" /> valid targets.</p>
+        <p>Rate: <InlineMath latex="0.0003250000000000001" />. Forward mean loss: <InlineMath latex="5.547087507935631" /> nats per target.</p>
+        <p>Scale used, then next scale: <InlineMath latex="8\to16" />.</p>
+      </td>
+    </tr>
+    <tr>
+      <th scope="row"><InlineMath latex="4" /></th>
+      <td>
+        <p><code>medium/full</code>, then <code>short/full</code>; <InlineMath latex="5" /> valid targets.</p>
+        <p>Rate: <InlineMath latex="0.0001" />. Forward mean loss: <InlineMath latex="5.641298535316402" /> nats per target.</p>
+        <p>Scale used, then next scale: <InlineMath latex="16\to16" />.</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Update $3$ completes the third finite update, so it uses scale $8$ and grows
+the next scale to $16$. It leaves cursor $0$, traversal count $2$ and dropout
+counter $432$. Update $4$ leaves cursor $2$, traversal count $2$, counter
+$552$, scale $16$ and one finite update toward the next growth. Both clear
+gradients. All four scheduled updates are now complete, so no next rate remains.
+
+A separate resume process restores the boundary after update $2$ and executes
+$3,4$. An independent reference process trains from initialization through
+$1,2,3,4$. Their remaining-update observations match. Their checked learned
+weight bits, AdamW moments, beta powers and step, and recorded data, random
+and scaler progress also match. This is bounded CPU `f64` continuation evidence,
+not a held-out evaluation or a physical-GPU portability result.
+
+</div>
+
+<div id="model-persistence-contrast">
+
+### A weights-only warm start begins a new training history
+
+Start both paths from the same learned weights saved after update $2$.
+Full resume retains the checkpoint's history and applies original updates
+$3$ and $4$. The weights-only path puts those same learned weights and
+tokenizer into a fresh job and performs its own updates $1$ and $2$.
+Each path performs two additional successful updates.
+
+The warm start resets AdamW moments and powers, the rate clock, data cursor,
+dropout counter, scaler progress and sampling generator together. It first
+selects `medium/full` and `short/full`, rather than the resume path's
+`short/full` and `long/full`, and begins at rate $0.001$ rather than
+$0.0003250000000000001$. The final learned weights differ.
+
+This comparison changes several states together. It cannot measure how much
+one reset alone contributes to the difference. The saved weights remain useful
+for inference and for a deliberate new training history; they simply do not
+determine the original job's next update by themselves.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="model-persistence-history">
+
+## Preserve neural language-model representations and training memory
+
+Tied neural language-model embeddings serve both input lookup and output
+projection. Saving two equal arrays would preserve values while losing the
+shared parameter identity; saving weights alone also omits an optimizer's
+training history.
+
+[Press and Wolf's *Using the Output Embedding to Improve Language Models*](https://arxiv.org/abs/1608.05859v3)
+recommends tying input and output embeddings in neural language models. The
+paper was first submitted in August 2016; the cited revision is from February
+2017. Its contribution concerns language-model representations and their updates,
+not the invention of checkpoint formats. The useful persistence consequence is
+that a tied parameter's two roles must remain one learned parameter after loading.
+
+Model-saving practice also distinguishes learned model state for inference from
+optimizer and progress state needed to continue training.
+The [PyTorch *Saving and Loading Models* tutorial](https://docs.pytorch.org/tutorials/beginner/saving_loading_models.html),
+created in 2018 and updated in 2025, separates model parameters from optimizer
+state and includes optimizer and epoch state in a general training checkpoint.
+Those are documentation dates, not invention dates. The tutorial also describes
+loading GPU-trained model weights on CPU; it does not establish that this
+course's CUDA-to-CPU experiment has run.
+
+A reusable decoder must preserve the interpretation and sharing of its learned
+tensors, while exact continuation must also preserve the state that determines
+its next update. We preserve the existing encoder, backbone and tied head as
+one model, then add optimizer, data, random and update-progress state for
+complete-boundary continuation.
+
+[SafeTensors' shared-tensor documentation](https://huggingface.co/docs/safetensors/torch_shared_tensors)
+explains why arbitrary sharing is not automatically retained as separate named
+tensor entries. That undated page motivates making sharing explicit; this Rust
+implementation restores its known alias through the existing model constructor
+and does not use the page's Python API.
+
+The runnable contrast starts both paths from the same saved weights and performs
+two additional updates: full resume retains the training history, while a warm
+start resets several states together. The measured difference does not isolate
+one reset as its cause. The course's exact data order, random state, boundary
+between complete updates and executable envelope are local choices checked by its Rust,
+not requirements attributed to those sources.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="model-persistence-rust">
+
+## Reuse model reconstruction and the existing training transition
+
+`PortableModel::from_text` captures existing named parameters, semantic settings,
+tokenizer merge pairs and the tied-head alias. SafeTensors owns named-tensor
+framing and parsing; config-lib owns CONF settings syntax. The adapter copies
+logical values into the existing tensor owners and makes no zero-copy or speed
+claim. Standard `F64` tensors preserve represented weights and numerical
+constants, including values whose bits should not be changed by decimal
+settings serialization.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/checkpoint/portable.rs"
+  region="portable-text-snapshot" captionId="model-persistence-rust-snapshot"
+  caption="Capture the actual text composition, its one learned embedding table, numerical constants and ordered tokenizer merge asset."
+  label="Rust source: portable composed-text-model snapshot" />
+
+Restoration delegates learned tensor checks and assembly to existing constructors.
+The complete text model restores its tokenizer; the generic backbone restores
+without text assets. The shared backbone assembler builds the existing
+blocks and final norm for both cases.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/checkpoint/portable.rs"
+  region="portable-model-restore" captionId="model-persistence-rust-restore"
+  caption="Restore the existing text model with its tied table, or restore a backbone with no tokenizer requirement."
+  label="Rust source: text-model and tokenizer-independent backbone restoration" />
+
+`infer` receives a portable archive, not a training fixture. It restores both
+weights and tokenizer, selects no-grad inference and uses the existing greedy
+generation path on CPU.
+
+<RustSource path="rust/demos/practical-ch15-save-load-resume-model/src/lib.rs"
+  region="loaded-local-inference" captionId="model-persistence-rust-infer"
+  caption="Use only the restored model and tokenizer for prompt encoding and local CPU no-grad inference."
+  label="Rust source: inference from the loaded portable model" />
+
+`TrainingCheckpoint` extends the existing validated model and AdamW snapshots.
+It also stores the schedule and update policies, data identity and progress,
+dropout and sampling state, loss-scaler progress and accumulation settings.
+The caller still owns the data; the inference model does not embed the dataset.
+The progress type makes the next document position and random state explicit.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/checkpoint/resume.rs"
+  region="training-resume-progress" captionId="model-persistence-rust-progress"
+  caption="Keep caller-owned document and random progress, and reject a nonzero pending-microbatch count."
+  label="Rust source: saved progress and complete-update boundary checks" />
+
+The existing accumulated trainer performs differentiation, unscaling, clipping
+and AdamW. After a successful complete update, the caller advances the fixed
+document cursor and samples one monitoring token. Restoring the saved dropout
+seed and counter rebuilds its derived-key cache; future random words need not
+depend on preserving an internal cache flag.
+
+<RustSource path="rust/demos/practical-ch15-save-load-resume-model/src/lib.rs"
+  region="resumable-text-update" captionId="model-persistence-rust-update"
+  caption="Select the next two documents, reuse accumulated recomputed training, and advance data and monitoring state after each successful update."
+  label="Rust source: resumed accumulated updates and explicit data and random progress" />
+
+The warm-start comparison replaces only the fresh job's model and tokenizer
+with the saved model, leaving its other state fresh. Its two updates therefore
+belong to a new training clock.
+
+<RustSource path="rust/demos/practical-ch15-save-load-resume-model/src/lib.rs"
+  region="weights-only-restart-contrast" captionId="model-persistence-rust-warm-start"
+  caption="Perform two additional updates from the same saved weights while resetting several training states together."
+  label="Rust source: weights-only warm start versus complete continuation" />
+
+Restore refuses changed data identity or a changed resume envelope before
+returning mutable training state. The model and training files use the existing
+atomic replacement helper. Their checked corruption cases are refused; those
+checks are not an authenticity guarantee or a claim about every hostile file.
+
+Portable model loading has no mandatory CUDA backend or old device handle.
+CPU inference needs no NVIDIA context or retraining. Training on physical CUDA,
+saving, exiting and loading the learned weights on CPU remains a separate
+pending hardware experiment.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="model-persistence-visualization">
+
+## Follow the saved model and its two uses
+
+export const modelPersistenceLabels = {
+  title: "One saved model, fresh inference and continued training",
+  description: "Saved after two updates, the model preserves composition, learned tensors, settings and tokenizer assets. One stored embedding becomes one live table for lookup and the transposed tied head. A new CPU process loads that model for inference. The full checkpoint adds optimizer, policy, data, random, scaler and accumulation state to resume original updates three and four. A fresh job uses the same weights for its own updates one and two. Both paths perform two additional updates; their final weights differ.",
+  modelTitle: "Portable model saved after update two",
+  modelBody: "Composition, learned values, semantic settings, tokenizer assets and the tied-table alias travel together.",
+  tensorsLabel: "Distinct learned tensors",
+  scalarsLabel: "Learned scalar values",
+  aliasTitle: "One stored embedding, one restored live table",
+  lookupLabel: "Input lookup reads the table",
+  headLabel: "The text head reads the same table transposed",
+  inferenceTitle: "New CPU inference process",
+  inferenceBody: "The producer has exited. Load the model and tokenizer, then greedily extend the prompt.",
+  promptLabel: "Prompt",
+  promptIdsLabel: "Restored tokenizer's prompt IDs",
+  generatedIdsLabel: "Generated token IDs",
+  generatedBytesLabel: "Decoded content bytes",
+  resumeTitle: "Add saved training state",
+  resumeBody: "Restore AdamW history, update policy, data cursor, randomness, scaler progress and accumulation settings under the same execution envelope and data identity.",
+  savedStepLabel: "Completed updates at the saved boundary",
+  resumedStepsLabel: "Original successful updates performed after restore",
+  finalStepLabel: "Final committed optimizer step",
+  equalityLabel: "Checked final weights, optimizer state and progress match uninterrupted training.",
+  warmTitle: "Load the weights into a fresh job",
+  warmBody: "Reset several training states together. Full resume and this fresh job each perform two additional updates; the fresh job uses a new clock and ends with different weights.",
+  warmStepsLabel: "Fresh job's successful update numbers",
+  additionalLabel: "Additional updates on each path",
+  scope: "The checkpoint boundary has cleared gradients and zero pending microbatches. Exact continuation was checked for the same-binary scalar CPU f64 fixture with matching data. Portable CPU inference is a separate capability; physical CUDA-to-CPU execution remains pending.",
+};
+
+export const modelPersistenceEvidence = {
+  savedUpdates: 2,
+  parameterTensors: 29,
+  parameterScalars: 1572,
+  embeddingName: "token_embedding.weight",
+  prompt: "ab",
+  promptIds: [0, 99, 100],
+  generatedIds: [108, 108, 55],
+  generatedBytes: [106, 106, 53],
+  resumedSteps: [3, 4],
+  finalStep: 4,
+  warmSteps: [1, 2],
+  warmFinalStep: 2,
+  additionalUpdates: 2,
+};
+
+<ModelPersistenceDiagram labels={modelPersistenceLabels} evidence={modelPersistenceEvidence} />
+
+The figure joins the two restored table uses to one parameter identity. It also
+separates the model required by inference from the additional history required
+by the original training job. The displayed generated IDs and update numbers
+come from the observed Rust fixture.
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="model-persistence-exercises">
+
+## Reproduce the process boundary and inspect the saved state
+
+The existing `clap` CLI selects `train`, `infer` or `resume`. Without a
+subcommand it prints the bounded in-memory round trip and warm-start comparison.
+
+<RustSource path="rust/demos/practical-ch15-save-load-resume-model/src/main.rs"
+  captionId="model-persistence-rust-cli"
+  caption="Run independent train, infer and resume processes with the existing clap CLI, or print the default in-memory fixture."
+  label="Rust source: model saving, loading and continuation CLI" />
+
+<p id="model-persistence-run-default">From the repository root, with Docker and the
+existing course Docker setup available, run the default CPU example. No GPU,
+external corpus or downloaded model is needed:</p>
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model
+```
+
+The JSON reports `portable_inference`, `boundary_state`, `resumed_updates`,
+`final_state` and `weights_only_restart`. The four continuation comparisons
+`weight_bits_equal`, `optimizer_bits_equal`, `remaining_updates_equal` and
+`progress_equal` are `true`. The weights-only comparison reports two additional
+updates per path and `weights_differ_from_continuation` is `true`.
+This command alone uses an in-memory round trip; it does not demonstrate exit
+and loading in another process.
+
+<p id="model-persistence-run-processes">For independent processes, keep the same
+repository-root working directory and Docker setup and run this entire block
+as one command. Each Cargo invocation runs a program that exits before the next
+starts. The one container keeps their saved files available:</p>
+
+```bash
+COURSE_CORPUS=false ./course run bash -euc '
+mkdir -p tmp/ch15
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- train --until 2 --model tmp/ch15/after2.safetensors --checkpoint tmp/ch15/after2-training.safetensors
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- infer --model tmp/ch15/after2.safetensors --prompt ab --tokens 3
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- resume --checkpoint tmp/ch15/after2-training.safetensors --until 4 --model tmp/ch15/resumed4.safetensors --save tmp/ch15/resumed4-training.safetensors
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- train --until 4 --model tmp/ch15/full4.safetensors --checkpoint tmp/ch15/full4-training.safetensors
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- infer --model tmp/ch15/resumed4.safetensors --prompt ab --tokens 3
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- infer --model tmp/ch15/full4.safetensors --prompt ab --tokens 3
+'
+```
+
+The first inference record contains generated IDs `[108,108,55]`, bytes
+`[106,106,53]` and `tied_alias: true`. The resume record's `updates` array
+contains steps `3` and `4`; the independent train record contains `1` through
+`4`. Their final `state` objects match, including model and optimizer digests,
+cursor, random state and scaler progress. The final two inference records also
+match. The wrapper uses a disposable container: separate `./course run`
+invocations would not retain these files.
+
+<p id="model-persistence-run-tests">With the same repository-root working directory
+and Docker setup, run the five demo library tests:</p>
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch15-save-load-resume-model
+```
+
+The library result is five passed tests. They include continuation and refusals,
+a real restored tied alias, corruption checks, grouped optimizer state before
+the first update and pending-gradient refusal without clearing the gradients.
+
+### Optional inspection and explanation practice
+
+<ol id="model-persistence-practice">
+<li id="model-persistence-practice-1">Use the default command above to inspect the portable model and checkpoint
+roles. Explain why the archive's $31$ entries are not $31$ learned tensors.</li>
+<li id="model-persistence-practice-2">Use the complete single-container command above to inspect saving, producer
+exit, new-process inference and resumed training. Compare the two final
+`state` objects and the final two inference records.</li>
+<li id="model-persistence-practice-3">Use the saved order `[2,0,1]`, cursor $1$ and finite-scale progress $2$
+toward interval $3$ to explain the documents and scale used by update $3$.</li>
+<li id="model-persistence-practice-4">Inspect `weights_only_restart` in the default command's output. Explain
+why both paths perform two more updates while their final optimizer counts
+and weights differ.</li>
+<li id="model-persistence-practice-5">Use the five-test command above and the default record's refusal fields
+to inspect the complete-update boundary and compatibility limits.</li>
+</ol>
+
+<details id="model-persistence-practice-answers">
+<summary id="model-persistence-practice-summary">Checked answers: saved model, continuation and boundary inspections</summary>
+
+<ol id="model-persistence-answers-list">
+<li id="model-persistence-answer-1">The $29$ learned tensors contain $1572$ learned scalars. A numerical-constant
+tensor and tokenizer merge-pair asset make $31$ archive entries. Composition,
+settings, assets and the one restored shared table support inference.
+AdamW, update policy, data/random/scaler progress and accumulation settings
+add the history required for continuation.</li>
+<li id="model-persistence-answer-2">The independent inference process produces generated IDs `[108,108,55]` and
+decoded bytes `[106,106,53]`. Full resume executes original updates $3,4$;
+the independent reference run executes $1,2,3,4$. In the measured same-binary
+scalar CPU `f64` fixture with matching data, their checked final state and
+final inference records match. That condition bounds the training comparison;
+loading the portable model for CPU inference does not require the training
+execution envelope. The no-subcommand command instead performs its round trip within
+one process.</li>
+<li id="model-persistence-answer-3">With saved order `[2,0,1]`, cursor $1$ starts at its second entry, so the next
+two source document indices are `0`, then `1`: `short/full` and `long/full`,
+with six valid targets. The saved loss scaler has finite-update progress $2$
+toward growth interval $3$. Update $3$ uses scale $8$, completes the third
+finite successful update and grows the next scale to $16$.</li>
+<li id="model-persistence-answer-4">Both training paths start from the same learned weights saved after completed
+logical update $2$. Full resume retains the original clock and history, performs
+original updates $3,4$ and ends at optimizer step $4$. The weights-only warm
+start resets several training states together, performs its fresh updates $1,2$
+and ends at optimizer step $2$. Each path performs two additional successful
+logical updates. The observed different final weights cannot be attributed
+to one reset alone.</li>
+<li id="model-persistence-answer-5">Training-checkpoint capture refuses partial accumulation and pending parameter
+gradients, preserving those gradients on refusal. Training-checkpoint restoration
+refuses changed data identity or a changed execution envelope. Exact continuation
+was measured with matching data under the same-binary scalar CPU `f64` envelope.
+Portable CPU inference needs neither saved training history nor the training
+execution envelope. The measured continuation establishes no universal bitwise guarantee
+across hardware or builds.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="model-persistence-handoff">
+
+## Evaluate the model that can now be loaded independently
+
+The same text encoder, source-independent backbone and tied head now survive
+process exit with their learned weights and required text assets. CPU inference
+loads that model independently. A full training checkpoint also restores the
+next complete update under the declared data and execution conditions.
+
+Planned Chapter 16 will evaluate the saved language model and bound conclusions
+about its quality. Physical CUDA training followed by CPU loading, full-corpus
+training and accelerated mixed-precision execution remain separate pending
+evidence. The small restored continuation here establishes persistence and
+state consistency, not broad language quality or training throughput.
+
+</div>
+

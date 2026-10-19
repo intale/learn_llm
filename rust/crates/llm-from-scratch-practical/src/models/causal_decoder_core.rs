@@ -224,6 +224,51 @@ impl<'a> DecoderBackbone<'a> {
 }
 // endregion:decoder-backbone
 
+// region:owned-decoder-backbone
+/// Restored transformer parameters without an encoder, vocabulary or output head.
+/// The borrowing view runs the very same transformer used by a complete model.
+pub struct OwnedDecoderBackbone {
+    config: DecoderBlockConfig,
+    blocks: Vec<DecoderBlock>,
+    final_norm: RmsNorm,
+}
+
+impl OwnedDecoderBackbone {
+    pub fn from_parameters(
+        config: DecoderBlockConfig,
+        layers: usize,
+        parameters: Vec<NamedParameter>,
+    ) -> Result<Self, DecoderModelError> {
+        validate_backbone_config(config)?;
+        let expected = layers
+            .checked_mul(super::decoder::BLOCK_PARAMETER_SUFFIXES.len())
+            .and_then(|n| n.checked_add(1))
+            .ok_or(DecoderModelError::ParameterScalarCountOverflow)?;
+        if parameters.len() != expected {
+            return Err(DecoderModelError::ParameterCountMismatch {
+                expected,
+                actual: parameters.len(),
+            });
+        }
+        let parameters = crate::nn::init::NamedParameters::try_new(parameters)?;
+        super::decoder::validate_component_parameter_names(parameters.as_slice(), layers, false)?;
+        let (blocks, final_norm) =
+            super::decoder::assemble_backbone(config, layers, parameters.as_slice())?;
+        DecoderBackbone::new(config, &blocks, &final_norm)?;
+        Ok(Self {
+            config,
+            blocks,
+            final_norm,
+        })
+    }
+
+    pub fn backbone(&self) -> DecoderBackbone<'_> {
+        DecoderBackbone::new(self.config, &self.blocks, &self.final_norm)
+            .expect("owned backbone assembly validated its components")
+    }
+}
+// endregion:owned-decoder-backbone
+
 pub(super) enum CoreError {
     Full(DecoderModelError),
     Cached(DecoderKvCacheError),

@@ -41,10 +41,14 @@ for (const viewport of [{ width: 1364, height: 900 }, { width: 390, height: 844 
       }) });
     });
   }
-  test(`@chapter:13-gradient-accumulation-recomputation Chapter 13 next navigation reaches Chapter 14 at ${viewport.width}px`, async ({ page }, testInfo) => {
+  for (const [sourceId, targetId, sourceOrder, targetOrder] of [
+    ['13-gradient-accumulation-recomputation', '14-optimizer-schedules-clipping', 13, 14],
+    ['14-optimizer-schedules-clipping', '15-save-load-resume-model', 14, 15],
+  ] as const) {
+  test(`@chapter:${sourceId} Chapter ${sourceOrder} next navigation reaches Chapter ${targetOrder} at ${viewport.width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
-    const sourcePath = siteBase + 'en/practical-llm-in-rust/13-gradient-accumulation-recomputation/';
-    const targetPath = siteBase + 'en/practical-llm-in-rust/14-optimizer-schedules-clipping/';
+    const sourcePath = siteBase + 'en/practical-llm-in-rust/' + sourceId + '/';
+    const targetPath = siteBase + 'en/practical-llm-in-rust/' + targetId + '/';
     const response = await page.goto(sourcePath);
     expect(response?.status()).toBe(200);
     const link = page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]');
@@ -56,8 +60,9 @@ for (const viewport of [{ width: 1364, height: 900 }, { width: 390, height: 844 
     await expect(link).toBeFocused();
     await link.press('Enter');
     await expect(page).toHaveURL(new URL(targetPath, page.url()).href);
-    await expect(page.locator('[data-chapter-root]')).toHaveAttribute('data-chapter-id', '14-optimizer-schedules-clipping');
+    await expect(page.locator('[data-chapter-root]')).toHaveAttribute('data-chapter-id', targetId);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await testInfo.attach('programmatic-chapter13-next14-navigation', {body: JSON.stringify({...observed, destinationUrl: page.url()}), contentType: 'application/json'});
+    await testInfo.attach(`programmatic-chapter${sourceOrder}-next${targetOrder}-navigation`, {body: JSON.stringify({...observed, destinationUrl: page.url()}), contentType: 'application/json'});
   });
+  }
 }

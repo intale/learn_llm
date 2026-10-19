@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 9,
+  "content_revision": 10,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
@@ -21,9 +21,9 @@
     "decision": "useful",
     "id": "practical-llm-system-map",
     "component": "PracticalLlmSystemDiagram",
-    "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and planned saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
+    "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
   },
-  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Planned Chapters 15–32 extend persistence, evaluation, inference and adaptation."
+  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Planned Chapters 16–32 extend evaluation, inference and adaptation."
 }
 ---
 
@@ -50,7 +50,7 @@ export const chapterHref = (number) => {
 
 export const diagramLabels = {
   title: "One text model, two uses of its scores",
-  description: "Prepared documents become document-aware token batches. Embedding lookup in the text encoder turns input IDs into vectors; the causal transformer turns those vectors into hidden features; the tied text head uses the same embedding table to produce vocabulary scores. Learning compares scores with observed targets and updates the model's weights through loss, gradients and an optimizer. Generation uses those same weights, returns a chosen token ID to embedding lookup and reuses compatible cached attention state. Numerical execution supports both paths; planned saving and loading preserve the composed model for later inference.",
+  description: "Prepared documents become document-aware token batches. Embedding lookup in the text encoder turns input IDs into vectors; the causal transformer turns those vectors into hidden features; the tied text head uses the same embedding table to produce vocabulary scores. Learning compares scores with observed targets and updates the model's weights through loss, gradients and an optimizer. Generation uses those same weights, returns a chosen token ID to embedding lookup and reuses compatible cached attention state. Numerical execution supports both paths; saving and loading preserve the composed model for a new local CPU inference process, while a fuller checkpoint preserves the training history needed for bounded continuation.",
   forwardTitle: "The shared forward path",
   forwardRelationship: "Prepared text supplies token batches; encoding, transformation and the text head produce next-token scores in that order.",
   forward: [
@@ -106,9 +106,9 @@ export const diagramLabels = {
     },
     {
       id: "saved-state",
-      title: "Save and load the composition — planned",
-      description: "Preserve the model, weights, settings and tokenizer for later inference. Exact training resume needs additional state.",
-      chapters: "Planned: Chapter 15",
+      title: "Save, load and resume the composition",
+      description: "Preserve model weights, semantic settings, tokenizer assets and the shared alias for a new CPU inference process. Additional optimizer, data, random and update state support training continuation within a narrower execution envelope.",
+      chapters: "Chapter 15",
     },
   ],
 };
@@ -152,7 +152,7 @@ export const roadmap = [
       { number: 12, purpose: "Use CPU half-format matrix arithmetic and loss-scaled updates, inspect actual dtypes and preserve model and optimizer state when an overflowing update is skipped." },
       { number: 13, purpose: "Combine smaller training batches with the correct token denominator, and trade saved activations for recomputation with matching randomness." },
       { number: 14, purpose: "Choose warmup and cosine rates by successful update while inspecting existing global clipping and AdamW state." },
-      { number: 15, title: "Save, load, and resume a model", planned: true, purpose: "Save the composed model, exit and load it for local inference; then restore the additional state needed for training resume." },
+      { number: 15, purpose: "Save the composed model, exit and load it for local CPU inference; then restore complete-update training state under its declared compatibility conditions." },
       { number: 16, title: "Language-model evaluation", planned: true, purpose: "Compare training and held-out loss, a simple baseline and seed variation to bound conclusions about overfitting and quality." },
       { number: 17, title: "Weight quantization", planned: true, purpose: "Represent weights with scales and rounding, then compare storage and numerical error using a portable dequantization path." },
     ],
@@ -282,25 +282,31 @@ those capabilities.
 
 ## Preserve learned weights for later use
 
-The starting model already has checkpoint mechanisms. Planned Chapter 15 extends
-that work to saving and loading the encoder, backbone and head composition. It
-will save named weights, settings and the tokenizer assets needed by the complete
-text model, preserving the shared identity of tied weights. The first goal is to
-save, exit and load the model in a fresh local process for inference.
+The starting model already has checkpoint mechanisms. Published
+<a href={chapterHref(15)}>Chapter 15</a> extends that work to saving and loading
+the encoder, backbone and head composition. It saves named weights, semantic
+settings and the tokenizer assets needed by the complete text model, stores the
+tied table once and restores its shared identity. The model can be saved,
+its process can exit, and a fresh local CPU process can load it for inference.
+The generic backbone remains independent of a text tokenizer.
 
-Portable saved weights must not depend on device addresses or CUDA handles. The
-planned portability experiment performs a CUDA training update, saves the model,
-exits and loads the same learned weights on CPU without retraining. CUDA training
-must keep CPU inference available. Exact training resume needs additional
-optimizer, random-generator, data-position and accumulation state, so its
-execution requirements can be narrower than those of inference. This composition
-save/load path and the CUDA-to-CPU experiment remain planned work.
+Portable saved weights do not contain mandatory device addresses or CUDA handles.
+The fuller training checkpoint additionally preserves optimizer, update-policy,
+random-generator, data-position, loss-scaler and accumulation state. Exact
+continuation is checked at complete-update boundaries with cleared gradients,
+matching data and the same-binary scalar CPU `f64` execution envelope. These
+training conditions are narrower than the requirements for CPU inference.
+
+The separate physical portability experiment performs a CUDA training update,
+saves the model, exits and loads the same learned weights on CPU without
+retraining. That experiment remains pending; the implemented CPU save/load and
+continuation fixtures do not establish it.
 
 {/* chapter-section:course-path */}
 
 ## Read the complete chapter roadmap
 
-<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–14 are published. Chapters 15–32 are
+<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–15 are published. Chapters 16–32 are
 planned and appear without links. A planned lesson may extend an existing
 mechanism, such as sampling or checkpointing. Its status describes the lesson's
 availability. The <a href={localePath(practicalCourse.referenceLocale, `/${practicalCourse.route}/`)}>practical course index</a>

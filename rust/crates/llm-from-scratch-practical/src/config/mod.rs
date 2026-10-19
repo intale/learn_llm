@@ -5,7 +5,7 @@ pub mod model;
 pub mod planner;
 pub mod profile;
 pub mod run;
-mod settings;
+pub(crate) mod settings;
 
 pub use catalog::DecoderProfiles;
 pub use config_lib::Config;
