@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "16-language-model-evaluation",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Compare training and held-out language-model loss",
+  "description": "Score valid next-token targets, compare a training-only bigram and three initialization seeds, and evaluate the saved text model on CPU.",
+  "objective": "Evaluate the existing text model with token-weighted loss and perplexity, identify observed overfitting, and keep baseline and seed comparisons within the fixed experiment."
+}

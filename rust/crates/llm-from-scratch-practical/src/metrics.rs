@@ -17,6 +17,35 @@ pub struct MetricSummary {
 }
 
 impl MetricSummary {
+    /// Summarizes token-summed NLL, retaining infinite surprise for impossible evidence.
+    /// The count is the number of scored targets, never padding or batch count.
+    pub fn from_total_nll(total_surprise: f64, target_count: usize) -> Result<Self, MetricError> {
+        if target_count == 0 {
+            return Err(MetricError::EmptyTargets);
+        }
+        if total_surprise.is_nan() || total_surprise < 0.0 {
+            return Err(MetricError::InvalidTotalNll { total_surprise });
+        }
+        let mean_nll = total_surprise / target_count as f64;
+        Ok(Self {
+            total_surprise,
+            target_count,
+            mean_nll,
+            perplexity: mean_nll.exp(),
+        })
+    }
+
+    // region:merge-token-metrics
+    /// Add numerators and denominators before recomputing mean NLL and perplexity.
+    pub fn merge(self, other: Self) -> Result<Self, MetricError> {
+        let count = self
+            .target_count
+            .checked_add(other.target_count)
+            .ok_or(MetricError::TargetCountOverflow)?;
+        Self::from_total_nll(self.total_surprise + other.total_surprise, count)
+    }
+    // endregion:merge-token-metrics
+
     /// Returns the sum of `-ln(p)` over all observed targets.
     pub const fn total_surprise(&self) -> f64 {
         self.total_surprise
@@ -44,7 +73,14 @@ pub enum MetricError {
     /// No target exists from which to compute a mean.
     EmptyTargets,
     /// One assigned probability is non-finite or outside the closed unit interval.
-    InvalidProbability { index: usize, probability: f64 },
+    InvalidProbability {
+        index: usize,
+        probability: f64,
+    },
+    InvalidTotalNll {
+        total_surprise: f64,
+    },
+    TargetCountOverflow,
     /// The bigram model rejected a token or count-table operation.
     Bigram(BigramError),
 }
@@ -57,6 +93,11 @@ impl fmt::Display for MetricError {
                 formatter,
                 "assigned probability at index {index} must be finite and within [0, 1], got {probability}"
             ),
+            Self::InvalidTotalNll { total_surprise } => write!(
+                formatter,
+                "total NLL must be nonnegative and not NaN, got {total_surprise}"
+            ),
+            Self::TargetCountOverflow => formatter.write_str("valid target count overflowed usize"),
             Self::Bigram(error) => write!(formatter, "bigram scoring failed: {error}"),
         }
     }
@@ -66,7 +107,10 @@ impl Error for MetricError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
             Self::Bigram(error) => Some(error),
-            Self::EmptyTargets | Self::InvalidProbability { .. } => None,
+            Self::EmptyTargets
+            | Self::InvalidProbability { .. }
+            | Self::InvalidTotalNll { .. }
+            | Self::TargetCountOverflow => None,
         }
     }
 }
@@ -98,17 +142,7 @@ impl MetricAccumulator {
     }
 
     fn finish(self) -> Result<MetricSummary, MetricError> {
-        if self.target_count == 0 {
-            return Err(MetricError::EmptyTargets);
-        }
-
-        let mean_nll = self.total_surprise / self.target_count as f64;
-        Ok(MetricSummary {
-            total_surprise: self.total_surprise,
-            target_count: self.target_count,
-            mean_nll,
-            perplexity: mean_nll.exp(),
-        })
+        MetricSummary::from_total_nll(self.total_surprise, self.target_count)
     }
 }
 
@@ -168,22 +202,35 @@ pub fn score_bigram_partition(
     partition: ScoredPartition,
 ) -> Result<PartitionScore, MetricError> {
     let documents = partitions.documents(partition.corpus_partition());
-    let mut accumulator = MetricAccumulator::default();
-
-    for document in documents {
-        for transition in document.token_ids().windows(2) {
-            let probability = model.smoothed_probability(transition[0], transition[1])?;
-            accumulator.observe(probability);
-        }
-    }
-
     Ok(PartitionScore {
         partition,
         document_count: documents.len(),
-        metrics: accumulator.finish()?,
+        metrics: score_bigram_transitions(
+            model,
+            documents.iter().flat_map(|document| {
+                document
+                    .token_ids()
+                    .windows(2)
+                    .map(|pair| (pair[0], pair[1]))
+            }),
+        )?,
     })
 }
 // endregion:train-validation-scoring
+
+/// Reuses the existing smoothed bigram and probability metric for selected targets.
+/// The caller supplies document-local transitions and chooses which targets count.
+pub fn score_bigram_transitions(
+    model: &BigramModel,
+    transitions: impl IntoIterator<Item = (u32, u32)>,
+) -> Result<MetricSummary, MetricError> {
+    let mut accumulator = MetricAccumulator::default();
+    for (input, target) in transitions {
+        let probability = model.smoothed_probability(input, target)?;
+        accumulator.observe(probability);
+    }
+    accumulator.finish()
+}
 
 /// Metrics and document count for one allowed encoded corpus partition.
 #[derive(Clone, Copy, Debug, PartialEq)]

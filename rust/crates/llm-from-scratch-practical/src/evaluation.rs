@@ -5,6 +5,8 @@
 //! consistency; it does not derive data or model lineage from the underlying
 //! corpus, tokenizer, selection run, or bigram fit.
 
+pub mod language_model;
+
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;

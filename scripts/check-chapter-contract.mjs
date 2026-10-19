@@ -959,9 +959,15 @@ function visualizationComponents(body, visualization, sourceName, chapterId, cha
   return [];
 }
 
-export function validateContractLesson(contract, lesson, locale, sourceName = 'lesson') {
+export function validateContractLesson(contract, lesson, locale, sourceName = 'lesson', { course } = {}) {
   const expected = localizedContractProjection(contract, locale);
   const actual = localizedLessonProjection(lesson.data);
+  if (isPracticalCourse(course) && contract.rust) {
+    const entryPoint = 'rust/demos/' + contract.rust.package + '/src/main.rs';
+    if (!actual.rust_source_paths.includes(entryPoint)) {
+      expected.rust_source_paths = expected.rust_source_paths.filter(path => path !== entryPoint);
+    }
+  }
   if (JSON.stringify(expected) !== JSON.stringify(actual)) {
     throw new ContentValidationError([
       sourceName +
@@ -1108,6 +1114,7 @@ export function validateChapterContractIntegration(
       lesson,
       locale,
       nodePath.relative(repositoryRoot, lessonPath),
+      { course },
     );
     for (const diagramPath of diagrams[locale]) {
       if (!existsSync(nodePath.join(repositoryRoot, diagramPath))) {

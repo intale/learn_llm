@@ -1,0 +1,503 @@
+---
+{
+  "chapter_id": "16-language-model-evaluation",
+  "content_revision": 1,
+  "order": 16,
+  "concept_id": "language-model-evaluation",
+  "title": "Compare training and held-out language-model loss",
+  "description": "Score valid next-token targets, compare a training-only bigram and three initialization seeds, and evaluate the saved text model on CPU.",
+  "objective": "Evaluate the existing text model with token-weighted loss and perplexity, identify observed overfitting, and keep baseline and seed comparisons within the fixed experiment.",
+  "worked_inputs": "Train on aaab and aab, evaluate the separate abaa and baa documents, and retain nine targets per split. Inspect updates 0, 10, 20, 40 and 80 for initialization seeds 39, 40 and 41, compare a training-only bigram, and load the final seed-39 model in a new CPU process.",
+  "formula": {
+    "latex": "\\begin{aligned}\nS_b&=-\\sum_{i\\in I_b}\\ln p_\\theta(y_i\\mid x_i),&N_b&=|I_b|,\\\\\nS&=\\sum_b S_b,&N&=\\sum_b N_b>0,\\\\\nL&=S/N,&\\mathrm{PPL}&=\\exp(L).\n\\end{aligned}",
+    "symbols": [
+      { "symbol": "b", "meaning": "index of an evaluation batch" },
+      { "symbol": "I_b", "meaning": "set of selected valid next-token target occurrences in batch b, excluding padding" },
+      { "symbol": "i", "meaning": "index of one selected target occurrence" },
+      { "symbol": "x_i", "meaning": "permitted document-local context for target occurrence i, including beginning-of-sequence when present" },
+      { "symbol": "y_i", "meaning": "observed next token at occurrence i; selected end-of-sequence targets also count" },
+      { "symbol": "\\theta", "meaning": "one fixed learned-parameter state shared by the training and validation evaluations at a checkpoint" },
+      { "symbol": "p_\\theta(y_i\\mid x_i)", "meaning": "probability assigned to the observed target by the model's unmodified evaluation distribution" },
+      { "symbol": "\\ln", "meaning": "natural logarithm, giving negative log-likelihood in nats" },
+      { "symbol": "S_b", "meaning": "sum of negative log-likelihoods in batch b, measured in nats" },
+      { "symbol": "N_b", "meaning": "number of selected valid targets in batch b" },
+      { "symbol": "S", "meaning": "total negative log-likelihood over the evaluated split, measured in nats" },
+      { "symbol": "N", "meaning": "positive total number of selected valid targets in the evaluated split" },
+      { "symbol": "L", "meaning": "mean negative log-likelihood, measured in nats per selected target" },
+      { "symbol": "\\mathrm{PPL}", "meaning": "dimensionless perplexity, the exponential of the target-weighted mean negative log-likelihood" }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "evaluation-method",
+      "limitation": "Short-context count models provide a useful comparison, but fitting the observed training transitions does not establish performance on separate documents.",
+      "later_advance": "Neural language models learn distributed representations and can be compared with n-gram models through held-out likelihood and perplexity.",
+      "modern_llm_role": "The decoder's evaluation must preserve target accounting and split separation, while aggregate likelihood remains narrower than a detailed account of learned linguistic properties.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "A Neural Probabilistic Language Model",
+          "source_url": "https://jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio, Ducharme, Vincent and Jauvin compare neural and n-gram language models with perplexity derived from average negative log-likelihood, separating training, validation choices and final testing."
+        },
+        {
+          "role": "later",
+          "year": 2021,
+          "name": "Language Model Evaluation Beyond Perplexity",
+          "source_url": "https://aclanthology.org/2021.acl-long.414.pdf",
+          "claim": "Meister and Cotterell explain that held-out perplexity is a monotonic transformation of average token log-likelihood and does not identify in detail which linguistic properties a model learned."
+        }
+      ]
+    },
+    "approach": "Fit the existing add-one-smoothed bigram only to training documents, then compare its probabilities with the neural decoder on the same selected targets.",
+    "summary": "The bounded Rust comparison measures both models on four constructed strings. Its tokenizer, baseline, seeds and update budget are course choices, not a reproduction of either paper's results.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/evaluation/language_model.rs"
+  },
+  "rust_sources": [
+    { "path": "rust/crates/llm-from-scratch-practical/src/metrics.rs", "region": "merge-token-metrics", "purpose": "Combine token loss sums and target counts before recomputing the mean and perplexity." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/training/trainer.rs", "region": "shared-evaluation-reduction", "purpose": "Reuse one graph-free reduction for fixed, padded and packed loss batches while preserving existing gradients." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/evaluation/language_model.rs", "region": "evaluate-selected-targets", "purpose": "Check the declared partition and binding, then score the existing text model's selected valid targets." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/evaluation/language_model.rs", "region": "score-selected-bigram-targets", "purpose": "Score the frozen existing bigram on exactly the transitions selected by the loss mask." },
+    { "path": "rust/demos/practical-ch16-language-model-evaluation/src/lib.rs", "region": "weighting-contrast", "purpose": "Make the unequal-target denominator visible with constructed probabilities." },
+    { "path": "rust/demos/practical-ch16-language-model-evaluation/src/lib.rs", "region": "descriptive-seed-summary", "purpose": "Summarize final validation NLL across the three fixed initialization seeds." },
+    { "path": "rust/demos/practical-ch16-language-model-evaluation/src/lib.rs", "region": "loaded-model-evaluation", "purpose": "Restore actual saved model and tokenizer assets for CPU evaluation without training." }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "language-model-evaluation",
+    "component": "LanguageModelEvaluationDiagram",
+    "rationale": "Connect training-only updates to one fixed parameter state read by both split evaluations, then compare every declared checkpoint for all three seeds without hiding the intervals where the two losses move apart."
+  },
+  "decoder_connection": "The same text encoder, source-independent backbone and tied head now have shared valid-target evaluation across fixed, padded and packed batches. The saved model can be scored independently on CPU. Planned Chapter 17, Weight quantization, will use evaluation as a reference when inspecting weight-rounding effects; physical-GPU and full-corpus results remain separate evidence."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import InlineMath from "../../../components/InlineMath.astro";
+import LanguageModelEvaluationDiagram from "../../../components/chapters/LanguageModelEvaluationDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="language-model-evaluation-worked-example">
+
+## Separate a better training fit from better held-out scores
+
+An optimizer receives the training targets and changes weights to reduce their
+loss. That feedback can improve the fit to those particular documents while
+making separate documents less likely. A falling training loss therefore leaves
+an important part of the result unmeasured. We need to freeze the same learned
+weights, score both training and held-out targets without updating them, and
+keep the scoring rules comparable.
+
+Use [Chapter 4's valid-target masks](../04-padded-variable-batches/),
+[Chapter 5's document-local packed contexts](../05-packed-sequence-masks/),
+[Chapter 8's training and evaluation modes](../08-dropout-semantics/),
+[Chapter 13's accumulated updates](../13-gradient-accumulation-recomputation/)
+and [Chapter 15's portable model](../15-save-load-resume-model/) as prerequisites.
+We extend their existing model, loss, trainer and saved-state paths.
+
+### Follow one measured run
+
+Fix two training documents, `aaab` and `aab`, and two validation documents,
+`abaa` and `baa`. Only the training documents enter optimizer updates. For
+initialization seed $39$, the measured training mean negative log-likelihood
+(NLL) falls from $0.874321$ nats per target after update $20$ to $0.157051$
+after update $80$. Over the same interval, validation NLL rises from $1.267297$
+to $4.172745$. Lower training loss has accompanied worse validation likelihood.
+
+The rise is visible in each of the two observed intervals, $20\to40$ and
+$40\to80$, for all three predeclared seeds $39$, $40$ and $41$. This is the
+experiment's bounded **overfitting** signal. A training/validation gap alone
+would not establish that change over time. Different string order and difficulty
+can also affect a gap between the splits.
+
+### Keep the target occurrences explicit
+
+The existing Chapter 4 tokenizer is fixed before these examples are encoded;
+validation is not used to fit it. Its document encoding includes beginning-of-
+sequence (BOS) ID `0`, content IDs `99` for `a` and `100` for `b`, and
+end-of-sequence (EOS) ID `1`.
+
+<table id="language-model-evaluation-documents">
+  <caption>Fixed constructed documents and their selected next-token targets</caption>
+  <thead><tr><th scope="col">Split and document</th><th scope="col">Text and encoded IDs</th><th scope="col">Valid targets</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Train: <code>train-a</code></th><td><code>aaab</code><br /><code>[0,99,99,99,100,1]</code></td><td><InlineMath latex="5" /></td></tr>
+    <tr><th scope="row">Train: <code>train-b</code></th><td><code>aab</code><br /><code>[0,99,99,100,1]</code></td><td><InlineMath latex="4" /></td></tr>
+    <tr><th scope="row">Validation: <code>validation-a</code></th><td><code>abaa</code><br /><code>[0,99,100,99,99,1]</code></td><td><InlineMath latex="5" /></td></tr>
+    <tr><th scope="row">Validation: <code>validation-b</code></th><td><code>baa</code><br /><code>[0,100,99,99,1]</code></td><td><InlineMath latex="4" /></td></tr>
+  </tbody>
+</table>
+
+Each document supplies one fewer next-token target than encoded IDs: BOS supplies
+context, while EOS is an observed target. Each split therefore has $5+4=9$
+valid targets. Padding supplies none. Document IDs and complete texts are
+distinct across the splits, but the strings share symbols and are deliberately
+related. This is a constructed demonstration, not a random sample of natural
+language. Validation is inspected repeatedly; no untouched final test set is
+used or claimed.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="language-model-evaluation-formula">
+
+## Add token losses before taking a mean
+
+A short batch must not receive the same total weight as a longer batch merely
+because both produce one mean. To expose the denominator, use two constructed
+lists of assigned target probabilities: $[0.5,0.25]$ and
+$[0.5,0.5,0.25,0.5]$. These probabilities are a separate arithmetic probe,
+not outputs from the trained decoder.
+
+The lists have $2$ and $4$ targets and total NLLs $3\ln2$ and $5\ln2$ nats.
+Together they contain $6$ targets and $8\ln2$ nats. The correct mean is
+$\frac{4}{3}\ln2\approx0.924196$ nats per target; its perplexity is
+$2^{4/3}\approx2.519842$. Averaging the two batch means instead gives
+$\frac{11}{8}\ln2\approx0.953077$, which overweights each target in the short
+batch. Averaging the two perplexities gives $2.603421$ and is also the wrong
+aggregation for these six targets.
+
+For one fixed model and one evaluated split, the general rule is
+
+$$
+\begin{aligned}
+S_b&=-\sum_{i\in I_b}\ln p_\theta(y_i\mid x_i),&N_b&=|I_b|,\\
+S&=\sum_b S_b,&N&=\sum_b N_b>0,\\
+L&=S/N,&\mathrm{PPL}&=\exp(L).
+\end{aligned}
+$$
+
+Batch index $b$ selects a batch, and $I_b$ contains its valid target occurrences.
+Index $i$ names one occurrence, $y_i$ is its observed next token, and $x_i$ is
+the permitted document-local context. The fixed learned parameters are $\theta$;
+$p_\theta(y_i\mid x_i)$ is the probability assigned by the unmodified evaluation
+distribution, without sampling filters or temperature changes.
+
+The natural logarithm $\ln$ makes $S_b$ and total $S$ losses in nats. Counts
+$N_b$ and total $N$ count selected targets, including selected EOS targets and
+excluding padding. Mean $L$ is in nats per target; $\mathrm{PPL}$ is dimensionless.
+Sum the numerators and denominators before dividing, then exponentiate once.
+For a comparison to be interpretable, keep vocabulary, selected targets,
+document-context policy and numerical execution explicit and comparable.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="language-model-evaluation-observations-text">
+
+## Read the measurements at their stated scale
+
+The model has residual width $8$, two attention heads, feed-forward width $16$,
+one decoder block and capacity for $8$ positions. Each seed performs $80$
+scalar CPU `f64` logical updates at constant rate $0.02$, combining two
+one-document microbatches per update. AdamW uses $\beta_1=0.9$,
+$\beta_2=0.999$, $\epsilon=10^{-8}$ and zero weight decay. Global gradient
+clipping uses limit $1$; dropout is disabled in this training fixture.
+Data, tokenizer, update policy and evaluated checkpoints are fixed across seeds.
+
+All five checkpoints, $0,10,20,40,80$, appear for every seed in the figure below.
+Update $20$ has the smallest validation NLL among those five observations in
+each run. That does not make it the optimum among all possible update counts:
+intermediate updates were not evaluated. No early-stopping or best-seed selection
+algorithm is introduced. The saved example deliberately uses the first
+predeclared seed, $39$, at final update $80$.
+
+The final validation NLLs for seeds $39$, $40$ and $41$ are $4.172745$,
+$4.328176$ and $2.545169$ nats per target. Their arithmetic mean is $3.682030$,
+sample standard deviation is $0.987613$, and observed range is
+$2.545169$–$4.328176$ nats per target. For $K=3$ seeds, with $L_k$ denoting
+seed $k$'s final validation NLL and $\bar L$ their arithmetic mean, the sample
+standard deviation is $s=\sqrt{\sum_{k=1}^{K}(L_k-\bar L)^2/(K-1)}$.
+Here $k$ indexes runs rather than token occurrences, and $s$ has the same units
+as $L_k$.
+
+These numbers describe initialization variation conditional on this one split
+and training policy. They are not a population confidence interval or a measure
+of uncertainty from sampling different documents. Three fixed seeds also do
+not establish that a model ranking would persist on other data or seeds.
+
+The arithmetic uses represented `f64` values. The report rounds metric values
+to six decimal places after calculation; comparison and seed statistics use
+unrounded values. A finite NLL need not have a finite represented exponential
+for every possible input, although the reported perplexities here are finite.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="language-model-evaluation-history">
+
+## Compare likelihood without making it a complete quality judgment
+
+Short-context count models provide a useful comparison, but fitting the observed
+training transitions does not establish performance on separate documents.
+Neural language models learn distributed representations and can be compared
+with n-gram models through held-out likelihood and perplexity.
+
+In [*A Neural Probabilistic Language Model*](https://jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
+(2003), Bengio, Ducharme, Vincent and Jauvin compare neural and n-gram language
+models with perplexity derived from average negative log-likelihood, separating
+training, validation choices and final testing. Distributed representations address limitations of short
+count-based contexts. This chapter retains the comparison principle, using
+the existing bigram as a deliberately simple reference.
+
+Fit the existing add-one-smoothed bigram only to the two training documents and
+their $9$ adjacent transitions. For previous token $u$ and next token $v$, it
+uses $q(v\mid u)=(C_{uv}+1)/(C_u+V)$, where $C_{uv}$ counts that training
+transition, $C_u$ counts all training transitions leaving $u$, and $V$ is the
+same tokenizer vocabulary size used by the decoder. The added count prevents
+an unseen transition from receiving zero probability. The bigram uses only the
+previous token; the neural decoder can use the permitted longer prefix.
+
+Both models score the same $9$ selected target occurrences on each split.
+The frozen bigram has training NLL $4.402665$ and perplexity $81.668227$;
+validation NLL is $5.044970$ and perplexity $155.239620$. The neural seed-$39$
+model at update $80$ has lower validation NLL, $4.172745$, and perplexity
+$64.893323$. It beats this weak baseline while scoring worse than its own
+update-$20$ validation result, NLL $1.267297$ and perplexity $3.551242$.
+Beating a baseline does not erase deterioration during continued training.
+
+In [*Language Model Evaluation Beyond Perplexity*](https://aclanthology.org/2021.acl-long.414.pdf)
+(2021), Meister and Cotterell explain that held-out perplexity is a monotonic
+transformation of average token log-likelihood and does not identify in detail
+which linguistic properties a model learned. The decoder's evaluation must
+preserve target accounting and split separation, while aggregate likelihood
+remains narrower than a detailed account of learned linguistic properties.
+These constructed strings establish neither useful generated language
+nor broad language capabilities.
+
+Fit the existing add-one-smoothed bigram only to training documents, then compare
+its probabilities with the neural decoder on the same selected targets. The
+bounded Rust comparison measures both models on four constructed strings. Its
+tokenizer, baseline, seeds and update budget are course choices, not a
+reproduction of either paper's results or a competitive n-gram benchmark.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="language-model-evaluation-rust">
+
+## Extend one evaluator and keep its state unchanged
+
+`MetricSummary::merge` adds loss sums and target counts. It then recomputes the
+mean and perplexity from those totals, rather than averaging the summaries'
+means or perplexities.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/metrics.rs"
+  region="merge-token-metrics" captionId="language-model-evaluation-rust-metrics"
+  caption="Add token NLL sums and valid-target counts before recomputing mean NLL and perplexity."
+  label="Rust source: merging target-weighted likelihood metrics" />
+
+The existing fixed-batch evaluator and the padded/packed entry point share one
+reducer. The existing selected-target loss produces a batch mean; multiplying
+that mean by its valid-target count recovers the numerator for aggregation,
+subject to represented floating-point rounding.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/training/trainer.rs"
+  region="shared-evaluation-reduction" captionId="language-model-evaluation-rust-reduction"
+  caption="Use one no-grad reducer for fixed, padded and packed batches, recover the token-loss numerator from each batch's mean and valid-target count, and check that existing gradients remain unchanged."
+  label="Rust source: shared fixed, padded and packed evaluation reduction" />
+
+`no_grad` controls graph recording; it does not by itself disable training
+dropout. This evaluator also chooses the ordinary non-dropout padded forward
+path. An explicit `DropoutMode::Eval` comparison with a nonzero configured
+dropout probability matches that path and leaves the dropout counter unchanged.
+Tests start with actual nonzero gradients and check that evaluation preserves
+their bits, learned values and value revisions. Evaluation performs no backward
+or optimizer update.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/evaluation/language_model.rs"
+  region="evaluate-selected-targets" captionId="language-model-evaluation-rust-selected"
+  caption="Check the declared split and tokenizer binding, then evaluate the existing model with its selected valid-target loss."
+  label="Rust source: evaluation of selected padded or packed targets" />
+
+On the initial seed-$39$ validation fixture, separate examples, padded storage
+and packed storage score the same $9$ targets in $2$, $1$ and $1$ batches,
+respectively. All displayed means are $5.615827$ nats per target, with zero
+recorded graphs. The largest measured unrounded NLL difference is
+$1.7763568394002505\times10^{-15}$, below tolerance $10^{-12}$. The packed
+fixture still has two rows: $5+4$ targets cannot fit in one row of capacity $8$.
+One batch does not mean one row. This is a numerical comparison for the stated
+fixture, not universal bitwise equality across layouts or backends.
+
+Empty evaluation, a nonfinite neural loss, and a mismatched declared partition
+or binding are refused. Validation examples are refused by the training-batch
+constructor. The lower-level probability metric retains its existing meaning
+for an impossible observed target: probability zero gives infinite NLL and
+perplexity, without a clamp. Invalid probability values are rejected. That
+metric convention is distinct from the neural evaluator's nonfinite-loss refusal.
+
+The historical contrast also reuses existing code. `BigramModel` is fitted once
+on training documents; the scorer below reads only input/target pairs whose
+loss-mask entry is valid. It therefore excludes padding and never joins the
+end of one document to the beginning of another.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/evaluation/language_model.rs"
+  region="score-selected-bigram-targets" captionId="language-model-evaluation-rust-bigram"
+  caption="Score the frozen training-only bigram on the exact input/target pairs selected by the loss mask."
+  label="Rust source: bigram likelihood on the same selected targets" />
+
+The constructed probability probe makes the unequal denominator easy to inspect
+without conflating those assigned probabilities with a learned model's output.
+
+<RustSource path="rust/demos/practical-ch16-language-model-evaluation/src/lib.rs"
+  region="weighting-contrast" captionId="language-model-evaluation-rust-weighting"
+  caption="Use constructed two-target and four-target probability lists to contrast token-weighted aggregation with incorrect equal weighting of unequal batches."
+  label="Rust source: constructed two-target and four-target weighting probe" />
+
+The seed summary uses the final unrounded validation NLL from every declared
+run and divides the squared-deviation sum by $K-1$, with $K=3$.
+
+<RustSource path="rust/demos/practical-ch16-language-model-evaluation/src/lib.rs"
+  region="descriptive-seed-summary" captionId="language-model-evaluation-rust-seeds"
+  caption="Report the mean, sample standard deviation and observed range of final validation NLL across all three fixed seeds."
+  label="Rust source: descriptive final-validation initialization variation" />
+
+Finally, `evaluate_saved` restores the actual portable model and tokenizer.
+It encodes the chapter's documents with those restored assets and scores their
+selected targets without retraining. It does not refit a tokenizer or require
+the original tokenizer-training metadata. The text encoder, source-independent
+backbone and tied head remain the same composition.
+
+<RustSource path="rust/demos/practical-ch16-language-model-evaluation/src/lib.rs"
+  region="loaded-model-evaluation" captionId="language-model-evaluation-rust-loaded"
+  caption="Load the saved learned tensors and tokenizer assets, then evaluate the same fixed documents on CPU without training."
+  label="Rust source: evaluation from the restored portable text model" />
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="language-model-evaluation-visualization">
+
+## Follow the same frozen weights through both scores
+
+export const languageModelEvaluationLabels = {
+  title: "Train-only updates, then two reads of the same weights",
+  description: "Only training documents change the weights. At each checkpoint, freeze one parameter state and evaluate both training and validation targets without an update. Each table follows one initialization seed through every declared checkpoint. In all three runs, training NLL falls while validation NLL rises from update 20 to 40 and from 40 to 80; a lower training score has ceased to mean a lower score on these validation documents.",
+  updateTitle: "Update from training documents only",
+  updateBody: "The aaab and aab targets enter gradients and AdamW. The abaa and baa validation documents enter neither optimizer updates nor bigram fitting.",
+  snapshotTitle: "Freeze one parameter state",
+  snapshotBody: "After the declared update count, retain the same learned weights for both split evaluations. Scoring performs no optimizer step.",
+  scoreTitle: "Score both splits with the same frozen learned weights",
+  scoreBody: "Training contributes nine valid targets and validation contributes nine. Aggregate each split's token losses and target counts separately, then compute its mean NLL.",
+  observationsTitle: "All measured checkpoints for all three seeds",
+  seedLabel: "Initialization seed",
+  tableCaption: "Mean NLL in nats per valid target; nine targets per split",
+  updateHeader: "Completed updates",
+  trainHeader: "Train",
+  validationHeader: "Validation",
+  intervalsLabel: "Training NLL falls while validation NLL rises over updates:",
+  scope: "These are four constructed strings, scored with scalar CPU f64 arithmetic. Update 20 is the smallest validation NLL among the five shown checkpoints for each seed, not a proved optimum over unobserved updates. The seed spread describes this fixed split; it is not a population confidence interval.",
+};
+
+<LanguageModelEvaluationDiagram labels={languageModelEvaluationLabels} />
+
+The tables read the Rust fixture's reported observations. Each column keeps the
+same target denominator throughout its run. Compare changes between checkpoints
+within a run before using the spread across runs to describe initialization
+variation.
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="language-model-evaluation-exercises">
+
+## Reproduce the scores and inspect the saved model
+
+From the repository root, with Docker and the existing course Docker setup
+available, run the default CPU example. No GPU, external corpus or downloaded
+model is required; the four documents and fixed experiment settings are included.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch16-language-model-evaluation
+```
+
+The JSON contains `weighting`, `layout_comparison`, `baseline`, all three
+`runs`, `final_validation_seed_summary` and `saved_first_seed_model`.
+Each run contains the five checkpoints and its two observed overfitting
+intervals. The default saved-model comparison is an in-memory round trip.
+
+For a real process boundary, keep the same working directory and Docker setup
+and run this entire block as one command. Each Cargo invocation exits before
+the next program starts; one container retains their saved file.
+
+```bash
+COURSE_CORPUS=false ./course run bash -euc '
+mkdir -p tmp/ch16-evaluation
+cargo run --quiet --offline --locked -p practical-ch16-language-model-evaluation -- experiment --save-model tmp/ch16-evaluation/model.safetensors
+cargo run --quiet --offline --locked -p practical-ch16-language-model-evaluation -- evaluate --model tmp/ch16-evaluation/model.safetensors --batch-rows 1
+cargo run --quiet --offline --locked -p practical-ch16-language-model-evaluation -- evaluate --model tmp/ch16-evaluation/model.safetensors --batch-rows 2
+'
+```
+
+The producer saves seed $39$ at update $80$, not the seed with the smallest
+validation score. Both new evaluation programs restore model identity
+`f485cea6228baa825076855af99cc71bad66b462c540590a4767df9064e07e2d`.
+Their printed training NLL is $0.157051$ and validation NLL is $4.172745$;
+each split has $9$ targets and zero recorded graphs. One row per batch produces
+two batches per split; two rows produce one. The printed metrics match at six
+decimal places. That printed equality alone does not establish the unrounded
+$10^{-12}$ tolerance checked by the Rust layout tests. Separate `./course run`
+invocations would use disposable containers and would not retain this file.
+
+With the same repository-root working directory and Docker setup, run the demo
+library tests:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch16-language-model-evaluation
+```
+
+The library result is ten passed tests. They cover target weighting, layout
+agreement, preserved nonzero gradients and explicit evaluation dropout,
+split/binding refusals, the training-only baseline and the saved composition.
+
+### Optional inspection and explanation practice
+
+<ol id="language-model-evaluation-practice">
+  <li id="language-model-evaluation-practice-1">Use <code>weighting</code> from the default command above to reproduce the six-target mean and perplexity from the two constructed probability lists. Explain why the unweighted batch mean is different.</li>
+  <li id="language-model-evaluation-practice-2">Inspect every seed's checkpoints in the default output or figure. Identify the measured intervals with falling training NLL and rising validation NLL, and explain the limit of calling update $20$ the best checkpoint.</li>
+  <li id="language-model-evaluation-practice-3">Compare the frozen bigram's validation score with seed $39$ at updates $20$ and $80$. Then inspect all three final validation NLLs and their summary. Explain what those two comparisons establish.</li>
+  <li id="language-model-evaluation-practice-4">Use <code>layout_comparison</code> from the default command and run the ten-test command above. Explain the target counts, batch counts, two-row packed storage and distinction between no-grad recording and evaluation dropout.</li>
+  <li id="language-model-evaluation-practice-5">Run the complete single-container save/evaluate command above. Compare model identity, target counts, printed scores and batch counts in the two new evaluation records.</li>
+</ol>
+
+<details id="language-model-evaluation-answers">
+<summary id="language-model-evaluation-answers-summary">Checked answers: target weighting, overfitting, baseline, seed variation and saved-model evaluation</summary>
+
+<ol id="language-model-evaluation-answers-list">
+  <li id="language-model-evaluation-answer-1">The two lists contribute $3\ln2$ and $5\ln2$ nats over $2$ and $4$ targets. Divide $8\ln2$ by $6$ to obtain $0.924196$ nats per target, then exponentiate to obtain perplexity $2.519842$. Equal weighting of the two batch means produces $0.953077$ and gives each short-batch target too much weight. Averaging batch perplexities produces $2.603421$ and is also incorrect for the combined targets.</li>
+  <li id="language-model-evaluation-answer-2">For all three seeds, training NLL falls while validation NLL rises over $20\to40$ and $40\to80$. Update $20$ is the smallest validation NLL among the five measured checkpoints for each seed; unobserved intermediate updates prevent a claim of a global optimum. A train/validation gap alone would not establish these changes over time.</li>
+  <li id="language-model-evaluation-answer-3">The baseline scores the same $9$ validation targets with NLL $5.044970$. Seed $39$ is lower at both update $20$ ($1.267297$) and update $80$ ($4.172745$), yet its validation score deteriorates between those neural checkpoints. Final validation NLLs across seeds are $4.172745$, $4.328176$ and $2.545169$: mean $3.682030$, sample standard deviation $0.987613$, range $2.545169$–$4.328176$ nats per target. These describe three initializations on one constructed split; they establish neither a population confidence interval nor broad language quality.</li>
+  <li id="language-model-evaluation-answer-4">Separate, padded and packed storage each score $9$ targets in $2$, $1$ and $1$ batches. The packed batch still needs two rows because $5+4$ targets exceed capacity $8$. Displayed initial validation means are $5.615827$; the maximum unrounded difference is $1.7763568394002505\times10^{-15}$, below $10^{-12}$. No-grad prevents graph recording; the separately selected non-dropout evaluation path prevents mask draws. Tests preserve existing nonzero gradients and compare explicit <code>DropoutMode::Eval</code> without advancing its counter.</li>
+  <li id="language-model-evaluation-answer-5">Both new programs load the same saved first-seed model, use its restored tokenizer and perform no training. Each split retains $9$ targets and zero recorded graphs. Training and validation NLLs print as $0.157051$ and $4.172745$ in both records. Changing from one to two rows changes each split's batch count from $2$ to $1$. Printed equality at six decimal places is distinct from the unrounded tolerance measured by the Rust tests.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="language-model-evaluation-handoff">
+
+## Keep an evaluation reference for weight quantization
+
+The same text encoder, source-independent backbone and tied head now have shared
+valid-target evaluation across fixed, padded and packed batches. The saved model
+can be scored independently on CPU. Training-only fitting, held-out scoring and
+the complete seed record keep each comparison tied to its actual evidence.
+
+Planned Chapter 17, Weight quantization, will use evaluation as a reference when
+inspecting the numerical and held-out effects of weight rounding. It remains a
+future lesson. Physical-GPU and full-corpus results remain separate evidence;
+the four constructed strings here support only their stated bounded comparisons.
+
+</div>

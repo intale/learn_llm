@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 10,
+  "content_revision": 11,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
@@ -23,7 +23,7 @@
     "component": "PracticalLlmSystemDiagram",
     "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
   },
-  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Planned Chapters 16–32 extend evaluation, inference and adaptation."
+  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Chapter 16 adds evaluation. Planned Chapters 17–32 extend inference and adaptation."
 }
 ---
 
@@ -153,7 +153,7 @@ export const roadmap = [
       { number: 13, purpose: "Combine smaller training batches with the correct token denominator, and trade saved activations for recomputation with matching randomness." },
       { number: 14, purpose: "Choose warmup and cosine rates by successful update while inspecting existing global clipping and AdamW state." },
       { number: 15, purpose: "Save the composed model, exit and load it for local CPU inference; then restore complete-update training state under its declared compatibility conditions." },
-      { number: 16, title: "Language-model evaluation", planned: true, purpose: "Compare training and held-out loss, a simple baseline and seed variation to bound conclusions about overfitting and quality." },
+      { number: 16, purpose: "Compare training and held-out loss, a simple baseline and seed variation to bound conclusions about overfitting and quality." },
       { number: 17, title: "Weight quantization", planned: true, purpose: "Represent weights with scales and rounding, then compare storage and numerical error using a portable dequantization path." },
     ],
   },
@@ -306,7 +306,7 @@ continuation fixtures do not establish it.
 
 ## Read the complete chapter roadmap
 
-<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–15 are published. Chapters 16–32 are
+<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–16 are published. Chapters 17–32 are
 planned and appear without links. A planned lesson may extend an existing
 mechanism, such as sampling or checkpointing. Its status describes the lesson's
 availability. The <a href={localePath(practicalCourse.referenceLocale, `/${practicalCourse.route}/`)}>practical course index</a>

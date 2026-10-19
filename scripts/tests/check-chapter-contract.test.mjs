@@ -9,6 +9,7 @@ import {
   runChapterContractCheck,
   validateChapterContractIntegration,
   validateChapterContractText,
+  validateContractLesson,
 } from '../check-chapter-contract.mjs';
 import {
   isAllowedRustSourcePath,
@@ -53,6 +54,97 @@ const lesson = (course, id, value = source(course, id)) => validateChapterDocume
 const contract = (course, id, value = contractSource(course, id)) => validateChapterContractText(value, {
   course, filePath: join(root, course.contractDirectory, id + '.md'),
 });
+function entryPointFixture() {
+  const id = '16-language-model-evaluation';
+  const parsedContract = contract(practical, id);
+  return {
+    id,
+    sourceName: join(practical.contentDirectory, 'en', id + '.mdx'),
+    contract: parsedContract,
+    lesson: lesson(practical, id),
+    entryPoint: 'rust/demos/' + parsedContract.data.rust.package + '/src/main.rs',
+  };
+}
+
+test('practical entry-point source boundary: its own undisplayed binary does not require a teaching excerpt', () => {
+  const fixture = entryPointFixture();
+  assert.equal(fixture.contract.data.rust.sources.includes(fixture.entryPoint), true);
+  assert.equal(fixture.lesson.data.rust_sources.some(source => source.path === fixture.entryPoint), false);
+  assert.doesNotThrow(() => validateContractLesson(
+    fixture.contract.data, fixture.lesson, 'en', fixture.sourceName, { course: practical },
+  ));
+});
+
+test('practical entry-point source boundary: the registered contract must still contain its binary', () => {
+  const fixture = entryPointFixture();
+  fixture.contract.data.rust.sources = fixture.contract.data.rust.sources.filter(path => path !== fixture.entryPoint);
+  assert.throws(() => validateChapterContractIntegration(fixture.contract, {
+    repositoryRoot: root, course: practical,
+    localeConfiguration: { locales: ['en', 'ru'], defaultLocale: 'en' },
+  }), /rust\.sources must include .*\/src\/main\.rs/);
+});
+
+test('practical entry-point source boundary: omitted or mismatched mathematical sources remain errors', () => {
+  for (const replacement of [null, 'rust/crates/llm-from-scratch-practical/src/evaluation.rs']) {
+    const fixture = entryPointFixture();
+    const path = 'rust/crates/llm-from-scratch-practical/src/metrics.rs';
+    assert.equal(fixture.lesson.data.rust_sources.some(source => source.path === path), true);
+    fixture.lesson.data.rust_sources = replacement
+      ? fixture.lesson.data.rust_sources.map(source => source.path === path ? { ...source, path: replacement } : source)
+      : fixture.lesson.data.rust_sources.filter(source => source.path !== path);
+    assert.throws(() => validateContractLesson(
+      fixture.contract.data, fixture.lesson, 'en', fixture.sourceName, { course: practical },
+    ), /Rust source set/);
+  }
+});
+
+test('practical entry-point source boundary: undeclared displayed sources and another package binary remain errors', () => {
+  for (const path of [
+    'rust/crates/llm-from-scratch-practical/src/evaluation.rs',
+    'rust/demos/practical-ch15-save-load-resume-model/src/main.rs',
+  ]) {
+    const fixture = entryPointFixture();
+    fixture.lesson.data.rust_sources.push({ path, purpose: 'An additional source fixture.' });
+    assert.throws(() => validateContractLesson(
+      fixture.contract.data, fixture.lesson, 'en', fixture.sourceName, { course: practical },
+    ), /Rust source set/);
+  }
+});
+
+test('practical entry-point source boundary: a displayed binary retains declaration and rendering parity', () => {
+  const fixture = entryPointFixture();
+  fixture.lesson.data.rust_sources.push({ path: fixture.entryPoint, purpose: 'The existing CLI entry point.' });
+  assert.doesNotThrow(() => validateContractLesson(
+    fixture.contract.data, fixture.lesson, 'en', fixture.sourceName, { course: practical },
+  ));
+  assert.throws(() => lesson(practical, fixture.id, rebuild(fixture.lesson)), /declared Rust source evidence is not rendered/);
+  fixture.lesson.body += '\n<RustSource path="' + fixture.entryPoint + '" caption="The existing CLI entry point." label="Rust CLI entry point" />\n';
+  assert.doesNotThrow(() => lesson(practical, fixture.id, rebuild(fixture.lesson)));
+  fixture.contract.data.rust.sources = fixture.contract.data.rust.sources.filter(path => path !== fixture.entryPoint);
+  assert.throws(() => validateContractLesson(
+    fixture.contract.data, fixture.lesson, 'en', fixture.sourceName, { course: practical },
+  ), /Rust source set/);
+});
+
+test('practical entry-point source boundary: default and explicit first-course comparisons remain exact', () => {
+  const fixture = entryPointFixture();
+  assert.throws(() => validateContractLesson(fixture.contract.data, fixture.lesson, 'en'), /Rust source set/);
+  assert.throws(() => validateContractLesson(
+    fixture.contract.data, fixture.lesson, 'en', fixture.sourceName, { course: first },
+  ), /Rust source set/);
+  const firstContract = contract(first, '01-text-units');
+  const firstLesson = lesson(first, '01-text-units');
+  const firstSourceName = join(first.contentDirectory, 'en', '01-text-units.mdx');
+  assert.doesNotThrow(() => validateContractLesson(firstContract.data, firstLesson, 'en', firstSourceName));
+  const main = 'rust/demos/' + firstContract.data.rust.package + '/src/main.rs';
+  assert.equal(firstLesson.data.rust_sources.some(source => source.path === main), true);
+  firstLesson.data.rust_sources = firstLesson.data.rust_sources.filter(source => source.path !== main);
+  assert.throws(() => validateContractLesson(firstContract.data, firstLesson, 'en'), /Rust source set/);
+  assert.throws(() => validateContractLesson(
+    firstContract.data, firstLesson, 'en', 'fixture', { course: first },
+  ), /Rust source set/);
+});
+
 function temporary(t) {
   const path = mkdtempSync(join(tmpdir(), 'course-contract-'));
   t.after(() => rmSync(path, { recursive: true, force: true }));
@@ -268,7 +360,7 @@ test('default and practical contract selectors enumerate their separate current 
   assert.equal(firstResults.results.length, 40);
   assert.equal(firstResults.results.every(result => result.parsed.data.order <= 39), true);
   const practicalResults = runChapterContractCheck(['--course', practical.id, '--structure-only'], root);
-  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core', '08-dropout-semantics', '09-dependency-error-contract', '10-input-encoding-boundary', '11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model'];
+  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core', '08-dropout-semantics', '09-dependency-error-contract', '10-input-encoding-boundary', '11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation'];
   assert.deepEqual(practicalResults.results.map(result => result.parsed.data.chapter_id), currentPracticalIds);
   assert.equal(runFunctionalContractCheck(['--structure-only'], root).length, 40);
   assert.equal(runFunctionalContractCheck(['--course', practical.id, '--structure-only'], root).length, currentPracticalIds.length);

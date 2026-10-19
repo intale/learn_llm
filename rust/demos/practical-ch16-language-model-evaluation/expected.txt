@@ -1,0 +1,432 @@
+{
+  "baseline": {
+    "fitted_documents": 2,
+    "fitted_transitions": 9,
+    "kind": "training-only-add-one-bigram",
+    "train": {
+      "mean_nll_nats_per_target": 4.402665,
+      "perplexity": 81.668227,
+      "total_nll_nats": 39.623985,
+      "valid_targets": 9
+    },
+    "validation": {
+      "mean_nll_nats_per_target": 5.04497,
+      "perplexity": 155.23962,
+      "total_nll_nats": 45.404729,
+      "valid_targets": 9
+    }
+  },
+  "chapter": "16-language-model-evaluation",
+  "data_scope": "four constructed text documents; validation inspected repeatedly; no final test or natural-language quality claim",
+  "display_decimal_places": 6,
+  "execution": "scalar-cpu-f64",
+  "final_validation_seed_summary": {
+    "interpretation": "descriptive initialization variation on this fixed constructed split; no population confidence interval",
+    "maximum_nll": 4.328176,
+    "mean_nll": 3.68203,
+    "minimum_nll": 2.545169,
+    "sample_standard_deviation_nll": 0.987613,
+    "seed_count": 3
+  },
+  "layout_comparison": {
+    "batch_counts": [
+      2,
+      1,
+      1
+    ],
+    "maximum_absolute_nll_difference": 1.7763568394002505e-15,
+    "mean_nll": [
+      5.615827,
+      5.615827,
+      5.615827
+    ],
+    "recorded_graphs": [
+      0,
+      0,
+      0
+    ],
+    "valid_targets": [
+      9,
+      9,
+      9
+    ]
+  },
+  "runs": [
+    {
+      "checkpoints": [
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 5.632313,
+            "perplexity": 279.307536,
+            "total_nll_nats": 50.690821,
+            "valid_targets": 9
+          },
+          "update": 0,
+          "validation": {
+            "mean_nll_nats_per_target": 5.615827,
+            "perplexity": 274.740388,
+            "total_nll_nats": 50.542439,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 2.539183,
+            "perplexity": 12.669315,
+            "total_nll_nats": 22.852647,
+            "valid_targets": 9
+          },
+          "update": 10,
+          "validation": {
+            "mean_nll_nats_per_target": 2.642929,
+            "perplexity": 14.054304,
+            "total_nll_nats": 23.786358,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.874321,
+            "perplexity": 2.397246,
+            "total_nll_nats": 7.868885,
+            "valid_targets": 9
+          },
+          "update": 20,
+          "validation": {
+            "mean_nll_nats_per_target": 1.267297,
+            "perplexity": 3.551242,
+            "total_nll_nats": 11.405676,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.203748,
+            "perplexity": 1.225989,
+            "total_nll_nats": 1.833734,
+            "valid_targets": 9
+          },
+          "update": 40,
+          "validation": {
+            "mean_nll_nats_per_target": 2.746938,
+            "perplexity": 15.594806,
+            "total_nll_nats": 24.722441,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.157051,
+            "perplexity": 1.170056,
+            "total_nll_nats": 1.413463,
+            "valid_targets": 9
+          },
+          "update": 80,
+          "validation": {
+            "mean_nll_nats_per_target": 4.172745,
+            "perplexity": 64.893323,
+            "total_nll_nats": 37.554703,
+            "valid_targets": 9
+          }
+        }
+      ],
+      "initialization_seed": 39,
+      "overfitting_intervals": [
+        {
+          "from_update": 20,
+          "to_update": 40
+        },
+        {
+          "from_update": 40,
+          "to_update": 80
+        }
+      ]
+    },
+    {
+      "checkpoints": [
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 5.676367,
+            "perplexity": 291.887164,
+            "total_nll_nats": 51.087306,
+            "valid_targets": 9
+          },
+          "update": 0,
+          "validation": {
+            "mean_nll_nats_per_target": 5.656397,
+            "perplexity": 286.11602,
+            "total_nll_nats": 50.907577,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 2.777229,
+            "perplexity": 16.074413,
+            "total_nll_nats": 24.995059,
+            "valid_targets": 9
+          },
+          "update": 10,
+          "validation": {
+            "mean_nll_nats_per_target": 2.907706,
+            "perplexity": 18.314728,
+            "total_nll_nats": 26.16935,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.783685,
+            "perplexity": 2.189526,
+            "total_nll_nats": 7.053166,
+            "valid_targets": 9
+          },
+          "update": 20,
+          "validation": {
+            "mean_nll_nats_per_target": 1.157378,
+            "perplexity": 3.18158,
+            "total_nll_nats": 10.416402,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.178195,
+            "perplexity": 1.195058,
+            "total_nll_nats": 1.603754,
+            "valid_targets": 9
+          },
+          "update": 40,
+          "validation": {
+            "mean_nll_nats_per_target": 2.615175,
+            "perplexity": 13.669605,
+            "total_nll_nats": 23.536573,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.156296,
+            "perplexity": 1.169172,
+            "total_nll_nats": 1.406666,
+            "valid_targets": 9
+          },
+          "update": 80,
+          "validation": {
+            "mean_nll_nats_per_target": 4.328176,
+            "perplexity": 75.805902,
+            "total_nll_nats": 38.953585,
+            "valid_targets": 9
+          }
+        }
+      ],
+      "initialization_seed": 40,
+      "overfitting_intervals": [
+        {
+          "from_update": 20,
+          "to_update": 40
+        },
+        {
+          "from_update": 40,
+          "to_update": 80
+        }
+      ]
+    },
+    {
+      "checkpoints": [
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 5.637867,
+            "perplexity": 280.862985,
+            "total_nll_nats": 50.740803,
+            "valid_targets": 9
+          },
+          "update": 0,
+          "validation": {
+            "mean_nll_nats_per_target": 5.626418,
+            "perplexity": 277.665846,
+            "total_nll_nats": 50.637766,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 2.365049,
+            "perplexity": 10.644562,
+            "total_nll_nats": 21.285443,
+            "valid_targets": 9
+          },
+          "update": 10,
+          "validation": {
+            "mean_nll_nats_per_target": 2.376238,
+            "perplexity": 10.764335,
+            "total_nll_nats": 21.386145,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.968714,
+            "perplexity": 2.634554,
+            "total_nll_nats": 8.718424,
+            "valid_targets": 9
+          },
+          "update": 20,
+          "validation": {
+            "mean_nll_nats_per_target": 1.003991,
+            "perplexity": 2.729152,
+            "total_nll_nats": 9.035918,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.400165,
+            "perplexity": 1.49207,
+            "total_nll_nats": 3.601481,
+            "valid_targets": 9
+          },
+          "update": 40,
+          "validation": {
+            "mean_nll_nats_per_target": 1.655677,
+            "perplexity": 5.236623,
+            "total_nll_nats": 14.901091,
+            "valid_targets": 9
+          }
+        },
+        {
+          "recorded_graphs": 0,
+          "train": {
+            "mean_nll_nats_per_target": 0.165934,
+            "perplexity": 1.180496,
+            "total_nll_nats": 1.493409,
+            "valid_targets": 9
+          },
+          "update": 80,
+          "validation": {
+            "mean_nll_nats_per_target": 2.545169,
+            "perplexity": 12.745386,
+            "total_nll_nats": 22.906524,
+            "valid_targets": 9
+          }
+        }
+      ],
+      "initialization_seed": 41,
+      "overfitting_intervals": [
+        {
+          "from_update": 20,
+          "to_update": 40
+        },
+        {
+          "from_update": 40,
+          "to_update": 80
+        }
+      ]
+    }
+  ],
+  "saved_first_seed_model": {
+    "model_sha256": "f485cea6228baa825076855af99cc71bad66b462c540590a4767df9064e07e2d",
+    "reloaded_scores": {
+      "train": {
+        "batches": 2,
+        "metrics": {
+          "mean_nll_nats_per_target": 0.157051,
+          "perplexity": 1.170056,
+          "total_nll_nats": 1.413463,
+          "valid_targets": 9
+        },
+        "recorded_graphs": 0
+      },
+      "validation": {
+        "batches": 2,
+        "metrics": {
+          "mean_nll_nats_per_target": 4.172745,
+          "perplexity": 64.893323,
+          "total_nll_nats": 37.554703,
+          "valid_targets": 9
+        },
+        "recorded_graphs": 0
+      }
+    },
+    "seed": 39,
+    "update": 80
+  },
+  "training_documents": [
+    {
+      "id": "train-a",
+      "tokens": [
+        0,
+        99,
+        99,
+        99,
+        100,
+        1
+      ]
+    },
+    {
+      "id": "train-b",
+      "tokens": [
+        0,
+        99,
+        99,
+        100,
+        1
+      ]
+    }
+  ],
+  "validation_documents": [
+    {
+      "id": "validation-a",
+      "tokens": [
+        0,
+        99,
+        100,
+        99,
+        99,
+        1
+      ]
+    },
+    {
+      "id": "validation-b",
+      "tokens": [
+        0,
+        100,
+        99,
+        99,
+        1
+      ]
+    }
+  ],
+  "weighting": {
+    "batch_mean_nll": [
+      1.039721,
+      0.866434
+    ],
+    "batch_targets": [
+      2,
+      4
+    ],
+    "correct": {
+      "mean_nll_nats_per_target": 0.924196,
+      "perplexity": 2.519842,
+      "total_nll_nats": 5.545177,
+      "valid_targets": 6
+    },
+    "incorrect_mean_perplexity": 2.603421,
+    "incorrect_unweighted_mean_nll": 0.953077
+  }
+}

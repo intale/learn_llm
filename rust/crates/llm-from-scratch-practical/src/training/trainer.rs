@@ -7,6 +7,7 @@ use crate::autograd::tensor_core::{
     AutogradContext, GraphRetention, TensorAutodiffError, TensorValue,
 };
 use crate::corpus::Partition;
+use crate::metrics::{MetricError, MetricSummary};
 use crate::models::decoder::PaddedDecoderError;
 use crate::models::decoder::{
     DecoderModel, DecoderModelConfig, DecoderModelError, DecoderParameterSource,
@@ -296,6 +297,7 @@ impl fmt::Display for TrainerEpochRole {
 /// A rejected configuration, partition, numerical value, or cumulative API call.
 #[derive(Clone, Debug, PartialEq)]
 pub enum TrainerError {
+    Metric(MetricError),
     InvalidAccumulation {
         reason: &'static str,
     },
@@ -534,6 +536,7 @@ impl fmt::Display for TrainerError {
                 formatter,
                 "scaled update requires cleared gradients; parameter {name:?} has a nonzero gradient"
             ),
+            Self::Metric(error) => error.fmt(formatter),
             Self::Model(error) => error.fmt(formatter),
             Self::Optimizer(error) => error.fmt(formatter),
             Self::Autodiff(error) => error.fmt(formatter),
@@ -546,6 +549,7 @@ impl fmt::Display for TrainerError {
 impl Error for TrainerError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
+            Self::Metric(error) => Some(error),
             Self::Model(error) => Some(error),
             Self::Optimizer(error) => Some(error),
             Self::Autodiff(error) => Some(error),
@@ -559,6 +563,12 @@ impl Error for TrainerError {
 impl From<DecoderModelError> for TrainerError {
     fn from(error: DecoderModelError) -> Self {
         Self::Model(error)
+    }
+}
+
+impl From<MetricError> for TrainerError {
+    fn from(error: MetricError) -> Self {
+        Self::Metric(error)
     }
 }
 
@@ -805,19 +815,22 @@ impl DecoderModelState {
 /// One graph-free token-weighted mean over a materialized epoch.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Evaluation {
-    mean_loss: f64,
-    token_count: usize,
+    metrics: MetricSummary,
     batch_count: usize,
     recorded_graphs: usize,
 }
 
 impl Evaluation {
     pub const fn mean_loss(self) -> f64 {
-        self.mean_loss
+        self.metrics.mean_nll()
     }
 
     pub const fn token_count(self) -> usize {
-        self.token_count
+        self.metrics.target_count()
+    }
+
+    pub const fn metrics(self) -> MetricSummary {
+        self.metrics
     }
 
     pub const fn batch_count(self) -> usize {
@@ -1023,44 +1036,79 @@ pub fn evaluate_no_grad(
             },
         });
     }
+    evaluate_loss_batches_no_grad(
+        model,
+        epoch.partition(),
+        epoch.batches(),
+        |context, batch| {
+            Ok((
+                model.loss_with_context(
+                    context,
+                    batch.inputs(),
+                    &[batch.batch_width(), batch.context_length()],
+                    batch.targets(),
+                )?,
+                batch.token_count(),
+            ))
+        },
+    )
+}
+// endregion:no-grad-evaluation
+
+// region:shared-evaluation-reduction
+/// One graph-free reduction for fixed, padded and packed prediction storage.
+pub(crate) fn evaluate_loss_batches_no_grad<I, F>(
+    model: &DecoderModel,
+    partition: Partition,
+    batches: I,
+    mut compute_loss: F,
+) -> Result<Evaluation, TrainerError>
+where
+    I: IntoIterator,
+    F: FnMut(AutogradContext, I::Item) -> Result<(TensorValue, usize), TrainerError>,
+{
     let before = gradient_bits(model)?;
-    let mut weighted_sum = 0.0;
-    let mut token_count = 0_usize;
-    let mut recorded_graphs = 0_usize;
+    let mut metrics: Option<MetricSummary> = None;
+    let mut batch_count = 0;
     let context = AutogradContext::no_grad();
-    for (batch_index, batch) in epoch.batches().iter().enumerate() {
-        let loss = model.loss_with_context(
-            context,
-            batch.inputs(),
-            &[batch.batch_width(), batch.context_length()],
-            batch.targets(),
-        )?;
+    for (batch_index, batch) in batches.into_iter().enumerate() {
+        let (loss, count) = compute_loss(context, batch)?;
         if loss.tracks_gradient() {
             return Err(TrainerError::ValidationRecordedGraph {
-                partition: epoch.partition(),
+                partition,
                 batch: batch_index,
             });
         }
-        recorded_graphs += usize::from(loss.tracks_gradient());
         let scalar = scalar_loss(&loss)?;
-        weighted_sum += scalar * batch.token_count() as f64;
-        token_count += batch.token_count();
+        let next = MetricSummary::from_total_nll(scalar * count as f64, count)?;
+        metrics = Some(match metrics {
+            None => next,
+            Some(total) => total.merge(next)?,
+        });
+        batch_count += 1;
     }
-    let mean_loss = weighted_sum / token_count as f64;
-    if !mean_loss.is_finite() {
-        return Err(TrainerError::NonFiniteLoss { value: mean_loss });
+    let metrics = metrics.ok_or(TrainerError::EmptyEpoch {
+        role: if partition == Partition::Validation {
+            TrainerEpochRole::ValidationSelection
+        } else {
+            TrainerEpochRole::TrainEvaluation
+        },
+    })?;
+    if !metrics.mean_nll().is_finite() {
+        return Err(TrainerError::NonFiniteLoss {
+            value: metrics.mean_nll(),
+        });
     }
     if gradient_bits(model)? != before {
         return Err(TrainerError::ValidationChangedGradient);
     }
     Ok(Evaluation {
-        mean_loss,
-        token_count,
-        batch_count: epoch.batch_count(),
-        recorded_graphs,
+        metrics,
+        batch_count,
+        recorded_graphs: 0,
     })
 }
-// endregion:no-grad-evaluation
+// endregion:shared-evaluation-reduction
 
 fn validate_epoch(
     role: TrainerEpochRole,
@@ -1880,6 +1928,72 @@ mod tests {
 
         let tracked = model.loss(&[0, 1], &[1, 2], &[1, 2]).unwrap();
         assert!(tracked.tracks_gradient());
+    }
+
+    #[test]
+    fn shared_evaluation_rejects_recorded_graphs_before_scoring() {
+        let model = model();
+        let before = gradient_bits(&model).unwrap();
+        let result = evaluate_loss_batches_no_grad(&model, Partition::Validation, [()], |_, ()| {
+            Ok((model.loss(&[0, 1], &[1, 2], &[1, 2])?, 2))
+        });
+        assert!(matches!(
+            result,
+            Err(TrainerError::ValidationRecordedGraph { batch: 0, .. })
+        ));
+        assert_eq!(before, gradient_bits(&model).unwrap());
+    }
+
+    #[test]
+    fn shared_evaluation_rejects_nonfinite_loss_without_touching_gradients() {
+        let model = model();
+        let before = gradient_bits(&model).unwrap();
+        for value in [f64::NAN, f64::INFINITY] {
+            let result =
+                evaluate_loss_batches_no_grad(&model, Partition::Validation, [value], |_, n| {
+                    Ok((
+                        TensorValue::constant(Tensor::from_vec(vec![], vec![n])?)?,
+                        1,
+                    ))
+                });
+            assert!(matches!(
+                result,
+                Err(TrainerError::Autodiff(
+                    TensorAutodiffError::NonFiniteLeaf { .. }
+                ))
+            ));
+            assert_eq!(before, gradient_bits(&model).unwrap());
+        }
+        // A finite scalar can still overflow when converted to its token sum.
+        let result =
+            evaluate_loss_batches_no_grad(&model, Partition::Validation, [f64::MAX], |_, n| {
+                Ok((
+                    TensorValue::constant(Tensor::from_vec(vec![], vec![n])?)?,
+                    2,
+                ))
+            });
+        assert!(matches!(result, Err(TrainerError::NonFiniteLoss { .. })));
+        assert_eq!(before, gradient_bits(&model).unwrap());
+    }
+
+    #[test]
+    fn shared_evaluation_rejects_valid_target_count_overflow() {
+        let model = model();
+        let result = evaluate_loss_batches_no_grad(
+            &model,
+            Partition::Validation,
+            [usize::MAX, 1],
+            |_, n| {
+                Ok((
+                    TensorValue::constant(Tensor::from_vec(vec![], vec![1.0])?)?,
+                    n,
+                ))
+            },
+        );
+        assert!(matches!(
+            result,
+            Err(TrainerError::Metric(MetricError::TargetCountOverflow))
+        ));
     }
 
     #[test]

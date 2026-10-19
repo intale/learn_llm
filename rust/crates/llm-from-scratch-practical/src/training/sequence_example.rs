@@ -39,12 +39,25 @@ impl BatchBinding {
         split_receipt_sha256: ArtifactDigest,
     ) -> Result<Self, VariableBatchError> {
         let tokenizer = artifact.validate(limits)?;
+        let tokenizer_sha256 = sha256(&artifact.canonical_bytes(limits)?);
+        Self::from_tokenizer(tokenizer, limits, tokenizer_sha256, split_receipt_sha256)
+    }
+
+    /// Bind an already constructed inference tokenizer without its training metadata.
+    /// The caller identifies the actual saved tokenizer assets; the digest is a
+    /// consistency label, not a certificate of tokenizer or split lineage.
+    pub fn from_tokenizer(
+        tokenizer: BpeTokenizer,
+        limits: TokenizerLimits,
+        tokenizer_sha256: ArtifactDigest,
+        split_receipt_sha256: ArtifactDigest,
+    ) -> Result<Self, VariableBatchError> {
+        limits.validate()?;
         if tokenizer.layout().vocabulary_size() > i32::MAX as usize + 1 {
             return Err(VariableBatchError::Invalid(
                 "token IDs must fit the signed batch namespace",
             ));
         }
-        let tokenizer_sha256 = sha256(&artifact.canonical_bytes(limits)?);
         let binding = Self {
             tokenizer_sha256,
             split_receipt_sha256,

@@ -15,7 +15,7 @@ const deploymentBase=normalizeSiteBase(process.env.SITE_BASE??'/');
 const deploymentPath=(path:string)=>sitePathForBase(path,deploymentBase);
 const practicalCourseRoute='/en/practical-llm-in-rust/';
 const prefix=deploymentPath(practicalCourseRoute);
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -33,12 +33,13 @@ const acceleratedTensor=JSON.parse(readFileSync(new URL('../../../rust/demos/pra
 const mixedPrecision=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch12-mixed-precision-training/expected.txt',import.meta.url),'utf8'));
 const trainingMemory=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch13-gradient-accumulation-recomputation/expected.txt',import.meta.url),'utf8'));
 const optimizerSchedule=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch14-optimizer-schedules-clipping/expected.txt',import.meta.url),'utf8'));
+const languageModelEvaluation=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch16-language-model-evaluation/expected.txt',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
+  boxCount:document.id===ids[16]?6:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -133,7 +134,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="'+deploymentPath('/en/course/40-')+'"]')).toHaveCount(0);
  await page.goto(deploymentPath('/en/course/39-end-to-end-llm/'));await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -177,8 +178,8 @@ test('Practical orientation @chapter:practical-00-course-structure has the compl
    await expect(row).toHaveAttribute('data-course-chapter-status','planned');await expect(row.locator('em')).toHaveText('Planned.');await expect(row.locator('a,[role="link"]')).toHaveCount(0);
   }
  }
- await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(15);
- await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(17);
+ await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(16);
+ await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(16);
  await expectOnlySharedDiagramClientScript(page);await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
  await expect(page.locator('head link[hreflang="ru"]')).toHaveCount(0);
  await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href',deploymentPath('/ru/'));
@@ -235,7 +236,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':lesson.id===ids[16]?' @chapter:16-language-model-evaluation':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
@@ -548,6 +549,35 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    await testInfo.attach('programmatic-model-persistence-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,expectedSource:'Chapter 15 Rust demo expected.txt; selected fixture values are safe integers or represented f64 observations',expected:{savedUpdates:2,parameterTensors:29,parameterScalars:1572,promptIds:[0,99,100],generatedIds:[108,108,55],generatedBytes:[106,106,53],resumeSteps:[3,4],resumeFinalStep:4,warmSteps:[1,2],warmFinalStep:2,additionalUpdatesPerPath:2},cards:await figure.locator('article[data-persistence-role]').evaluateAll(nodes=>nodes.map(node=>({id:node.id,text:node.textContent,attributes:Object.fromEntries([...node.attributes].map(attr=>[attr.name,attr.value]))}))),alias:await alias.evaluate(node=>({id:node.id,text:node.textContent,outerHTML:node.outerHTML})),description,scope,ariaDescribedby:await figure.getAttribute('aria-describedby'),figure:await figure.ariaSnapshot(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
   }
 
+  else if(lesson.id===ids[16]){
+   await expect(figure).toHaveAttribute('id','language-model-evaluation-figure');
+   await expect(figure).toHaveAttribute('aria-labelledby','language-model-evaluation-figure-title');
+   await expect(figure).toHaveAttribute('aria-describedby','language-model-evaluation-figure-description language-model-evaluation-figure-scope');
+   await expect(figure.locator('[data-diagram-box]')).toHaveCount(6);
+   const roles=['training-only-update','frozen-weights','two-split-evaluation'];
+   expect(await figure.locator('[data-evaluation-role]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-evaluation-role')))).toEqual(roles);
+   const associations=[];
+   await expect(figure.locator('[data-evaluation-seed]')).toHaveCount(languageModelEvaluation.runs.length);
+   await expect(figure.locator('[data-evaluation-update]')).toHaveCount(15);
+   for(const run of languageModelEvaluation.runs){
+    const card=figure.locator('[data-evaluation-seed="'+run.initialization_seed+'"]');
+    await expect(card).toHaveCount(1);await expect(card).toHaveAccessibleName('Initialization seed '+run.initialization_seed);
+    await expect(card.locator('h5 annotation[encoding="application/x-tex"]')).toHaveText(String(run.initialization_seed));
+    const rows=card.locator('tbody tr');await expect(rows).toHaveCount(run.checkpoints.length);
+    for(const[index,point]of run.checkpoints.entries()){
+     const row=rows.nth(index),values=[String(point.update),point.train.mean_nll_nats_per_target.toFixed(6),point.validation.mean_nll_nats_per_target.toFixed(6)];
+     await expect(row).toHaveAttribute('data-evaluation-update',String(point.update));
+     await expect(row).toHaveAttribute('data-train-nll',String(point.train.mean_nll_nats_per_target));
+     await expect(row).toHaveAttribute('data-validation-nll',String(point.validation.mean_nll_nats_per_target));
+     await expect(row.locator('annotation[encoding="application/x-tex"]')).toHaveText(values);
+     associations.push({seed:run.initialization_seed,update:point.update,trainTargets:point.train.valid_targets,validationTargets:point.validation.valid_targets,displayedMath:await row.locator('annotation[encoding="application/x-tex"]').allTextContents()});
+    }
+   }
+   const description=await figure.locator('#language-model-evaluation-figure-description').innerText(),scope=await figure.locator('#language-model-evaluation-figure-scope').innerText();
+   await expect(figure).toHaveAccessibleName(await figure.locator('#language-model-evaluation-figure-title').innerText());
+   await expect(figure).toHaveAccessibleDescription((description+' '+scope).replace(/\s+/g,' ').trim());
+   await testInfo.attach('programmatic-language-model-evaluation-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,expectedSource:'Actual Chapter16 default Rust stdout; observations displayed at six decimal places',roles,associations,description,scope,ariaDescribedby:await figure.getAttribute('aria-describedby'),figure:await figure.ariaSnapshot(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
+  }
 
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
@@ -635,6 +665,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    }
    if(lesson.id===ids[10])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'input-encoding-term-'+(index+1)));
    if(lesson.id===ids[11])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'accelerated-tensor-term-'+(index+1)));
+   if(lesson.id===ids[16])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'language-model-evaluation-term-'+(index+1)));
    expect(geometry.errors).toEqual([]);expect(geometry.reachedEnd).toBe(true);
    await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await page.keyboard.press('Enter');await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expectNoPageOverflow(page);
   });

@@ -1,0 +1,116 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch16-language-model-evaluation/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string; updateTitle: string; updateBody: string;
+  snapshotTitle: string; snapshotBody: string; scoreTitle: string; scoreBody: string;
+  observationsTitle: string; seedLabel: string; tableCaption: string;
+  updateHeader: string; trainHeader: string; validationHeader: string;
+  intervalsLabel: string; scope: string;
+}
+interface Metric { mean_nll_nats_per_target: number; valid_targets: number }
+interface Checkpoint { update: number; train: Metric; validation: Metric }
+interface Run {
+  initialization_seed: number; checkpoints: Checkpoint[];
+  overfitting_intervals: { from_update: number; to_update: number }[];
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error('language-model-evaluation-copy');
+}
+const fixture = JSON.parse(fixtureSource);
+const runs: Run[] = fixture.runs;
+const seeds = [39, 40, 41];
+const checkpoints = [0, 10, 20, 40, 80];
+if (fixture.chapter !== '16-language-model-evaluation' || !Array.isArray(runs) || runs.length !== 3 ||
+    runs.some((run, index) => run.initialization_seed !== seeds[index] ||
+      !Array.isArray(run.checkpoints) || run.checkpoints.length !== checkpoints.length ||
+      run.checkpoints.some((point, ordinal) => point.update !== checkpoints[ordinal] ||
+        point.train.valid_targets !== 9 || point.validation.valid_targets !== 9 ||
+        !Number.isFinite(point.train.mean_nll_nats_per_target) ||
+        !Number.isFinite(point.validation.mean_nll_nats_per_target)))) {
+  throw new Error('language-model-evaluation-fixture');
+}
+const metric = (value: number) => value.toFixed(6);
+---
+
+<figure id="language-model-evaluation-figure" class="course-diagram language-model-evaluation-diagram"
+  data-diagram-style="course-v1" data-visualization-id="language-model-evaluation" tabindex="0"
+  aria-labelledby="language-model-evaluation-figure-title"
+  aria-describedby="language-model-evaluation-figure-description language-model-evaluation-figure-scope">
+  <figcaption id="language-model-evaluation-figure-caption" class="course-diagram__caption">
+    <h3 id="language-model-evaluation-figure-title">{labels.title}</h3>
+    <p id="language-model-evaluation-figure-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <div class="course-diagram__grid evaluation-flow">
+    <article id="language-model-evaluation-training" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-evaluation-role="training-only-update">
+      <h4 id="language-model-evaluation-training-title">{labels.updateTitle}</h4>
+      <p>{labels.updateBody}</p>
+    </article>
+    <article id="language-model-evaluation-snapshot" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-evaluation-role="frozen-weights">
+      <h4 id="language-model-evaluation-snapshot-title">{labels.snapshotTitle}</h4>
+      <p>{labels.snapshotBody}</p>
+    </article>
+    <article id="language-model-evaluation-scoring" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-evaluation-role="two-split-evaluation">
+      <h4 id="language-model-evaluation-scoring-title">{labels.scoreTitle}</h4>
+      <p>{labels.scoreBody}</p>
+    </article>
+  </div>
+
+  <section id="language-model-evaluation-observations" aria-labelledby="language-model-evaluation-observations-title">
+    <h4 id="language-model-evaluation-observations-title">{labels.observationsTitle}</h4>
+    <div class="course-diagram__grid evaluation-seeds">
+      {runs.map((run) => (
+        <article id={`language-model-evaluation-seed-${run.initialization_seed}`}
+          class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          data-evaluation-seed={run.initialization_seed}
+          aria-labelledby={`language-model-evaluation-seed-${run.initialization_seed}-title`}>
+          <h5 id={`language-model-evaluation-seed-${run.initialization_seed}-title`}>
+            {labels.seedLabel} <InlineMath latex={String(run.initialization_seed)} />
+          </h5>
+          <table data-diagram-table>
+            <caption id={`language-model-evaluation-seed-${run.initialization_seed}-caption`}>{labels.tableCaption}</caption>
+            <thead>
+              <tr><th scope="col">{labels.updateHeader}</th><th scope="col">{labels.trainHeader}</th><th scope="col">{labels.validationHeader}</th></tr>
+            </thead>
+            <tbody>
+              {run.checkpoints.map((point) => (
+                <tr data-evaluation-update={point.update}
+                  data-train-nll={point.train.mean_nll_nats_per_target}
+                  data-validation-nll={point.validation.mean_nll_nats_per_target}>
+                  <th scope="row"><InlineMath latex={String(point.update)} /></th>
+                  <td><InlineMath latex={metric(point.train.mean_nll_nats_per_target)} /></td>
+                  <td><InlineMath latex={metric(point.validation.mean_nll_nats_per_target)} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p id={`language-model-evaluation-seed-${run.initialization_seed}-intervals`}>
+            {labels.intervalsLabel}{' '}
+            <InlineMath latex={run.overfitting_intervals.map((interval) => `${interval.from_update}\\to${interval.to_update}`).join(',\\;')} />
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <p id="language-model-evaluation-figure-scope" class="course-diagram__description">{labels.scope}</p>
+</figure>
+
+<style>
+  .evaluation-flow, .evaluation-seeds { grid-template-columns: minmax(0, 1fr); }
+  .evaluation-seeds table { inline-size: 100%; --diagram-cell-padding-inline: 0.2rem; }
+  @container course-diagram (min-width: 40rem) {
+    .evaluation-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .evaluation-seeds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container course-diagram (min-width: 58rem) {
+    .evaluation-seeds { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

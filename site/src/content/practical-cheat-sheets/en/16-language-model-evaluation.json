@@ -1,0 +1,40 @@
+{
+  "chapter_id": "16-language-model-evaluation",
+  "locale": "en",
+  "title": "Language-model loss and comparison",
+  "description": "Keep target accounting, held-out evidence and initialization variation distinct when comparing the same text model.",
+  "terms": [
+    {
+      "term": "Valid next-token target",
+      "definition": "An observed token selected by the loss mask. This fixture scores content and end-of-sequence targets, excludes padding, and uses beginning-of-sequence only as context."
+    },
+    {
+      "term": "Negative log-likelihood",
+      "definition": "The negative natural logarithm of the probability assigned to an observed target. Add target losses before dividing by their total count; the resulting mean is measured in nats per target."
+    },
+    {
+      "term": "Perplexity",
+      "definition": "The exponential of mean negative log-likelihood, computed after target-weighted aggregation. Lower values mean higher likelihood for the selected targets under a comparable scoring setup; they do not identify every learned linguistic property."
+    },
+    {
+      "term": "Training loss",
+      "definition": "Loss measured on the documents used for optimizer updates. Its decline shows a better fit to those selected targets, which can occur while validation loss worsens."
+    },
+    {
+      "term": "Held-out validation loss",
+      "definition": "Loss measured on documents excluded from optimizer updates and baseline fitting. This chapter inspects the same validation split repeatedly, so it is not an untouched final test."
+    },
+    {
+      "term": "Observed overfitting",
+      "definition": "In this bounded experiment, training loss decreases while validation loss increases between evaluated checkpoints. A gap between the two losses alone does not establish that time-dependent pattern."
+    },
+    {
+      "term": "Smoothed bigram baseline",
+      "definition": "The existing count model assigns a next-token probability using only the previous token and add-one smoothing. It is fitted only to training documents and scores the same target occurrences as the neural model."
+    },
+    {
+      "term": "Initialization variation",
+      "definition": "Differences across the three fixed model-initialization seeds while the split and training policy remain fixed. Their mean, sample standard deviation and observed range are descriptive; they are not a population confidence interval."
+    }
+  ]
+}
