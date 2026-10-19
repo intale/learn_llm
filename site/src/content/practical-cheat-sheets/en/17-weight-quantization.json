@@ -1,0 +1,44 @@
+{
+  "chapter_id": "17-weight-quantization",
+  "locale": "en",
+  "title": "Weight codes, scales and reconstruction",
+  "description": "Distinguish grouped weight storage, reconstruction error and the model behavior measured after loading.",
+  "terms": [
+    {
+      "term": "Weight quantization",
+      "definition": "Represent learned weights with integer codes and scales. This chapter saves four-bit codes and reconstructs f64 weights before using the existing model; quantization performs no retraining."
+    },
+    {
+      "term": "Row group",
+      "definition": "Consecutive weights within one matrix row that share a scale. The chosen group size is a maximum count; a shorter final group keeps its own scale, and groups never cross rows."
+    },
+    {
+      "term": "Absolute-maximum scale",
+      "definition": "The largest absolute weight in a group divided by seven in this representation. An all-zero group instead uses scale one. Smaller scales give more closely spaced reconstructed levels."
+    },
+    {
+      "term": "Symmetric signed code",
+      "definition": "An integer from minus seven through seven whose reconstructed weight is the code times its group scale. Zero point is zero; the four-bit code minus eight is reserved and rejected."
+    },
+    {
+      "term": "Clipping",
+      "definition": "Restrict a rounded code to the permitted endpoints. A fixed scale can clip weights outside its range; the ideal half-scale rounding-error bound applies only without clipping."
+    },
+    {
+      "term": "Nibble packing",
+      "definition": "Store two four-bit codes in one byte, first code in the low nibble and second in the high nibble. An odd matrix weight count leaves the final high nibble zero and unused."
+    },
+    {
+      "term": "Dequantization",
+      "definition": "Reconstruct each weight by multiplying its signed code by the corresponding row-group scale. The loader returns ordinary f64 matrices and preserves the text embedding and output head's shared table."
+    },
+    {
+      "term": "Reconstruction error",
+      "definition": "The difference between a reconstructed value and its source. Maximum absolute error and mean squared error describe different aspects; a weight-error summary alone does not determine a layer's product error or a model's likelihood."
+    },
+    {
+      "term": "Saved payload",
+      "definition": "The stored tensor data, including code bytes, scales, logical shapes and unchanged tensors or assets. A complete SafeTensors file also includes header and configuration bytes, so code bytes alone do not measure file size."
+    }
+  ]
+}

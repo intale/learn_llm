@@ -1,6 +1,7 @@
 //! Versioned, self-describing decoder component checkpoints.
 
 pub mod portable;
+pub mod quantization;
 pub mod resume;
 
 use std::collections::{BTreeMap, BTreeSet};

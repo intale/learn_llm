@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "17-weight-quantization",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Store weights in four bits and measure the error",
+  "description": "Fit row-group scales, pack signed weight codes, and compare reconstructed products, saved bytes and the same text model's likelihood on CPU.",
+  "objective": "Quantize the existing learned matrices with row-local scales, then compare saved storage, reconstruction error and selected-target likelihood without retraining."
+}

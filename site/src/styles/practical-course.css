@@ -3,6 +3,21 @@ article[data-chapter-id="12-mixed-precision-training"] .lesson-body p > code,
 article[data-chapter-id="13-gradient-accumulation-recomputation"] .lesson-body p > code,
 article[data-chapter-id="14-optimizer-schedules-clipping"] .lesson-body p > code,
 article[data-chapter-id="14-optimizer-schedules-clipping"] .lesson-body li > code,
-article[data-chapter-id="16-language-model-evaluation"] .lesson-body :is(p, li, td) > code {
+article[data-chapter-id="16-language-model-evaluation"] .lesson-body :is(p, li, td) > code,
+article[data-chapter-id="17-weight-quantization"] .lesson-body :is(p, li, td) > code {
   overflow-wrap: anywhere;
+}
+
+article[data-chapter-id="17-weight-quantization"] .lesson-body table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+article[data-chapter-id="17-weight-quantization"] .lesson-body table th,
+article[data-chapter-id="17-weight-quantization"] .lesson-body table td {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--line);
+  text-align: start;
 }

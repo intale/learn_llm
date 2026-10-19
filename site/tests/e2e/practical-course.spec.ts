@@ -15,7 +15,7 @@ const deploymentBase=normalizeSiteBase(process.env.SITE_BASE??'/');
 const deploymentPath=(path:string)=>sitePathForBase(path,deploymentBase);
 const practicalCourseRoute='/en/practical-llm-in-rust/';
 const prefix=deploymentPath(practicalCourseRoute);
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation','17-weight-quantization'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -34,12 +34,13 @@ const mixedPrecision=JSON.parse(readFileSync(new URL('../../../rust/demos/practi
 const trainingMemory=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch13-gradient-accumulation-recomputation/expected.txt',import.meta.url),'utf8'));
 const optimizerSchedule=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch14-optimizer-schedules-clipping/expected.txt',import.meta.url),'utf8'));
 const languageModelEvaluation=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch16-language-model-evaluation/expected.txt',import.meta.url),'utf8'));
+const weightQuantization=JSON.parse(readFileSync(new URL('../../../rust/demos/practical-ch17-weight-quantization/expected.txt',import.meta.url),'utf8'));
 const home=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/en.json',import.meta.url),'utf8'));
 const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.json',import.meta.url),'utf8'));
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[16]?6:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
+  boxCount:document.id===ids[17]?5:document.id===ids[16]?6:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -59,7 +60,7 @@ async function auditOrdinaryLayout(container:Locator) {
  return container.evaluate(root=>{
   const errors:string[]=[],records:unknown[]=[];
   const visible=(element:HTMLElement)=>{const style=getComputedStyle(element);return element.getClientRects().length>0&&style.display!=='none'&&style.visibility!=='hidden'&&!element.closest('dialog:not([open])');};
-  for(const element of root.querySelectorAll<HTMLElement>('p,h1,h2,h3,h4,li,dt,dd,th,td,summary,small,.feature-card,a[rel="prev"],a[rel="next"]')){
+  for(const element of root.querySelectorAll<HTMLElement>('p,h1,h2,h3,h4,li,dt,dd,th,td,caption,summary,small,.feature-card,a[rel="prev"],a[rel="next"]')){
    if(!visible(element))continue;
    const style=getComputedStyle(element),box=element.getBoundingClientRect();
    if([style.overflowX,style.overflowY].some(value=>value==='hidden'||value==='clip')||style.textOverflow==='ellipsis')errors.push('concealed ordinary content');
@@ -87,7 +88,7 @@ async function auditOrdinaryLayout(container:Locator) {
   }
   for(const formula of root.querySelectorAll<HTMLElement>('.katex')){
    if(!visible(formula)||formula.closest('figure,.katex-display')||formula.parentElement?.closest('.katex'))continue;
-   const ink=formula.querySelector<HTMLElement>('.katex-html'),owner=formula.closest<HTMLElement>('p,h1,h2,h3,h4,li,dt,dd,th,td');
+   const ink=formula.querySelector<HTMLElement>('.katex-html'),owner=formula.closest<HTMLElement>('p,h1,h2,h3,h4,li,dt,dd,th,td,caption');
    if(!ink||!owner){errors.push('inline formula has no painted HTML or containing text box');continue;}
    const box=owner.getBoundingClientRect(),formulaBox=formula.getBoundingClientRect(),style=getComputedStyle(formula);
    const horizontalTravel=formula.clientWidth>0&&formula.scrollWidth>formula.clientWidth+2;
@@ -236,7 +237,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':lesson.id===ids[16]?' @chapter:16-language-model-evaluation':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':lesson.id===ids[16]?' @chapter:16-language-model-evaluation':lesson.id===ids[17]?' @chapter:17-weight-quantization':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
@@ -579,6 +580,30 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    await testInfo.attach('programmatic-language-model-evaluation-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,expectedSource:'Actual Chapter16 default Rust stdout; observations displayed at six decimal places',roles,associations,description,scope,ariaDescribedby:await figure.getAttribute('aria-describedby'),figure:await figure.ariaSnapshot(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
   }
 
+
+  else if(lesson.id===ids[17]){
+   await expect(figure).toHaveAttribute('id','weight-quantization-figure');
+   await expect(figure).toHaveAttribute('aria-labelledby','weight-quantization-figure-title');
+   await expect(figure).toHaveAttribute('aria-describedby','weight-quantization-figure-description weight-quantization-figure-scope');
+   await expect(figure.locator('[data-diagram-box]')).toHaveCount(5);
+   const roles=['source-matrix','code-and-scale-storage','dequantized-matmul','group-comparison','group-comparison'];
+   expect(await figure.locator('[data-quantization-role]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-quantization-role')))).toEqual(roles);
+   const associations=[];
+   for(const probe of weightQuantization.matrix_probes){
+    const card=figure.locator('[data-quantization-group-size="'+probe.group_size+'"]');
+    await expect(card).toHaveCount(1);
+    await expect(card).toHaveAttribute('aria-labelledby','weight-quantization-group-'+probe.group_size+'-title');
+    await expect(card.locator('code')).toHaveText(probe.packed_hex.join(' '));
+    await expect(card.locator('annotation[encoding="application/x-tex"]')).toHaveText([String(probe.group_size),String(probe.scale_bytes),probe.output_error.max_absolute_error.toFixed(12),probe.output_error.mean_squared_error.toFixed(12)]);
+    await expect(card.locator('dt')).toHaveCount(4);await expect(card.locator('dd')).toHaveCount(4);
+    associations.push({groupSize:probe.group_size,codeBytes:probe.code_bytes,scaleBytes:probe.scale_bytes,descriptionList:await card.locator('dl').ariaSnapshot(),card:await card.ariaSnapshot()});
+   }
+   const description=await figure.locator('#weight-quantization-figure-description').innerText(),scope=await figure.locator('#weight-quantization-figure-scope').innerText();
+   await expect(figure).toHaveAccessibleName(await figure.locator('#weight-quantization-figure-title').innerText());
+   await expect(figure).toHaveAccessibleDescription((description+' '+scope).replace(/\s+/g,' ').trim());
+   await testInfo.attach('programmatic-weight-quantization-associations',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,expectedSource:'Actual Chapter17 default Rust stdout; product errors displayed at twelve decimal places',roles,associations,description,scope,ariaDescribedby:await figure.getAttribute('aria-describedby'),figure:await figure.ariaSnapshot(),sourceCaptions:await page.locator('.lesson-body figure.rust-source figcaption').allTextContents()}),contentType:'application/json'});
+  }
+
  });
  for(const viewport of [{width:1280,height:900},{width:320,height:844}]){
   test(testLabel+' formula and nearest-box containment '+viewport.width,async({page},testInfo)=>{
@@ -587,6 +612,17 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    const diagram=hasFigure?await auditDiagramContainment(figure):null,geometry=hasFigure?await figureGeometry(figure):null;
    if(hasFigure)await expectStackedDiagramText(figure.locator('figcaption'),'h3','.course-diagram__description');
    const layout=await auditOrdinaryLayout(page.locator('main'));
+   if(lesson.id===ids[17]&&viewport.width===320){
+    const nativeTables=[];
+    for(const id of ['weight-quantization-probe-errors','weight-quantization-model-storage','weight-quantization-model-nll']){
+     const table=page.locator('#'+id);await expect(table).toHaveAttribute('tabindex','0');await table.focus();await expect(table).toBeFocused();
+     const before=await table.evaluate(node=>({clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,scrollLeft:node.scrollLeft,overflowX:getComputedStyle(node).overflowX,caption:node.querySelector('caption')?.id}));
+     if(before.scrollWidth>before.clientWidth+2){await page.keyboard.press('ArrowRight');await expect.poll(()=>table.evaluate(node=>node.scrollLeft)).toBeGreaterThan(before.scrollLeft);}
+     nativeTables.push({id,before,after:await table.evaluate(node=>({scrollLeft:node.scrollLeft,active:document.activeElement===node}))});
+    }
+    await testInfo.attach('programmatic-native-table-keyboard',{body:JSON.stringify({route:lesson.path,viewport,nativeTables}),contentType:'application/json'});
+   }
+
    if(viewport.width<800)await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
    await testInfo.attach('programmatic-geometry',{body:JSON.stringify({route:lesson.path,figureId:lesson.figureId,state:'inline',answerDetails:'open',viewport,geometry,diagram,layout}),contentType:'application/json'});
    await expectNoPageOverflow(page);expect(diagram?.errors??[]).toEqual([]);expect(layout.errors).toEqual([]);
@@ -666,6 +702,8 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    if(lesson.id===ids[10])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'input-encoding-term-'+(index+1)));
    if(lesson.id===ids[11])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'accelerated-tensor-term-'+(index+1)));
    if(lesson.id===ids[16])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'language-model-evaluation-term-'+(index+1)));
+   if(lesson.id===ids[17])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'weight-quantization-term-'+(index+1)));
+   if(lesson.id===ids[17])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'weight-quantization-term-'+(index+1)));
    expect(geometry.errors).toEqual([]);expect(geometry.reachedEnd).toBe(true);
    await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await page.keyboard.press('Enter');await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expectNoPageOverflow(page);
   });

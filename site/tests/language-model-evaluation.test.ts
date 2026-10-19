@@ -94,6 +94,6 @@ describe('Chapter16 executed evaluation evidence and static projections',()=>{
     expect(walk(dialogs[0]).filter(node=>node.tagName==='dd').map(text)).toEqual(terms.map(term=>term.definition));
     expect(annotations(built())).toContain(contract.formula.latex);
     expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='prev').map(node=>attribute(node,'href'))).toContain('/en/practical-llm-in-rust/15-save-load-resume-model/');
-    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next')).toHaveLength(0);
+    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/17-weight-quantization/']);
   });
 });

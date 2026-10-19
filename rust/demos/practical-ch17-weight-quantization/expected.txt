@@ -1,0 +1,263 @@
+{
+  "chapter": "17-weight-quantization",
+  "comparison_note": "Fixed Chapter 16 comparison documents; train is their split label, not the Chapter 15 parent's training corpus.",
+  "matrix_probes": [
+    {
+      "code_bytes": 4,
+      "codes": [
+        -7,
+        -4,
+        0,
+        7,
+        4,
+        7,
+        0,
+        7
+      ],
+      "decoded": [
+        -7.0,
+        -4.0,
+        0.0,
+        3.5,
+        0.1142857142857143,
+        0.2,
+        0.0,
+        7.0
+      ],
+      "decoded_output": [
+        -6.771428571428571,
+        -3.6,
+        0.0,
+        17.5
+      ],
+      "f64_weight_bytes": 64,
+      "group_size": 2,
+      "input": [
+        1.0,
+        2.0
+      ],
+      "original_output": [
+        -6.8,
+        -3.1,
+        0.6,
+        17.5
+      ],
+      "output_error": {
+        "max_absolute_error": 0.6,
+        "mean_squared_error": 0.152704081633,
+        "values": 4
+      },
+      "packed_hex": [
+        "C9",
+        "70",
+        "74",
+        "70"
+      ],
+      "scale_bytes": 32,
+      "scales": [
+        1.0,
+        0.5,
+        0.028571428571428574,
+        1.0
+      ],
+      "shape": [
+        2,
+        4
+      ],
+      "weight_error": {
+        "max_absolute_error": 0.5,
+        "mean_squared_error": 0.042525510204,
+        "values": 8
+      }
+    },
+    {
+      "code_bytes": 4,
+      "codes": [
+        -7,
+        -4,
+        0,
+        4,
+        0,
+        0,
+        0,
+        7
+      ],
+      "decoded": [
+        -7.0,
+        -4.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        0.0,
+        7.0
+      ],
+      "decoded_output": [
+        -7.0,
+        -4.0,
+        0.0,
+        18.0
+      ],
+      "f64_weight_bytes": 64,
+      "group_size": 4,
+      "input": [
+        1.0,
+        2.0
+      ],
+      "original_output": [
+        -6.8,
+        -3.1,
+        0.6,
+        17.5
+      ],
+      "output_error": {
+        "max_absolute_error": 0.9,
+        "mean_squared_error": 0.365,
+        "values": 4
+      },
+      "packed_hex": [
+        "C9",
+        "40",
+        "00",
+        "70"
+      ],
+      "scale_bytes": 16,
+      "scales": [
+        1.0,
+        1.0
+      ],
+      "shape": [
+        2,
+        4
+      ],
+      "weight_error": {
+        "max_absolute_error": 0.5,
+        "mean_squared_error": 0.08,
+        "values": 8
+      }
+    }
+  ],
+  "quantized_models": [
+    {
+      "comparison_documents": {
+        "train": {
+          "batches": 2,
+          "metrics": {
+            "mean_nll_nats_per_target": 5.442309,
+            "perplexity": 230.974776,
+            "total_nll_nats": 48.980777,
+            "valid_targets": 9
+          },
+          "recorded_graphs": 0
+        },
+        "validation": {
+          "batches": 2,
+          "metrics": {
+            "mean_nll_nats_per_target": 5.455546,
+            "perplexity": 234.052658,
+            "total_nll_nats": 49.099915,
+            "valid_targets": 9
+          },
+          "recorded_graphs": 0
+        }
+      },
+      "execution": "CPU f64 after load-time dequantization",
+      "group_size": 2,
+      "matrix_weight_error": {
+        "max_absolute_error": 0.057162531282,
+        "mean_squared_error": 0.000092861899,
+        "values": 1544
+      },
+      "model_id": "cceae534f1ae26a6971d8c5350205615003eb462c156bb2ae5efaefe86a43e26",
+      "storage": {
+        "file_bytes": 15340,
+        "logical_shape_bytes": 352,
+        "matrices": 22,
+        "matrix_values": 1544,
+        "scale_bytes": 6176,
+        "total_payload_bytes": 7604,
+        "unchanged_payload_bytes": 304,
+        "weight_bytes": 772
+      }
+    },
+    {
+      "comparison_documents": {
+        "train": {
+          "batches": 2,
+          "metrics": {
+            "mean_nll_nats_per_target": 5.451792,
+            "perplexity": 233.175595,
+            "total_nll_nats": 49.066126,
+            "valid_targets": 9
+          },
+          "recorded_graphs": 0
+        },
+        "validation": {
+          "batches": 2,
+          "metrics": {
+            "mean_nll_nats_per_target": 5.460701,
+            "perplexity": 235.262392,
+            "total_nll_nats": 49.146313,
+            "valid_targets": 9
+          },
+          "recorded_graphs": 0
+        }
+      },
+      "execution": "CPU f64 after load-time dequantization",
+      "group_size": 4,
+      "matrix_weight_error": {
+        "max_absolute_error": 0.057162531282,
+        "mean_squared_error": 0.000156773622,
+        "values": 1544
+      },
+      "model_id": "ba40116d31d1d7c25b63fc8b6dca03d0e4a510d3efdc3a29a50ec058948fa12f",
+      "storage": {
+        "file_bytes": 12236,
+        "logical_shape_bytes": 352,
+        "matrices": 22,
+        "matrix_values": 1544,
+        "scale_bytes": 3088,
+        "total_payload_bytes": 4516,
+        "unchanged_payload_bytes": 304,
+        "weight_bytes": 772
+      }
+    }
+  ],
+  "reference_updates": 2,
+  "source": {
+    "comparison_documents": {
+      "train": {
+        "batches": 2,
+        "metrics": {
+          "mean_nll_nats_per_target": 5.415779,
+          "perplexity": 224.927749,
+          "total_nll_nats": 48.742013,
+          "valid_targets": 9
+        },
+        "recorded_graphs": 0
+      },
+      "validation": {
+        "batches": 2,
+        "metrics": {
+          "mean_nll_nats_per_target": 5.447734,
+          "perplexity": 232.231355,
+          "total_nll_nats": 49.029607,
+          "valid_targets": 9
+        },
+        "recorded_graphs": 0
+      }
+    },
+    "model_id": "8f8bb1391d98f406da73979c68f10ea79c9b6af1676f7d142fc19702cb5bec24",
+    "storage": {
+      "file_bytes": 15832,
+      "logical_shape_bytes": 0,
+      "matrices": 22,
+      "matrix_values": 1544,
+      "scale_bytes": 0,
+      "total_payload_bytes": 12656,
+      "unchanged_payload_bytes": 304,
+      "weight_bytes": 12352
+    }
+  },
+  "source_unchanged": true
+}

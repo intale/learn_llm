@@ -1,0 +1,119 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch17-weight-quantization/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string;
+  sourceTitle: string; sourceBody: string;
+  storedTitle: string; storedBody: string;
+  restoredTitle: string; restoredBody: string;
+  comparisonsTitle: string; groupTitle: string;
+  codeLabel: string; scaleBytesLabel: string;
+  productMaxLabel: string; productMseLabel: string; scope: string;
+}
+interface Probe {
+  group_size: number; input: number[]; packed_hex: string[];
+  code_bytes: number; scale_bytes: number;
+  output_error: { max_absolute_error: number; mean_squared_error: number };
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error('weight-quantization-copy');
+}
+const fixture = JSON.parse(fixtureSource);
+const probes: Probe[] = fixture.matrix_probes;
+if (fixture.chapter !== '17-weight-quantization' || !Array.isArray(probes) ||
+    probes.length !== 2 || probes[0].group_size !== 2 || probes[1].group_size !== 4 ||
+    probes.some((probe) => !Array.isArray(probe.packed_hex) || !Array.isArray(probe.input) ||
+      !Number.isFinite(probe.scale_bytes) ||
+      !Number.isFinite(probe.output_error.max_absolute_error) ||
+      !Number.isFinite(probe.output_error.mean_squared_error))) {
+  throw new Error('weight-quantization-fixture');
+}
+const errorText = (value: number) => value.toFixed(12);
+---
+
+<figure id="weight-quantization-figure" class="course-diagram weight-quantization-diagram"
+  data-diagram-style="course-v1" data-visualization-id="weight-quantization" tabindex="0"
+  aria-labelledby="weight-quantization-figure-title"
+  aria-describedby="weight-quantization-figure-description weight-quantization-figure-scope">
+  <figcaption id="weight-quantization-figure-caption" class="course-diagram__caption"
+    data-review-id="weight-quantization-figure-caption">
+    <h3 id="weight-quantization-figure-title" data-review-id="weight-quantization-figure-title">{labels.title}</h3>
+    <p id="weight-quantization-figure-description" class="course-diagram__description"
+      data-review-id="weight-quantization-figure-description">{labels.description}</p>
+  </figcaption>
+
+  <div class="course-diagram__grid quantization-flow">
+    <article id="weight-quantization-source" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-quantization-role="source-matrix"
+      aria-labelledby="weight-quantization-source-title">
+      <h4 id="weight-quantization-source-title">{labels.sourceTitle}</h4>
+      <p>{labels.sourceBody}</p>
+      <InlineMath latex="W" />
+    </article>
+    <article id="weight-quantization-storage" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-quantization-role="code-and-scale-storage"
+      aria-labelledby="weight-quantization-storage-title">
+      <h4 id="weight-quantization-storage-title">{labels.storedTitle}</h4>
+      <p>{labels.storedBody}</p>
+      <InlineMath latex="W\;\longrightarrow\;(q,s)" />
+    </article>
+    <article id="weight-quantization-product" class="course-diagram__card-stack"
+      data-diagram-card data-diagram-box data-quantization-role="dequantized-matmul"
+      aria-labelledby="weight-quantization-product-title">
+      <h4 id="weight-quantization-product-title">{labels.restoredTitle}</h4>
+      <p>{labels.restoredBody}</p>
+      <InlineMath latex={`x=(${probes[0].input.join(',\\;')})`} />
+      <InlineMath latex="\widehat w=sq,\qquad\widehat y=x\widehat W" />
+    </article>
+  </div>
+
+  <section id="weight-quantization-paths" aria-labelledby="weight-quantization-paths-title">
+    <h4 id="weight-quantization-paths-title">{labels.comparisonsTitle}</h4>
+    <div class="course-diagram__grid quantization-paths">
+      {probes.map((probe) => (
+        <article id={`weight-quantization-group-${probe.group_size}`}
+          class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          data-quantization-role="group-comparison" data-quantization-group-size={probe.group_size}
+          aria-labelledby={`weight-quantization-group-${probe.group_size}-title`}>
+          <h5 id={`weight-quantization-group-${probe.group_size}-title`}>
+            {labels.groupTitle}: <InlineMath latex={String(probe.group_size)} />
+          </h5>
+          <dl id={`weight-quantization-group-${probe.group_size}-values`}>
+            <div>
+              <dt>{labels.codeLabel}</dt>
+              <dd><code>{probe.packed_hex.join(' ')}</code></dd>
+            </div>
+            <div>
+              <dt>{labels.scaleBytesLabel}</dt>
+              <dd><InlineMath latex={String(probe.scale_bytes)} /></dd>
+            </div>
+            <div>
+              <dt>{labels.productMaxLabel}</dt>
+              <dd><InlineMath latex={errorText(probe.output_error.max_absolute_error)} /></dd>
+            </div>
+            <div>
+              <dt>{labels.productMseLabel}</dt>
+              <dd><InlineMath latex={errorText(probe.output_error.mean_squared_error)} /></dd>
+            </div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <p id="weight-quantization-figure-scope" class="course-diagram__description"
+    data-review-id="weight-quantization-figure-scope">{labels.scope}</p>
+</figure>
+
+<style>
+  .quantization-flow, .quantization-paths { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 40rem) {
+    .quantization-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container course-diagram (min-width: 54rem) {
+    .quantization-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

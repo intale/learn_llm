@@ -567,6 +567,9 @@ impl TrainingCheckpoint {
             )?,
             tensors: model_tensors,
         };
+        if model.quantization_group_size()?.is_some() {
+            return Err("exact training resume requires unquantized model weights".into());
+        }
         if metadata.get("model.sha256") != Some(&model.model_id()?) {
             return Err("resume model identity mismatch".into());
         }

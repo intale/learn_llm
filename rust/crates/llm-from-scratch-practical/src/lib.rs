@@ -82,6 +82,7 @@ pub mod tensor {
     pub mod matmul;
     pub mod ops;
     pub mod precision;
+    pub mod quantization;
     pub mod storage;
     pub mod view;
 }

@@ -9,7 +9,6 @@ use crate::{
         decoder_block::DecoderBlockConfig,
     },
     nn::init::NamedParameter,
-    tensor::storage::Tensor,
     tokenizer::bpe::BpeTokenizer,
     training::trainer::DecoderModelState,
 };
@@ -37,6 +36,7 @@ pub struct PortableModel {
     pub(super) tensors: BTreeMap<String, NamedData>,
 }
 
+#[derive(Clone)]
 pub(super) struct NamedData {
     pub dtype: Dtype,
     pub shape: Vec<usize>,
@@ -297,19 +297,36 @@ impl PortableModel {
                 config.set("composition", "backbone-v1")?;
             }
         }
+        if let Some(group_size) = self.quantization_group_size()? {
+            config.set("quantization.scheme", super::quantization::I4_SCHEME)?;
+            config.set("quantization.group_size", i64::try_from(group_size)?)?;
+        }
         if config.as_value() != self.settings.as_value() {
             return Err("unknown or inconsistent model settings".into());
         }
         Ok(config)
     }
 
-    fn parameters(&self) -> ArchiveResult<Vec<NamedParameter>> {
+    pub(super) fn parameters(&self) -> ArchiveResult<Vec<NamedParameter>> {
         let (_, layers) = self.backbone_config()?;
         let text_model = self.composition()? == ModelComposition::TextDecoder;
-        let expected = layers
+        let mut expected = layers
             .checked_mul(crate::models::decoder::BLOCK_PARAMETER_SUFFIXES.len())
             .and_then(|n| n.checked_add(2 + 2 * usize::from(text_model)))
             .ok_or("saved layer count overflows tensor count")?;
+        let quantization = self.quantization_group_size()?;
+        if quantization.is_some() {
+            let matrices_per_block = crate::models::decoder::BLOCK_PARAMETER_SUFFIXES
+                .iter()
+                .filter(|suffix| suffix.ends_with(".weight"))
+                .count();
+            expected = layers
+                .checked_mul(matrices_per_block)
+                .and_then(|n| n.checked_add(usize::from(text_model)))
+                .and_then(|n| n.checked_mul(2))
+                .and_then(|n| expected.checked_add(n))
+                .ok_or("quantization sidecar count overflows")?;
+        }
         if self.tensors.len() != expected {
             return Err("saved tensor set is missing or has extra entries".into());
         }
@@ -328,10 +345,8 @@ impl PortableModel {
             .into_iter()
             .map(|name| {
                 let tensor = self.tensors.get(&name).ok_or("missing model tensor")?;
-                Ok(NamedParameter::from_tensor(
-                    name,
-                    Tensor::from_vec(tensor.shape.clone(), tensor.float_values()?)?,
-                )?)
+                let value = self.logical_parameter(&name, tensor, quantization)?;
+                Ok(NamedParameter::from_tensor(name, value)?)
             })
             .collect::<ArchiveResult<Vec<_>>>()?;
         Ok(parameters)

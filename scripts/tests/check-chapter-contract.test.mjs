@@ -360,7 +360,7 @@ test('default and practical contract selectors enumerate their separate current 
   assert.equal(firstResults.results.length, 40);
   assert.equal(firstResults.results.every(result => result.parsed.data.order <= 39), true);
   const practicalResults = runChapterContractCheck(['--course', practical.id, '--structure-only'], root);
-  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core', '08-dropout-semantics', '09-dependency-error-contract', '10-input-encoding-boundary', '11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation'];
+  const currentPracticalIds = [...initialIds, '03-scalable-bpe-tokenizer', '04-padded-variable-batches', '05-packed-sequence-masks', '06-depth-stable-decoder', '07-configurable-decoder-core', '08-dropout-semantics', '09-dependency-error-contract', '10-input-encoding-boundary', '11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation','17-weight-quantization'];
   assert.deepEqual(practicalResults.results.map(result => result.parsed.data.chapter_id), currentPracticalIds);
   assert.equal(runFunctionalContractCheck(['--structure-only'], root).length, 40);
   assert.equal(runFunctionalContractCheck(['--course', practical.id, '--structure-only'], root).length, currentPracticalIds.length);

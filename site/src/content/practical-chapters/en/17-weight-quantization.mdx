@@ -1,0 +1,653 @@
+---
+{
+  "chapter_id": "17-weight-quantization",
+  "content_revision": 1,
+  "order": 17,
+  "concept_id": "weight-quantization",
+  "title": "Store weights in four bits and measure the error",
+  "description": "Fit row-group scales, pack signed weight codes, and compare reconstructed products, saved bytes and the same text model's likelihood on CPU.",
+  "objective": "Quantize the existing learned matrices with row-local scales, then compare saved storage, reconstruction error and selected-target likelihood without retraining.",
+  "worked_inputs": "Encode a constructed two-by-four matrix with groups of two and four weights. Follow both reconstructions through the existing matrix product, then quantize one saved model after two updates and load it in separate CPU inference and evaluation programs.",
+  "formula": {
+    "latex": "\\begin{aligned}a&=\\max_{i\\in H}|w_i|,&s&=\\begin{cases}a/7,&a>0,\\\\1,&a=0,\\end{cases}\\\\q_i&=\\operatorname{clamp}(\\operatorname{round}_{\\mathrm{away}}(w_i/s),-7,7),&\\widehat w_i&=s q_i.\\end{aligned}",
+    "symbols": [
+      { "symbol": "H", "meaning": "indices of one contiguous group within one matrix row" },
+      { "symbol": "i", "meaning": "index of one weight in that group" },
+      { "symbol": "w_i", "meaning": "source weight at index i, in the matrix's numerical weight units" },
+      { "symbol": "a", "meaning": "largest absolute source weight in the group, in weight units" },
+      { "symbol": "s", "meaning": "positive scale shared by the group, in weight units per integer code step" },
+      { "symbol": "\\operatorname{round}_{\\mathrm{away}}", "meaning": "nearest-integer rounding with halfway values rounded away from zero" },
+      { "symbol": "\\operatorname{clamp}(z,-7,7)", "meaning": "restrict z to the inclusive signed code range from minus seven to seven" },
+      { "symbol": "q_i", "meaning": "dimensionless signed integer code for source weight i" },
+      { "symbol": "\\widehat w_i", "meaning": "reconstructed weight obtained from code i and its group's scale" }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "inference-design",
+      "limitation": "A shared scale makes the largest magnitude determine the spacing available to smaller values; representation alone also leaves execution costs unresolved.",
+      "later_advance": "LLM.int8() combines vector-wise scaling with a separate higher-precision path for transformer outlier features.",
+      "modern_llm_role": "Measure both numerical changes and model scores when reducing stored precision, and distinguish the stored representation from the arithmetic used for inference.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2018,
+          "name": "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference",
+          "source_url": "https://arxiv.org/pdf/1712.05877",
+          "claim": "Jacob and colleagues describe a scaled affine integer representation and the additional arithmetic needed for integer-only inference. The linked author preprint dates from 2017; the work appeared at CVPR 2018."
+        },
+        {
+          "role": "later",
+          "year": 2022,
+          "name": "LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2022/file/c3ba4962c05c49636d4c6206a97e9c8a-Paper-Conference.pdf",
+          "claim": "Dettmers and colleagues discuss absolute-maximum quantization and combine vector-wise scaling with mixed-precision treatment of transformer outlier features."
+        }
+      ]
+    },
+    "approach": "Use the existing f64 weights and matrix product as the reference, then replace only the saved weight representation with integer codes and scales.",
+    "summary": "The four-bit row groups, reserved code, tie rule and constructed examples are course choices. The Rust path reconstructs f64 weights before inference and reproduces neither paper's execution method or quality results.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs"
+  },
+  "rust_sources": [
+    { "path": "rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs", "region": "symmetric-i4-code", "purpose": "Divide by a checked scale, round halfway away from zero and clamp a signed weight code." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs", "region": "grouped-i4-quantize", "purpose": "Fit scales within matrix rows and pack consecutive signed codes low nibble first." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs", "region": "grouped-i4-validation", "purpose": "Validate logical shape, code and scale counts, reserved codes, padding and finite reconstruction." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs", "region": "grouped-i4-dequantize", "purpose": "Reconstruct the logical f64 matrix for the existing tensor operations." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/checkpoint/quantization.rs", "region": "portable-weight-quantization", "purpose": "Derive a packed archive from the existing learned matrices while preserving the source model." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/checkpoint/quantization.rs", "region": "portable-weight-dequantization", "purpose": "Read packed bytes, scales and logical shape through the existing portable model restoration path." },
+    { "path": "rust/demos/practical-ch17-weight-quantization/src/lib.rs", "region": "quantized-matrix-probe", "purpose": "Compare the constructed matrix and its reconstruction with the same existing matrix multiplication." },
+    { "path": "rust/demos/practical-ch17-weight-quantization/src/lib.rs", "region": "trained-weight-comparison", "purpose": "Reuse two real training updates, then serialize, reload and score both quantized forms of that learned state." },
+    { "path": "rust/demos/practical-ch17-weight-quantization/src/lib.rs", "region": "quantize-saved-model", "purpose": "Load an existing model and save its derived quantized archive without training." }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "weight-quantization",
+    "component": "WeightQuantizationDiagram",
+    "rationale": "Follow the same constructed matrix through two group sizes, their code and scale storage, reconstruction and the existing matrix product, so the storage and error comparison keeps one reference."
+  },
+  "decoder_connection": "The same encoder, source-independent backbone and tied text head can load reconstructed weights from a smaller saved representation and use the existing CPU evaluator and generator. Lossy weights do not support exact training resume. Planned Chapter 18, Grouped-query attention and context masks, will change attention sharing and permitted context."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import WeightQuantizationDiagram from "../../../components/chapters/WeightQuantizationDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="weight-quantization-worked-example" data-review-id="weight-quantization-worked-example">
+
+## Spend fewer saved bytes on each weight
+
+The model saved in Chapter 15 stores each learned weight as an `f64`, using
+$8$ bytes per value. Many nearby weight values can instead share a small set
+of representable levels. Saving an integer level number and a scale can reduce
+the weight payload, but reconstructing a level generally changes the weight.
+Those changes can alter matrix products, token probabilities and generated
+tokens. A useful comparison therefore needs both a storage count and a measure
+of what the reconstructed model does.
+
+Weight quantization makes this approximation explicit. We will store each
+weight as a signed four-bit code, keep a positive scale for a small group of
+weights, and multiply the code by that scale when loading the model. The
+existing `f64` matrix multiplication and model remain our execution path.
+
+Start with this constructed matrix and input row:
+
+$$
+W=\begin{pmatrix}-7&-3.5&0&3.5\\0.1&0.2&0.3&7\end{pmatrix},\qquad
+x=\begin{pmatrix}1&2\end{pmatrix}.
+$$
+
+$W$ has shape $[2,4]$, $x$ has shape $[1,2]$, and the product $y=xW$ has
+shape $[1,4]$. These values are an explanatory fixture, separate from the
+learned model we will compare later.
+
+### Let one scale cover each row
+
+A group size $g=4$ places each complete row in one group. The largest absolute
+weight in either row is $7$. Choosing scale $s=7/7=1$ makes code $7$ represent
+weight $7$ and code $-7$ represent weight $-7$.
+
+Divide each weight by its scale and round to the nearest integer. Our tie rule
+rounds halfway values away from zero: $-3.5$ becomes $-4$, and $3.5$ becomes
+$4$. In the second row, $0.1$, $0.2$ and $0.3$ all round to zero because the
+scale is still $1$. The resulting signed codes and reconstructed matrix are
+
+$$
+Q_4=\begin{pmatrix}-7&-4&0&4\\0&0&0&7\end{pmatrix},\qquad
+\widehat W_4=\begin{pmatrix}-7&-4&0&4\\0&0&0&7\end{pmatrix}.
+$$
+
+The equal code and weight values here follow from scales of $1$; codes do not
+generally have the same numerical value as reconstructed weights. In
+particular, sharing a scale with the large weight $7$ erased the three small
+values in the second row.
+
+### Give smaller groups their own scales
+
+For $g=2$, split each row into its first two and last two entries. The four
+scales, in row order, are ideally
+
+$$
+\left(1,\;0.5,\;\frac{0.2}{7},\;1\right).
+$$
+
+The first row's last group now represents $3.5$ exactly as code $7$ times
+scale $0.5$. The second row's first group no longer shares a scale with $7$:
+$0.1/(0.2/7)=3.5$ rounds to code $4$, while $0.2$ uses code $7$. Its last
+group still contains $0.3$ and $7$, so $0.3$ still becomes zero. The codes are
+
+$$
+Q_2=\begin{pmatrix}-7&-4&0&7\\4&7&0&7\end{pmatrix}.
+$$
+
+The actual Rust report prints the third scale as `0.028571428571428574` and
+the reconstruction of the source value `0.1` as `0.1142857142857143`.
+These are stored `f64` observations. The ideal expression $4(0.2/7)$ explains
+the intended reconstruction; its decimal appearance does not make all the
+intermediate operations exact in binary floating point.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="weight-quantization-formula" data-review-id="weight-quantization-formula">
+
+## Fit, round and reconstruct within each row group
+
+For a nonempty matrix with $R$ rows and $C$ columns, choose a positive integer
+group size $g$. Partition every row into contiguous groups of at most $g$
+weights. A final shorter group keeps its own scale; groups never cross rows.
+For the index set $H$ of one such group, use
+
+$$
+\begin{aligned}a&=\max_{i\in H}|w_i|,&s&=\begin{cases}a/7,&a>0,\\1,&a=0,\end{cases}\\q_i&=\operatorname{clamp}(\operatorname{round}_{\mathrm{away}}(w_i/s),-7,7),&\widehat w_i&=s q_i.\end{aligned}
+$$
+
+$w_i$ is source weight $i$ in the group; $a$ is the group's largest absolute
+weight. The scale $s$ gives the weight change represented by one integer code
+step. Dividing by $s$ converts a weight to code units; rounding selects the
+nearest level, and clamping restricts the result to $-7$ through $7$.
+$q_i$ is the dimensionless signed code, and $\widehat w_i$ is its reconstructed
+weight in the original weight units. The subscript “away” specifies that a
+halfway value moves away from zero.
+
+This is a symmetric representation with zero point $0$: code $0$ reconstructs
+weight $0$. It uses $15$ levels, from $-7$ through $7$. Four signed bits could
+also encode $-8$, but this course representation reserves and rejects that
+code. An all-zero group uses $s=1$: the positive fallback keeps division
+defined and gives only zero codes and zero reconstructions. It does not
+preserve the sign of a floating-point zero.
+
+### Separate rounding error from clipping error
+
+In ideal real arithmetic, suppose $s>0$ and the ratio $w_i/s$ lies within
+$[-7,7]$, so clamping does not change the rounded result. Nearest-integer
+rounding then gives
+
+$$
+\left|q_i-\frac{w_i}{s}\right|\le\frac12
+\quad\Longrightarrow\quad
+|\widehat w_i-w_i|\le\frac{s}{2}.
+$$
+
+Multiplication by the positive scale converts a half-code-step distance to
+a half-scale weight error. The away-from-zero tie rule attains that bound at
+either halfway value. Fitting the scale from the absolute maximum keeps the
+ideal source ratios inside the code range.
+
+A supplied fixed scale is a different situation. At scale $1$, halfway
+values $0.5$ and $-0.5$ become codes $1$ and $-1$. With $s=1$, source weight
+$10$ rounds beyond the range and clips to code $7$; reconstruction is $7$ and
+absolute error is $3$. Source weight $-10$ similarly becomes $-7$. The
+half-scale bound does not apply to these clipped values. The scalar Rust
+helper supports this explicit fixed-scale contrast; it is separate from
+fitting an absolute-maximum scale to the group.
+
+The implementation also rounds during `f64` scale fitting, division and
+reconstruction. The ideal inequality is therefore not a universal exact
+`f64` guarantee. Nonfinite weights, nonpositive or nonfinite scales, and
+nonfinite reconstructions are refused. Even a positive finite absolute
+maximum can be too small: dividing it by $7$ can underflow to zero, which is
+an invalid scale.
+
+### Pack two signed codes into one byte
+
+Keep the codes in row-major order. Encode each signed code as a four-bit
+two's-complement nibble, put the first code in the low four bits of a byte,
+and put the next code in the high four bits. For example, code $-7$ has
+nibble `9`, and code $-4$ has nibble `C`. Their byte is `C9`: the low nibble
+still belongs to the first weight.
+
+The $g=4$ code stream `[-7,-4,0,4,0,0,0,7]` packs as `C9 40 00 70`.
+For $g=2$, `[-7,-4,0,7,4,7,0,7]` packs as `C9 70 74 70`. These hexadecimal
+bytes are storage literals, not floating-point values. Nibble `8` would
+decode as the reserved code $-8$ and is rejected.
+
+Packing follows the continuous code stream, so one byte may contain the last
+code of one row and the first code of the next. Scale lookup still uses each
+code's row and column. An odd total code count leaves the final high nibble
+unused and zero. For the one-row fixture `[-7,-3.5,0,3.5,7]` with $g=4$,
+the last weight forms a shorter second group; scales are $[1,1]$ and packed
+bytes are `C9 40 07`. The high half of `07` is padding, not another weight.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="weight-quantization-measurements" data-review-id="weight-quantization-measurements">
+
+## Measure the error where the weights are used
+
+For the constructed matrix, the existing matrix product gives
+
+$$
+y=xW=\begin{pmatrix}-6.8&-3.1&0.6&17.5\end{pmatrix}.
+$$
+
+After reconstruction, the same Rust multiplication prints
+`[-7.0,-4.0,0.0,18.0]` for $g=4$, and
+`[-6.771428571428571,-3.6,0.0,17.5]` for $g=2$.
+The following summaries compare each reconstructed value with its source:
+
+<table id="weight-quantization-probe-errors" tabindex="0">
+  <caption id="weight-quantization-probe-errors-caption">Constructed matrix: errors across $8$ weights and $4$ product outputs</caption>
+  <thead><tr>
+    <th id="weight-quantization-probe-error-header" scope="col">Measured error</th>
+    <th id="weight-quantization-probe-group2-header" scope="col">$g=2$</th>
+    <th id="weight-quantization-probe-group4-header" scope="col">$g=4$</th>
+  </tr></thead>
+  <tbody>
+    <tr id="weight-quantization-probe-weight-max"><th scope="row">Maximum absolute weight error</th><td>$0.5$</td><td>$0.5$</td></tr>
+    <tr id="weight-quantization-probe-weight-mse"><th scope="row">Weight mean squared error</th><td>$0.042525510204$</td><td>$0.080000000000$</td></tr>
+    <tr id="weight-quantization-probe-product-max"><th scope="row">Maximum absolute product error</th><td>$0.6$</td><td>$0.9$</td></tr>
+    <tr id="weight-quantization-probe-product-mse"><th scope="row">Product mean squared error</th><td>$0.152704081633$</td><td>$0.365000000000$</td></tr>
+  </tbody>
+</table>
+
+Mean squared error is $\mathrm{MSE}=M^{-1}\sum_{k=1}^{M}(\widehat z_k-z_k)^2$:
+$z_k$ and $\widehat z_k$ are the source and reconstructed values being compared,
+and $M$ counts those values. Here $M=8$ for weights and $M=4$ for product
+outputs. MSE uses squared weight or output units; maximum absolute error
+uses the corresponding original units. Error summaries are rounded to twelve
+decimal places after calculation, while the report retains the normal `f64`
+printing of scales and individual reconstructed values.
+
+The connection to a product is explicit in ideal arithmetic. Let
+$E=\widehat W-W$ be the matrix of weight errors. Then
+
+$$
+\widehat y-y=xE,\qquad
+|\widehat y_j-y_j|\le\sum_{i=1}^{2}|x_i|\,|E_{ij}|.
+$$
+
+Output index $j$ selects one column; input coordinate $i$ weights the error
+in row $i$ of that column. The triangle inequality gives the bound by adding
+those absolute contributions. This local linear result explains why weight
+error can change a layer's output. It does not bound the quality of an entire
+transformer. Smaller groups improve the MSE in this fixture, but do not prove
+that every value or language-model score improves for every group size.
+
+### Count scales and complete files as well as codes
+
+For one matrix, the number of weights is $N=RC$, and the number of row groups
+is $G=R\lceil C/g\rceil$. The original `f64` weight payload uses $8N$ bytes.
+Packed codes use $\lceil N/2\rceil$ bytes, and the `f64` scales add $8G$ bytes.
+The tiny matrix therefore uses $4+32=36$ code-and-scale bytes for $g=2$, or
+$4+16=20$ for $g=4$, compared with $64$ original weight bytes. These subtotals
+omit logical shape, other tensors, configuration and the file header.
+
+Each independently stored matrix has its own final padding nibble. For many
+matrices, add their individual code-byte counts
+$\sum_t\lceil N_t/2\rceil$, where $N_t$ is the weight count of matrix $t$;
+rounding the combined weight count once could miss padding between matrices.
+
+Now use actual learned weights. The default example reuses Chapter 15's
+training job for $2$ updates, snapshots that state once, and derives both
+group sizes from it. There are $22$ learned matrices containing $1544$
+weights. Gains, model constants and text assets retain their original payloads.
+The observed archive counts, all in bytes, are:
+
+<table id="weight-quantization-model-storage" tabindex="0">
+  <caption id="weight-quantization-model-storage-caption">Observed learned-model storage, measured in bytes</caption>
+  <thead><tr>
+    <th id="weight-quantization-storage-quantity-header" scope="col">Stored quantity</th>
+    <th id="weight-quantization-storage-source-header" scope="col">Source</th>
+    <th id="weight-quantization-storage-group2-header" scope="col">$g=2$</th>
+    <th id="weight-quantization-storage-group4-header" scope="col">$g=4$</th>
+  </tr></thead>
+  <tbody>
+    <tr id="weight-quantization-storage-codes"><th scope="row">Matrix weights or codes</th><td>$12352$</td><td>$772$</td><td>$772$</td></tr>
+    <tr id="weight-quantization-storage-scales"><th scope="row">Group scales</th><td>$0$</td><td>$6176$</td><td>$3088$</td></tr>
+    <tr id="weight-quantization-storage-shapes"><th scope="row">Logical matrix shapes</th><td>$0$</td><td>$352$</td><td>$352$</td></tr>
+    <tr id="weight-quantization-storage-unchanged"><th scope="row">Unchanged payload</th><td>$304$</td><td>$304$</td><td>$304$</td></tr>
+    <tr id="weight-quantization-storage-payload"><th scope="row">Total tensor payload</th><td>$12656$</td><td>$7604$</td><td>$4516$</td></tr>
+    <tr id="weight-quantization-storage-file"><th scope="row">Complete saved file</th><td>$15832$</td><td>$15340$</td><td>$12236$</td></tr>
+  </tbody>
+</table>
+
+Each packed matrix adds a logical shape of two `U64` dimensions, or $16$
+bytes; $22\times16=352$ accounts for the shape row. The existing SafeTensors
+container stores code bytes as `U8`, scales as `F64`, and logical shapes as
+`U64[2]`, alongside the native configuration descriptor. These are signed
+integer codes packed into bytes; the floating-point `F4` dtype is a different
+representation. In this small model, scale and file-header overhead consume
+much of the code-payload saving. A count of code bytes alone would greatly
+overstate the reduction in the complete saved file.
+
+Loading reconstructs the ordinary `f64` matrices before the existing model
+uses them. The smaller file therefore does not establish less live inference
+RAM or faster multiplication. We have measured saved storage and numerical
+changes, not an integer inference kernel.
+
+### Compare the same learned state on fixed documents
+
+The reloaded models use Chapter 16's fixed comparison documents: `aaab` and
+`aab` retain its `train` label; `abaa` and `baa` retain its `validation` label.
+Those labels identify the comparison splits. The Chapter 15 parent job was
+not trained on these two `train` strings. Quantization and scoring perform no
+additional training or tokenizer fitting.
+
+Each split supplies $9$ selected next-token targets in $2$ batches, with zero
+recorded graphs. The unchanged evaluator measures mean negative
+log-likelihood (NLL) in nats per selected target. Perplexity is
+$\mathrm{PPL}=\exp(L)$, where $L$ is that target-weighted mean NLL.
+
+<table id="weight-quantization-model-nll" tabindex="0">
+  <caption id="weight-quantization-model-nll-caption">Fixed comparison documents: mean NLL in nats per selected target</caption>
+  <thead><tr>
+    <th id="weight-quantization-nll-state-header" scope="col">Model state</th>
+    <th id="weight-quantization-nll-train-header" scope="col">Comparison train NLL</th>
+    <th id="weight-quantization-nll-validation-header" scope="col">Comparison validation NLL</th>
+  </tr></thead>
+  <tbody>
+    <tr id="weight-quantization-nll-source"><th scope="row">Source</th><td>$5.415779$</td><td>$5.447734$</td></tr>
+    <tr id="weight-quantization-nll-group2"><th scope="row">Groups of $2$</th><td>$5.442309$</td><td>$5.455546$</td></tr>
+    <tr id="weight-quantization-nll-group4"><th scope="row">Groups of $4$</th><td>$5.451792$</td><td>$5.460701$</td></tr>
+  </tbody>
+</table>
+
+The corresponding train/validation perplexities are $224.927749/232.231355$
+for the source, $230.974776/234.052658$ for $g=2$, and
+$233.175595/235.262392$ for $g=4$. These metrics round to six decimals after
+calculation. Across the $1544$ learned matrix entries, both quantized forms
+have maximum absolute error $0.057162531282$; weight MSE is $0.000092861899$
+for $g=2$ and $0.000156773622$ for $g=4$.
+
+Both quantized validation NLLs are higher than the source value in this
+observation: the selected validation targets became less likely on average.
+The smaller $g=4$ file also has the larger observed weight MSE and validation
+NLL. This is a tradeoff on four fixed constructed strings, not a population
+estimate, benchmark result or guarantee about useful language generation.
+The source settings, named tensors and model identity remain unchanged;
+each quantized representation has its own derived model identity.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="weight-quantization-history" data-review-id="weight-quantization-history">
+
+## Relate integer representation to inference arithmetic
+
+A shared scale makes the largest magnitude determine the spacing available to smaller values; representation alone also leaves execution costs unresolved.
+
+Jacob and colleagues describe a scaled affine integer representation and the additional arithmetic needed for integer-only inference. The linked author preprint dates from 2017; the work appeared at CVPR 2018.
+In that [author preprint](https://arxiv.org/pdf/1712.05877), the affine
+representation is $r=S(q-Z)$, where $r$ is the represented real value, $q$ is
+an integer, $S>0$ is a scale and $Z$ is the code corresponding to real zero.
+
+Dettmers and colleagues discuss absolute-maximum quantization and combine vector-wise scaling with mixed-precision treatment of transformer outlier features.
+Their [LLM.int8() paper appeared at NeurIPS 2022](https://papers.nips.cc/paper_files/paper/2022/file/c3ba4962c05c49636d4c6206a97e9c8a-Paper-Conference.pdf).
+LLM.int8() combines vector-wise scaling with a separate higher-precision path for transformer outlier features.
+This does not make our tiny matrix an outlier study of a large transformer.
+
+Measure both numerical changes and model scores when reducing stored precision, and distinguish the stored representation from the arithmetic used for inference.
+Our reference contrast is narrower: keep the original `f64` matrix product,
+then run it again with weights reconstructed from codes and scales.
+
+The row groups, four-bit range, reserved code and tie policy here are course
+choices. This implementation reproduces neither paper, GPTQ nor AWQ, and
+makes no claim to their quality or speed results. The Rust contrast below
+isolates lossy weight storage from execution engineering.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="weight-quantization-rust" data-review-id="weight-quantization-rust">
+
+## Add the representation around the existing computation
+
+The scalar helper makes the required order visible: validate, divide, round,
+then clamp. Its supplied scale also lets the fixed-scale clipping example
+remain separate from group fitting. If division of finite inputs overflows,
+clamping still saturates to the appropriate endpoint code.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs"
+  region="symmetric-i4-code" captionId="weight-quantization-rust-scalar-caption"
+  caption="Convert one weight to a signed four-bit code using a checked scale, halfway-away rounding and clipping."
+  label="Rust: round and clip one scaled weight to a signed four-bit code" />
+
+`GroupedI4Matrix::quantize` fits an absolute-maximum scale inside each row
+group. The single row-major index chooses both the destination byte and its
+low or high nibble; it continues across row boundaries while scale fitting
+starts afresh for every row.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs"
+  region="grouped-i4-quantize" captionId="weight-quantization-rust-grouped-caption"
+  caption="Fit each row group's weight scale and pack consecutive signed codes low nibble first."
+  label="Rust: fit row-group scales and pack four-bit weight codes" />
+
+Reading packed data requires the same invariants as writing it. A wrong code
+length or scale count would associate weights with the wrong bytes or scales;
+an invalid scale or overflowing reconstruction would not produce a finite
+logical matrix. The constructor also rejects a reserved code or nonzero
+padding instead of silently treating either as a weight.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs"
+  region="grouped-i4-validation" captionId="weight-quantization-rust-validation-caption"
+  caption="Validate a packed weight matrix's shape, payload lengths, scales, reserved codes, padding and finite reconstruction."
+  label="Rust: validate the complete grouped four-bit matrix representation" />
+
+Dequantization multiplies each signed code by its row group's scale and
+returns the existing `Tensor`. The matrix-product probe then calls the same
+`matmul` on the source and reconstructed matrices.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/quantization.rs"
+  region="grouped-i4-dequantize" captionId="weight-quantization-rust-dequantize-caption"
+  caption="Reconstruct an f64 tensor from the packed weight codes and their row-group scales."
+  label="Rust: reconstruct the logical f64 weight matrix" />
+
+<RustSource path="rust/demos/practical-ch17-weight-quantization/src/lib.rs"
+  region="quantized-matrix-probe" captionId="weight-quantization-rust-probe-caption"
+  caption="Measure the constructed matrix's weight and product errors with the existing matrix multiplication."
+  label="Rust: compare source and reconstructed weights with the same matrix product" />
+
+`PortableModel::quantize_weights` derives an archive from all and only the
+rank-two learned matrices. Other learned gains, model constants and text
+assets keep their original records. The existing native `config-lib`
+settings name the versioned scheme and group size; SafeTensors owns the
+container format. The method refuses an already quantized source rather than
+silently quantizing its reconstruction again.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/checkpoint/quantization.rs"
+  region="portable-weight-quantization" captionId="weight-quantization-rust-archive-caption"
+  caption="Derive a quantized PortableModel by replacing learned matrix payloads with code, scale and logical-shape records."
+  label="Rust: derive packed weight storage without changing the source model" />
+
+Restoration checks the descriptor and typed records, reconstructs logical
+matrices, and passes them through the existing decoder or backbone
+constructors. The text embedding and output head still share one live table;
+a generic backbone archive needs no tokenizer. This is lossy inference
+storage. Exact training resume retains Chapter 15's unquantized
+model/optimizer/random-state compatibility envelope and rejects packed model
+state, even inside an otherwise checksum-valid training checkpoint.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/checkpoint/quantization.rs"
+  region="portable-weight-dequantization" captionId="weight-quantization-rust-restore-caption"
+  caption="Restore logical f64 weights from standard packed-byte, scale and shape records in the existing model archive."
+  label="Rust: validate and dequantize a saved model's learned matrix" />
+
+The default comparison reuses Chapter 15's `fresh_job` and `advance` and
+Chapter 16's `fixture_from_tokenizer` and `score_model`. Each group size is
+serialized and reloaded before comparison. There is one training algorithm,
+one evaluator and one generator; quantization changes their input weights.
+
+<RustSource path="rust/demos/practical-ch17-weight-quantization/src/lib.rs"
+  region="trained-weight-comparison" captionId="weight-quantization-rust-comparison-caption"
+  caption="Train the existing reference job for two updates, then reload and score both quantized forms of that same learned state."
+  label="Rust: compare two quantized archives of one trained reference model" />
+
+The thin `clap` command accepts a saved model, derives packed weights and
+saves the new archive. Its comparison uses the saved text model's restored
+tokenizer and the same fixed comparison documents; it does not retrain.
+
+<RustSource path="rust/demos/practical-ch17-weight-quantization/src/lib.rs"
+  region="quantize-saved-model" captionId="weight-quantization-rust-cli-caption"
+  caption="Load an existing model and save a derived quantized archive without a training update."
+  label="Rust: quantize an existing saved model for later inference" />
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="weight-quantization-visualization" data-review-id="weight-quantization-visualization">
+
+## Follow two representations of the same matrix
+
+export const weightQuantizationLabels = {
+  title: "One matrix, two code-and-scale representations",
+  description: "Both paths start from the same constructed weight matrix. Groups of two or four consecutive weights within each row fit their own scales and produce packed signed codes. Each path reconstructs f64 weights, then uses the same matrix multiplication and input row. Product errors compare each reconstructed result with the original matrix's result; more scales reduce the observed mean squared error in this fixture.",
+  sourceTitle: "Start with one source matrix",
+  sourceBody: "Both group sizes encode these same eight weights; neither path trains a model.",
+  storedTitle: "Store codes together with their scales",
+  storedBody: "Each path keeps four code bytes. Smaller groups add scales so a large weight affects fewer neighboring weights.",
+  restoredTitle: "Reconstruct before the existing product",
+  restoredBody: "Multiply each signed code by its own row-group scale, then run the existing f64 matrix product with this input row.",
+  comparisonsTitle: "Compare the two paths with the original product",
+  groupTitle: "Weights per row group",
+  codeLabel: "Packed bytes, low nibble first",
+  scaleBytesLabel: "Scale payload (bytes)",
+  productMaxLabel: "Maximum absolute product error",
+  productMseLabel: "Product mean squared error",
+  scope: "Constructed matrix only: code bytes exclude scales, shape and file headers. These product errors establish neither a transformer-wide error bound nor an inference speedup. Both paths reconstruct f64 weights before multiplication."
+};
+
+<WeightQuantizationDiagram labels={weightQuantizationLabels} />
+
+The figure compares representations against one unchanged matrix and product.
+The learned-model NLL comparison above is a separate observation of how
+reconstructed weights affect selected token probabilities.
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="weight-quantization-exercises" data-review-id="weight-quantization-exercises">
+
+## Reproduce the report and load the saved packed model
+
+From the repository root, with Docker and the existing course Docker setup
+available, run the default CPU example. The matrix, native configuration and
+small training job are included; no external corpus or downloaded model is
+needed.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch17-weight-quantization
+```
+
+The JSON contains `matrix_probes`, `source`, `quantized_models`,
+`reference_updates: 2` and `source_unchanged: true`. It reports both group
+sizes, their packed bytes, errors, storage and fixed-document scores. The
+default serialized-model comparisons reload bytes in the same program.
+
+To use actual saved files across separate programs, keep the same
+repository-root working directory and Docker setup and run this entire block
+as one command. One Docker session retains the files while each Rust program
+exits before the next program starts.
+
+```bash
+COURSE_CORPUS=false ./course run sh -c '
+set -eu
+mkdir -p tmp/ch17-quantization-flow
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- train --until 2 --model tmp/ch17-quantization-flow/parent.safetensors --checkpoint tmp/ch17-quantization-flow/parent.train
+cargo run --quiet --offline --locked -p practical-ch17-weight-quantization -- quantize --model tmp/ch17-quantization-flow/parent.safetensors --output tmp/ch17-quantization-flow/group4.safetensors --group-size 4
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- infer --model tmp/ch17-quantization-flow/group4.safetensors --prompt ab --tokens 3
+cargo run --quiet --offline --locked -p practical-ch16-language-model-evaluation -- evaluate --model tmp/ch17-quantization-flow/group4.safetensors --batch-rows 1
+'
+```
+
+The first program saves the source model after $2$ updates and its separate
+training checkpoint. The second saves the $g=4$ inference archive; the
+unchanged Chapter 15 inference and Chapter 16 evaluation commands then load
+that archive without training. The quantizer's `model_id`, inference's
+`model_id` and evaluator's `model_sha256` all identify the derived model as
+`ba40116d31d1d7c25b63fc8b6dca03d0e4a510d3efdc3a29a50ec058948fa12f`.
+
+Inference reports `device: "cpu"`, `precision: "f64"` and `tied_alias: true`.
+Its generated IDs are `[108,27,159]`; the corresponding bytes `[106,25,157]`
+do not form useful prose.
+Evaluation prints validation NLL $5.460701$ and perplexity $235.262392$,
+with $9$ selected targets, $2$ batches and zero recorded graphs. Equal printed
+metrics establish agreement at the stated six-decimal display precision.
+This bounded CPU run does not establish GPU performance or useful language
+generation. Separate `./course run` invocations would use disposable
+containers and lose the saved files between programs.
+
+With the same repository-root working directory and Docker setup, run the
+demo's library tests:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch17-weight-quantization
+```
+
+The library result is two passed tests: the constructed packing/product
+comparison and the actual trained-model archive/evaluation comparison.
+
+### Optional inspection and explanation practice
+
+<ol id="weight-quantization-practice">
+  <li id="weight-quantization-practice-1">Inspect the default command's two matrix probes. Explain why the source weight $3.5$ reconstructs as $4$ for $g=4$ and as $3.5$ for $g=2$. Contrast that fitted-scale case with clipping source weight $10$ at fixed scale $1$.</li>
+  <li id="weight-quantization-practice-2">Decode byte <code>C9</code> in low-nibble-first order. For source row <code>[-7,-3.5,0,3.5,7]</code> at $g=4$, explain bytes <code>C9 40 07</code> and distinguish the final shorter group from the padding nibble.</li>
+  <li id="weight-quantization-practice-3">Use the default report's reconstructed products and error summaries for groups of $2$ and $4$ weights to explain why product MSE differs even though their maximum absolute weight errors are equal.</li>
+  <li id="weight-quantization-practice-4">Compare the source model and groups of $2$ and $4$ weights in the default report: complete files, code payloads, scale payloads and validation scores. Explain the storage/error tradeoff and the limit of the fixed-document quality comparison.</li>
+  <li id="weight-quantization-practice-5">Run the complete single-session save/quantize/infer/evaluate block and the two-test command above. Check the derived model identity, CPU precision, tied table and validation score reported by the separate consumers.</li>
+</ol>
+
+<details id="weight-quantization-answers">
+<summary id="weight-quantization-answers-summary">Checked answers: scales, byte packing, product error, saved storage and independent model loading</summary>
+
+<ol id="weight-quantization-answers-list">
+  <li id="weight-quantization-answer-1">For $g=4$, the first row's scale is $1$ and $3.5$ rounds away from zero to code $4$, reconstructing $4$. For $g=2$, its group contains $0$ and $3.5$, so the scale is $0.5$ and code $7$ reconstructs $3.5$. At fixed scale $1$, source weight $10$ saturates at code $7$ and has absolute error $3$. That clipped example is outside the ideal no-clipping half-scale bound.</li>
+  <li id="weight-quantization-answer-2">The low nibble <code>9</code> represents code $-7$; the high nibble <code>C</code> represents $-4$. The five source weights form groups of four and one, with scales $1$ and $1$. The first four codes occupy <code>C9 40</code>; the last code $7$ occupies the low nibble of <code>07</code>. Its high zero nibble is unused padding. A shorter row group still represents a real weight and has a scale; padding represents no weight.</li>
+  <li id="weight-quantization-answer-3">Both weight maxima are $0.5$, but the errors occur in different entries. The existing product gives source $[-6.8,-3.1,0.6,17.5]$, reconstructed $g=4$ output $[-7,-4,0,18]$, and printed $g=2$ output <code>[-6.771428571428571,-3.6,0.0,17.5]</code>. Product MSE falls from $0.365000000000$ to $0.152704081633$. The identity $\widehat y-y=xE$ explains the different weighted column sums; equal maximum weight error does not imply equal product error.</li>
+  <li id="weight-quantization-answer-4">Both packed models use $772$ code bytes, but scales cost $6176$ bytes for $g=2$ and $3088$ for $g=4$. Both add $352$ shape bytes and retain $304$ other payload bytes. Complete files are $15340$ and $12236$ bytes versus $15832$ for the source. Validation NLL rises from $5.447734$ to $5.455546$ and $5.460701$. Thus both files are smaller and both selected-target validation scores worsen in this observation. The four comparison strings, and their train/validation labels, do not establish general language quality or describe the parent job's training corpus.</li>
+  <li id="weight-quantization-answer-5">The quantizer and both consumers report the same derived identity <code>ba40116d31d1d7c25b63fc8b6dca03d0e4a510d3efdc3a29a50ec058948fa12f</code>. Inference restores CPU <code>f64</code> weights and one tied embedding/head table; it reports IDs <code>[108,27,159]</code>, not useful prose. Evaluation retains $9$ targets, $2$ batches, zero graphs and validation NLL/PPL $5.460701/235.262392$. Neither consumer trains. The demo command reports two passed library tests. Loading lossy weights for inference does not make them an exact training-resume state.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="weight-quantization-handoff" data-review-id="weight-quantization-handoff">
+
+## Keep the model path while changing its saved representation
+
+The learned matrices now have an explicit code-and-scale storage option. The
+same text encoder, source-independent backbone and tied head load their
+reconstructed weights and use the existing CPU evaluator and generator. The
+comparison keeps smaller saved storage distinct from numerical error, model
+likelihood, live memory and execution speed. Exact training continuation
+still needs the original unquantized training state.
+
+Planned Chapter 18, Grouped-query attention and context masks, will extend
+attention sharing and the context permitted in full and cached computation.
+That changes a different part of the model than the weight representation
+studied here.
+
+</div>
