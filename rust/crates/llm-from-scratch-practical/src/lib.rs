@@ -26,6 +26,7 @@ pub mod attention {
     pub mod incremental;
     pub mod multi_head;
     pub mod online;
+    pub mod paged;
     pub mod qkv;
     pub mod rope;
     pub mod self_attention;

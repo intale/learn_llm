@@ -1,0 +1,290 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch20-paged-kv-layout/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string; settingsLabel: string; tableLabel: string;
+  logicalTitle: string; logicalBody: string; logicalPage: string; mapsTo: string;
+  position: string; offset: string; scalarStart: string;
+  physicalTitle: string; physicalBody: string; physicalPage: string;
+  assignedLogicalPage: string; filled: string; reservedUnfilled: string;
+  capacityPadding: string; payloadTitle: string; payloadBody: string;
+  allocatedTitle: string; liveTitle: string; unusedTitle: string;
+  slots: string; bytes: string; tail: string; whole: string; total: string; scope: string;
+}
+interface Mapping {
+  address: {
+    logical_position: number; logical_page: number;
+    physical_page: number; offset_in_page: number;
+  };
+  key_scalar_start_head0: number;
+  value_scalar_start_head0: number;
+}
+type PositionState = 'filled' | 'reserved-unfilled' | 'capacity-padding';
+interface PhysicalPage {
+  logical_page: number; physical_page: number;
+  positions: { logical_position: number; state: PositionState }[];
+}
+interface Payload {
+  allocated_scalar_slots: number; allocated_payload_bytes: number;
+  live_scalar_slots: number; live_payload_bytes: number;
+  unused_scalar_slots: number; unused_payload_bytes: number;
+  active_page_tail_scalar_slots: number; active_page_tail_payload_bytes: number;
+  inactive_page_scalar_slots: number; inactive_page_payload_bytes: number;
+}
+interface Fixture {
+  batch: number; capacity: number; length: number; page_tokens: number;
+  query_heads: number; kv_heads: number; head_width: number; layers: number;
+  page_table: number[]; mappings: Mapping[]; physical_pages: PhysicalPage[];
+  per_layer_payloads: Payload[]; total_allocated_payload_bytes: number;
+}
+interface LogicalPage {
+  logical_page: number; physical_page: number; rows: Mapping[];
+}
+interface Props { labels: Labels }
+
+const { labels } = Astro.props;
+if (!labels || Object.values(labels).some((value) =>
+  typeof value !== 'string' || !value.trim())) {
+  throw new Error('paged-kv-layout-copy');
+}
+const fixture: Fixture = JSON.parse(fixtureSource);
+const integer = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+const payloadFields: (keyof Payload)[] = [
+  'allocated_scalar_slots', 'allocated_payload_bytes',
+  'live_scalar_slots', 'live_payload_bytes',
+  'unused_scalar_slots', 'unused_payload_bytes',
+  'active_page_tail_scalar_slots', 'active_page_tail_payload_bytes',
+  'inactive_page_scalar_slots', 'inactive_page_payload_bytes',
+];
+if (!fixture ||
+    ![fixture.batch, fixture.capacity, fixture.page_tokens, fixture.query_heads,
+      fixture.kv_heads, fixture.head_width, fixture.layers].every((value) => integer(value) && value > 0) ||
+    !integer(fixture.length) || fixture.length > fixture.capacity ||
+    !integer(fixture.total_allocated_payload_bytes) ||
+    !Array.isArray(fixture.page_table) || fixture.page_table.length === 0 ||
+    !fixture.page_table.every(integer) ||
+    !Array.isArray(fixture.mappings) || fixture.mappings.length !== fixture.length ||
+    fixture.mappings.some((row) => !row.address ||
+      ![row.address.logical_position, row.address.logical_page,
+        row.address.physical_page, row.address.offset_in_page,
+        row.key_scalar_start_head0, row.value_scalar_start_head0].every(integer) ||
+      row.key_scalar_start_head0 !== row.value_scalar_start_head0) ||
+    !Array.isArray(fixture.physical_pages) ||
+    fixture.physical_pages.length !== fixture.page_table.length ||
+    fixture.physical_pages.some((page) =>
+      !integer(page.logical_page) || !integer(page.physical_page) ||
+      !Array.isArray(page.positions) || page.positions.length !== fixture.page_tokens ||
+      page.positions.some((position) => !integer(position.logical_position) ||
+        !['filled', 'reserved-unfilled', 'capacity-padding'].includes(position.state))) ||
+    !Array.isArray(fixture.per_layer_payloads) ||
+    fixture.per_layer_payloads.length !== fixture.layers ||
+    fixture.per_layer_payloads.some((payload) =>
+      !payload || payloadFields.some((field) => !integer(payload[field])))) {
+  throw new Error('paged-kv-layout-fixture');
+}
+
+// Group the Rust records in their reported logical order; compute no cache addresses.
+const logicalPages: LogicalPage[] = [];
+for (const row of fixture.mappings) {
+  let page = logicalPages.find((entry) => entry.logical_page === row.address.logical_page);
+  if (!page) {
+    page = {
+      logical_page: row.address.logical_page,
+      physical_page: row.address.physical_page,
+      rows: [],
+    };
+    logicalPages.push(page);
+  }
+  page.rows.push(row);
+}
+const payload = fixture.per_layer_payloads[0];
+const stateLabels: Record<PositionState, string> = {
+  filled: labels.filled,
+  'reserved-unfilled': labels.reservedUnfilled,
+  'capacity-padding': labels.capacityPadding,
+};
+---
+
+<figure id="paged-kv-layout-figure" class="course-diagram paged-kv-layout-diagram"
+  data-diagram-style="course-v1" data-visualization-id="paged-kv-layout" tabindex="0"
+  aria-labelledby="paged-kv-layout-figure-title"
+  aria-describedby="paged-kv-layout-figure-description paged-kv-layout-figure-scope">
+  <figcaption id="paged-kv-layout-figure-caption" class="course-diagram__caption"
+    data-review-id="paged-kv-layout-figure-caption">
+    <h3 id="paged-kv-layout-figure-title" data-review-id="paged-kv-layout-figure-title">{labels.title}</h3>
+    <p id="paged-kv-layout-figure-description" class="course-diagram__description"
+      data-review-id="paged-kv-layout-figure-description">{labels.description}</p>
+    <p id="paged-kv-layout-figure-settings" data-review-id="paged-kv-layout-figure-settings">
+      {labels.settingsLabel}: <InlineMath latex={`C=${fixture.capacity},n=${fixture.length},P=${fixture.page_tokens}`} />.
+      {labels.tableLabel}: <InlineMath latex={`T=(${fixture.page_table.join(',')})`} />.
+    </p>
+  </figcaption>
+
+  <section id="paged-kv-layout-logical" data-diagram-box
+    aria-labelledby="paged-kv-layout-logical-title">
+    <h4 id="paged-kv-layout-logical-title" data-review-id="paged-kv-layout-logical-title">{labels.logicalTitle}</h4>
+    <p id="paged-kv-layout-logical-description" data-review-id="paged-kv-layout-logical-description">{labels.logicalBody}</p>
+    <div class="course-diagram__grid">
+      {logicalPages.map((page) => (
+        <article id={`paged-kv-layout-logical-page-${page.logical_page}`}
+          class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          data-kv-role="logical-page" data-logical-page={page.logical_page}
+          data-review-id={`paged-kv-layout-logical-page-${page.logical_page}`}
+          aria-labelledby={`paged-kv-layout-logical-page-${page.logical_page}-title`}>
+          <h5 id={`paged-kv-layout-logical-page-${page.logical_page}-title`}>
+            {labels.logicalPage} <InlineMath latex={String(page.logical_page)} /> {labels.mapsTo} <InlineMath latex={String(page.physical_page)} />
+          </h5>
+          <ol class="course-diagram__grid">
+            {page.rows.map((row) => (
+              <li id={`paged-kv-layout-token-${row.address.logical_position}`}
+                data-kv-role="logical-token" data-logical-position={row.address.logical_position}
+                data-physical-page={row.address.physical_page}
+                data-review-id={`paged-kv-layout-token-${row.address.logical_position}`}>
+                {labels.position} <InlineMath latex={String(row.address.logical_position)} />;
+                {labels.offset} <InlineMath latex={String(row.address.offset_in_page)} />;
+                {labels.scalarStart} <InlineMath latex={String(row.key_scalar_start_head0)} />.
+              </li>
+            ))}
+          </ol>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="paged-kv-layout-physical" data-diagram-box
+    aria-labelledby="paged-kv-layout-physical-title">
+    <h4 id="paged-kv-layout-physical-title" data-review-id="paged-kv-layout-physical-title">{labels.physicalTitle}</h4>
+    <p id="paged-kv-layout-physical-description" data-review-id="paged-kv-layout-physical-description">{labels.physicalBody}</p>
+    <div class="course-diagram__grid paged-kv-layout-physical-pages">
+      {fixture.physical_pages.map((page) => (
+        <article id={`paged-kv-layout-physical-page-${page.physical_page}`}
+          class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          data-kv-role="physical-page" data-physical-page={page.physical_page}
+          data-review-id={`paged-kv-layout-physical-page-${page.physical_page}`}
+          aria-labelledby={`paged-kv-layout-physical-page-${page.physical_page}-title`}>
+          <h5 id={`paged-kv-layout-physical-page-${page.physical_page}-title`}>
+            {labels.physicalPage} <InlineMath latex={String(page.physical_page)} />
+          </h5>
+          <p>{labels.assignedLogicalPage}: <InlineMath latex={String(page.logical_page)} />.</p>
+          <ol class="course-diagram__grid">
+            {page.positions.map((position) => (
+              <li data-kv-position-state={position.state}>
+                {labels.position} <InlineMath latex={String(position.logical_position)} />: {stateLabels[position.state]}.
+              </li>
+            ))}
+          </ol>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="paged-kv-layout-payloads" data-diagram-box
+    aria-labelledby="paged-kv-layout-payload-title">
+    <h4 id="paged-kv-layout-payload-title" data-review-id="paged-kv-layout-payload-title">{labels.payloadTitle}</h4>
+    <p id="paged-kv-layout-payload-description" data-review-id="paged-kv-layout-payload-description">{labels.payloadBody}</p>
+    <div class="course-diagram__grid paged-kv-layout-payload-cards">
+      <article id="paged-kv-layout-allocated" class="course-diagram__card-stack"
+        data-diagram-card data-diagram-box data-review-id="paged-kv-layout-allocated"
+        aria-labelledby="paged-kv-layout-allocated-title">
+        <h5 id="paged-kv-layout-allocated-title">{labels.allocatedTitle}</h5>
+        <p>{labels.slots}: <InlineMath latex={String(payload.allocated_scalar_slots)} />.</p>
+        <p>{labels.bytes}: <InlineMath latex={String(payload.allocated_payload_bytes)} />.</p>
+      </article>
+      <article id="paged-kv-layout-live" class="course-diagram__card-stack"
+        data-diagram-card data-diagram-box data-review-id="paged-kv-layout-live"
+        aria-labelledby="paged-kv-layout-live-title">
+        <h5 id="paged-kv-layout-live-title">{labels.liveTitle}</h5>
+        <p>{labels.slots}: <InlineMath latex={String(payload.live_scalar_slots)} />.</p>
+        <p>{labels.bytes}: <InlineMath latex={String(payload.live_payload_bytes)} />.</p>
+      </article>
+      <article id="paged-kv-layout-unused" class="course-diagram__card-stack"
+        data-diagram-card data-diagram-box data-review-id="paged-kv-layout-unused"
+        aria-labelledby="paged-kv-layout-unused-title">
+        <h5 id="paged-kv-layout-unused-title">{labels.unusedTitle}</h5>
+        <p>{labels.slots}: <InlineMath latex={String(payload.unused_scalar_slots)} />.</p>
+        <p>{labels.bytes}: <InlineMath latex={String(payload.unused_payload_bytes)} />.</p>
+        <p id="paged-kv-layout-tail" data-review-id="paged-kv-layout-tail">
+          {labels.tail}: {labels.slots} <InlineMath latex={String(payload.active_page_tail_scalar_slots)} />;
+          {labels.bytes} <InlineMath latex={String(payload.active_page_tail_payload_bytes)} />.
+        </p>
+        <p id="paged-kv-layout-whole" data-review-id="paged-kv-layout-whole">
+          {labels.whole}: {labels.slots} <InlineMath latex={String(payload.inactive_page_scalar_slots)} />;
+          {labels.bytes} <InlineMath latex={String(payload.inactive_page_payload_bytes)} />.
+        </p>
+      </article>
+    </div>
+    <p id="paged-kv-layout-total" data-review-id="paged-kv-layout-total">
+      {labels.total}: <InlineMath latex={String(fixture.total_allocated_payload_bytes)} />.
+    </p>
+  </section>
+
+  <p id="paged-kv-layout-figure-scope" class="course-diagram__description"
+    data-review-id="paged-kv-layout-figure-scope">{labels.scope}</p>
+</figure>
+
+<style>
+  .paged-kv-layout-diagram { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .paged-kv-layout-diagram > * { grid-column: 1 / -1; }
+  .paged-kv-layout-physical-pages,
+  .paged-kv-layout-payload-cards { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 44rem) {
+    .paged-kv-layout-physical-pages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .paged-kv-layout-payload-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @container course-diagram (min-width: 70rem) {
+    #paged-kv-layout-figure-caption {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+    }
+    #paged-kv-layout-logical {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    #paged-kv-layout-physical { grid-column: 1; grid-row: 3; }
+    #paged-kv-layout-payloads { grid-column: 2; grid-row: 3; }
+    #paged-kv-layout-figure-scope {
+      grid-column: 1 / -1;
+      grid-row: 4;
+      max-inline-size: none;
+    }
+
+    #paged-kv-layout-logical,
+    #paged-kv-layout-physical,
+    #paged-kv-layout-payloads {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+      column-gap: var(--diagram-gap);
+      align-content: start;
+    }
+    #paged-kv-layout-logical > h4,
+    #paged-kv-layout-physical > h4,
+    #paged-kv-layout-payloads > h4 { grid-column: 1; }
+    #paged-kv-layout-logical-description,
+    #paged-kv-layout-physical-description,
+    #paged-kv-layout-payload-description { grid-column: 2; }
+    #paged-kv-layout-logical > .course-diagram__grid,
+    #paged-kv-layout-physical > .course-diagram__grid,
+    #paged-kv-layout-payloads > .course-diagram__grid,
+    #paged-kv-layout-total { grid-column: 1 / -1; }
+
+    #paged-kv-layout-logical [data-kv-role='logical-page'] {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    }
+    #paged-kv-layout-logical [data-kv-role='logical-page'] > h5 { grid-column: 1; }
+    #paged-kv-layout-logical [data-kv-role='logical-page'] > ol { grid-column: 2; }
+    #paged-kv-layout-physical [data-kv-role='physical-page'] > ol {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .paged-kv-layout-payload-cards {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+    }
+    #paged-kv-layout-unused { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #paged-kv-layout-unused-title,
+    #paged-kv-layout-tail,
+    #paged-kv-layout-whole { grid-column: 1 / -1; }
+  }
+</style>

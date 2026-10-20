@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "20-paged-kv-layout",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Keep token order across cache pages",
+  "description": "Trace logical positions through a KV page table, separate live and unused buffer payload, and compare the same restored model under contiguous and paged placement.",
+  "objective": "Translate logical token positions into physical KV pages, account for live and unused payload, and verify that cache placement preserves the model's logits."
+}

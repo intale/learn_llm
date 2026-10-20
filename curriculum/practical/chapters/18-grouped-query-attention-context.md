@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-grouped-query-attention-context",
   "concept_id": "grouped-query-attention",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 18,
   "objective": {
     "en": "Share learned key/value heads among query heads, intersect a local window with causal context, and compare the same model's full-prefix and cached CPU results."

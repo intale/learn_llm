@@ -101,7 +101,7 @@ describe('Chapter19 executed attention values and their static projections',()=>
     }
     const nodes=walk(document);
     expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='prev').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/18-grouped-query-attention-context/']);
-    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next')).toHaveLength(0);
+    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/20-paged-kv-layout/']);
     for(let index=1;index<=4;index++){byId(document,'online-tiled-attention-practice-'+index);byId(document,'online-tiled-attention-answer-'+index);}
   });
 });

@@ -8,6 +8,7 @@ use super::multi_head::{
     HeadLayoutError, MultiHeadAttention, MultiHeadInput, merge_heads_with_context,
     split_heads_with_context,
 };
+use super::paged::{PagedKvError, PagedKvLayout};
 use super::qkv::QkvError;
 use super::rope::RopeError;
 use crate::autograd::tensor_core::{
@@ -21,6 +22,7 @@ use crate::tensor::storage::{Tensor, TensorError};
 /// A rejected cache configuration, append, or logical snapshot.
 #[derive(Clone, Debug, PartialEq)]
 pub enum LayerKvCacheError {
+    Paged(PagedKvError),
     ZeroBatchSize,
     ZeroCapacity,
     CapacityExceedsPositions {
@@ -61,6 +63,7 @@ pub enum LayerKvCacheError {
 impl fmt::Display for LayerKvCacheError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Paged(source) => source.fmt(formatter),
             Self::ZeroBatchSize => formatter.write_str("KV cache batch size must be nonzero"),
             Self::ZeroCapacity => formatter.write_str("KV cache capacity must be nonzero"),
             Self::CapacityExceedsPositions {
@@ -110,6 +113,7 @@ impl fmt::Display for LayerKvCacheError {
 impl Error for LayerKvCacheError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
+            Self::Paged(source) => Some(source),
             Self::Tensor(source) => Some(source),
             _ => None,
         }
@@ -122,11 +126,17 @@ impl From<TensorError> for LayerKvCacheError {
     }
 }
 
+impl From<PagedKvError> for LayerKvCacheError {
+    fn from(source: PagedKvError) -> Self {
+        Self::Paged(source)
+    }
+}
+
 /// Fixed-capacity rotated-key and value storage for one attention layer.
 ///
-/// Physical storage has layout `[batch, heads, capacity, head_width]`. `len`
-/// selects the logical prefix; reset keeps the allocation and moves that prefix
-/// back to zero.
+/// Contiguous storage has layout `[batch, heads, capacity, head_width]`;
+/// selected paged storage has `[physical_page, batch, heads, page_tokens, head_width]`.
+/// `len` selects the logical prefix; reset retains allocations and the page map.
 #[derive(Clone, Debug)]
 pub struct LayerKvCache {
     batch_size: usize,
@@ -139,6 +149,7 @@ pub struct LayerKvCache {
     len: usize,
     keys: Vec<f64>,
     values: Vec<f64>,
+    paged: Option<PagedKvLayout>,
     parameter_bindings: [TensorValueBinding; 4],
     rope_feature_width: usize,
     rope_max_positions: usize,
@@ -157,6 +168,7 @@ impl PartialEq for LayerKvCache {
             && self.len == other.len
             && self.keys == other.keys
             && self.values == other.values
+            && self.paged == other.paged
             && self.rope_feature_width == other.rope_feature_width
             && self.rope_max_positions == other.rope_max_positions
             && self.rope_base_bits == other.rope_base_bits
@@ -174,6 +186,24 @@ impl LayerKvCache {
         batch_size: usize,
         capacity: usize,
     ) -> Result<Self, LayerKvCacheError> {
+        Self::new_with_layout(layer, batch_size, capacity, None)
+    }
+
+    /// Reserves every page up front; subsequent appends retain both buffer identities.
+    pub fn new_paged(
+        layer: &MultiHeadAttention,
+        batch_size: usize,
+        layout: PagedKvLayout,
+    ) -> Result<Self, LayerKvCacheError> {
+        Self::new_with_layout(layer, batch_size, layout.capacity(), Some(layout))
+    }
+
+    fn new_with_layout(
+        layer: &MultiHeadAttention,
+        batch_size: usize,
+        capacity: usize,
+        paged: Option<PagedKvLayout>,
+    ) -> Result<Self, LayerKvCacheError> {
         if batch_size == 0 {
             return Err(LayerKvCacheError::ZeroBatchSize);
         }
@@ -189,9 +219,15 @@ impl LayerKvCache {
         let model_width = layer.model_width();
         let heads = layer.kv_heads();
         let head_width = layer.head_width();
+        let physical_capacity = paged
+            .as_ref()
+            .map_or(capacity, PagedKvLayout::physical_tokens);
+        if let Some(layout) = &paged {
+            layout.payload(0, batch_size, heads, head_width)?;
+        }
         let elements = batch_size
             .checked_mul(heads)
-            .and_then(|count| count.checked_mul(capacity))
+            .and_then(|count| count.checked_mul(physical_capacity))
             .and_then(|count| count.checked_mul(head_width))
             .ok_or(LayerKvCacheError::ElementCountOverflow {
                 batch_size,
@@ -214,6 +250,7 @@ impl LayerKvCache {
             len: 0,
             keys,
             values,
+            paged,
             parameter_bindings: [
                 TensorValueBinding::capture(parameters[0].tensor()),
                 TensorValueBinding::capture(parameters[1].tensor()),
@@ -259,8 +296,7 @@ impl LayerKvCache {
         for batch in 0..self.batch_size {
             for head in 0..self.heads {
                 let source_start = (batch * self.heads + head) * self.head_width;
-                let destination_start =
-                    ((batch * self.heads + head) * self.capacity + self.len) * self.head_width;
+                let destination_start = self.row_start(batch * self.heads + head, self.len);
                 self.keys[destination_start..destination_start + self.head_width]
                     .copy_from_slice(&key.as_slice()[source_start..source_start + self.head_width]);
                 self.values[destination_start..destination_start + self.head_width]
@@ -300,9 +336,10 @@ impl LayerKvCache {
             .map_err(|_| LayerKvCacheError::AllocationFailed { elements })?;
         for batch in 0..self.batch_size {
             for head in 0..self.heads {
-                let start = (batch * self.heads + head) * self.capacity * self.head_width;
-                let end = start + self.len * self.head_width;
-                logical.extend_from_slice(&storage[start..end]);
+                for position in 0..self.len {
+                    let start = self.row_start(batch * self.heads + head, position);
+                    logical.extend_from_slice(&storage[start..start + self.head_width]);
+                }
             }
         }
         Tensor::from_vec(
@@ -357,12 +394,40 @@ impl LayerKvCache {
         self.len == self.capacity
     }
 
-    /// Exposes allocated key storage for deterministic state audits.
+    // region:paged-cache-row-index
+    /// First scalar of a reserved row in each physical buffer, even if not yet filled.
+    pub fn physical_row_start(&self, batch: usize, head: usize, position: usize) -> Option<usize> {
+        if batch >= self.batch_size || head >= self.heads || position >= self.capacity {
+            return None;
+        }
+        Some(self.row_start(batch * self.heads + head, position))
+    }
+
+    fn row_start(&self, lane: usize, position: usize) -> usize {
+        self.paged.as_ref().map_or_else(
+            || (lane * self.capacity + position) * self.head_width,
+            |layout| {
+                layout.row_start(
+                    lane,
+                    self.batch_size * self.heads,
+                    self.head_width,
+                    position,
+                )
+            },
+        )
+    }
+
+    pub fn paged_layout(&self) -> Option<&PagedKvLayout> {
+        self.paged.as_ref()
+    }
+    // endregion:paged-cache-row-index
+
+    /// Exposes allocated physical key storage in the selected layout.
     pub fn key_storage(&self) -> &[f64] {
         &self.keys
     }
 
-    /// Exposes allocated value storage for deterministic state audits.
+    /// Exposes allocated physical value storage in the selected layout.
     pub fn value_storage(&self) -> &[f64] {
         &self.values
     }
@@ -1020,7 +1085,7 @@ fn incremental_mixture(
                 let key_start = if position == cache.len() {
                     kv_lane * cache.head_width()
                 } else {
-                    (kv_lane * cache.capacity() + position) * cache.head_width()
+                    cache.row_start(kv_lane, position)
                 };
                 let key_values = if position == cache.len() {
                     candidate_key.as_slice()
@@ -1088,7 +1153,7 @@ fn incremental_mixture(
                     let value_start = if position == cache.len() {
                         kv_lane * cache.head_width()
                     } else {
-                        (kv_lane * cache.capacity() + position) * cache.head_width()
+                        cache.row_start(kv_lane, position)
                     };
                     let value_values = if position == cache.len() {
                         candidate_value.as_slice()

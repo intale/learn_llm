@@ -1,0 +1,502 @@
+---
+{
+  "chapter_id": "20-paged-kv-layout",
+  "content_revision": 1,
+  "order": 20,
+  "concept_id": "paged-kv-layout",
+  "title": "Keep token order across cache pages",
+  "description": "Trace logical positions through a KV page table, separate live and unused buffer payload, and compare the same restored model under contiguous and paged placement.",
+  "objective": "Translate logical token positions into physical KV pages, account for live and unused payload, and verify that cache placement preserves the model's logits.",
+  "worked_inputs": "Follow seven framed positions from abcde through a nonidentity page table, count both key and value buffers, and compare paged, contiguous and full-prefix computation of the same restored text model.",
+  "formula": {
+    "latex": "\\begin{aligned}N&=\\lceil C/P\\rceil,\\\\q&=\\lfloor p/P\\rfloor,\\\\r&=p\\bmod P,\\\\s&=T[q].\\end{aligned}",
+    "symbols": [
+      { "symbol": "C", "meaning": "positive logical token capacity of one layer cache" },
+      { "symbol": "P", "meaning": "positive number of token positions per page" },
+      { "symbol": "N", "meaning": "number of physical pages reserved for the logical capacity" },
+      { "symbol": "p", "meaning": "zero-based logical token position, at least zero and strictly below C" },
+      { "symbol": "q", "meaning": "zero-based logical page containing token position p" },
+      { "symbol": "r", "meaning": "zero-based token offset within that page, strictly below P" },
+      { "symbol": "T", "meaning": "immutable page table that assigns each logical page one distinct physical page" },
+      { "symbol": "s", "meaning": "physical page index obtained from entry q of the page table" }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "inference-design",
+      "limitation": "Earlier LLM inference systems reserved contiguous KV storage for a sequence's maximum length, leaving reserved capacity unused when its live prefix was shorter.",
+      "later_advance": "PagedAttention separates fixed-token logical blocks from physical blocks and uses a block table to locate keys and values during attention.",
+      "modern_llm_role": "Cache addressing can change without changing token order, rotary positions or eligible context.",
+      "sources": [
+        {
+          "role": "earlier", "year": 2023,
+          "name": "Efficient Memory Management for Large Language Model Serving with PagedAttention, version 1, 12 September 2023: earlier-system analysis",
+          "source_url": "https://arxiv.org/abs/2309.06180v1",
+          "claim": "Earlier LLM inference systems reserved contiguous KV storage for a sequence's maximum length, leaving reserved capacity unused when its live prefix was shorter."
+        },
+        {
+          "role": "later", "year": 2023,
+          "name": "The same PagedAttention version 1: logical and physical block lookup",
+          "source_url": "https://arxiv.org/html/2309.06180v1",
+          "claim": "PagedAttention separates fixed-token logical blocks from physical blocks and uses a block table to locate keys and values during attention."
+        }
+      ]
+    },
+    "approach": "Retain the existing contiguous cache as the runnable reference and add page lookup to the same layer cache and decoder generation path.",
+    "summary": "This chapter reserves a fixed host pool eagerly. It demonstrates addressing and numerical-payload accounting, without dynamic allocation, sharing, scheduling or measured system gains.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/attention/incremental.rs"
+  },
+  "rust_sources": [
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/paged.rs", "region": "logical-to-physical-kv-page", "purpose": "Translate a valid logical token position into its page, offset and physical row start." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/paged.rs", "region": "checked-kv-page-table", "purpose": "Reject zero sizes, invalid page permutations and rounded-capacity overflow before constructing a layout." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/incremental.rs", "region": "paged-cache-row-index", "purpose": "Select contiguous or paged row addressing within the existing layer cache." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/paged.rs", "region": "paged-kv-payload-accounting", "purpose": "Count both K/V buffers and partition unused scalar slots into a partial-page tail and inactive whole pages." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/generation/kv_cache.rs", "region": "model-wide-paged-cache", "purpose": "Construct the existing decoder cache with one explicit checked page layout for its layer caches." },
+    { "path": "rust/demos/practical-ch20-paged-kv-layout/src/lib.rs", "region": "paged-model-reference-comparison", "purpose": "Compare paged and contiguous cached logits with each full-prefix last row using the same restored text model." },
+    { "path": "rust/demos/practical-ch20-paged-kv-layout/src/lib.rs", "region": "paged-existing-generator-comparison", "purpose": "Use the existing cached generator and sampler with each layout, then compare their complete results and next RNG values." }
+  ],
+  "visualization": {
+    "decision": "useful", "id": "paged-kv-layout", "component": "PagedKvLayoutDiagram",
+    "rationale": "Connect logical reading order to a nonidentity page table and physical page contents, then separate live K/V payload from a partial-page tail and an unused whole page."
+  },
+  "decoder_connection": "The same text encoder, source-independent backbone, tied head and cached generator now support explicit page placement without changing logical context or saved model identity. Planned Chapter 21, Sampling distributions, will extend how the existing sampler turns vocabulary scores into token choices."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import PagedKvLayoutDiagram from "../../../components/chapters/PagedKvLayoutDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="paged-kv-layout-worked-example" data-review-id="paged-kv-layout-worked-example">
+
+## Separate a token's position from its cache address
+
+During generation, each decoder layer saves a key and a value for every token
+it processes. Later queries read those cached rows in the sequence's logical
+order. That order gives a token its position; it need not describe where the
+row lives in a buffer.
+
+The existing contiguous cache keeps a lane's successive token rows adjacent,
+so a row's address follows directly from its logical position. To place
+neighboring groups of tokens in separate physical regions, the cache needs an
+extra lookup. A page table supplies it: split the logical sequence into
+fixed-size pages, then record where each logical page is stored. Attention must
+continue to read logical positions in order even when the physical pages are
+out of order.
+
+Here we reserve every page when constructing the cache. The new capability is
+explicit placement and its accounting; this fixed pool does not automatically
+use less storage than the contiguous cache.
+
+### Follow the same seven positions across page boundaries
+
+The existing tokenizer frames `abcde` as the token-ID sequence
+`[0,99,100,101,102,103,1]`. Its seven logical positions are $0$ through $6$.
+The model has $4$ query heads and $2$ shared K/V heads, each with $2$ features,
+and this example has one batch lane. Each of its two decoder layers has logical
+capacity $12$, with $3$ token positions per page.
+
+Use page table $T=(2,0,3,1)$. Entry $0$ assigns logical page $0$ to physical
+page $2$; entry $1$ assigns logical page $1$ to physical page $0$, and so on.
+Within a page, token offsets remain $0,1,2$.
+
+- Logical positions $0,1,2$ occupy physical page $2$ at offsets $0,1,2$.
+- Positions $3,4,5$ occupy physical page $0$ at the same three offsets.
+- Position $6$ starts logical page $2$, stored in physical page $3$ at offset $0$.
+- Logical page $3$ maps to physical page $1$. Its positions $9,10,11$ are
+  reserved but unfilled.
+
+For batch lane $0$, shared K/V head $0$ and its first feature, Rust reports
+scalar indices $24,26,28,0,2,4,36$ for positions $0$ through $6$ in either
+array. Thus crossing from position $2$ to $3$ moves from scalar index $28$
+back to $0$. Position $6$ begins at index $36$. These are indices into a key
+array and, separately, a value array; the two arrays do not share their values.
+The logical sequence still advances from one token to the next.
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="paged-kv-layout-addressing" data-review-id="paged-kv-layout-addressing">
+
+## Locate a row without changing its logical meaning
+
+Let $C>0$ be a layer cache's logical token capacity and $P>0$ its token
+positions per page. Reserve $N$ physical pages. For a valid logical position
+$0\le p<C$, let $q$ be its logical page, $r$ its within-page token offset
+and $s$ the physical page selected by immutable table $T$:
+
+$$
+\begin{aligned}N&=\lceil C/P\rceil,\\q&=\lfloor p/P\rfloor,\\r&=p\bmod P,\\s&=T[q].\end{aligned}
+$$
+
+Ceiling rounds the capacity up to enough complete pages. Integer division
+selects a logical page; the remainder selects a token within it. The table is
+a permutation of physical indices $0$ through $N-1$: each appears exactly
+once. Different logical pages therefore cannot overwrite each other. Different
+positions within a page have different offsets.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/paged.rs"
+  region="logical-to-physical-kv-page" captionId="paged-kv-layout-rust-address-caption"
+  caption="Divide a logical token position into a page and token offset, then look up that page's physical placement."
+  label="Rust: translate a logical KV position into a physical page address" />
+
+The constructor rejects zero capacity or page size, the wrong number of table
+entries, repeated or out-of-range physical pages, and overflowing rounded
+capacity. Those checks establish the non-aliasing map before a cache can use it.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/paged.rs"
+  region="checked-kv-page-table" captionId="paged-kv-layout-rust-table-caption"
+  caption="Check that the page table assigns every reserved physical page exactly once before accepting the layout."
+  label="Rust: validate the bounded KV page-table permutation" />
+
+### Include the batch, shared head and feature
+
+Each physical array has shape $[N,B,H_{kv},P,d]$: physical page, batch lane,
+shared K/V head, token offset within the page and feature. Here $B$ is the
+positive batch count, $H_{kv}$ the positive shared-head count and $d$ the
+positive feature width. Indices $b,h,f$ select a batch lane, shared head and
+feature, respectively, with $0\le b<B$, $0\le h<H_{kv}$ and $0\le f<d$.
+After finding $s$ and $r$, the flat scalar index $i$ in either array is
+
+$$
+\begin{aligned}
+i&=\bigl((sB+b)H_{kv}+h\bigr)Pd\\
+ &\quad+rd+f.
+\end{aligned}
+$$
+
+This is the expanded row-major index for those five axes. In the default
+example each physical page occupies $1\times2\times3\times2=12$ scalar
+slots in each array. Physical page $2$ therefore starts at index $24$;
+each token row in head $0$ advances by $2$ scalars. Head $1$ begins another
+$3\times2=6$ scalars into that page.
+
+A scalar index counts `f64` elements in one array. Multiplying it by $8$
+gives a byte offset within that array, not a host or device pointer. Keys and
+values use the same index calculation in separate buffers. A logical snapshot
+still has shape $[B,H_{kv},n,d]$, where $n$ is the current live prefix length;
+it gathers only filled rows in logical order.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/incremental.rs"
+  region="paged-cache-row-index" captionId="paged-kv-layout-rust-index-caption"
+  caption="Keep one layer cache and select its contiguous or paged row index when locating the same logical row."
+  label="Rust: select storage addressing inside the existing layer KV cache" />
+
+The attention loop still visits eligible logical positions in increasing order.
+It performs the same dot products and weighted sums with the same operands and
+reduction order in this scalar CPU path. RoPE rotates keys and queries using
+logical positions, not physical page indices. A page size is a storage choice,
+not an attention-window size: a configured window still determines which
+logical positions may contribute. Paging neither evicts older rows nor expands
+their eligible context.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="paged-kv-layout-payload" data-review-id="paged-kv-layout-payload">
+
+## Count live rows and two kinds of unused payload
+
+The number of query heads, $H_q$, does not multiply stored K/V rows. Each
+logical token position needs one key and one value for every batch lane,
+shared K/V head and feature. Define $U=2BH_{kv}d$, the combined K/V scalar
+slots per token position; the factor $2$ counts the two arrays.
+
+For current length $0\le n\le C$, let $A=\lceil n/P\rceil$ be the number
+of logical pages containing at least one live row. At $n=0$, $A=0$. Write
+$S_{\mathrm{alloc}}$ for allocated scalar slots, $S_{\mathrm{live}}$ for
+filled slots, $S_{\mathrm{tail}}$ for unfilled slots in the last active page,
+and $S_{\mathrm{whole}}$ for slots in wholly inactive pages. Then
+
+$$
+\begin{aligned}
+S_{\mathrm{alloc}}&=UNP,\\
+S_{\mathrm{live}}&=Un,\\
+S_{\mathrm{tail}}&=U(AP-n),\\
+S_{\mathrm{whole}}&=U(N-A)P,\\
+S_{\mathrm{unused}}&=S_{\mathrm{alloc}}-S_{\mathrm{live}}\\
+&=S_{\mathrm{tail}}+S_{\mathrm{whole}}.
+\end{aligned}
+$$
+
+$S_{\mathrm{unused}}$ counts every allocated slot that does not currently
+hold a live logical row. The tail formula gives zero when the live prefix ends
+exactly at a page boundary or is empty. Every wholly inactive page remains
+allocated in this eager pool.
+
+For the main example, $U=2\times1\times2\times2=8$, $N=4$, $n=7$ and
+$A=3$. The observed counts combine both arrays for one layer:
+
+- Allocated: $96$ scalar slots, or $768$ bytes.
+- Live: $56$ slots, or $448$ bytes.
+- Unused: $40$ slots, or $320$ bytes.
+- Of those unused slots, the partial-page tail has $16$ slots, or $128$ bytes,
+  for unfilled positions $7,8$ in physical page $3$.
+- The inactive whole page has $24$ slots, or $192$ bytes, for positions
+  $9,10,11$ in physical page $1$.
+
+Each `f64` slot occupies $8$ bytes. The two layers together allocate $1536$
+bytes in these K/V arrays. These are buffer-length payload counts. They exclude
+page-table and object metadata, allocator overhead or excess capacity, model
+weights, activations and temporary tensors. They measure neither process RAM
+nor GPU memory, traffic or speed.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/paged.rs"
+  region="paged-kv-payload-accounting" captionId="paged-kv-layout-rust-payload-caption"
+  caption="Count both K/V buffers and separate the partial-page tail from reserved pages containing no live rows."
+  label="Rust: partition allocated KV scalar slots and their f64 payload bytes" />
+
+### A rounded page can reserve more than contiguous storage
+
+The report also constructs a separate, empty layer cache with $C=10$ and
+$P=3$, keeping the same batch count, shared heads and feature width. Four
+pages reserve room for $12$ token positions. The paged arrays contain $96$
+scalar slots, while contiguous arrays with capacity $10$ contain $80$.
+The extra $16$ slots occupy $128$ bytes. Logical positions $10,11$ remain
+inaccessible even though their rounded storage exists.
+
+This comparison has length $n=0$, so all of its allocated slots are unused.
+It does not have the main example's seven live rows. At the main capacity
+$12$, which divides evenly into pages, paged and contiguous storage instead
+reserve the same $96$ slots. An unused reserved page is not an unallocated
+page; paging by itself is no guarantee of a smaller payload.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="paged-kv-layout-history" data-review-id="paged-kv-layout-history">
+
+## From maximum-length reservation to block lookup
+
+[Kwon and colleagues' PagedAttention paper, version 1 dated 12 September 2023](https://arxiv.org/abs/2309.06180v1),
+describes the earlier inference design in section 3.1.
+Earlier LLM inference systems reserved contiguous KV storage for a sequence's maximum length, leaving reserved capacity unused when its live prefix was shorter.
+That reservation simplified addressing but tied physical storage to a chosen
+maximum rather than the currently filled prefix.
+
+[Sections 4.1–4.3 of the same version](https://arxiv.org/html/2309.06180v1)
+explain the block lookup.
+PagedAttention separates fixed-token logical blocks from physical blocks and uses a block table to locate keys and values during attention.
+Its complete system also supplies allocation, sharing and scheduling behavior;
+the paper's system gains cannot be inferred from an address calculation alone.
+
+Cache addressing can change without changing token order, rotary positions or eligible context.
+Retain the existing contiguous cache as the runnable reference and add page lookup to the same layer cache and decoder generation path.
+This chapter reserves a fixed host pool eagerly. It demonstrates addressing and numerical-payload accounting, without dynamic allocation, sharing, scheduling or measured system gains.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="paged-kv-layout-model" data-review-id="paged-kv-layout-model">
+
+## Compare layouts inside the same restored model
+
+`LayerKvCache::new_paged` reserves the selected layout's key and value buffers
+up front. `DecoderKvCache::new_paged` uses the same checked table in each
+existing layer cache. It requires the layout's logical capacity to match the
+model's position capacity. Existing parameter and RoPE bindings still prevent
+using cached rows with an incompatible model.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/generation/kv_cache.rs"
+  region="model-wide-paged-cache" captionId="paged-kv-layout-rust-model-cache-caption"
+  caption="Construct the existing decoder cache with explicit page placement while retaining its layer caches and model bindings."
+  label="Rust: select paged storage for the existing model-wide KV cache" />
+
+The cache still checks shapes, capacity and finite candidate values before
+appending. Size and byte-count overflow and allocation failures return errors.
+A decoder step prepares its layer rows and completes the output before
+committing them. A failure therefore cannot leave only some layers advanced
+across a page boundary. Reset removes the logical prefix while retaining the
+same buffers, their bytes and the page table; old bytes do not become live
+again until valid new rows are written.
+
+The default demo constructs the existing text model with width $8$, four query
+heads, two K/V heads, feed-forward width $12$, two layers, position capacity
+$12$ and initialization seed $20$. It has no local attention window. The demo
+saves and restores that model through `PortableModel`, then gives the same
+restored weights to the contiguous and paged caches.
+
+For each of the seven framed prefix lengths, it compares every paged vocabulary
+logit with two references: the contiguous cache and the current last row of a
+full-prefix forward pass. There are $258$ vocabulary coordinates in each row,
+so the report counts $7\times258=1806$ comparisons against **each** reference.
+Earlier full-prefix rows are not included in that count.
+
+<RustSource path="rust/demos/practical-ch20-paged-kv-layout/src/lib.rs"
+  region="paged-model-reference-comparison" captionId="paged-kv-layout-rust-comparison-caption"
+  caption="Restore one text model and compare every current-row logit across paged, contiguous and full-prefix computation."
+  label="Rust: compare the same restored model under two cache layouts and a full-prefix reference" />
+
+Both observed maximum absolute errors are $0$ in this CPU `f64` fixture,
+within the declared absolute tolerance $10^{-10}$. Contiguous and paged cached
+logits also match bit for bit. All compared outputs are graph-free, and the
+embedding and text head still share one tied table. The model ID remains
+<code style="overflow-wrap: anywhere; white-space: normal;">97d068dc931cc123096433f5f5dd0bf45bce815fe5163127155d251f32d5e5bc</code>.
+Page placement is execution/storage state, not a change to saved logical model
+weights or identity. This model has undergone no training updates. These
+comparisons establish neither language quality nor universal or cross-device
+bitwise equality.
+
+### Reuse the existing generation loop
+
+`generate_cached` and `generate_cached_with_layout` enter the same cached
+generation loop; the latter selects an optional page layout. Both use the
+existing sampler. In the default greedy fixture, prompt IDs `[0,99]` produce
+generated IDs `[70,56,216,6]`. The layouts give the same tokens, per-step
+records, stop reason and work counts, and their next random-generator values
+agree.
+
+<RustSource path="rust/demos/practical-ch20-paged-kv-layout/src/lib.rs"
+  region="paged-existing-generator-comparison" captionId="paged-kv-layout-rust-generation-caption"
+  caption="Run the existing cached generator with each layout and compare its complete result and next random-generator value."
+  label="Rust: compare contiguous and paged placement without replacing the generator or sampler" />
+
+The prompt contributes $2$ prefill inputs. Only the first $3$ selected tokens
+need a decode input: after selecting the fourth, generation has reached its
+token limit and stops. The generation cache therefore ends at length
+$2+3=5$, not at the prompt length plus every selected token. This is a
+separate generation run from the seven-position forced-prefix comparison.
+The untrained token IDs carry no text-quality claim.
+
+The demo uses the existing `config-lib` and `clap` paths. In the included
+native configuration, `page_table = 2 0 3 1` supplies the four page indices.
+An alternate table changes physical placement, while the tested model and
+generation results remain the same. The text wrapper retains its tokenizer;
+the shared backbone continues to consume encoded vectors and general layout
+without requiring text-tokenization logic.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="paged-kv-layout-visualization" data-review-id="paged-kv-layout-visualization">
+
+## Follow logical order through the physical pool
+
+The logical-page groups below retain token reading order. The physical-page
+groups show where those same rows reside, including pages and tails that were
+reserved but have no live rows. Every scalar start belongs to batch $0$,
+shared head $0$ and the first feature in each separate K/V array.
+
+export const pagedKvLayoutLabels = {
+  title: "Logical token order, different physical pages",
+  description: "Read logical token positions in order. The table maps logical pages zero, one and two to physical pages two, zero and three; within-page offsets stay the same. Each scalar start applies separately to the key and value arrays. Attention retains logical rotary positions and eligible context. Physical page three's tail and wholly inactive physical page one remain allocated; the payload cards partition their unused slots.",
+  settingsLabel: "Logical capacity, live length and token positions per page",
+  tableLabel: "Page table in logical-page order",
+  logicalTitle: "Read token positions in logical order",
+  logicalBody: "Scalar starts select the first feature of batch zero, shared K/V head zero, in each separate array.",
+  logicalPage: "Logical page",
+  mapsTo: "maps to physical page",
+  position: "Token position",
+  offset: "page offset",
+  scalarStart: "K/V scalar start",
+  physicalTitle: "Inspect the reserved physical pages",
+  physicalBody: "All four pages exist. A live row holds a cached key and value; a reserved row has no live token yet.",
+  physicalPage: "Physical page",
+  assignedLogicalPage: "Assigned logical page",
+  filled: "live",
+  reservedUnfilled: "reserved, unfilled",
+  capacityPadding: "outside logical capacity",
+  payloadTitle: "Partition one layer's combined K/V payload",
+  payloadBody: "Allocated payload consists of live rows and unused slots. Unused slots split into the last active page's tail and wholly inactive pages.",
+  allocatedTitle: "Allocated K/V buffers",
+  liveTitle: "Live K/V rows",
+  unusedTitle: "Unused allocated slots",
+  slots: "Scalar slots",
+  bytes: "Payload bytes",
+  tail: "Partial-page tail",
+  whole: "Inactive whole pages",
+  total: "Allocated K/V payload across both decoder layers, in bytes",
+  scope: "CPU f64 fixture: one batch lane, four query heads, two shared K/V heads and two features per head. Counts combine the two separate K/V arrays, at eight bytes per scalar slot. They exclude metadata, other allocations and process RAM, and establish no GPU or speed result."
+};
+
+<PagedKvLayoutDiagram labels={pagedKvLayoutLabels} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="paged-kv-layout-exercises" data-review-id="paged-kv-layout-exercises">
+
+## Reproduce the report and inspect the invariants
+
+Run from the repository root with Docker and the repository's existing course
+Docker setup available. The configuration, tokenizer and text fixtures are
+included; no external corpus or model is needed. This CPU command prints the
+mapping, per-layer payloads, model comparisons and generation result as JSON:
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch20-paged-kv-layout
+```
+
+The report includes `mappings`, `physical_pages`, `per_layer_payloads`,
+`model_comparison`, `generation` and `rounding_comparison_empty_layer`.
+Both comparison errors are zero, `same_cached_bits` and `within_tolerance`
+are true, and the generated IDs are `[70,56,216,6]`.
+
+With the same working directory and Docker setup, run the demo checks:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch20-paged-kv-layout --lib
+```
+
+Exactly $2$ tests pass: the default report checks and an alternate native-config
+page order. To run the cache-layout checks, use
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p llm-from-scratch-practical attention::paged::tests --lib
+```
+
+Exactly $10$ tests pass. They cover page-table validation and overflow,
+payload conservation and rounding, batched MHA/GQA head sharing with full and
+windowed context, logical snapshots and reset, model logits, existing greedy
+and temperature/top-k generation, binding and capacity errors, and failed-step
+rollback. They include a failure after all layer rows have been prepared,
+which must leave every physical cache unchanged.
+
+### Optional inspection and explanation practice
+
+<ol id="paged-kv-layout-practice" data-review-id="paged-kv-layout-practice">
+  <li id="paged-kv-layout-practice-1" data-review-id="paged-kv-layout-practice-1">Use <code>mappings</code> from the default command above to trace positions $2$, $3$ and $6$. Identify each logical page, physical page, page offset and first-feature scalar index, then explain which order attention must read.</li>
+  <li id="paged-kv-layout-practice-2" data-review-id="paged-kv-layout-practice-2">Inspect <code>per_layer_payloads</code> and <code>physical_pages</code> in that report. Reconcile allocated, live and unused K/V slots, then split the unused portion into a partial-page tail and an inactive whole page. State their byte counts.</li>
+  <li id="paged-kv-layout-practice-3" data-review-id="paged-kv-layout-practice-3">Inspect <code>model_comparison</code> and <code>generation</code>. Explain the logit count per reference, what the zero errors establish, and why selecting four tokens from a two-token prompt leaves a generation cache of length five.</li>
+  <li id="paged-kv-layout-practice-4" data-review-id="paged-kv-layout-practice-4">Inspect <code style="overflow-wrap: anywhere; white-space: normal;">rounding_comparison_empty_layer</code> and run the two test commands above. Explain the extra paged reservation, identify its live length, and relate the reset and failed-step checks to the difference between reserved storage and valid cached state.</li>
+</ol>
+
+<details id="paged-kv-layout-answers" data-review-id="paged-kv-layout-answers">
+<summary id="paged-kv-layout-answers-summary" data-review-id="paged-kv-layout-answers-summary">Checked answers: page crossings, K/V payload, model comparisons and rounding</summary>
+
+<ol id="paged-kv-layout-answers-list">
+  <li id="paged-kv-layout-answer-1" data-review-id="paged-kv-layout-answer-1">Position $2$ uses logical page $0$, physical page $2$, offset $2$ and scalar index $28$. Position $3$ uses logical page $1$, physical page $0$, offset $0$ and index $0$. Position $6$ uses logical page $2$, physical page $3$, offset $0$ and index $36$. Each index selects batch $0$, shared head $0$, first feature in each separate array. Reads follow logical token order despite the change in physical addresses.</li>
+  <li id="paged-kv-layout-answer-2" data-review-id="paged-kv-layout-answer-2">Both arrays together use $8$ scalar slots per token position. Per layer, $96=56+40$ slots are allocated, live and unused, respectively; $40=16+24$ splits unused slots into tail and whole-page portions. In bytes, $768=448+320$ and $320=128+192$. Physical page $3$ contributes the unfilled positions $7,8$; physical page $1$ contributes $9,10,11$. The inactive page is still allocated. The two layers' arrays allocate $1536$ bytes altogether; these are numerical payloads, not process RAM measurements.</li>
+  <li id="paged-kv-layout-answer-3" data-review-id="paged-kv-layout-answer-3">Seven framed prefixes times $258$ vocabulary logits give $1806$ coordinates against each reference, counting only each full-prefix current last row. Both measured maximum errors are $0$ within absolute tolerance $10^{-10}$ on CPU <code>f64</code>; the cached bits, model ID and tied table also agree. This finite untrained fixture proves no language quality or cross-device equality. Greedy output IDs are <code>[70,56,216,6]</code>. Two prefill inputs and three decode inputs leave cache length $5$: after selecting the fourth token the limit stops generation before feeding it back.</li>
+  <li id="paged-kv-layout-answer-4" data-review-id="paged-kv-layout-answer-4">The separate capacity-$10$, page-size-$3$ cache is empty, with live length $0$. It reserves $12$ physical token positions: $96$ paged K/V slots versus $80$ contiguous slots, an extra $16$ slots or $128$ bytes. All are unused; logical positions $10,11$ stay invalid. The commands select $2$ demo tests and $10$ paging-library tests. Reset retains allocations, bytes and table while clearing the live prefix. Failed prepared steps retain the previous physical state of every layer. Reserved bytes alone do not make a valid cached prefix.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="paged-kv-layout-handoff" data-review-id="paged-kv-layout-handoff">
+
+## Keep storage placement separate from token choice
+
+The same text encoder, source-independent backbone, tied head and cached
+generator now support explicit page placement without changing logical context
+or saved model identity. The cache translates addresses while RoPE, eligible
+keys, shared heads and the sampler retain their existing roles.
+
+Planned Chapter 21, Sampling distributions, will extend how the existing sampler
+turns vocabulary scores into token choices. Cache placement and sampling policy
+are separate decisions: this chapter changes where a row is stored, while the
+next lesson studies how a token is selected from the model's scores.
+
+</div>

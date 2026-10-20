@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt;
 
 use crate::attention::incremental::{IncrementalAttentionError, LayerKvCache, LayerKvCacheError};
+use crate::attention::paged::PagedKvLayout;
 #[cfg(test)]
 use crate::autograd::tensor_core::AutogradContext;
 use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, TensorValueBinding};
@@ -66,6 +67,10 @@ impl fmt::Display for CachedDecoderStage {
 /// A rejected model/cache pairing, phase transition, token, or decoder stage.
 #[derive(Clone, Debug, PartialEq)]
 pub enum DecoderKvCacheError {
+    PagedCapacityMismatch {
+        layout: usize,
+        model: usize,
+    },
     Dropout(crate::nn::dropout::DropoutError),
     LayerAllocationFailed {
         layers: usize,
@@ -174,6 +179,10 @@ pub enum DecoderKvCacheError {
 impl fmt::Display for DecoderKvCacheError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::PagedCapacityMismatch { layout, model } => write!(
+                formatter,
+                "paged KV logical capacity {layout} differs from model position capacity {model}"
+            ),
             Self::Dropout(source) => source.fmt(formatter),
             Self::PreparedInput { reason } => write!(formatter, "prepared decoder input: {reason}"),
             Self::LayerAllocationFailed { layers } => {
@@ -429,10 +438,42 @@ impl PartialEq for DecoderKvCache {
     }
 }
 
+fn validate_paged_capacity(
+    capacity: usize,
+    layout: Option<&PagedKvLayout>,
+) -> Result<(), DecoderKvCacheError> {
+    if let Some(layout) = layout
+        && layout.capacity() != capacity
+    {
+        return Err(DecoderKvCacheError::PagedCapacityMismatch {
+            layout: layout.capacity(),
+            model: capacity,
+        });
+    }
+    Ok(())
+}
+
 impl DecoderKvCache {
     /// Allocates one fixed-capacity cache per block and captures compatibility evidence.
     pub fn new(model: &DecoderModel) -> Result<Self, DecoderKvCacheError> {
+        Self::new_with_layout(model, None)
+    }
+
+    // region:model-wide-paged-cache
+    /// Select page placement without changing the model or cached decoder computation.
+    pub fn new_paged(
+        model: &DecoderModel,
+        layout: &PagedKvLayout,
+    ) -> Result<Self, DecoderKvCacheError> {
+        Self::new_with_layout(model, Some(layout))
+    }
+
+    fn new_with_layout(
+        model: &DecoderModel,
+        layout: Option<&PagedKvLayout>,
+    ) -> Result<Self, DecoderKvCacheError> {
         let config = model.config();
+        validate_paged_capacity(config.max_positions(), layout)?;
         let mut parameter_bindings = Vec::new();
         parameter_bindings
             .try_reserve_exact(model.parameters().len())
@@ -454,8 +495,11 @@ impl DecoderKvCache {
             })?;
         for (layer, block) in model.blocks().iter().enumerate() {
             layers.push(
-                LayerKvCache::new(block.attention(), 1, config.max_positions())
-                    .map_err(|source| DecoderKvCacheError::LayerCache { layer, source })?,
+                match layout {
+                    Some(layout) => LayerKvCache::new_paged(block.attention(), 1, layout.clone()),
+                    None => LayerKvCache::new(block.attention(), 1, config.max_positions()),
+                }
+                .map_err(|source| DecoderKvCacheError::LayerCache { layer, source })?,
             );
         }
         Ok(Self {
@@ -467,6 +511,7 @@ impl DecoderKvCache {
             work: DecoderKvCacheWork::default(),
         })
     }
+    // endregion:model-wide-paged-cache
 
     /// Validates one exact pairing and retains read borrows of the model's parameter values.
     pub fn bind<'model, 'cache>(
@@ -1040,10 +1085,23 @@ pub fn generate_cached(
     config: GenerationConfig,
     rng: &mut SplitMix64,
 ) -> Result<CachedGenerationResult, CachedGenerationError> {
+    generate_cached_with_layout(model, prompt, config, rng, None)
+}
+
+// region:cached-generation-layout-selection
+/// Runs the existing generator with an optional bounded KV-page placement.
+pub fn generate_cached_with_layout(
+    model: &DecoderModel,
+    prompt: &[u32],
+    config: GenerationConfig,
+    rng: &mut SplitMix64,
+    layout: Option<&PagedKvLayout>,
+) -> Result<CachedGenerationResult, CachedGenerationError> {
     let model_config = model.config();
     let vocabulary_size = model_config.vocabulary_size();
     let max_positions = model_config.max_positions();
     validate_generation_request(vocabulary_size, max_positions, prompt, config)?;
+    validate_paged_capacity(max_positions, layout)?;
 
     let planned_steps = config.max_new_tokens().min(
         max_positions
@@ -1085,7 +1143,7 @@ pub fn generate_cached(
         });
     }
 
-    let mut cache = DecoderKvCache::new(model)?;
+    let mut cache = DecoderKvCache::new_with_layout(model, layout)?;
     let mut session = cache.bind(model)?;
     let mut current = session.prefill(prompt)?;
     let mut prefix_length = prompt.len();
@@ -1154,6 +1212,7 @@ pub fn generate_cached(
         },
     })
 }
+// endregion:cached-generation-layout-selection
 
 fn validate_generation_request(
     vocabulary_size: usize,

@@ -1,0 +1,40 @@
+{
+  "chapter_id": "20-paged-kv-layout",
+  "locale": "en",
+  "title": "KV page placement and payload",
+  "description": "Distinguish logical positions, physical storage and the live or unused parts of a reserved KV pool.",
+  "terms": [
+    {
+      "term": "Paged KV cache",
+      "definition": "A key/value cache that divides logical token positions into fixed-size pages and looks up each page's physical placement. This chapter reserves the complete pool up front and reads cached rows in logical token order."
+    },
+    {
+      "term": "Logical token position",
+      "definition": "A token's index in the sequence being processed. It determines the token's rotary position and its place in the attention context; moving its cached row to another physical page does not change that index."
+    },
+    {
+      "term": "KV page table",
+      "definition": "The mapping from a logical cache page to its physical page. Here it is an immutable permutation of the reserved pages, so distinct logical pages cannot overwrite one another. A token keeps its offset within the selected page."
+    },
+    {
+      "term": "Physical KV page",
+      "definition": "A reserved storage region for a fixed number of token positions across the cache's batch lanes, shared K/V heads and features. Its index locates data in the key and value arrays; it does not specify logical token order."
+    },
+    {
+      "term": "Partial-page tail",
+      "definition": "Allocated slots after the live prefix within its last active KV page. They hold no live rows yet. This portion is zero for an empty prefix or a prefix ending exactly at a page boundary."
+    },
+    {
+      "term": "Inactive KV page",
+      "definition": "A reserved cache page containing no live token rows. In this chapter's eager pool it remains allocated, and its K/V slots count as unused payload."
+    },
+    {
+      "term": "KV payload",
+      "definition": "The scalar slots in the key and value buffers being counted, or their numerical bytes. Counts combine both arrays using shared K/V heads; they exclude metadata, other allocations and process RAM."
+    },
+    {
+      "term": "Eager cache reservation",
+      "definition": "Allocate every cache page when creating the cache, before the sequence fills it. Unused pages remain allocated, and rounding a logical capacity up to complete pages can reserve more payload than a contiguous cache."
+    }
+  ]
+}
