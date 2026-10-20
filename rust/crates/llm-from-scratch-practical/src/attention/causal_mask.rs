@@ -7,6 +7,17 @@ use super::self_attention::{SelfAttentionError, scaled_self_attention_scores_wit
 use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::tensor::storage::{Tensor, TensorError};
 
+// region:causal-window-start
+/// A window counts the self key and at most `window - 1` preceding cells.
+/// Intersect it with the existing segment boundary; neither restriction is lost.
+pub fn causal_window_start(query: usize, segment_start: usize, window: usize) -> Option<usize> {
+    if window == 0 || segment_start > query {
+        return None;
+    }
+    Some(segment_start.max(query.saturating_sub(window - 1)))
+}
+// endregion:causal-window-start
+
 // region:causal-masking-errors
 /// The causal-only forward stage at which a cumulative operation failed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -46,6 +46,7 @@ for (const viewport of [{ width: 1364, height: 900 }, { width: 390, height: 844 
     ['14-optimizer-schedules-clipping', '15-save-load-resume-model', 14, 15],
     ['15-save-load-resume-model', '16-language-model-evaluation', 15, 16],
     ['16-language-model-evaluation', '17-weight-quantization', 16, 17],
+    ['17-weight-quantization', '18-grouped-query-attention-context', 17, 18],
   ] as const) {
   test(`@chapter:${sourceId} Chapter ${sourceOrder} next navigation reaches Chapter ${targetOrder} at ${viewport.width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);

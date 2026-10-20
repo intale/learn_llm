@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "18-grouped-query-attention-context",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Share key/value heads and make context explicit",
+  "description": "Trace shared key/value groups and local causal windows, count cache payload and compare each initialized model's full-prefix and cached CPU logits.",
+  "objective": "Share learned key/value heads among query heads, intersect a local window with causal context, and compare the same model's full-prefix and cached CPU results."
+}

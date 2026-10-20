@@ -814,6 +814,8 @@ fn decoder_configs_match_exactly(selected: DecoderModelConfig, model: DecoderMod
     selected.vocabulary_size() == model.vocabulary_size()
         && selected.model_width() == model.model_width()
         && selected.heads() == model.heads()
+        && selected.kv_heads() == model.kv_heads()
+        && selected.context_window() == model.context_window()
         && selected.feed_forward_width() == model.feed_forward_width()
         && selected.layers() == model.layers()
         && selected.max_positions() == model.max_positions()

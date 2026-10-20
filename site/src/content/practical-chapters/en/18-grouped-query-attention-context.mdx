@@ -1,0 +1,611 @@
+---
+{
+  "chapter_id": "18-grouped-query-attention-context",
+  "content_revision": 1,
+  "order": 18,
+  "concept_id": "grouped-query-attention",
+  "title": "Share key/value heads and make context explicit",
+  "description": "Trace shared key/value groups and local causal windows, count cache payload and compare each initialized model's full-prefix and cached CPU logits.",
+  "objective": "Share learned key/value heads among query heads, intersect a local window with causal context, and compare the same model's full-prefix and cached CPU results.",
+  "worked_inputs": "Use four text-derived rows, four query heads and two key/value heads to explain full-causal and window-two value mixtures; then compare every vocabulary logit of four initialized models with each model's own cached path.",
+  "formula": {
+    "latex": "\\begin{aligned}r&=H_q/H_{kv},\\\\g(h)&=\\lfloor h/r\\rfloor,\\\\\\ell_{b,t}&=\\max(s_{b,t},t-w+1),\\\\\\mathcal A_{b,t}&=\\{j:\\ell_{b,t}\\le j\\le t<n_b\\}.\\end{aligned}",
+    "symbols": [
+      { "symbol": "H_q", "meaning": "positive number of query heads" },
+      { "symbol": "H_{kv}", "meaning": "positive number of shared key heads and, separately, value heads; it divides the query-head count" },
+      { "symbol": "r", "meaning": "number of adjacent query heads sharing one key/value head" },
+      { "symbol": "h", "meaning": "zero-based query-head index" },
+      { "symbol": "g(h)", "meaning": "zero-based key/value-head index read by query head h" },
+      { "symbol": "b", "meaning": "batch-row index" },
+      { "symbol": "t", "meaning": "query cell's zero-based sequence-row index" },
+      { "symbol": "s_{b,t}", "meaning": "existing permitted segment's first sequence-row index for this query" },
+      { "symbol": "w", "meaning": "positive local-window length in sequence cells, including the current cell" },
+      { "symbol": "\\ell_{b,t}", "meaning": "first eligible key cell after intersecting the segment with the local window" },
+      { "symbol": "\\mathcal A_{b,t}", "meaning": "set of key-cell indices permitted for this active query" },
+      { "symbol": "j", "meaning": "key cell's zero-based sequence-row index" },
+      { "symbol": "n_b", "meaning": "number of active sequence cells in batch row b" }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "inference-design",
+      "limitation": "Ordinary multi-head attention keeps a separate learned key/value projection and cached lane for every query head; restricting a row's direct context is a separate choice from sharing those lanes.",
+      "later_advance": "Grouped-query attention shares key/value heads within query-head groups, while sliding-window attention restricts the direct keys read by each layer.",
+      "modern_llm_role": "Keep head sharing, direct-context eligibility and physical cache storage distinct when accounting for an autoregressive decoder.",
+      "sources": [
+        {
+          "role": "earlier", "year": 2023,
+          "name": "Mistral 7B, arXiv version 1, 10 October 2023",
+          "source_url": "https://arxiv.org/abs/2310.06825v1",
+          "claim": "Jiang and colleagues describe GQA with sliding-window attention and a rolling buffer that overwrites old KV entries."
+        },
+        {
+          "role": "later", "year": 2023,
+          "name": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+          "source_url": "https://aclanthology.org/2023.emnlp-main.298/",
+          "claim": "Ainslie and colleagues describe one key head and one value head shared within each query-head group."
+        }
+      ]
+    },
+    "approach": "Reuse the existing projections, head operations, causal attention, differentiable gather and incremental cache, with distinct query and key/value head counts and an optional local window.",
+    "summary": "The adjacent head map, inclusive-current-row window, initialized fixtures and fixed-capacity all-prefix cache are course choices. They reproduce neither pretrained conversion nor either paper's speed or quality results.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs"
+  },
+  "rust_sources": [
+    { "path": "rust/demos/practical-ch18-grouped-query-attention-context/src/lib.rs", "region": "grouped-attention-worked-example", "purpose": "Construct four text-derived rows and expose the observed shared-head mixtures with and without a local window." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs", "region": "query-to-kv-head", "purpose": "Map each adjacent group of query heads to its shared key/value head." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/qkv.rs", "region": "grouped-qkv-widths", "purpose": "Construct distinct query and key/value projection widths with the existing linear layers." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs", "region": "shared-kv-gather", "purpose": "Reuse differentiable gather and the existing full attention kernel while summing shared key/value gradients." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/causal_mask.rs", "region": "causal-window-start", "purpose": "Intersect an inclusive-self local window with the existing segment lower bound." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs", "region": "windowed-head-ranges", "purpose": "Apply the same local-window restriction to active padded or packed full-attention lanes." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/incremental.rs", "region": "cached-window-scores", "purpose": "Read each query head's shared cached key lane and normalize scores over the eligible suffix." },
+    { "path": "rust/demos/practical-ch18-grouped-query-attention-context/src/lib.rs", "region": "full-prefix-cached-comparison", "purpose": "Compare every vocabulary coordinate at every prefix for each model's own saved and reloaded weights." },
+    { "path": "rust/demos/practical-ch18-grouped-query-attention-context/src/lib.rs", "region": "save-grouped-window-model", "purpose": "Save initialized grouped-query and window settings with the existing portable model for later CPU inference." }
+  ],
+  "visualization": {
+    "decision": "useful", "id": "grouped-query-attention", "component": "GroupedQueryAttentionDiagram",
+    "rationale": "Connect four query heads to their two shared key/value groups, then compare the same final query row's permitted keys, probabilities and value mixtures with and without a local window."
+  },
+  "decoder_connection": "The same text encoder, source-independent backbone, tied head and CPU inference path retain the key/value-head count and local window as semantic model settings. Planned Chapter 19, Online and tiled attention, will study the materialized attention intermediates that remain in this reference path."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import GroupedQueryAttentionDiagram from "../../../components/chapters/GroupedQueryAttentionDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="grouped-query-attention-worked-example" data-review-id="grouped-query-attention-worked-example">
+
+## Share retained keys and values while keeping separate queries
+
+Cached generation retains earlier keys and values so the decoder can extend a
+prefix without recomputing every earlier row. In ordinary multi-head attention,
+each query head has its own learned key and value projections and its own cached
+K/V lane. More heads therefore retain more key/value data at the same per-head
+width. A group of query heads can instead read shared keys and values while
+keeping its distinct learned queries.
+
+There is also a separate choice about context: an attention row may read its
+whole permitted causal prefix or only a recent part of that prefix. Sharing K/V
+heads changes which learned lanes exist. A local window changes which sequence
+cells those heads may read. We will make both choices explicit in the existing
+attention and cache.
+
+### Follow four query heads into two shared groups
+
+The worked example starts with the four content tokens in `abcd`, without
+document boundary tokens. Its constructed embedding rows have width $8$ and
+first features $1,2,3,4$; their other features are zero. There are $4$ query
+heads and $2$ shared key/value heads, with $2$ features per head. Query heads
+$0$ and $1$ read KV head $0$; query heads $2$ and $3$ read KV head $1$.
+The zero-based map is $[0,0,1,1]$.
+
+For this example only, set the query and key projection weights to zero. Every
+permitted scaled dot product is then zero, so softmax gives equal weight to
+every permitted key. The two value-head sequences, in token order, are
+
+$$
+V_0=\begin{pmatrix}1&0\\2&0\\3&0\\4&0\end{pmatrix},
+\qquad
+V_1=\begin{pmatrix}0&10\\0&20\\0&30\\0&40\end{pmatrix}.
+$$
+
+The output projection is the identity, so merging the four head results leaves
+their coordinates unchanged. At the last query cell, $t=3$, full causal
+attention permits key cells $0,1,2,3$. Each query head assigns weights
+$(1/4,1/4,1/4,1/4)$. The resulting head outputs are
+
+$$
+\begin{aligned}
+z_{0,3}=z_{1,3}&=(2.5,0),\\
+z_{2,3}=z_{3,3}&=(0,25).
+\end{aligned}
+$$
+
+For example, the first shared value coordinate becomes
+$(1+2+3+4)/4=2.5$. The Rust report's merged output is
+`[2.5,0.0,2.5,0.0,0.0,25.0,0.0,25.0]`.
+
+Now give the same attention layer a window of $2$ cells, including the current
+cell. At $t=3$, only key cells $2$ and $3$ contribute. Each query head's
+weights become $(0,0,1/2,1/2)$, giving
+
+$$
+\begin{aligned}
+z_{0,3}=z_{1,3}&=(3.5,0),\\
+z_{2,3}=z_{3,3}&=(0,35).
+\end{aligned}
+$$
+
+The merged Rust output is now
+`[3.5,0.0,3.5,0.0,0.0,35.0,0.0,35.0]`. Both cases share the same K/V
+groups; the changed permitted keys explain the changed averages. Equal
+probabilities across query heads come from the deliberately zero Q/K in this
+fixture. With learned nonzero queries, heads reading the same keys and values
+can assign different probabilities.
+
+<RustSource path="rust/demos/practical-ch18-grouped-query-attention-context/src/lib.rs"
+  region="grouped-attention-worked-example" captionId="grouped-query-attention-rust-example-caption"
+  caption="Construct four text-derived rows and compare their full-causal and window-two shared-head mixtures."
+  label="Rust: construct the explained shared-head attention example" />
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="grouped-query-attention-rules" data-review-id="grouped-query-attention-rules">
+
+## Give each query head an explicit shared KV head
+
+Let $D$ be model width, $H_q$ the positive query-head count and $H_{kv}$ the
+positive key/value-head count. The per-head feature width is $d=D/H_q$.
+Require $D$ to be divisible by $H_q$, $d$ to be positive and even for RoPE,
+and $H_q$ to be divisible by $H_{kv}$. These conditions give whole feature
+lanes, complete rotation pairs and equally sized query-head groups.
+
+Each group has $r=H_q/H_{kv}$ adjacent query heads. Query head $h$, indexed
+from zero, reads shared KV head $g(h)=\lfloor h/r\rfloor$. In the worked
+example, $r=2$, so the first two queries use KV head $0$ and the next two
+use KV head $1$.
+
+With row-vector matrix conventions, the bias-free query and output matrices
+$W_q,W_o$ each have shape $[D,D]$. The key and value matrices $W_k,W_v$
+each have shape $[D,H_{kv}d]$. For $B$ batch rows and $T$ stored sequence
+cells per row, splitting the projections gives
+
+$$
+\begin{aligned}
+Q&:[B,H_q,T,d],\\
+K,V&:[B,H_{kv},T,d].
+\end{aligned}
+$$
+
+Here $B$ counts independent batch rows, $T$ counts cells including any storage
+padding, and $d$ counts features per head. The worked example's projected keys
+have shape $[1,2,4,2]$. RoPE rotates Q and K using their existing position
+labels. It leaves V unchanged and does not change which head shares which K/V.
+
+For one batch row, write $q_{h,t}$ and $k_{g(h),j}$ for the rotated query
+and key vectors. Their score is
+
+$$
+a_{h,t,j}=\frac{\langle q_{h,t},k_{g(h),j}\rangle}{\sqrt d}.
+$$
+
+For the set $\mathcal A_t$ of permitted key cells, normalize this query's
+scores only over that set and mix its shared values:
+
+$$
+\begin{aligned}
+p_{h,t,j}&=\frac{\exp(a_{h,t,j})}
+ {\sum_{u\in\mathcal A_t}\exp(a_{h,t,u})},\quad j\in\mathcal A_t,\\
+z_{h,t}&=\sum_{j\in\mathcal A_t}p_{h,t,j}\,v_{g(h),j}.
+\end{aligned}
+$$
+
+$j$ and $u$ index key cells; $p$ is a dimensionless attention probability;
+$v$ is the unrotated value vector; $z$ is the resulting head vector. Excluded
+cells have probability zero. Each query head performs its own normalization.
+The formula states the ideal normalization; Rust reuses its existing stable
+`softmax` on the permitted scores.
+Concatenating all $H_q$ head results restores $D$ features, which pass through
+the existing output projection $W_o$.
+
+Ordinary multi-head attention (MHA) is the endpoint $H_{kv}=H_q$, with one
+KV head per query head. Multi-query attention (MQA) is $H_{kv}=1$, with all
+queries sharing one KV head. Intermediate sharing is grouped-query attention
+(GQA). These are settings of this same attention path. Changing $H_{kv}$
+changes learned matrix shapes; it is not a way to convert trained weights by
+editing a setting alone.
+
+### Intersect the window with the context already permitted
+
+For batch row $b$, let $n_b$ count active cells and let $s_{b,t}$ be the
+first key cell in query $t$'s existing permitted segment. An active query
+satisfies $t<n_b$. Without a local window, its causal keys satisfy
+$s_{b,t}\le j\le t$. A positive window length $w$ counts the current cell
+and at most $w-1$ earlier cells. The head map and window rule are
+
+$$
+\begin{aligned}r&=H_q/H_{kv},\\g(h)&=\lfloor h/r\rfloor,\\\ell_{b,t}&=\max(s_{b,t},t-w+1),\\\mathcal A_{b,t}&=\{j:\ell_{b,t}\le j\le t<n_b\}.\end{aligned}
+$$
+
+$\ell_{b,t}$ is the intersected lower bound and $\mathcal A_{b,t}$ is the
+permitted key set. The segment bound is nonnegative, so it also prevents a
+negative mathematical lower bound near the start. Rust uses saturating
+subtraction before the maximum. An active valid segment always includes its
+self key, keeping its normalization set nonempty. A zero window is refused.
+Inactive padded queries keep zero attention probabilities and outputs.
+
+The window counts sequence cells, independently of the numerical RoPE labels.
+For six active packed cells, the report contains
+
+$$
+\begin{aligned}
+\text{segment starts}&=[0,0,2,2,2,5],\\
+\text{window-two starts}&=[0,0,2,2,3,5],\\
+\text{RoPE positions}&=[0,1,0,1,2,0].
+\end{aligned}
+$$
+
+At cell $4$, the segment starts at $2$, but the window starts at $3$; only
+keys $3$ and $4$ remain. At cell $5$, a new segment starts at $5$, so only
+self remains. Reset RoPE labels do not join segments or change this count.
+A window of $1$ permits only self; a sufficiently wide window recovers the
+existing causal range. “No local window” still obeys the model's position and
+cache capacity.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="grouped-query-attention-storage" data-review-id="grouped-query-attention-storage">
+
+## Count learned weights and retained cache data separately
+
+The four bias-free attention matrices contain
+
+$$
+N_{\mathrm{attn}}=2D^2+2D H_{kv}d
+$$
+
+learned scalars per layer: the first term counts Q and output weights, and
+the second counts K and V. With $H_{kv}=H_q$, this becomes $4D^2$.
+Other model parts, including norms, feed-forward layers and the single tied
+text table, retain their own parameter counts.
+
+Each layer's cache stores K and V with physical shape $[B,H_{kv},C,d]$,
+where $C$ is sequence capacity. For $L$ layers of `f64` data, allocation
+payload in bytes is
+
+$$
+M_{\mathrm{KV}}=2B L H_{kv} C d\times8.
+$$
+
+The factor $2$ counts K plus V; $8$ is bytes per `f64` scalar. If $u$ prefix
+cells are occupied, replace $C$ by $u$ to count their logical payload. Both
+counts exclude Rust objects, vectors and allocator overhead. At fixed other
+axes and element type, the GQA-to-MHA payload ratio is $H_{kv}/H_q$.
+
+The complete-model report uses $B=1$, $L=2$, $C=8$, $D=8$, $H_q=4$,
+$d=2$ and $u=6$. Its six rows include two document boundary tokens, unlike
+the four content-only rows in the worked example.
+
+<table id="grouped-query-attention-storage-table" tabindex="0">
+  <caption id="grouped-query-attention-storage-caption">Initialized models: learned scalars and K-plus-V payload at six occupied rows, capacity eight</caption>
+  <thead><tr>
+    <th id="grouped-query-attention-storage-setting-header" scope="col">Attention setting</th>
+    <th id="grouped-query-attention-storage-layer-header" scope="col">Attention scalars per layer</th>
+    <th id="grouped-query-attention-storage-model-header" scope="col">Model scalars</th>
+    <th id="grouped-query-attention-storage-allocated-header" scope="col">Allocated KV bytes</th>
+    <th id="grouped-query-attention-storage-occupied-header" scope="col">Occupied KV bytes</th>
+  </tr></thead>
+  <tbody>
+    <tr id="grouped-query-attention-storage-mha"><th scope="row">MHA: $4$ KV heads, no local window</th><td>$256$</td><td>$3384$</td><td>$2048$</td><td>$1536$</td></tr>
+    <tr id="grouped-query-attention-storage-gqa"><th scope="row">GQA: $2$ KV heads, no local window</th><td>$192$</td><td>$3256$</td><td>$1024$</td><td>$768$</td></tr>
+    <tr id="grouped-query-attention-storage-mqa"><th scope="row">MQA: $1$ KV head, no local window</th><td>$160$</td><td>$3192$</td><td>$512$</td><td>$384$</td></tr>
+    <tr id="grouped-query-attention-storage-window"><th scope="row">GQA: $2$ KV heads, window $2$</th><td>$192$</td><td>$3256$</td><td>$1024$</td><td>$768$</td></tr>
+  </tbody>
+</table>
+
+Sharing halves the GQA cache payload relative to MHA here. Adding window $2$
+does not change GQA's allocation or occupied prefix payload: this cache keeps
+all earlier rows up to its fixed capacity. It does not evict old entries.
+
+The full CPU reference also materializes repeated K/V lanes and dense attention
+scores. Smaller learned K/V matrices and persistent cache payload therefore do
+not establish a smaller full-training peak memory footprint or faster attention.
+These counts describe numerical payload, not complete process RAM, throughput
+or model quality.
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="grouped-query-attention-history" data-review-id="grouped-query-attention-history">
+
+## Relate shared heads to local context
+
+Ordinary multi-head attention keeps a separate learned key/value projection and cached lane for every query head; restricting a row's direct context is a separate choice from sharing those lanes.
+
+In [GQA, published at EMNLP 2023](https://aclanthology.org/2023.emnlp-main.298/),
+Ainslie and colleagues describe one key head and one value head shared within
+each query-head group. Their comparison places MQA at one group and MHA at one
+group per query. For conversion from an existing multi-head checkpoint, they
+separately describe averaging K/V projections and further pretraining. Our
+initialized examples perform neither conversion nor that adaptation procedure;
+changing the head count alone supplies no quality guarantee.
+
+In the [Mistral 7B report, version 1 dated 10 October 2023](https://arxiv.org/abs/2310.06825v1),
+Jiang and colleagues describe GQA with sliding-window attention and a rolling buffer that overwrites old KV entries.
+Stacked layers can transmit older information through more recent hidden
+states. Our window restricts
+each layer's direct keys while retaining fixed-capacity all-prefix storage.
+It does not implement that rolling buffer or the report's chunked prefill.
+
+Grouped-query attention shares key/value heads within query-head groups, while sliding-window attention restricts the direct keys read by each layer.
+Keep head sharing, direct-context eligibility and physical cache storage distinct when accounting for an autoregressive decoder.
+The adjacent map, inclusive-self window and small CPU fixtures here are course
+choices. They establish none of either paper's speed, training or quality
+results.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="grouped-query-attention-rust" data-review-id="grouped-query-attention-rust">
+
+## Extend the existing full and cached attention paths
+
+The checked attention constructor establishes the divisibility conditions.
+`kv_head_for_query` then exposes the same adjacent map to the full pass and
+the example report. An out-of-range query head has no KV head.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs"
+  region="query-to-kv-head" captionId="grouped-query-attention-rust-map-caption"
+  caption="Map a valid query head to the shared key/value head of its adjacent group."
+  label="Rust: map query heads to shared key/value heads" />
+
+`QkvProjections::new_grouped` reuses the existing `Linear` layers. Q keeps
+width $D$ while K and V use width $H_{kv}d$. A trial random state is committed
+only after all three projections have been constructed successfully.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/qkv.rs"
+  region="grouped-qkv-widths" captionId="grouped-query-attention-rust-widths-caption"
+  caption="Construct query and shared key/value projection widths with the existing bias-free linear layers."
+  label="Rust: construct unequal query and key/value widths" />
+
+For the full CPU reference, `expand_kv_heads` uses existing row gather to
+repeat each group's K/V rows into the query-head lanes expected by the existing
+attention kernel. The equal-head case needs no expansion. Reverse-mode gather
+adds contributions from repeated lanes back to the original shared row. Thus
+the shared K/V gradient is the sum of the corresponding gradients in a
+controlled MHA model whose K/V weights are repeated copies.
+
+Tests compare those controlled forward values and derivatives, and separately
+check nonzero seeded model K/V gradients and selected finite differences. The
+zero-Q/K teaching example alone cannot demonstrate useful query/key learning.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs"
+  region="shared-kv-gather" captionId="grouped-query-attention-rust-gather-caption"
+  caption="Gather shared K/V rows into full-attention lanes and reuse gather's summed gradient pullback."
+  label="Rust: reuse differentiable gather for shared key/value heads" />
+
+The window helper intersects the existing segment with a recent suffix.
+Saturating subtraction preserves the start of short prefixes, while the
+maximum preserves a later packed-segment boundary.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/causal_mask.rs"
+  region="causal-window-start" captionId="grouped-query-attention-rust-window-caption"
+  caption="Compute the inclusive-self window's first key cell without crossing the existing segment boundary."
+  label="Rust: intersect the causal window with a segment start" />
+
+The full pass applies that bound to each active query in the existing head
+lanes. Its prior active lengths and segment starts keep padding and unrelated
+packed examples outside the probability normalization.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs"
+  region="windowed-head-ranges" captionId="grouped-query-attention-rust-ranges-caption"
+  caption="Intersect the local window with each active full-attention lane's existing permitted range."
+  label="Rust: preserve active lengths and packed boundaries under a window" />
+
+Incremental inference retains one rotated K and one unrotated V per KV head.
+It computes $H_q$ queries, reads each query's shared storage lane, and
+normalizes scores only over the eligible suffix. The current candidate key is
+included before the existing all-layer cache transaction commits. Excluded
+probability cells remain zero. Failed operations, stale model revisions or
+incompatible attention settings cannot partly advance this cache.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/incremental.rs"
+  region="cached-window-scores" captionId="grouped-query-attention-rust-cache-caption"
+  caption="Read shared cached key lanes and normalize each query head's scores over the permitted suffix."
+  label="Rust: use shared key/value heads and a local window in cached attention" />
+
+The window leaves original cached RoPE positions and capacity unchanged.
+Generation still refuses to exceed the existing position/cache bound. In
+deeper layers, recent hidden states may already carry information from older
+cells. Re-encoding only the last raw window would discard those states and is
+a different computation from a full-prefix pass with the same per-layer mask.
+
+### Compare each restored model with its own complete-prefix reference
+
+The default report initializes MHA, GQA, MQA and window-two GQA models for
+their respective shapes. Each is saved and reloaded before comparison. The
+document `abcd` becomes $6$ framed rows with a vocabulary of $258$ tokens.
+At every prefix length, the reference recomputes the entire prefix and the
+cached path reuses earlier K/V. Both use the same restored weights, positions
+and window, with dropout inactive and gradient recording disabled.
+
+<RustSource path="rust/demos/practical-ch18-grouped-query-attention-context/src/lib.rs"
+  region="full-prefix-cached-comparison" captionId="grouped-query-attention-rust-comparison-caption"
+  caption="Save and reload each initialized model, then compare every cached logit with that model's full-prefix result."
+  label="Rust: compare the same model's complete-prefix and cached logits" />
+
+Each variant compares $6\times258=1548$ vocabulary coordinates and reports
+maximum absolute logit error `0.0`, within absolute tolerance $10^{-10}$ in
+CPU `f64`. All outputs are graph-free and the text embedding/head use one tied
+table. This is an observed fixture result. Ideal full/cached equivalence does
+not promise universal floating-point bitwise equality or cross-backend equality.
+
+The default performs zero training updates. Separately initialized variants
+are different models; comparing each model with itself does not compare their
+language quality or assert cross-model equality.
+
+### Save the attention semantics with the model
+
+KV-head count and the optional window belong to semantic model settings.
+The existing native settings and `PortableModel` preserve them through text
+model restoration and tokenizer-independent backbone restoration. The text
+model still restores one shared embedding/head table. Equal-head/no-window
+defaults preserve earlier archive identities by omitting the optional fields.
+
+Native exact training checkpoints also retain these settings. The older legacy
+checkpoint encoding refuses unsupported nondefault attention settings instead
+of silently dropping them. These are extensions of the existing composition
+and persistence paths.
+
+The example's thin save command initializes the grouped-window model and saves
+it for the existing Chapter 15 inference command:
+
+<RustSource path="rust/demos/practical-ch18-grouped-query-attention-context/src/lib.rs"
+  region="save-grouped-window-model" captionId="grouped-query-attention-rust-save-caption"
+  caption="Save initialized grouped-query weights and window settings through the existing portable model archive."
+  label="Rust: save the grouped-window model for later CPU inference" />
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="grouped-query-attention-visualization" data-review-id="grouped-query-attention-visualization">
+
+## Follow shared values through two permitted contexts
+
+export const groupedQueryAttentionLabels = {
+  title: "Four queries, two shared KV groups, two context choices",
+  description: "Query heads zero and one read the same key and value head zero; query heads two and three read the same key and value head one. Each query remains a separate probability calculation. In this constructed zero-query/zero-key example, all four queries assign equal weights to the permitted keys. At the final cell, full causal context mixes all four values of each shared group; window two mixes only the last two. The resulting head vectors change from (2.5, 0) and (0, 25) to (3.5, 0) and (0, 35), repeated for the two query heads in each group. The shared groups are unchanged by the window.",
+  groupsTitle: "Query heads converge on shared keys and values",
+  groupsBody: "Each pair below reads one shared K head and one shared V head. The listed value vectors follow the same four content cells in order.",
+  queryHeadsLabel: "Query heads",
+  queryHeadLabel: "Query head",
+  kvHeadLabel: "Shared key/value head",
+  valuesLabel: "Value vectors by key cell",
+  keyCellLabel: "Key cell",
+  contextsTitle: "Compare the final query cell under two context choices",
+  fullTitle: "Full causal context at the final cell",
+  fullBody: "Key cells zero through three are permitted. All four query heads have the reported quarter weights in this zero-score fixture.",
+  windowTitle: "Window two at the final cell",
+  windowBody: "Only key cells two and three are permitted, including self. All four query heads have the reported half weights on those two cells in this zero-score fixture.",
+  probabilitiesLabel: "Query head zero: probabilities for key cells zero through three",
+  fullOutputsCaption: "Full causal context: final-row outputs by query head",
+  windowOutputsCaption: "Window two: final-row outputs by query head",
+  outputLabel: "Head output vector",
+  scope: "Four constructed content rows, with zero Q/K and identity output projection. Equal head probabilities are specific to this example. The window changes direct key eligibility; it does not change the shared KV groups or evict cache entries."
+};
+
+<GroupedQueryAttentionDiagram labels={groupedQueryAttentionLabels} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="grouped-query-attention-exercises" data-review-id="grouped-query-attention-exercises">
+
+## Reproduce the report and use the saved model
+
+From the repository root, with Docker and the existing course Docker setup
+available, run the default CPU example. Its configuration, tokenizer and text
+fixtures are included; no downloaded model or external corpus is required.
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --offline --locked --quiet -p practical-ch18-grouped-query-attention-context
+```
+
+The JSON contains `worked_example`, `packed_window_example`,
+`model_comparisons` and the initialized CPU `f64` scope. It prints the head map,
+two observed mixtures, packed starts, all four storage rows and four
+same-model full/cached comparisons. Every comparison reports
+`compared_logits: 1548`, `max_abs_logit_error: 0.0` and
+`within_tolerance: true`.
+
+To save a file and load it in another Rust program, run this entire block from
+the same repository-root working directory with the same Docker setup. One
+Docker shell retains the file while each Rust program exits before the next
+starts.
+
+```bash
+COURSE_CORPUS=false ./course run sh -c '
+set -eu
+mkdir -p tmp/ch18-attention-flow
+cargo run --quiet --offline --locked -p practical-ch18-grouped-query-attention-context -- save --model tmp/ch18-attention-flow/grouped-window.safetensors
+cargo run --quiet --offline --locked -p practical-ch15-save-load-resume-model -- infer --model tmp/ch18-attention-flow/grouped-window.safetensors --prompt ab --tokens 3
+'
+```
+
+The save command reports `initialized_updates: 0`, `query_heads: 4`,
+`kv_heads: 2` and `window: 2`. Both programs report the same `model_id`:
+`234d9d80f5d63091842fbf7b3cef7ac867aefd20732853a1a463c5b594f3f1f2`.
+Chapter 15's inference command loads the saved settings and weights and reports
+`device: "cpu"`, `precision: "f64"`, `tied_alias: true`, $3256$ parameter
+scalars and $20$ named parameter tensors. Generated IDs `[91,21,170]` map to
+bytes `[89,19,168]`. These initialized-model outputs demonstrate loading and
+generation; they establish neither useful prose nor UTF-8 validity.
+Separate disposable `./course run` invocations would lose the saved file.
+
+With the same repository-root working directory and Docker setup, run the
+example's two library tests:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch18-grouped-query-attention-context --lib
+```
+
+Both tests pass. The first checks the explained mixtures and full/cached
+comparisons. The second performs actual accumulated training with shared heads
+and window $2$, saves after one completed update, restores the existing native
+checkpoint and checks agreement after both jobs reach update $2$. That training
+test is separate from the zero-update default and saved inference example.
+
+### Optional inspection and explanation practice
+
+<ol id="grouped-query-attention-practice">
+  <li id="grouped-query-attention-practice-1">Use the default command's <code>worked_example</code> to explain map $[0,0,1,1]$ and the two final-row mixtures. State why the four query heads have equal probabilities here and why sharing alone does not require that equality.</li>
+  <li id="grouped-query-attention-practice-2">Inspect <code>packed_window_example</code> in the same report. Explain the effective starts at cells $4$ and $5$, and distinguish sequence cells from the displayed RoPE labels.</li>
+  <li id="grouped-query-attention-practice-3">Compare all four <code>model_comparisons</code> storage rows from the default command. Explain GQA's allocated-byte ratio to MHA and why adding window $2$ leaves the GQA byte counts unchanged.</li>
+  <li id="grouped-query-attention-practice-4">Inspect each model's <code>compared_logits</code>, error and tolerance in that report. Explain what is compared at each prefix and why retaining only the latest raw window would change the reference computation.</li>
+  <li id="grouped-query-attention-practice-5">Run the complete save/infer block and the two-library-test command above. Check the shared saved identity, CPU precision and tied table; distinguish the initialized inference example from the native training-continuation test.</li>
+</ol>
+
+<details id="grouped-query-attention-answers">
+<summary id="grouped-query-attention-answers-summary">Checked answers: shared heads, permitted keys, cache payload and saved-model reproduction</summary>
+
+<ol id="grouped-query-attention-answers-list">
+  <li id="grouped-query-attention-answer-1">Queries $0,1$ read KV head $0$ and queries $2,3$ read KV head $1$. Zero Q/K make all permitted scores zero. Full-context quarter weights give head vectors $(2.5,0)$ and $(0,25)$; window-two half weights on keys $2,3$ give $(3.5,0)$ and $(0,35)$. Each vector is repeated for its group's two query heads. Nonzero distinct queries can assign different probabilities to shared keys.</li>
+  <li id="grouped-query-attention-answer-2">At cell $4$, segment start $2$ intersects window start $3$ to give effective start $3$, permitting keys $3,4$. Cell $5$ begins a new segment at $5$, so only self is permitted. RoPE labels $[0,1,0,1,2,0]$ do not supply the window's sequence-row indices or permit crossing a segment.</li>
+  <li id="grouped-query-attention-answer-3">At fixed other axes, GQA's two KV heads use $2/4=1/2$ of MHA's KV payload: $1024$ versus $2048$ allocated bytes. Their occupied counts are $768$ and $1536$ bytes at six rows. Window-two GQA still has $1024$ allocated and $768$ occupied bytes because this cache retains every earlier row up to capacity. Neither count includes object/allocator overhead or full-attention intermediates.</li>
+  <li id="grouped-query-attention-answer-4">Each model compares $6\times258=1548$ vocabulary coordinates against its own same-weight complete-prefix result. All observed maxima are <code>0.0</code>, within CPU <code>f64</code> absolute tolerance $10^{-10}$. Both paths use the same per-layer window. In deeper layers, recent states can carry older information, so truncating raw input loses a different history. The observation establishes neither universal bitwise equality nor a quality ranking among initialized variants.</li>
+  <li id="grouped-query-attention-answer-5">Save and inference report identity <code>234d9d80f5d63091842fbf7b3cef7ac867aefd20732853a1a463c5b594f3f1f2</code>. Inference restores CPU <code>f64</code> execution and one tied table, with $3256$ scalars and $20$ named tensors. IDs <code>[91,21,170]</code> map to bytes <code>[89,19,168]</code> without a language-quality or UTF-8 claim. Two library tests pass; the native-continuation test trains and restores through update $2$, whereas default/save perform zero updates.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="grouped-query-attention-handoff" data-review-id="grouped-query-attention-handoff">
+
+## Keep attention semantics with the same model
+
+The text encoder, source-independent backbone, tied head and CPU inference
+path now preserve shared K/V heads and a local context window. Separate query
+calculations read compact shared cache lanes, while the window intersects the
+keys each layer may use. The same-weight full/cached comparison checks those
+choices together within the existing position and cache capacity.
+
+The full reference still materializes repeated K/V lanes and dense scores.
+Planned Chapter 19, Online and tiled attention, will study running normalization
+and tiles for those attention intermediates. It is a separate planned extension
+from the sharing and direct-context masks implemented here.
+
+</div>

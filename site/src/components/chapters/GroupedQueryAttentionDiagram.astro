@@ -1,0 +1,166 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch18-grouped-query-attention-context/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string;
+  groupsTitle: string; groupsBody: string;
+  queryHeadsLabel: string; queryHeadLabel: string; kvHeadLabel: string;
+  valuesLabel: string; keyCellLabel: string;
+  contextsTitle: string; fullTitle: string; fullBody: string;
+  windowTitle: string; windowBody: string;
+  probabilitiesLabel: string; fullOutputsCaption: string; windowOutputsCaption: string; outputLabel: string;
+  scope: string;
+}
+interface AttentionCase {
+  head_mapping: number[]; key_shape: number[]; value_heads: number[];
+  last_query_weights: number[][]; last_merged_output: number[];
+  window: number | null;
+}
+interface WorkedExample {
+  query_heads: number; kv_heads: number; head_width: number;
+  cases: AttentionCase[];
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error('grouped-query-attention-copy');
+}
+const fixture: WorkedExample = JSON.parse(fixtureSource).worked_example;
+if (!fixture || fixture.query_heads !== 4 || fixture.kv_heads !== 2 ||
+    fixture.head_width !== 2 || !Array.isArray(fixture.cases) ||
+    fixture.cases.length !== 2 || fixture.cases[0].window !== null ||
+    fixture.cases[1].window !== 2 || fixture.cases.some((row) =>
+      !Array.isArray(row.head_mapping) || row.head_mapping.length !== 4 ||
+      row.head_mapping.some((head) => !Number.isInteger(head) || head < 0 || head >= 2) ||
+      !Array.isArray(row.key_shape) || row.key_shape.join(',') !== '1,2,4,2' ||
+      !Array.isArray(row.value_heads) || row.value_heads.length !== 16 ||
+      !row.value_heads.every(Number.isFinite) ||
+      !Array.isArray(row.last_merged_output) || row.last_merged_output.length !== 8 ||
+      !row.last_merged_output.every(Number.isFinite) ||
+      !Array.isArray(row.last_query_weights) || row.last_query_weights.length !== 4 ||
+      row.last_query_weights.some((weights) => !Array.isArray(weights) ||
+        weights.length !== 4 || !weights.every(Number.isFinite)))) {
+  throw new Error('grouped-query-attention-fixture');
+}
+
+// Reorganize observed report coordinates for display; attention stays in Rust.
+const source = fixture.cases[0];
+const cells = source.key_shape[2];
+const width = fixture.head_width;
+const groups = Array.from({ length: fixture.kv_heads }, (_, head) => ({
+  head,
+  queries: source.head_mapping.flatMap((shared, query) => shared === head ? [query] : []),
+  values: Array.from({ length: cells }, (_, cell) =>
+    source.value_heads.slice((head * cells + cell) * width, (head * cells + cell + 1) * width)),
+}));
+const contexts = [
+  { title: labels.fullTitle, body: labels.fullBody, outputsCaption: labels.fullOutputsCaption },
+  { title: labels.windowTitle, body: labels.windowBody, outputsCaption: labels.windowOutputsCaption },
+];
+const vector = (values: number[]) => `(${values.join(',\\,')})`;
+---
+
+<figure id="grouped-query-attention-figure" class="course-diagram grouped-query-attention-diagram"
+  data-diagram-style="course-v1" data-visualization-id="grouped-query-attention" tabindex="0"
+  aria-labelledby="grouped-query-attention-figure-title"
+  aria-describedby="grouped-query-attention-figure-description grouped-query-attention-figure-scope">
+  <figcaption id="grouped-query-attention-figure-caption" class="course-diagram__caption"
+    data-review-id="grouped-query-attention-figure-caption">
+    <h3 id="grouped-query-attention-figure-title" data-review-id="grouped-query-attention-figure-title">{labels.title}</h3>
+    <p id="grouped-query-attention-figure-description" class="course-diagram__description"
+      data-review-id="grouped-query-attention-figure-description">{labels.description}</p>
+  </figcaption>
+
+  <section id="grouped-query-attention-groups" data-diagram-box
+    aria-labelledby="grouped-query-attention-groups-title">
+    <h4 id="grouped-query-attention-groups-title">{labels.groupsTitle}</h4>
+    <p>{labels.groupsBody}</p>
+    <div class="course-diagram__grid grouped-query-attention-groups">
+      {groups.map((group) => (
+        <article id={`grouped-query-attention-kv-${group.head}`}
+          class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          data-grouped-query-role="shared-kv-group" data-kv-head={group.head}
+          aria-labelledby={`grouped-query-attention-kv-${group.head}-title`}>
+          <h5 id={`grouped-query-attention-kv-${group.head}-title`}>
+            {labels.kvHeadLabel} <InlineMath latex={String(group.head)} />
+          </h5>
+          <p id={`grouped-query-attention-kv-${group.head}-relationship`}
+            data-review-id={`grouped-query-attention-kv-${group.head}-relationship`}>
+            {labels.queryHeadsLabel} <InlineMath latex={group.queries.join(',\\,')} />
+            <InlineMath latex="\longrightarrow" />
+            {labels.kvHeadLabel} <InlineMath latex={String(group.head)} />
+          </p>
+          <p id={`grouped-query-attention-kv-${group.head}-values-title`}>{labels.valuesLabel}</p>
+          <dl class="course-diagram__grid grouped-query-attention-values"
+            aria-labelledby={`grouped-query-attention-kv-${group.head}-values-title`}>
+            {group.values.map((values, cell) => (
+              <div id={`grouped-query-attention-kv-${group.head}-cell-${cell}`}>
+                <dt>{labels.keyCellLabel} <InlineMath latex={String(cell)} /></dt>
+                <dd><InlineMath latex={vector(values)} /></dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="grouped-query-attention-contexts" data-diagram-box
+    aria-labelledby="grouped-query-attention-contexts-title">
+    <h4 id="grouped-query-attention-contexts-title">{labels.contextsTitle}</h4>
+    <div class="course-diagram__grid grouped-query-attention-contexts">
+      {fixture.cases.map((row, index) => (
+        <article id={`grouped-query-attention-context-${index}`}
+          class="course-diagram__card-stack" data-diagram-card data-diagram-box
+          data-grouped-query-role="context-comparison" data-context-case={index}
+          aria-labelledby={`grouped-query-attention-context-${index}-title`}>
+          <h5 id={`grouped-query-attention-context-${index}-title`}>{contexts[index].title}</h5>
+          <p id={`grouped-query-attention-context-${index}-description`}>{contexts[index].body}</p>
+          <dl>
+            <div id={`grouped-query-attention-context-${index}-probabilities`}>
+              <dt>{labels.probabilitiesLabel}</dt>
+              <dd><InlineMath latex={vector(row.last_query_weights[0])} /></dd>
+            </div>
+          </dl>
+          <table id={`grouped-query-attention-context-${index}-outputs`} data-diagram-table>
+            <caption id={`grouped-query-attention-context-${index}-outputs-caption`}>{contexts[index].outputsCaption}</caption>
+            <thead><tr>
+              <th id={`grouped-query-attention-context-${index}-query-header`} scope="col">{labels.queryHeadLabel}</th>
+              <th id={`grouped-query-attention-context-${index}-output-header`} scope="col">{labels.outputLabel}</th>
+            </tr></thead>
+            <tbody>
+              {row.head_mapping.map((_, query) => (
+                <tr id={`grouped-query-attention-context-${index}-output-${query}`}>
+                  <th scope="row"><InlineMath latex={String(query)} /></th>
+                  <td><InlineMath latex={vector(row.last_merged_output.slice(query * width, (query + 1) * width))} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <p id="grouped-query-attention-figure-scope" class="course-diagram__description"
+    data-review-id="grouped-query-attention-figure-scope">{labels.scope}</p>
+</figure>
+
+<style>
+  .grouped-query-attention-diagram {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 31rem), 1fr));
+  }
+  .grouped-query-attention-diagram > .course-diagram__caption,
+  .grouped-query-attention-diagram > .course-diagram__description {
+    grid-column: 1 / -1;
+  }
+  .grouped-query-attention-groups,
+  .grouped-query-attention-contexts { grid-template-columns: minmax(0, 1fr); }
+  .grouped-query-attention-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  table[data-diagram-table] { inline-size: 100%; table-layout: fixed; }
+  @container course-diagram (min-width: 44rem) {
+    .grouped-query-attention-groups,
+    .grouped-query-attention-contexts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

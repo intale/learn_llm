@@ -2,7 +2,7 @@
   "schemaVersion":1,
   "chapterId":"10-input-encoding-boundary",
   "locale":"en",
-  "contentRevision":2,
+  "contentRevision":3,
   "title":"Separate input encoding from the transformer",
   "description":"Compose text lookup, the existing causal backbone and a tied text head. Follow vector shapes, live parameter checks and the two gradient paths into one shared table.",
   "objective":"Separate source-to-vector encoding, causal hidden features and text logits while preserving the existing model's values, gradients and shared embedding table."

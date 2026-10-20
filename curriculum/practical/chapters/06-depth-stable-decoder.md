@@ -2,7 +2,7 @@
 {
   "chapter_id":"06-depth-stable-decoder",
   "concept_id":"depth-stable-decoder",
-  "content_revision":2,
+  "content_revision":3,
   "order":6,
   "objective":{"en":"Scale the freshly initialized weights of each block's attention output and feed-forward down projections according to the positive complete-block count, then inspect residual activations and completed mean-loss adjoints before training."},
   "worked_inputs":{"en":"Transform the selected output coefficients [0.2,-0.4,0,0.1] at one, two and eight complete blocks while leaving the same query coefficients unchanged. Observe seed 4701 on supplied source IDs [0,99,100,101,1] in three width-four decoders and the width-sixteen CPU bridge decoder."},

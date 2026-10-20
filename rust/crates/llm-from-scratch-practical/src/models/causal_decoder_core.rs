@@ -35,6 +35,14 @@ pub(super) fn validate_backbone_config(
     if !head_width.is_multiple_of(2) {
         return Err(DecoderModelError::OddHeadWidth { head_width });
     }
+    crate::attention::multi_head::validate_sharing(
+        config.heads(),
+        config.kv_heads(),
+        config.context_window(),
+    )
+    .map_err(|_| DecoderModelError::PreparedInput {
+        reason: "invalid query/KV head sharing or context window",
+    })?;
     if config.feed_forward_width() == 0 {
         return Err(DecoderModelError::ZeroFeedForwardWidth);
     }
@@ -84,6 +92,13 @@ impl<'a> DecoderBackbone<'a> {
                     layer,
                     expected: config.heads(),
                     actual: block.attention().heads(),
+                });
+            }
+            if block.attention().kv_heads() != config.kv_heads()
+                || block.attention().context_window() != config.context_window()
+            {
+                return Err(DecoderModelError::PreparedInput {
+                    reason: "block head sharing or context window differs from backbone",
                 });
             }
             if block.feed_forward().hidden_width() != config.feed_forward_width() {

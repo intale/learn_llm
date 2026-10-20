@@ -3,6 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
+use super::causal_mask::causal_window_start;
 use super::multi_head::{
     HeadLayoutError, MultiHeadAttention, MultiHeadInput, merge_heads_with_context,
     split_heads_with_context,
@@ -131,6 +132,8 @@ pub struct LayerKvCache {
     batch_size: usize,
     model_width: usize,
     heads: usize,
+    query_heads: usize,
+    context_window: Option<usize>,
     head_width: usize,
     capacity: usize,
     len: usize,
@@ -147,6 +150,8 @@ impl PartialEq for LayerKvCache {
         self.batch_size == other.batch_size
             && self.model_width == other.model_width
             && self.heads == other.heads
+            && self.query_heads == other.query_heads
+            && self.context_window == other.context_window
             && self.head_width == other.head_width
             && self.capacity == other.capacity
             && self.len == other.len
@@ -182,7 +187,7 @@ impl LayerKvCache {
             });
         }
         let model_width = layer.model_width();
-        let heads = layer.heads();
+        let heads = layer.kv_heads();
         let head_width = layer.head_width();
         let elements = batch_size
             .checked_mul(heads)
@@ -202,6 +207,8 @@ impl LayerKvCache {
             batch_size,
             model_width,
             heads,
+            query_heads: layer.heads(),
+            context_window: layer.context_window(),
             head_width,
             capacity,
             len: 0,
@@ -322,6 +329,14 @@ impl LayerKvCache {
         self.heads
     }
 
+    pub const fn query_heads(&self) -> usize {
+        self.query_heads
+    }
+
+    pub const fn context_window(&self) -> Option<usize> {
+        self.context_window
+    }
+
     pub const fn head_width(&self) -> usize {
         self.head_width
     }
@@ -420,6 +435,7 @@ pub enum IncrementalAttentionError {
         cache: usize,
     },
     CacheLayerMismatch,
+    CacheAttentionPolicyMismatch,
     CacheLayerRevisionMismatch {
         parameter: usize,
         cache: u64,
@@ -500,6 +516,9 @@ impl fmt::Display for IncrementalAttentionError {
             ),
             Self::CacheLayerMismatch => formatter
                 .write_str("KV cache parameter identity does not match this attention layer"),
+            Self::CacheAttentionPolicyMismatch => formatter.write_str(
+                "KV cache query-head count or window does not match this attention layer",
+            ),
             Self::CacheLayerRevisionMismatch {
                 parameter,
                 cache,
@@ -786,11 +805,14 @@ impl MultiHeadAttention {
                 cache: cache.model_width(),
             });
         }
-        if cache.heads() != self.heads() {
+        if cache.heads() != self.kv_heads() {
             return Err(IncrementalAttentionError::CacheHeadCountMismatch {
-                layer: self.heads(),
+                layer: self.kv_heads(),
                 cache: cache.heads(),
             });
+        }
+        if cache.query_heads() != self.heads() || cache.context_window() != self.context_window() {
+            return Err(IncrementalAttentionError::CacheAttentionPolicyMismatch);
         }
         if cache.head_width() != self.head_width() {
             return Err(IncrementalAttentionError::CacheHeadWidthMismatch {
@@ -880,13 +902,15 @@ impl MultiHeadAttention {
                     source,
                 },
             )?;
-        let projected_key_heads = split_heads_with_context(context, projected.key(), self.heads())
-            .map_err(|source| IncrementalAttentionError::HeadLayout {
-                input: MultiHeadInput::Key,
-                source,
-            })?;
+        let projected_key_heads =
+            split_heads_with_context(context, projected.key(), self.kv_heads()).map_err(
+                |source| IncrementalAttentionError::HeadLayout {
+                    input: MultiHeadInput::Key,
+                    source,
+                },
+            )?;
         let projected_value_heads =
-            split_heads_with_context(context, projected.value(), self.heads()).map_err(
+            split_heads_with_context(context, projected.value(), self.kv_heads()).map_err(
                 |source| IncrementalAttentionError::HeadLayout {
                     input: MultiHeadInput::Value,
                     source,
@@ -941,7 +965,9 @@ impl MultiHeadAttention {
                 position,
                 full_prefix_rows_per_projection: cache_len,
                 incremental_rows_per_projection: 1,
-                reused_key_value_rows: position,
+                reused_key_value_rows: self
+                    .context_window()
+                    .map_or(position, |w| position.min(w - 1)),
             },
             cache_len,
         };
@@ -963,16 +989,21 @@ fn incremental_mixture(
     candidate_value: &Tensor,
     cache: &LayerKvCache,
 ) -> Result<(Tensor, Tensor), IncrementalAttentionError> {
-    let lanes = cache.batch_size().checked_mul(cache.heads()).ok_or(
+    let lanes = cache.batch_size().checked_mul(cache.query_heads()).ok_or(
         IncrementalAttentionError::BatchHeadOverflow {
             batch: cache.batch_size(),
-            heads: cache.heads(),
+            heads: cache.query_heads(),
         },
     )?;
     let prefix = cache.len() + 1;
+    // region:cached-window-scores
+    let start = cache.context_window().map_or(0, |window| {
+        causal_window_start(cache.len(), 0, window).expect("positive bound window")
+    });
+    let eligible = prefix - start;
     let score_elements =
         lanes
-            .checked_mul(prefix)
+            .checked_mul(eligible)
             .ok_or(IncrementalAttentionError::BufferSizeOverflow {
                 stage: IncrementalAttentionStage::Scores,
             })?;
@@ -980,14 +1011,16 @@ fn incremental_mixture(
     let scale = 1.0 / (cache.head_width() as f64).sqrt();
 
     for batch in 0..cache.batch_size() {
-        for head in 0..cache.heads() {
-            let lane = batch * cache.heads() + head;
+        for head in 0..cache.query_heads() {
+            let lane = batch * cache.query_heads() + head;
+            let shared = head / (cache.query_heads() / cache.heads());
+            let kv_lane = batch * cache.heads() + shared;
             let query_start = lane * cache.head_width();
-            for position in 0..prefix {
+            for position in start..prefix {
                 let key_start = if position == cache.len() {
-                    lane * cache.head_width()
+                    kv_lane * cache.head_width()
                 } else {
-                    (lane * cache.capacity() + position) * cache.head_width()
+                    (kv_lane * cache.capacity() + position) * cache.head_width()
                 };
                 let key_values = if position == cache.len() {
                     candidate_key.as_slice()
@@ -999,18 +1032,45 @@ fn incremental_mixture(
                     dot +=
                         query.as_slice()[query_start + feature] * key_values[key_start + feature];
                 }
-                scores[lane * prefix + position] = dot * scale;
+                scores[lane * eligible + position - start] = dot * scale;
             }
         }
     }
 
-    let score_tensor = Tensor::from_vec(vec![cache.batch_size(), cache.heads(), 1, prefix], scores)
+    let score_tensor = Tensor::from_vec(
+        vec![cache.batch_size(), cache.query_heads(), 1, eligible],
+        scores,
+    )
+    .map_err(|source| IncrementalAttentionError::Tensor {
+        stage: IncrementalAttentionStage::Scores,
+        source,
+    })?;
+    let weights =
+        softmax(&score_tensor.view(), 3).map_err(IncrementalAttentionError::Probability)?;
+    // endregion:cached-window-scores
+    let weights = if start == 0 {
+        weights
+    } else {
+        let elements =
+            lanes
+                .checked_mul(prefix)
+                .ok_or(IncrementalAttentionError::BufferSizeOverflow {
+                    stage: IncrementalAttentionStage::Scores,
+                })?;
+        let mut dense = reserved_buffer(elements, IncrementalAttentionStage::Scores)?;
+        for lane in 0..lanes {
+            dense[lane * prefix + start..(lane + 1) * prefix]
+                .copy_from_slice(&weights.as_slice()[lane * eligible..(lane + 1) * eligible]);
+        }
+        Tensor::from_vec(
+            vec![cache.batch_size(), cache.query_heads(), 1, prefix],
+            dense,
+        )
         .map_err(|source| IncrementalAttentionError::Tensor {
             stage: IncrementalAttentionStage::Scores,
             source,
-        })?;
-    let weights =
-        softmax(&score_tensor.view(), 3).map_err(IncrementalAttentionError::Probability)?;
+        })?
+    };
     let output_elements = lanes.checked_mul(cache.head_width()).ok_or(
         IncrementalAttentionError::BufferSizeOverflow {
             stage: IncrementalAttentionStage::HeadOutputs,
@@ -1018,15 +1078,17 @@ fn incremental_mixture(
     )?;
     let mut outputs = reserved_buffer(output_elements, IncrementalAttentionStage::HeadOutputs)?;
     for batch in 0..cache.batch_size() {
-        for head in 0..cache.heads() {
-            let lane = batch * cache.heads() + head;
+        for head in 0..cache.query_heads() {
+            let lane = batch * cache.query_heads() + head;
+            let shared = head / (cache.query_heads() / cache.heads());
+            let kv_lane = batch * cache.heads() + shared;
             for feature in 0..cache.head_width() {
                 let mut mixture = 0.0;
-                for position in 0..prefix {
+                for position in start..prefix {
                     let value_start = if position == cache.len() {
-                        lane * cache.head_width()
+                        kv_lane * cache.head_width()
                     } else {
-                        (lane * cache.capacity() + position) * cache.head_width()
+                        (kv_lane * cache.capacity() + position) * cache.head_width()
                     };
                     let value_values = if position == cache.len() {
                         candidate_value.as_slice()
@@ -1041,7 +1103,12 @@ fn incremental_mixture(
         }
     }
     let outputs = Tensor::from_vec(
-        vec![cache.batch_size(), cache.heads(), 1, cache.head_width()],
+        vec![
+            cache.batch_size(),
+            cache.query_heads(),
+            1,
+            cache.head_width(),
+        ],
         outputs,
     )
     .map_err(|source| IncrementalAttentionError::Tensor {

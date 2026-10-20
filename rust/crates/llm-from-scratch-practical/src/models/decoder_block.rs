@@ -107,6 +107,8 @@ impl From<InitializationError> for DecoderBlockError {
 pub struct DecoderBlockConfig {
     model_width: usize,
     heads: usize,
+    kv_heads: usize,
+    context_window: Option<usize>,
     feed_forward_width: usize,
     max_positions: usize,
     rope_base: f64,
@@ -125,6 +127,8 @@ impl DecoderBlockConfig {
         Self {
             model_width,
             heads,
+            kv_heads: heads,
+            context_window: None,
             feed_forward_width,
             max_positions,
             rope_base,
@@ -138,6 +142,20 @@ impl DecoderBlockConfig {
 
     pub const fn heads(self) -> usize {
         self.heads
+    }
+
+    pub const fn with_attention(mut self, kv_heads: usize, context_window: Option<usize>) -> Self {
+        self.kv_heads = kv_heads;
+        self.context_window = context_window;
+        self
+    }
+
+    pub const fn kv_heads(self) -> usize {
+        self.kv_heads
+    }
+
+    pub const fn context_window(self) -> Option<usize> {
+        self.context_window
     }
 
     pub const fn feed_forward_width(self) -> usize {
@@ -236,12 +254,14 @@ impl DecoderBlock {
         .map_err(DecoderBlockError::FeedForwardNorm)?;
 
         let mut trial = rng.clone();
-        let attention = MultiHeadAttention::new(
+        let attention = MultiHeadAttention::new_with_attention(
             format!("{parameter_prefix}.attention"),
             config.model_width,
             config.heads,
+            config.kv_heads,
             config.max_positions,
             config.rope_base,
+            config.context_window,
             &mut trial,
         )
         .map_err(DecoderBlockError::Attention)?;

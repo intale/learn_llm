@@ -147,12 +147,24 @@ impl QkvProjections {
         head_width: usize,
         rng: &mut SplitMix64,
     ) -> Result<Self, QkvError> {
+        Self::new_grouped(parameter_prefix, model_width, head_width, head_width, rng)
+    }
+
+    // region:grouped-qkv-widths
+    /// The query projection may be wider than the two shared K/V projections.
+    pub fn new_grouped(
+        parameter_prefix: impl Into<String>,
+        model_width: usize,
+        query_width: usize,
+        kv_width: usize,
+        rng: &mut SplitMix64,
+    ) -> Result<Self, QkvError> {
         let parameter_prefix = parameter_prefix.into();
         let mut trial = rng.clone();
         let query = Linear::new(
             format!("{parameter_prefix}.query"),
             model_width,
-            head_width,
+            query_width,
             false,
             &mut trial,
         )
@@ -160,7 +172,7 @@ impl QkvProjections {
         let key = Linear::new(
             format!("{parameter_prefix}.key"),
             model_width,
-            head_width,
+            kv_width,
             false,
             &mut trial,
         )
@@ -168,15 +180,16 @@ impl QkvProjections {
         let value = Linear::new(
             format!("{parameter_prefix}.value"),
             model_width,
-            head_width,
+            kv_width,
             false,
             &mut trial,
         )
         .map_err(projection_error(QkvProjection::Value))?;
-        let projections = Self::from_layers(query, key, value)?;
+        let projections = Self::from_layers(query, key, value, true)?;
         *rng = trial;
         Ok(projections)
     }
+    // endregion:grouped-qkv-widths
 
     /// Gives Q/K/V semantics to three existing matrix parameters.
     pub fn from_weights(
@@ -184,16 +197,38 @@ impl QkvProjections {
         key_weight: NamedParameter,
         value_weight: NamedParameter,
     ) -> Result<Self, QkvError> {
+        Self::from_weight_layout(query_weight, key_weight, value_weight, false)
+    }
+
+    pub fn from_grouped_weights(
+        query_weight: NamedParameter,
+        key_weight: NamedParameter,
+        value_weight: NamedParameter,
+    ) -> Result<Self, QkvError> {
+        Self::from_weight_layout(query_weight, key_weight, value_weight, true)
+    }
+
+    fn from_weight_layout(
+        query_weight: NamedParameter,
+        key_weight: NamedParameter,
+        value_weight: NamedParameter,
+        grouped: bool,
+    ) -> Result<Self, QkvError> {
         let query = Linear::from_parameters(query_weight, None)
             .map_err(projection_error(QkvProjection::Query))?;
         let key = Linear::from_parameters(key_weight, None)
             .map_err(projection_error(QkvProjection::Key))?;
         let value = Linear::from_parameters(value_weight, None)
             .map_err(projection_error(QkvProjection::Value))?;
-        Self::from_layers(query, key, value)
+        Self::from_layers(query, key, value, grouped)
     }
 
-    fn from_layers(query: Linear, key: Linear, value: Linear) -> Result<Self, QkvError> {
+    fn from_layers(
+        query: Linear,
+        key: Linear,
+        value: Linear,
+        grouped: bool,
+    ) -> Result<Self, QkvError> {
         let input_widths = (query.input_width(), key.input_width(), value.input_width());
         if input_widths.0 != input_widths.1 || input_widths.0 != input_widths.2 {
             return Err(QkvError::BranchInputWidthMismatch {
@@ -208,7 +243,7 @@ impl QkvProjections {
             key.output_width(),
             value.output_width(),
         );
-        if output_widths.0 != output_widths.1 || output_widths.0 != output_widths.2 {
+        if output_widths.1 != output_widths.2 || (!grouped && output_widths.0 != output_widths.1) {
             return Err(QkvError::BranchOutputWidthMismatch {
                 query: output_widths.0,
                 key: output_widths.1,
@@ -292,8 +327,12 @@ impl QkvProjections {
         self.head_width
     }
 
+    pub const fn kv_width(&self) -> usize {
+        self.key.output_width()
+    }
+
     pub const fn parameter_count(&self) -> usize {
-        3 * self.model_width * self.head_width
+        self.model_width * (self.head_width + 2 * self.kv_width())
     }
 }
 // endregion:qkv-layer

@@ -32,6 +32,9 @@ mod dropout;
 pub use dropout::{DropoutModelForward, RecomputedModelForward};
 
 #[cfg(test)]
+#[path = "decoder_attention_tests.rs"]
+mod attention_tests;
+#[cfg(test)]
 #[path = "decoder_depth_tests.rs"]
 mod depth_tests;
 #[cfg(test)]
@@ -474,6 +477,8 @@ pub struct DecoderModelConfig {
     vocabulary_size: usize,
     model_width: usize,
     heads: usize,
+    kv_heads: usize,
+    context_window: Option<usize>,
     feed_forward_width: usize,
     layers: usize,
     max_positions: usize,
@@ -497,6 +502,8 @@ impl DecoderModelConfig {
             vocabulary_size,
             model_width,
             heads,
+            kv_heads: heads,
+            context_window: None,
             feed_forward_width,
             layers,
             max_positions,
@@ -516,6 +523,23 @@ impl DecoderModelConfig {
     pub const fn heads(self) -> usize {
         self.heads
     }
+
+    // region:decoder-attention-settings
+    /// Head sharing and eligibility are logical model settings, not a backend.
+    pub const fn with_attention(mut self, kv_heads: usize, context_window: Option<usize>) -> Self {
+        self.kv_heads = kv_heads;
+        self.context_window = context_window;
+        self
+    }
+
+    pub const fn kv_heads(self) -> usize {
+        self.kv_heads
+    }
+
+    pub const fn context_window(self) -> Option<usize> {
+        self.context_window
+    }
+    // endregion:decoder-attention-settings
 
     pub const fn head_width(self) -> Option<usize> {
         if self.heads == 0 || !self.model_width.is_multiple_of(self.heads) {
@@ -554,9 +578,10 @@ impl DecoderModelConfig {
             self.rope_base,
             self.rms_epsilon,
         )
+        .with_attention(self.kv_heads, self.context_window)
     }
 
-    /// Counts this owner's bias-free equal-head matrices without allocating them.
+    /// Counts this owner's bias-free matrices without allocating them.
     pub fn checked_parameter_count(self) -> Result<usize, DecoderModelError> {
         validate_config(self)?;
         let shape = crate::config::model::DecoderShape {
@@ -564,7 +589,7 @@ impl DecoderModelConfig {
             d: self.model_width as u128,
             l: self.layers as u128,
             hq: self.heads as u128,
-            hkv: self.heads as u128,
+            hkv: self.kv_heads as u128,
             f: self.feed_forward_width as u128,
         };
         let census = shape
@@ -1406,14 +1431,16 @@ pub(crate) fn assemble_backbone(
                 layer,
                 source: DecoderBlockError::AttentionNorm(source),
             })?;
-        let attention = MultiHeadAttention::from_parameters(
+        let attention = MultiHeadAttention::from_parameters_with_attention(
             parameters[start + 1].clone(),
             parameters[start + 2].clone(),
             parameters[start + 3].clone(),
             parameters[start + 4].clone(),
             config.heads(),
+            config.kv_heads(),
             config.max_positions(),
             config.rope_base(),
+            config.context_window(),
         )
         .map_err(|source| DecoderModelError::Block {
             layer,
@@ -1559,7 +1586,7 @@ fn validate_block_parameter_shapes<S: DecoderParameterSource + ?Sized>(
             )),
         });
     }
-    if query.1 != key.1 || query.1 != value.1 {
+    if key.1 != value.1 || (config.kv_heads == config.heads && query.1 != key.1) {
         return Err(DecoderModelError::Block {
             layer,
             source: DecoderBlockError::Attention(MultiHeadAttentionError::QkvProjection(
@@ -1601,6 +1628,18 @@ fn validate_block_parameter_shapes<S: DecoderParameterSource + ?Sized>(
                 model_width: query.0,
                 projected_width: query.1,
             }),
+        });
+    }
+    let expected_kv_width = config.kv_heads * head_width;
+    if key.1 != expected_kv_width {
+        return Err(DecoderModelError::Block {
+            layer,
+            source: DecoderBlockError::Attention(
+                MultiHeadAttentionError::KvProjectionWidthMismatch {
+                    expected: expected_kv_width,
+                    actual: key.1,
+                },
+            ),
         });
     }
     if output.0 != query.0 {

@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 12,
+  "content_revision": 13,
   "order": 0,
   "concept_id": "practical-course-structure",
   "title": "The structure of Practical LLM in Rust",
@@ -23,7 +23,7 @@
     "component": "PracticalLlmSystemDiagram",
     "rationale": "The connected map separates the shared text forward path from learning and generation feedback, and attaches execution and saved state to the computation they support. The separate roadmap gives every chapter its place in reading order."
   },
-  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Chapter 16 adds evaluation. Planned Chapters 18–32 extend inference and adaptation."
+  "decoder_connection": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Chapter 16 adds evaluation. Planned Chapters 19–32 extend inference and adaptation."
 }
 ---
 
@@ -93,7 +93,7 @@ export const diagramLabels = {
       title: "Generation extends a sequence",
       description: "A decoding policy chooses a token from the scores.",
       feedback: "The chosen token ID returns to embedding lookup for the next cached decoder step.",
-      chapters: "Planned extensions: Chapters 18–22, 26–27, 29–30",
+      chapters: "Chapter 18; planned extensions: Chapters 19–22, 26–27, 29–30",
     },
   ],
   supportTitle: "Execution and state support the same model",
@@ -161,7 +161,7 @@ export const roadmap = [
     title: "Extend attention, caches and token selection",
     first: 18,
     chapters: [
-      { number: 18, title: "Grouped-query attention and context masks", planned: true, purpose: "Share key/value heads among query heads and preserve the intended causal or windowed context in full and cached computation." },
+      { number: 18, purpose: "Share key/value heads among query heads and preserve the intended causal or windowed context in full and cached computation." },
       { number: 19, title: "Online and tiled attention", planned: true, purpose: "Accumulate attention through running normalization and tiles, comparing outputs and memory use with reference attention." },
       { number: 20, title: "Paged key/value-cache layout", planned: true, purpose: "Map logical token positions to cache pages, account for unused storage and preserve cached model scores." },
       { number: 21, title: "Sampling distributions", planned: true, purpose: "Transform next-token probabilities with top-p selection, repetition penalties and allowed-token masks, keeping processor order explicit." },
@@ -306,7 +306,7 @@ continuation fixtures do not establish it.
 
 ## Read the complete chapter roadmap
 
-<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–17 are published. Chapters 18–32 are
+<p id="practical-course-availability">Chapter 0 is this orientation; Chapters 1–18 are published. Chapters 19–32 are
 planned and appear without links. A planned lesson may extend an existing
 mechanism, such as sampling or checkpointing. Its status describes the lesson's
 availability. The <a href={localePath(practicalCourse.referenceLocale, `/${practicalCourse.route}/`)}>practical course index</a>

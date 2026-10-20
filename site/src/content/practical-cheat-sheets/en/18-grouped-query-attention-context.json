@@ -1,0 +1,44 @@
+{
+  "chapter_id": "18-grouped-query-attention-context",
+  "locale": "en",
+  "title": "Shared attention heads and permitted context",
+  "description": "Distinguish query heads, shared keys and values, direct context and fixed-capacity cache storage.",
+  "terms": [
+    {
+      "term": "Grouped-query attention",
+      "definition": "Several query heads read one shared key head and one shared value head. Each query still computes its own attention probabilities; sharing keys and values does not generally make those probabilities equal."
+    },
+    {
+      "term": "Query head",
+      "definition": "One learned query projection lane that compares the current row with eligible keys and uses its resulting probabilities to mix values. The four query heads remain separate when this chapter shares their key/value heads."
+    },
+    {
+      "term": "Key/value head",
+      "definition": "One learned key projection lane and corresponding value projection lane. A query-head group reads these same keys and values; cached inference stores them once per shared head."
+    },
+    {
+      "term": "Multi-head attention",
+      "definition": "The equal-head endpoint of this attention path: every query head has its own key and value head. This is the chapter's reference for parameter and cache-payload counts."
+    },
+    {
+      "term": "Multi-query attention",
+      "definition": "The one-KV-head endpoint: all query heads share one key head and one value head while retaining separate queries and probability calculations."
+    },
+    {
+      "term": "Causal context",
+      "definition": "The keys at or before an active query cell that its sequence layout permits. Future cells, another packed segment and padding remain excluded when a local window is added."
+    },
+    {
+      "term": "Local context window",
+      "definition": "A positive maximum number of direct key cells per active query, including self. It intersects the existing causal segment, uses sequence-row order rather than RoPE labels, and performs no cache eviction in this chapter."
+    },
+    {
+      "term": "Full-prefix comparison",
+      "definition": "Recompute the entire growing prefix with the same weights, positions and per-layer window, then compare its final-row logits with cached inference. Re-encoding only the latest raw window is a different computation."
+    },
+    {
+      "term": "KV-cache payload",
+      "definition": "The stored key and value numerical data. Allocated payload counts all capacity cells; occupied logical payload counts observed prefix cells. Both exclude object and allocator overhead, and a window alone reduces neither count in this fixed-capacity cache."
+    }
+  ]
+}

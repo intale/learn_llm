@@ -4,6 +4,10 @@ pub mod portable;
 pub mod quantization;
 pub mod resume;
 
+#[cfg(test)]
+#[path = "checkpoint/attention_tests.rs"]
+mod attention_tests;
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
@@ -992,6 +996,11 @@ fn write_metadata(
     );
 
     let config = checkpoint.model_state.config();
+    if config.kv_heads() != config.heads() || config.context_window().is_some() {
+        return Err(CheckpointError::Layout(
+            "legacy checkpoint wire format cannot preserve attention sharing/window settings; use TrainingCheckpoint".to_owned(),
+        ));
+    }
     for (value, context) in [
         (config.vocabulary_size(), "decoder vocabulary"),
         (config.model_width(), "decoder width"),

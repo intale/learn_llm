@@ -1307,6 +1307,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "practical-ch18-grouped-query-attention-context"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "config-lib",
+ "llm-from-scratch-practical",
+ "practical-ch15-save-load-resume-model",
+ "serde_json",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"

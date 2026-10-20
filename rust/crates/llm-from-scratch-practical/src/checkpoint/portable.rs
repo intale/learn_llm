@@ -115,6 +115,15 @@ fn settings(config: DecoderBlockConfig, layers: usize) -> ArchiveResult<Config> 
         result.set(&format!("backbone.{name}"), i64::try_from(n)?)?;
     }
     result.set("backbone.constants", CONSTANTS)?;
+    // region:portable-attention-settings
+    // Omitted extensions mean the original equal-head, unbounded model.
+    if config.kv_heads() != config.heads() {
+        result.set("backbone.kv_heads", i64::try_from(config.kv_heads())?)?;
+    }
+    if let Some(window) = config.context_window() {
+        result.set("backbone.window", i64::try_from(window)?)?;
+    }
+    // endregion:portable-attention-settings
     Ok(result)
 }
 
@@ -252,15 +261,29 @@ impl PortableModel {
             return Err("invalid backbone numerical constants shape".into());
         }
         let constants = constants.float_values()?;
+        let heads = integer(&self.settings, "backbone.heads")?;
+        let kv_heads = self
+            .settings
+            .get("backbone.kv_heads")
+            .map(|_| integer(&self.settings, "backbone.kv_heads"))
+            .transpose()?
+            .unwrap_or(heads);
+        let window = self
+            .settings
+            .get("backbone.window")
+            .map(|_| integer(&self.settings, "backbone.window"))
+            .transpose()?;
+        crate::attention::multi_head::validate_sharing(heads, kv_heads, window)?;
         Ok((
             DecoderBlockConfig::new(
                 integer(&self.settings, "backbone.width")?,
-                integer(&self.settings, "backbone.heads")?,
+                heads,
                 integer(&self.settings, "backbone.feed_forward_width")?,
                 integer(&self.settings, "backbone.positions")?,
                 constants[0],
                 constants[1],
-            ),
+            )
+            .with_attention(kv_heads, window),
             integer(&self.settings, "backbone.layers")?,
         ))
     }
@@ -387,7 +410,8 @@ impl PortableModel {
             config.max_positions(),
             config.rope_base(),
             config.rms_epsilon(),
-        );
+        )
+        .with_attention(config.kv_heads(), config.context_window());
         let model = DecoderModel::from_parameters(model_config, self.parameters()?)?;
         let tokenizer = saved_tokenizer
             .restore_bpe()?

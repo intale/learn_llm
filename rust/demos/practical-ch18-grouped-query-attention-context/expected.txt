@@ -1,0 +1,320 @@
+{
+  "model_comparisons": [
+    {
+      "absolute_tolerance": 1e-10,
+      "all_outputs_graph_free": true,
+      "allocated_kv_payload_bytes": 2048,
+      "attention_scalars_per_layer": 256,
+      "capacity": 8,
+      "compared_logits": 1548,
+      "head_mapping": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "head_width": 2,
+      "kv_heads": 4,
+      "layers": 2,
+      "logical_kv_payload_bytes": 1536,
+      "max_abs_logit_error": 0.0,
+      "model_id": "b12169d22b3226120a1834bd0b115305960c8ada8ca4c90683d5e18c37e879a0",
+      "model_scalars": 3384,
+      "model_width": 8,
+      "one_tied_table": true,
+      "prefix_rows": 6,
+      "query_heads": 4,
+      "window": null,
+      "within_tolerance": true
+    },
+    {
+      "absolute_tolerance": 1e-10,
+      "all_outputs_graph_free": true,
+      "allocated_kv_payload_bytes": 1024,
+      "attention_scalars_per_layer": 192,
+      "capacity": 8,
+      "compared_logits": 1548,
+      "head_mapping": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "head_width": 2,
+      "kv_heads": 2,
+      "layers": 2,
+      "logical_kv_payload_bytes": 768,
+      "max_abs_logit_error": 0.0,
+      "model_id": "13fe8075ce3fc49db4578de183388c5b05a6ed925287fd64e01469e7378ec3f3",
+      "model_scalars": 3256,
+      "model_width": 8,
+      "one_tied_table": true,
+      "prefix_rows": 6,
+      "query_heads": 4,
+      "window": null,
+      "within_tolerance": true
+    },
+    {
+      "absolute_tolerance": 1e-10,
+      "all_outputs_graph_free": true,
+      "allocated_kv_payload_bytes": 512,
+      "attention_scalars_per_layer": 160,
+      "capacity": 8,
+      "compared_logits": 1548,
+      "head_mapping": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "head_width": 2,
+      "kv_heads": 1,
+      "layers": 2,
+      "logical_kv_payload_bytes": 384,
+      "max_abs_logit_error": 0.0,
+      "model_id": "8a6035b3062a6592b682d555baaea0703b2b30b100000d639f03b6b9309992d7",
+      "model_scalars": 3192,
+      "model_width": 8,
+      "one_tied_table": true,
+      "prefix_rows": 6,
+      "query_heads": 4,
+      "window": null,
+      "within_tolerance": true
+    },
+    {
+      "absolute_tolerance": 1e-10,
+      "all_outputs_graph_free": true,
+      "allocated_kv_payload_bytes": 1024,
+      "attention_scalars_per_layer": 192,
+      "capacity": 8,
+      "compared_logits": 1548,
+      "head_mapping": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "head_width": 2,
+      "kv_heads": 2,
+      "layers": 2,
+      "logical_kv_payload_bytes": 768,
+      "max_abs_logit_error": 0.0,
+      "model_id": "234d9d80f5d63091842fbf7b3cef7ac867aefd20732853a1a463c5b594f3f1f2",
+      "model_scalars": 3256,
+      "model_width": 8,
+      "one_tied_table": true,
+      "prefix_rows": 6,
+      "query_heads": 4,
+      "window": 2,
+      "within_tolerance": true
+    }
+  ],
+  "packed_window_example": {
+    "effective_starts": [
+      0,
+      0,
+      2,
+      2,
+      3,
+      5
+    ],
+    "rope_positions": [
+      0,
+      1,
+      0,
+      1,
+      2,
+      0
+    ],
+    "segment_starts": [
+      0,
+      0,
+      2,
+      2,
+      2,
+      5
+    ],
+    "window": 2
+  },
+  "scope": "initialized CPU f64 fixtures; no training, quality, throughput, cache eviction, or GPU measurement",
+  "worked_example": {
+    "cases": [
+      {
+        "head_mapping": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "key_shape": [
+          1,
+          2,
+          4,
+          2
+        ],
+        "last_merged_output": [
+          2.5,
+          0.0,
+          2.5,
+          0.0,
+          0.0,
+          25.0,
+          0.0,
+          25.0
+        ],
+        "last_query_weights": [
+          [
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ],
+          [
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ],
+          [
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ],
+          [
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ]
+        ],
+        "value_heads": [
+          1.0,
+          0.0,
+          2.0,
+          0.0,
+          3.0,
+          0.0,
+          4.0,
+          0.0,
+          0.0,
+          10.0,
+          0.0,
+          20.0,
+          0.0,
+          30.0,
+          0.0,
+          40.0
+        ],
+        "window": null
+      },
+      {
+        "head_mapping": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "key_shape": [
+          1,
+          2,
+          4,
+          2
+        ],
+        "last_merged_output": [
+          3.5,
+          0.0,
+          3.5,
+          0.0,
+          0.0,
+          35.0,
+          0.0,
+          35.0
+        ],
+        "last_query_weights": [
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ]
+        ],
+        "value_heads": [
+          1.0,
+          0.0,
+          2.0,
+          0.0,
+          3.0,
+          0.0,
+          4.0,
+          0.0,
+          0.0,
+          10.0,
+          0.0,
+          20.0,
+          0.0,
+          30.0,
+          0.0,
+          40.0
+        ],
+        "window": 2
+      }
+    ],
+    "head_width": 2,
+    "input_rows": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      4.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "kv_heads": 2,
+    "query_heads": 4,
+    "text": "abcd"
+  }
+}

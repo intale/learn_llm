@@ -78,6 +78,6 @@ describe('Chapter17 executed quantization evidence and static projections',()=>{
     }
     const nodes=walk(document);
     expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='prev').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/16-language-model-evaluation/']);
-    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next')).toHaveLength(0);
+    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/18-grouped-query-attention-context/']);
   });
 });

@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-save-load-resume-model",
   "concept_id": "save-load-resume-model",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 15,
   "objective": {
     "en": "Save the composed text model for fresh-process CPU inference, restore its single tied embedding, and distinguish portable learned state from the extra state and compatibility conditions needed for exact bounded training continuation."

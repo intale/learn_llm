@@ -165,11 +165,6 @@ impl ModelConfig {
     }
     pub fn executable_config(&self) -> Result<DecoderModelConfig, ConfigError> {
         self.validate()?;
-        if self.hq != self.hkv {
-            return Err(ConfigError::Invalid(
-                "unequal-head GQA has no execution kernel here",
-            ));
-        }
         if self.dtype_policy != "scalar-f64" {
             return Err(ConfigError::Invalid("no selected dtype execution kernel"));
         }
@@ -182,7 +177,8 @@ impl ModelConfig {
             checked_usize(self.c.into())?,
             self.rope_base()?,
             self.rms_epsilon()?,
-        ))
+        )
+        .with_attention(checked_usize(self.hkv.into())?, None))
     }
     pub fn scale(id: &str) -> Result<Self, ConfigError> {
         super::DecoderProfiles::defaults()?.model(id)

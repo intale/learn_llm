@@ -797,6 +797,8 @@ fn same_config(left: DecoderModelConfig, right: DecoderModelConfig) -> bool {
     left.vocabulary_size() == right.vocabulary_size()
         && left.model_width() == right.model_width()
         && left.heads() == right.heads()
+        && left.kv_heads() == right.kv_heads()
+        && left.context_window() == right.context_window()
         && left.feed_forward_width() == right.feed_forward_width()
         && left.layers() == right.layers()
         && left.max_positions() == right.max_positions()

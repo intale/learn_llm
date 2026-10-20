@@ -3,7 +3,7 @@
   "chapter_id": "00-course-structure",
   "chapter_kind": "orientation",
   "concept_id": "practical-course-structure",
-  "content_revision": 12,
+  "content_revision": 13,
   "order": 0,
   "objective": {
     "en": "Understand how the practical course extends one complete text model, connect its data, model, learning, generation and saved state, and locate every published or planned chapter."
@@ -31,12 +31,12 @@
     }
   },
   "decoder_connection": {
-    "en": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Chapter 16 adds evaluation. Planned Chapters 18–32 extend inference and adaptation."
+    "en": "Prepared text supplies token batches; the implemented text encoder feeds a source-independent causal transformer, and the tied text head produces vocabulary scores. Learning changes the same model's weights, while generation returns chosen token IDs for later cached steps. Published Chapter 11 selects CPU or CUDA for matrix and sum/mean primitives; Chapter 12 adds CPU half-format matrix policies and loss-scaled updates. Chapter 13 adds accumulation and recomputation; Chapter 14 adds warmup and cosine rates around existing global clipping. Chapter 15 saves the composed model for fresh-process CPU inference and restores complete-boundary training state within a narrower execution envelope. Chapter 16 adds evaluation. Planned Chapters 19–32 extend inference and adaptation."
   },
   "terminology": [],
   "translation_notes": [
     "English is the sole active practical-course locale. Preserve registered-locale support; all diagram labels, relationship descriptions, roadmap purposes and availability labels are authored data for future localization.",
-    "Keep every planned Chapter 18–32 entry and any planned diagram chapter reference as plain text. Derive available Chapter 1–17 titles and destinations from the existing practical publication selector and locale-aware route helper."
+    "Keep every planned Chapter 19–32 entry and any planned diagram chapter reference as plain text. Derive available Chapter 1–18 titles and destinations from the existing practical publication selector and locale-aware route helper."
   ],
   "acceptance_examples": [
     {
@@ -49,7 +49,7 @@
     },
     {
       "input": "Inspect every roadmap entry",
-      "expected": "All 33 chapters, 0–32, appear individually with a concise purpose. Chapter 0 is current, published Chapters 1–17 link to their actual practical destinations, and each planned Chapter 18–32 is explicitly planned with no anchor or placeholder destination."
+      "expected": "All 33 chapters, 0–32, appear individually with a concise purpose. Chapter 0 is current, published Chapters 1–18 link to their actual practical destinations, and each planned Chapter 19–32 is explicitly planned with no anchor or placeholder destination."
     },
     {
       "input": "Compare current implementation with future goals",
@@ -108,8 +108,8 @@ no new paper-history or performance claim.
 ## Chapter sequence
 
 Present all 33 chapters individually. Use actual published contracts and
-catalogs for Chapters 0–17, and the accepted revision-9 design subjects for
-Chapters 18–32. The published lessons are:
+catalogs for Chapters 0–18, and the accepted revision-9 design subjects for
+Chapters 19–32. The published lessons are:
 
 - 0: this orientation and its connected model/course map;
 - 1: the fixed reference experiment and its evidence limits;
@@ -131,10 +131,10 @@ Chapters 18–32. The published lessons are:
 - 16: training-versus-held-out language-model evaluation, a simple baseline
   and descriptive initialization variation.
 - 17: weight quantization.
+- 18: grouped-query attention and context masks;
 
 The planned continuation is:
 
-- 18: grouped-query attention and context masks;
 - 19: online and tiled attention;
 - 20: paged key/value-cache layout;
 - 21: sampling distributions;
@@ -151,7 +151,7 @@ The planned continuation is:
 - 32: mixture-of-experts mathematics.
 
 Give each row its own concise purpose. Mark Chapter 0 as current, link available
-Chapters 1–17 through the existing publication and locale-route helpers, and
+Chapters 1–18 through the existing publication and locale-route helpers, and
 mark every future row planned without an anchor or fabricated destination.
 Use `findPublishablePracticalChapterSets`, `getCollection('practicalChapters')`,
 `practicalCourse` and `localePath`; do not add another publication registry.

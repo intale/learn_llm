@@ -5,7 +5,7 @@ use std::fmt;
 
 use super::causal_mask::{
     CausalMaskingError, causal_attention_with_lengths, causal_attention_with_ranges,
-    causal_scaled_dot_product_self_attention_with_context,
+    causal_scaled_dot_product_self_attention_with_context, causal_window_start,
 };
 use super::qkv::{QkvError, QkvProjections};
 use super::rope::{RopeError, RotaryEmbedding};
@@ -224,6 +224,8 @@ pub enum MultiHeadStage {
     ValueLanes,
     RestoreWeights,
     RestoreHeadOutputs,
+    SharedKeyHeads,
+    SharedValueHeads,
 }
 
 impl fmt::Display for MultiHeadStage {
@@ -234,6 +236,8 @@ impl fmt::Display for MultiHeadStage {
             Self::ValueLanes => "value lane flatten",
             Self::RestoreWeights => "attention-weight head restore",
             Self::RestoreHeadOutputs => "head-output restore",
+            Self::SharedKeyHeads => "shared key-head gather",
+            Self::SharedValueHeads => "shared value-head gather",
         })
     }
 }
@@ -243,6 +247,15 @@ impl fmt::Display for MultiHeadStage {
 pub enum MultiHeadAttentionError {
     ZeroModelWidth,
     ZeroHeadCount,
+    InvalidKvHeadCount {
+        query_heads: usize,
+        kv_heads: usize,
+    },
+    ZeroContextWindow,
+    KvProjectionWidthMismatch {
+        expected: usize,
+        actual: usize,
+    },
     ModelWidthNotDivisible {
         model_width: usize,
         heads: usize,
@@ -308,6 +321,20 @@ impl fmt::Display for MultiHeadAttentionError {
         match self {
             Self::ZeroModelWidth => formatter.write_str("multi-head model width must be nonzero"),
             Self::ZeroHeadCount => formatter.write_str("multi-head head count must be nonzero"),
+            Self::InvalidKvHeadCount {
+                query_heads,
+                kv_heads,
+            } => write!(
+                formatter,
+                "query head count {query_heads} must be divisible by positive KV head count {kv_heads}"
+            ),
+            Self::ZeroContextWindow => {
+                formatter.write_str("attention window must include at least the self key")
+            }
+            Self::KvProjectionWidthMismatch { expected, actual } => write!(
+                formatter,
+                "shared KV projected width must be {expected}, got {actual}"
+            ),
             Self::ModelWidthNotDivisible { model_width, heads } => write!(
                 formatter,
                 "multi-head model width {model_width} must be divisible by head count {heads}"
@@ -434,6 +461,23 @@ fn validate_configuration(
     }
     Ok(head_width)
 }
+
+pub(crate) fn validate_sharing(
+    heads: usize,
+    kv_heads: usize,
+    context_window: Option<usize>,
+) -> Result<(), MultiHeadAttentionError> {
+    if kv_heads == 0 || heads == 0 || !heads.is_multiple_of(kv_heads) {
+        return Err(MultiHeadAttentionError::InvalidKvHeadCount {
+            query_heads: heads,
+            kv_heads,
+        });
+    }
+    if context_window == Some(0) {
+        return Err(MultiHeadAttentionError::ZeroContextWindow);
+    }
+    Ok(())
+}
 // endregion:multi-head-errors
 
 // region:multi-head-layer
@@ -493,7 +537,7 @@ impl MultiHeadAttentionForward {
     }
 }
 
-/// Full-width Q/K/V projections, per-head RoPE and causal attention, and W_O.
+/// Full-width queries, optionally shared K/V heads, RoPE, causal attention and W_O.
 #[derive(Clone, Debug)]
 pub struct MultiHeadAttention {
     qkv: QkvProjections,
@@ -503,6 +547,8 @@ pub struct MultiHeadAttention {
     model_width: usize,
     heads: usize,
     head_width: usize,
+    kv_heads: usize,
+    context_window: Option<usize>,
 }
 
 impl MultiHeadAttention {
@@ -515,13 +561,43 @@ impl MultiHeadAttention {
         rope_base: f64,
         rng: &mut SplitMix64,
     ) -> Result<Self, MultiHeadAttentionError> {
+        Self::new_with_attention(
+            parameter_prefix,
+            model_width,
+            heads,
+            heads,
+            max_positions,
+            rope_base,
+            None,
+            rng,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_with_attention(
+        parameter_prefix: impl Into<String>,
+        model_width: usize,
+        heads: usize,
+        kv_heads: usize,
+        max_positions: usize,
+        rope_base: f64,
+        context_window: Option<usize>,
+        rng: &mut SplitMix64,
+    ) -> Result<Self, MultiHeadAttentionError> {
         let head_width = validate_configuration(model_width, heads)?;
+        validate_sharing(heads, kv_heads, context_window)?;
         let rope = RotaryEmbedding::new(head_width, max_positions, rope_base)
             .map_err(MultiHeadAttentionError::RotaryConfiguration)?;
         let parameter_prefix = parameter_prefix.into();
         let mut trial = rng.clone();
-        let qkv = QkvProjections::new(&parameter_prefix, model_width, model_width, &mut trial)
-            .map_err(MultiHeadAttentionError::QkvProjection)?;
+        let qkv = QkvProjections::new_grouped(
+            &parameter_prefix,
+            model_width,
+            model_width,
+            kv_heads * head_width,
+            &mut trial,
+        )
+        .map_err(MultiHeadAttentionError::QkvProjection)?;
         let output = Linear::new(
             format!("{parameter_prefix}.output"),
             model_width,
@@ -530,7 +606,15 @@ impl MultiHeadAttention {
             &mut trial,
         )
         .map_err(MultiHeadAttentionError::OutputProjection)?;
-        let layer = Self::from_validated_parts(qkv, output, rope, heads, head_width)?;
+        let layer = Self::from_validated_parts(
+            qkv,
+            output,
+            rope,
+            heads,
+            head_width,
+            kv_heads,
+            context_window,
+        )?;
         *rng = trial;
         Ok(layer)
     }
@@ -545,16 +629,52 @@ impl MultiHeadAttention {
         max_positions: usize,
         rope_base: f64,
     ) -> Result<Self, MultiHeadAttentionError> {
-        let qkv = QkvProjections::from_weights(query_weight, key_weight, value_weight)
-            .map_err(MultiHeadAttentionError::QkvProjection)?;
+        Self::from_parameters_with_attention(
+            query_weight,
+            key_weight,
+            value_weight,
+            output_weight,
+            heads,
+            heads,
+            max_positions,
+            rope_base,
+            None,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_parameters_with_attention(
+        query_weight: NamedParameter,
+        key_weight: NamedParameter,
+        value_weight: NamedParameter,
+        output_weight: NamedParameter,
+        heads: usize,
+        kv_heads: usize,
+        max_positions: usize,
+        rope_base: f64,
+        context_window: Option<usize>,
+    ) -> Result<Self, MultiHeadAttentionError> {
+        let qkv = if heads == kv_heads {
+            QkvProjections::from_weights(query_weight, key_weight, value_weight)
+        } else {
+            QkvProjections::from_grouped_weights(query_weight, key_weight, value_weight)
+        }
+        .map_err(MultiHeadAttentionError::QkvProjection)?;
         let output = Linear::from_parameters(output_weight, None)
             .map_err(MultiHeadAttentionError::OutputProjection)?;
         let model_width = qkv.model_width();
         let head_width = validate_configuration(model_width, heads)?;
+        validate_sharing(heads, kv_heads, context_window)?;
         if qkv.head_width() != model_width {
             return Err(MultiHeadAttentionError::QkvOutputWidthMismatch {
                 model_width,
                 projected_width: qkv.head_width(),
+            });
+        }
+        if qkv.kv_width() != kv_heads * head_width {
+            return Err(MultiHeadAttentionError::KvProjectionWidthMismatch {
+                expected: kv_heads * head_width,
+                actual: qkv.kv_width(),
             });
         }
         if output.input_width() != model_width {
@@ -571,7 +691,15 @@ impl MultiHeadAttention {
         }
         let rope = RotaryEmbedding::new(head_width, max_positions, rope_base)
             .map_err(MultiHeadAttentionError::RotaryConfiguration)?;
-        Self::from_validated_parts(qkv, output, rope, heads, head_width)
+        Self::from_validated_parts(
+            qkv,
+            output,
+            rope,
+            heads,
+            head_width,
+            kv_heads,
+            context_window,
+        )
     }
 
     fn from_validated_parts(
@@ -580,6 +708,8 @@ impl MultiHeadAttention {
         rope: RotaryEmbedding,
         heads: usize,
         head_width: usize,
+        kv_heads: usize,
+        context_window: Option<usize>,
     ) -> Result<Self, MultiHeadAttentionError> {
         let model_width = qkv.model_width();
         let mut listed = Vec::with_capacity(4);
@@ -594,6 +724,8 @@ impl MultiHeadAttention {
             model_width,
             heads,
             head_width,
+            kv_heads,
+            context_window,
         })
     }
 
@@ -791,6 +923,43 @@ impl MultiHeadAttention {
             None
         };
 
+        let lane_lengths = if self.context_window.is_some() && lane_lengths.is_none() {
+            Some(repeat_row_metadata(
+                &vec![shape[1]; shape[0]],
+                1,
+                self.heads,
+            )?)
+        } else {
+            lane_lengths
+        };
+        // region:windowed-head-ranges
+        let mut lane_starts = lane_starts;
+        if let Some(window) = self.context_window {
+            if lane_starts.is_none() {
+                lane_starts = Some(repeat_row_metadata(&vec![0; cells], shape[1], self.heads)?);
+            }
+            let starts = lane_starts.as_mut().expect("window ranges");
+            for (lane, &length) in lane_lengths
+                .as_ref()
+                .expect("window lengths")
+                .iter()
+                .enumerate()
+            {
+                for query in 0..length {
+                    let index = lane * shape[1] + query;
+                    starts[index] = causal_window_start(query, starts[index], window)
+                        .expect("validated segment start and positive window");
+                }
+            }
+        }
+        // endregion:windowed-head-ranges
+        let kv_lengths = lengths
+            .map(|values| repeat_row_metadata(values, 1, self.kv_heads))
+            .transpose()?;
+        let kv_positions = positions
+            .map(|values| repeat_row_metadata(values, shape[1], self.kv_heads))
+            .transpose()?;
+
         let projected = self
             .qkv
             .forward_with_context(context, input)
@@ -798,10 +967,10 @@ impl MultiHeadAttention {
         let projected_query_heads =
             split_heads_with_context(context, projected.query(), self.heads)
                 .map_err(head_layout(MultiHeadInput::Query))?;
-        let projected_key_heads = split_heads_with_context(context, projected.key(), self.heads)
+        let projected_key_heads = split_heads_with_context(context, projected.key(), self.kv_heads)
             .map_err(head_layout(MultiHeadInput::Key))?;
         let projected_value_heads =
-            split_heads_with_context(context, projected.value(), self.heads)
+            split_heads_with_context(context, projected.value(), self.kv_heads)
                 .map_err(head_layout(MultiHeadInput::Value))?;
         let rotated_query_heads = match lane_positions.as_deref() {
             Some(positions) => self.rope.rotate_with_positions(
@@ -820,12 +989,12 @@ impl MultiHeadAttention {
             ),
         }
         .map_err(rotary_error(MultiHeadInput::Query))?;
-        let rotated_key_heads = match lane_positions.as_deref() {
+        let rotated_key_heads = match kv_positions.as_deref() {
             Some(positions) => self.rope.rotate_with_positions(
                 context,
                 &projected_key_heads,
                 positions,
-                lane_lengths
+                kv_lengths
                     .as_deref()
                     .expect("local positions have prefix lengths"),
             ),
@@ -833,7 +1002,7 @@ impl MultiHeadAttention {
                 context,
                 &projected_key_heads,
                 position_offset,
-                lane_lengths.as_deref(),
+                kv_lengths.as_deref(),
             ),
         }
         .map_err(rotary_error(MultiHeadInput::Key))?;
@@ -842,10 +1011,16 @@ impl MultiHeadAttention {
         let query_lanes = rotated_query_heads
             .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::QueryLanes))?;
-        let key_lanes = rotated_key_heads
+        let key_lanes = self
+            .expand_kv_heads(context, &rotated_key_heads, MultiHeadStage::SharedKeyHeads)?
             .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::KeyLanes))?;
-        let value_lanes = projected_value_heads
+        let value_lanes = self
+            .expand_kv_heads(
+                context,
+                &projected_value_heads,
+                MultiHeadStage::SharedValueHeads,
+            )?
             .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::ValueLanes))?;
         let attended = match (lane_lengths.as_deref(), lane_starts.as_deref()) {
@@ -905,6 +1080,51 @@ impl MultiHeadAttention {
         &self.qkv
     }
 
+    // region:shared-kv-gather
+    /// The CPU full pass materializes repeated views, reusing gather's summed
+    /// pullback. Persistent weights and the incremental cache remain unexpanded.
+    fn expand_kv_heads(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        stage: MultiHeadStage,
+    ) -> Result<TensorValue, MultiHeadAttentionError> {
+        if self.kv_heads == self.heads {
+            return Ok(input.clone());
+        }
+        let shape = input.shape();
+        let [batch, _, tokens, width] =
+            <[usize; 4]>::try_from(shape.as_slice()).expect("split KV heads have rank four");
+        let count = batch
+            .checked_mul(self.heads)
+            .and_then(|n| n.checked_mul(tokens))
+            .ok_or(MultiHeadAttentionError::BatchHeadOverflow {
+                batch,
+                heads: self.heads,
+            })?;
+        let mut indices = Vec::new();
+        indices.try_reserve_exact(count).map_err(|_| {
+            MultiHeadAttentionError::CausalAttention(CausalMaskingError::MaskAllocationFailed {
+                elements: count,
+            })
+        })?;
+        for row in 0..batch {
+            for head in 0..self.heads {
+                let shared = self.kv_head_for_query(head).expect("query head in range");
+                for token in 0..tokens {
+                    indices.push((row * self.kv_heads + shared) * tokens + token);
+                }
+            }
+        }
+        input
+            .reshape_with_context(context, &[batch * self.kv_heads * tokens, width])
+            .and_then(|table| {
+                table.gather_rows_with_context(context, &indices, &[batch, self.heads, tokens])
+            })
+            .map_err(multi_autodiff(stage))
+    }
+    // endregion:shared-kv-gather
+
     pub fn output_projection(&self) -> &Linear {
         &self.output
     }
@@ -929,11 +1149,30 @@ impl MultiHeadAttention {
         self.head_width
     }
 
+    pub const fn kv_heads(&self) -> usize {
+        self.kv_heads
+    }
+
+    pub const fn context_window(&self) -> Option<usize> {
+        self.context_window
+    }
+
+    // region:query-to-kv-head
+    /// Adjacent query heads share one learned key/value projection head.
+    pub fn kv_head_for_query(&self, query_head: usize) -> Option<usize> {
+        (query_head < self.heads).then(|| query_head / (self.heads / self.kv_heads))
+    }
+    // endregion:query-to-kv-head
+
     pub const fn parameter_count(&self) -> usize {
-        4 * self.model_width * self.model_width
+        self.qkv.parameter_count() + self.model_width * self.model_width
     }
 }
 // endregion:multi-head-layer
+
+#[cfg(test)]
+#[path = "grouped_tests.rs"]
+mod grouped_tests;
 
 #[cfg(test)]
 mod tests {
