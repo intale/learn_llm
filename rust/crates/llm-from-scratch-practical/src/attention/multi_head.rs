@@ -7,6 +7,7 @@ use super::causal_mask::{
     CausalMaskingError, causal_attention_with_lengths, causal_attention_with_ranges,
     causal_scaled_dot_product_self_attention_with_context, causal_window_start,
 };
+use super::online::{AttentionLayout, tiled_causal_attention};
 use super::qkv::{QkvError, QkvProjections};
 use super::rope::{RopeError, RotaryEmbedding};
 
@@ -467,7 +468,7 @@ pub(crate) fn validate_sharing(
     kv_heads: usize,
     context_window: Option<usize>,
 ) -> Result<(), MultiHeadAttentionError> {
-    if kv_heads == 0 || heads == 0 || !heads.is_multiple_of(kv_heads) {
+    if kv_head_for_query(0, heads, kv_heads).is_none() {
         return Err(MultiHeadAttentionError::InvalidKvHeadCount {
             query_heads: heads,
             kv_heads,
@@ -479,6 +480,16 @@ pub(crate) fn validate_sharing(
     Ok(())
 }
 // endregion:multi-head-errors
+
+// region:query-to-kv-head
+/// Adjacent query heads share one learned key/value projection head.
+pub fn kv_head_for_query(query_head: usize, query_heads: usize, kv_heads: usize) -> Option<usize> {
+    if kv_heads == 0 || query_heads == 0 || !query_heads.is_multiple_of(kv_heads) {
+        return None;
+    }
+    (query_head < query_heads).then(|| query_head / (query_heads / kv_heads))
+}
+// endregion:query-to-kv-head
 
 // region:multi-head-layer
 /// Inspectable intermediate tensors from one complete multi-head forward pass.
@@ -549,6 +560,16 @@ pub struct MultiHeadAttention {
     head_width: usize,
     kv_heads: usize,
     context_window: Option<usize>,
+}
+
+struct PreparedAttentionHeads {
+    projected_query_heads: TensorValue,
+    projected_key_heads: TensorValue,
+    projected_value_heads: TensorValue,
+    rotated_query_heads: TensorValue,
+    rotated_key_heads: TensorValue,
+    lane_lengths: Option<Vec<usize>>,
+    lane_starts: Option<Vec<usize>>,
 }
 
 impl MultiHeadAttention {
@@ -758,7 +779,7 @@ impl MultiHeadAttention {
         self.forward_with_layout(context, input, position_offset, lengths, None, None)
     }
 
-    pub(crate) fn forward_with_layout(
+    fn prepare_heads_with_layout(
         &self,
         context: AutogradContext,
         input: &TensorValue,
@@ -766,7 +787,7 @@ impl MultiHeadAttention {
         lengths: Option<&[usize]>,
         starts: Option<&[usize]>,
         positions: Option<&[usize]>,
-    ) -> Result<MultiHeadAttentionForward, MultiHeadAttentionError> {
+    ) -> Result<PreparedAttentionHeads, MultiHeadAttentionError> {
         let shape = input.shape();
         if shape.len() != 3 {
             return Err(MultiHeadAttentionError::InputRank { rank: shape.len() });
@@ -794,7 +815,7 @@ impl MultiHeadAttention {
             });
         }
 
-        let lanes =
+        let _lanes =
             shape[0]
                 .checked_mul(self.heads)
                 .ok_or(MultiHeadAttentionError::BatchHeadOverflow {
@@ -1007,6 +1028,44 @@ impl MultiHeadAttention {
         }
         .map_err(rotary_error(MultiHeadInput::Key))?;
 
+        Ok(PreparedAttentionHeads {
+            projected_query_heads,
+            projected_key_heads,
+            projected_value_heads,
+            rotated_query_heads,
+            rotated_key_heads,
+            lane_lengths,
+            lane_starts,
+        })
+    }
+
+    pub(crate) fn forward_with_layout(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
+    ) -> Result<MultiHeadAttentionForward, MultiHeadAttentionError> {
+        let PreparedAttentionHeads {
+            projected_query_heads,
+            projected_key_heads,
+            projected_value_heads,
+            rotated_query_heads,
+            rotated_key_heads,
+            lane_lengths,
+            lane_starts,
+        } = self.prepare_heads_with_layout(
+            context,
+            input,
+            position_offset,
+            lengths,
+            starts,
+            positions,
+        )?;
+        let shape = input.shape();
+        let lanes = shape[0] * self.heads; // Checked by the shared preparation.
         let lane_shape = [lanes, shape[1], self.head_width];
         let query_lanes = rotated_query_heads
             .reshape_with_context(context, &lane_shape)
@@ -1056,12 +1115,7 @@ impl MultiHeadAttention {
             .output()
             .reshape_with_context(context, &[shape[0], self.heads, shape[1], self.head_width])
             .map_err(multi_autodiff(MultiHeadStage::RestoreHeadOutputs))?;
-        let merged = merge_heads_with_context(context, &head_outputs)
-            .map_err(MultiHeadAttentionError::MergeLayout)?;
-        let output = self
-            .output
-            .forward_with_context(context, &merged)
-            .map_err(MultiHeadAttentionError::OutputProjection)?;
+        let (merged, output) = self.project_head_outputs(context, &head_outputs)?;
 
         Ok(MultiHeadAttentionForward {
             projected_query_heads,
@@ -1075,6 +1129,91 @@ impl MultiHeadAttention {
             output,
         })
     }
+
+    fn project_head_outputs(
+        &self,
+        context: AutogradContext,
+        heads: &TensorValue,
+    ) -> Result<(TensorValue, TensorValue), MultiHeadAttentionError> {
+        let merged = merge_heads_with_context(context, heads)
+            .map_err(MultiHeadAttentionError::MergeLayout)?;
+        let output = self
+            .output
+            .forward_with_context(context, &merged)
+            .map_err(MultiHeadAttentionError::OutputProjection)?;
+        Ok((merged, output))
+    }
+
+    /// Output-oriented attention honors the explicit execution policy. The
+    /// inspectable `forward` APIs always retain their dense reference reports.
+    pub fn forward_output_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+    ) -> Result<TensorValue, MultiHeadAttentionError> {
+        self.forward_output_with_layout(context, input, position_offset, None, None, None)
+    }
+
+    // region:compact-grouped-attention
+    pub(crate) fn forward_output_with_layout(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
+    ) -> Result<TensorValue, MultiHeadAttentionError> {
+        let Some(tiles) = context.execution().attention_tiles() else {
+            return self
+                .forward_with_layout(context, input, position_offset, lengths, starts, positions)
+                .map(MultiHeadAttentionForward::into_output);
+        };
+        super::online::f64_execution(&context.execution())
+            .map_err(multi_autodiff(MultiHeadStage::RestoreHeadOutputs))?;
+        let prepared = self.prepare_heads_with_layout(
+            context,
+            input,
+            position_offset,
+            lengths,
+            starts,
+            positions,
+        )?;
+        let shape = input.shape();
+        // The existing preparation repeats identical metadata for every head.
+        // Restore one batch copy; K/V tensors themselves remain unexpanded.
+        let lengths = prepared.lane_lengths.as_ref().map(|values| {
+            (0..shape[0])
+                .map(|b| values[b * self.heads])
+                .collect::<Vec<_>>()
+        });
+        let starts = prepared.lane_starts.as_ref().map(|values| {
+            (0..shape[0])
+                .flat_map(|b| {
+                    values[b * self.heads * shape[1]..(b * self.heads + 1) * shape[1]]
+                        .iter()
+                        .copied()
+                })
+                .collect::<Vec<_>>()
+        });
+        let attended = tiled_causal_attention(
+            context,
+            &prepared.rotated_query_heads,
+            &prepared.rotated_key_heads,
+            &prepared.projected_value_heads,
+            AttentionLayout {
+                lengths: lengths.as_deref(),
+                starts: starts.as_deref(),
+            },
+            tiles,
+            None,
+        )
+        .map_err(multi_autodiff(MultiHeadStage::RestoreHeadOutputs))?;
+        self.project_head_outputs(context, attended.output())
+            .map(|(_, output)| output)
+    }
+    // endregion:compact-grouped-attention
 
     pub fn qkv(&self) -> &QkvProjections {
         &self.qkv
@@ -1157,12 +1296,9 @@ impl MultiHeadAttention {
         self.context_window
     }
 
-    // region:query-to-kv-head
-    /// Adjacent query heads share one learned key/value projection head.
     pub fn kv_head_for_query(&self, query_head: usize) -> Option<usize> {
-        (query_head < self.heads).then(|| query_head / (self.heads / self.kv_heads))
+        kv_head_for_query(query_head, self.heads, self.kv_heads)
     }
-    // endregion:query-to-kv-head
 
     pub const fn parameter_count(&self) -> usize {
         self.qkv.parameter_count() + self.model_width * self.model_width

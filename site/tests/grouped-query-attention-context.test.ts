@@ -96,6 +96,6 @@ describe('Chapter18 executed shared-head/window evidence and static projections'
     }
     const nodes=walk(document);
     expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='prev').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/17-weight-quantization/']);
-    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next')).toHaveLength(0);
+    expect(nodes.filter(node=>node.tagName==='a'&&attribute(node,'rel')==='next').map(node=>attribute(node,'href'))).toEqual(['/en/practical-llm-in-rust/19-online-tiled-attention/']);
   });
 });

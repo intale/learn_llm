@@ -1,0 +1,40 @@
+{
+  "chapter_id": "19-online-tiled-attention",
+  "locale": "en",
+  "title": "Running attention summaries and reconstructed gradients",
+  "description": "Keep stable normalization, tiled evaluation, saved state and logical storage distinct.",
+  "terms": [
+    {
+      "term": "Online attention",
+      "definition": "Evaluate one query's attention by consuming eligible keys and values in pieces. A running maximum, exponential sum and weighted value sum replace the need to keep all probabilities at once."
+    },
+    {
+      "term": "Running maximum",
+      "definition": "The greatest eligible score consumed so far for one query. When a later tile raises it, the shifted exponential normalization sum and the unnormalized weighted value sum accumulated so far must both be rescaled to that new maximum before the tile contributes."
+    },
+    {
+      "term": "Shifted normalization sum",
+      "definition": "The sum of exponential weights after subtracting the current running maximum from their scores. It carries relative mass across tiles and divides the completed weighted value vector."
+    },
+    {
+      "term": "Unnormalized value sum",
+      "definition": "A vector that adds each eligible value multiplied by its shifted exponential weight. It shares the normalizer's score shift and becomes the attention output only after the final division."
+    },
+    {
+      "term": "Attention tile",
+      "definition": "A bounded block of query and key cells whose scores and value products are evaluated together. Tile edges change intermediate storage and reduction order while preserving the existing eligible keys."
+    },
+    {
+      "term": "Gradient recomputation",
+      "definition": "Reconstruct attention probabilities during backward from saved queries, keys, values, outputs and row statistics. This repeats arithmetic so the tape need not retain a complete probability grid."
+    },
+    {
+      "term": "Logical payload",
+      "definition": "The numerical values owned by the particular inputs, outputs, row statistics or temporary buffers being counted. These selected counts exclude other workspaces and overhead, so they do not measure peak process memory."
+    },
+    {
+      "term": "Attention execution policy",
+      "definition": "An explicit choice of how the existing attention is evaluated, including tile edges and supported numerical execution. It does not change learned projections, permitted context or portable model identity."
+    }
+  ]
+}

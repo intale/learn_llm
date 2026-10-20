@@ -2,7 +2,7 @@
 {
   "chapter_id":"04-padded-variable-batches",
   "concept_id":"padded-variable-batches",
-  "content_revision":1,
+  "content_revision":2,
   "order":4,
   "objective":{"en":"Extend the existing batch and decoder APIs to right-pad unequal document-local examples while excluding padding from embedding, attention, targets and token-weighted loss."},
   "worked_inputs":{"en":"The controlled documents [0,99,1] and [0,100,101,102,1] have three and five encoded tokens, producing two and four predictions. Their two-by-four batch stores eight cells but has six valid targets. Constructed gold probabilities give a summed loss of eight times the natural logarithm of two, divided by six valid targets."},

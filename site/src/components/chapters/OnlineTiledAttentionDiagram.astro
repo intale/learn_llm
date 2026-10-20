@@ -1,0 +1,176 @@
+---
+import InlineMath from '../InlineMath.astro';
+import fixtureSource from '../../../../rust/demos/practical-ch19-online-tiled-attention/expected.txt?raw';
+
+interface Labels {
+  title: string; description: string;
+  statesTitle: string; statesBody: string;
+  firstTitle: string; secondTitle: string;
+  intervalLabel: string; maximumLabel: string; rescaleLabel: string;
+  normalizerLabel: string; weightedLabel: string; transition: string;
+  outputsTitle: string; outputsBody: string; coordinateLabel: string;
+  tiledLabel: string; referenceLabel: string;
+  errorLabel: string; toleranceLabel: string; scope: string;
+}
+interface TileSummary {
+  key_start: number; key_end: number; eligible_keys: number;
+  maximum: number; previous_rescale: number; normalizer: number;
+  weighted_sum: number[];
+}
+interface WorkedExample {
+  key_width: number; value_width: number;
+  tile_summaries: TileSummary[];
+  last_tiled_output: number[]; last_reference_output: number[];
+  max_abs_output_error: number; absolute_tolerance: number;
+}
+interface Props { labels: Labels }
+const { labels } = Astro.props;
+if (!labels || Object.values(labels).some((value) =>
+  typeof value !== 'string' || !value.trim())) {
+  throw new Error('online-tiled-attention-copy');
+}
+const fixture: WorkedExample = JSON.parse(fixtureSource).worked_example;
+if (!fixture || fixture.key_width !== 1 || fixture.value_width !== 2 ||
+    !Array.isArray(fixture.tile_summaries) || fixture.tile_summaries.length !== 2 ||
+    fixture.tile_summaries.some((row) =>
+      !Number.isInteger(row.key_start) || !Number.isInteger(row.key_end) ||
+      row.key_start < 0 || row.key_end <= row.key_start ||
+      !Number.isInteger(row.eligible_keys) || row.eligible_keys <= 0 ||
+      ![row.maximum, row.previous_rescale, row.normalizer].every(Number.isFinite) ||
+      !Array.isArray(row.weighted_sum) || row.weighted_sum.length !== fixture.value_width ||
+      !row.weighted_sum.every(Number.isFinite)) ||
+    !Array.isArray(fixture.last_tiled_output) ||
+    !Array.isArray(fixture.last_reference_output) ||
+    fixture.last_tiled_output.length !== fixture.value_width ||
+    fixture.last_reference_output.length !== fixture.value_width ||
+    !fixture.last_tiled_output.every(Number.isFinite) ||
+    !fixture.last_reference_output.every(Number.isFinite) ||
+    !Number.isFinite(fixture.max_abs_output_error) ||
+    !Number.isFinite(fixture.absolute_tolerance)) {
+  throw new Error('online-tiled-attention-fixture');
+}
+// Only arrange and format the observed Rust values; no attention is computed here.
+const stateTitles = [labels.firstTitle, labels.secondTitle];
+const number = (value: number) => String(value).replace(/e([+-]?\d+)$/, '\\times10^{$1}');
+---
+
+<figure id="online-tiled-attention-figure" class="course-diagram online-tiled-attention-diagram"
+  data-diagram-style="course-v1" data-visualization-id="online-tiled-attention" tabindex="0"
+  aria-labelledby="online-tiled-attention-figure-title"
+  aria-describedby="online-tiled-attention-figure-description online-tiled-attention-figure-scope">
+  <figcaption id="online-tiled-attention-figure-caption" class="course-diagram__caption"
+    data-review-id="online-tiled-attention-figure-caption">
+    <h3 id="online-tiled-attention-figure-title" data-review-id="online-tiled-attention-figure-title">{labels.title}</h3>
+    <p id="online-tiled-attention-figure-description" class="course-diagram__description"
+      data-review-id="online-tiled-attention-figure-description">{labels.description}</p>
+  </figcaption>
+
+  <section id="online-tiled-attention-states" data-diagram-box
+    aria-labelledby="online-tiled-attention-states-title">
+    <h4 id="online-tiled-attention-states-title" data-review-id="online-tiled-attention-states-title">{labels.statesTitle}</h4>
+    <p id="online-tiled-attention-states-description" data-review-id="online-tiled-attention-states-description">{labels.statesBody}</p>
+    <div class="course-diagram__grid online-tiled-attention-states">
+      {fixture.tile_summaries.map((state, index) => (
+        <article id={`online-tiled-attention-state-${index}`} data-diagram-card data-diagram-box
+          class="course-diagram__card-stack" data-online-attention-role="successive-summary"
+          data-summary-index={index} data-review-id={`online-tiled-attention-state-${index}`}
+          aria-labelledby={`online-tiled-attention-state-${index}-title`}>
+          <h5 id={`online-tiled-attention-state-${index}-title`}
+            data-review-id={`online-tiled-attention-state-${index}-title`}>{stateTitles[index]}</h5>
+          <dl class="course-diagram__grid online-tiled-attention-values">
+            <div id={`online-tiled-attention-state-${index}-keys`}
+              data-review-id={`online-tiled-attention-state-${index}-keys`}>
+              <dt>{labels.intervalLabel}</dt>
+              <dd><InlineMath latex={`[${state.key_start},${state.key_end})`} /></dd>
+            </div>
+            <div id={`online-tiled-attention-state-${index}-maximum`}
+              data-review-id={`online-tiled-attention-state-${index}-maximum`}>
+              <dt>{labels.maximumLabel} <InlineMath latex="m" /></dt>
+              <dd data-review-value={`state-${index}-maximum`}><InlineMath latex={number(state.maximum)} /></dd>
+            </div>
+            <div id={`online-tiled-attention-state-${index}-rescale`}
+              data-review-id={`online-tiled-attention-state-${index}-rescale`}>
+              <dt>{labels.rescaleLabel} <InlineMath latex="\alpha" /></dt>
+              <dd data-review-value={`state-${index}-rescale`}><InlineMath latex={number(state.previous_rescale)} /></dd>
+            </div>
+            <div id={`online-tiled-attention-state-${index}-normalizer`}
+              data-review-id={`online-tiled-attention-state-${index}-normalizer`}>
+              <dt>{labels.normalizerLabel} <InlineMath latex="\ell" /></dt>
+              <dd data-review-value={`state-${index}-normalizer`}><InlineMath latex={number(state.normalizer)} /></dd>
+            </div>
+            {state.weighted_sum.map((value, coordinate) => (
+              <div id={`online-tiled-attention-state-${index}-weighted-${coordinate}`}
+                data-review-id={`online-tiled-attention-state-${index}-weighted-${coordinate}`}>
+                <dt>{labels.weightedLabel} <InlineMath latex={number(coordinate)} /></dt>
+                <dd data-review-value={`state-${index}-weighted-${coordinate}`}><InlineMath latex={number(value)} /></dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      ))}
+    </div>
+    <p id="online-tiled-attention-transition" data-review-id="online-tiled-attention-transition">{labels.transition}</p>
+  </section>
+
+  <section id="online-tiled-attention-outputs" data-diagram-box
+    aria-labelledby="online-tiled-attention-outputs-title">
+    <h4 id="online-tiled-attention-outputs-title" data-review-id="online-tiled-attention-outputs-title">{labels.outputsTitle}</h4>
+    <p id="online-tiled-attention-outputs-description" data-review-id="online-tiled-attention-outputs-description">{labels.outputsBody}</p>
+    <div class="course-diagram__grid online-tiled-attention-outputs">
+      {fixture.last_tiled_output.map((value, coordinate) => (
+        <article id={`online-tiled-attention-output-${coordinate}`} data-diagram-card data-diagram-box
+          class="course-diagram__card-stack" data-online-attention-role="output-comparison"
+          data-review-id={`online-tiled-attention-output-${coordinate}`}
+          aria-labelledby={`online-tiled-attention-output-${coordinate}-title`}>
+          <h5 id={`online-tiled-attention-output-${coordinate}-title`}>
+            {labels.coordinateLabel} <InlineMath latex={number(coordinate)} />
+          </h5>
+          <dl class="course-diagram__grid online-tiled-attention-values">
+            <div id={`online-tiled-attention-output-${coordinate}-tiled`}
+              data-review-id={`online-tiled-attention-output-${coordinate}-tiled`}>
+              <dt>{labels.tiledLabel}</dt>
+              <dd data-review-value={`output-${coordinate}-tiled`}><InlineMath latex={number(value)} /></dd>
+            </div>
+            <div id={`online-tiled-attention-output-${coordinate}-reference`}
+              data-review-id={`online-tiled-attention-output-${coordinate}-reference`}>
+              <dt>{labels.referenceLabel}</dt>
+              <dd data-review-value={`output-${coordinate}-reference`}><InlineMath latex={number(fixture.last_reference_output[coordinate])} /></dd>
+            </div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <dl id="online-tiled-attention-comparison-bounds" data-review-id="online-tiled-attention-comparison-bounds">
+    <div id="online-tiled-attention-output-error" data-diagram-box>
+      <dt>{labels.errorLabel}</dt>
+      <dd data-review-value="output-error"><InlineMath latex={number(fixture.max_abs_output_error)} /></dd>
+    </div>
+    <div id="online-tiled-attention-output-tolerance" data-diagram-box>
+      <dt>{labels.toleranceLabel}</dt>
+      <dd data-review-value="output-tolerance"><InlineMath latex={number(fixture.absolute_tolerance)} /></dd>
+    </div>
+  </dl>
+
+  <p id="online-tiled-attention-figure-scope" class="course-diagram__description"
+    data-review-id="online-tiled-attention-figure-scope">{labels.scope}</p>
+</figure>
+
+<style>
+  .online-tiled-attention-states,
+  .online-tiled-attention-outputs,
+  .online-tiled-attention-values { grid-template-columns: minmax(0, 1fr); }
+  @container course-diagram (min-width: 44rem) {
+    .online-tiled-attention-states,
+    .online-tiled-attention-outputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container course-diagram (min-width: 70rem) {
+    .online-tiled-attention-states .online-tiled-attention-values {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .online-tiled-attention-outputs .online-tiled-attention-values {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

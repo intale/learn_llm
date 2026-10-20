@@ -23,3 +23,9 @@ article[data-chapter-id="17-weight-quantization"] .lesson-body table td {
   border: 1px solid var(--line);
   text-align: start;
 }
+article[data-chapter-id="19-online-tiled-attention"] .lesson-body #online-tiled-attention-grid-counts,
+article[data-chapter-id="19-online-tiled-attention"] .lesson-body #online-tiled-attention-linear-counts {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow-x: auto;
+}

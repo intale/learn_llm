@@ -1,0 +1,606 @@
+---
+{
+  "chapter_id": "19-online-tiled-attention",
+  "content_revision": 1,
+  "order": 19,
+  "concept_id": "online-tiled-attention",
+  "title": "Accumulate attention without keeping the full grid",
+  "description": "Follow a stable running attention summary, reconstruct tiled gradients and compare numerical results and logical storage with the dense reference.",
+  "objective": "Compute causal attention with running maxima, normalization sums and value sums, then reconstruct tiled gradients while preserving the existing model.",
+  "worked_inputs": "Use four text-derived query/key/value rows to follow two successive key tiles, compare all output and input-gradient coordinates with dense attention, and inspect the same restored text model under tiled execution.",
+  "formula": {
+    "latex": "\\begin{aligned}s_j&=\\langle q,k_j\\rangle/\\sqrt d,\\\\a&=\\max_{j\\in J}s_j,\\quad m'=\\max(m,a),\\\\\\alpha&=\\exp(m-m'),\\quad p_j=\\exp(s_j-m'),\\\\\\ell'&=\\alpha\\ell+\\sum_{j\\in J}p_j,\\\\u'&=\\alpha u+\\sum_{j\\in J}p_jv_j,\\\\o&=u/\\ell.\\end{aligned}",
+    "symbols": [
+      { "symbol": "q", "meaning": "fixed active query vector with d features" },
+      { "symbol": "k_j", "meaning": "key vector with d features at zero-based key cell j" },
+      { "symbol": "d", "meaning": "positive query/key feature count used in score scaling" },
+      { "symbol": "s_j", "meaning": "dimensionless scaled dot-product score for this query and key j" },
+      { "symbol": "j", "meaning": "zero-based sequence-cell index of a key" },
+      { "symbol": "J", "meaning": "nonempty set of this tile's eligible key-cell indices for the fixed query" },
+      { "symbol": "a", "meaning": "maximum score among the eligible keys in the current tile" },
+      { "symbol": "m", "meaning": "maximum score over previously consumed eligible keys; initially negative infinity" },
+      { "symbol": "m'", "meaning": "updated running maximum after including the current tile" },
+      { "symbol": "\\alpha", "meaning": "dimensionless factor that rescales the previous sums to the updated maximum; explicitly zero for the first contributing tile" },
+      { "symbol": "p_j", "meaning": "dimensionless shifted exponential weight for key j, before final normalization" },
+      { "symbol": "\\ell", "meaning": "sum of previous shifted exponential weights; initially zero and positive after a contributing tile" },
+      { "symbol": "\\ell'", "meaning": "updated shifted exponential sum after rescaling and adding the current tile" },
+      { "symbol": "u", "meaning": "previous unnormalized weighted value vector; initially the zero vector" },
+      { "symbol": "u'", "meaning": "updated unnormalized weighted value vector after rescaling and adding the current tile" },
+      { "symbol": "v_j", "meaning": "value vector at key cell j, with the same feature count as u and o" },
+      { "symbol": "o", "meaning": "final attention output vector, obtained by dividing the completed weighted value sum by its normalizer" }
+    ]
+  },
+  "locale": "en",
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "inference-design",
+      "limitation": "Materialized attention stores a score and a probability for every query-key coordinate, so these intermediate grids grow quadratically with sequence length even though the output is a vector per query.",
+      "later_advance": "Stable running summaries allow attention to consume key/value tiles; reconstructing probabilities during backward avoids retaining their complete grid.",
+      "modern_llm_role": "Evaluate the same decoder attention with smaller explicit intermediate buffers while keeping logical storage, GPU memory traffic and measured speed as separate claims.",
+      "sources": [
+        {
+          "role": "earlier", "year": 2018,
+          "name": "Online normalizer calculation for softmax, version 1, 8 May 2018",
+          "source_url": "https://arxiv.org/abs/1805.02867v1",
+          "claim": "Milakov and Gimelshein's Algorithm 3 updates a running maximum and rescales the previous exponential normalizer when that maximum changes."
+        },
+        {
+          "role": "later", "year": 2022,
+          "name": "Self-attention Does Not Need O(n²) Memory, version 3, 10 October 2022; initially released in 2021",
+          "source_url": "https://arxiv.org/abs/2112.05682v3",
+          "claim": "Rabe and Staats describe stable weighted attention summaries, query/key chunking and recomputation of chunk intermediates during differentiation."
+        },
+        {
+          "role": "later", "year": 2022,
+          "name": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness, version 1, 27 May 2022",
+          "source_url": "https://arxiv.org/abs/2205.14135v1",
+          "claim": "Dao and colleagues combine tiling, recomputation and fused GPU execution to reduce attention reads and writes between high-bandwidth memory and on-chip SRAM."
+        }
+      ]
+    },
+    "approach": "Keep the existing dense attention as an inspectable reference and add output-oriented tiled evaluation through the same projections, layouts, tensor executor and autodiff tape.",
+    "summary": "The course implements host-backed tiled attention and reports bounded CPU f64 comparisons and logical payload counts. It does not reproduce a fused FlashAttention kernel or measure GPU traffic, speed or language quality.",
+    "rust_source": "rust/crates/llm-from-scratch-practical/src/attention/online.rs"
+  },
+  "rust_sources": [
+    { "path": "rust/demos/practical-ch19-online-tiled-attention/src/lib.rs", "region": "online-attention-worked-example", "purpose": "Construct four text-derived rows and record two successive summaries of the final causal query." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/online.rs", "region": "online-normalizer-update", "purpose": "Rescale both previous sums before adding eligible tile weights and weighted values." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/online.rs", "region": "tiled-attention-backward", "purpose": "Reconstruct eligible probabilities and accumulate the requested query, key or value gradient by tiles." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/online.rs", "region": "tiled-attention-autograd", "purpose": "Join the existing autodiff tape with one immutable saved snapshot shared by three operand edges." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs", "region": "compact-grouped-attention", "purpose": "Reuse prepared projections, RoPE and layout while reading compact shared key/value heads." },
+    { "path": "rust/crates/llm-from-scratch-practical/src/tensor/execution.rs", "region": "explicit-attention-execution", "purpose": "Select tiled output-oriented attention as execution state without changing learned-model settings." },
+    { "path": "rust/demos/practical-ch19-online-tiled-attention/src/lib.rs", "region": "online-attention-gradient-comparison", "purpose": "Compare every small query/key/value gradient coordinate with the existing dense reference under the same upstream seed." },
+    { "path": "rust/demos/practical-ch19-online-tiled-attention/src/lib.rs", "region": "tiled-model-comparison", "purpose": "Compare dense, tiled and cached logits of the same portable restored text model." },
+    { "path": "rust/demos/practical-ch19-online-tiled-attention/src/tests.rs", "region": "tiled-accumulated-resume", "purpose": "Resume the existing accumulated dropout training loop with matching tiled execution and reject a different execution label." }
+  ],
+  "visualization": {
+    "decision": "useful", "id": "online-tiled-attention", "component": "OnlineTiledAttentionDiagram",
+    "rationale": "Follow the same query through two successive key-tile summaries, show how the second rescales the first, and compare the final normalized coordinates with the dense output."
+  },
+  "decoder_connection": "The existing text encoder, source-independent backbone, tied head and trainer can evaluate attention with compact shared heads and reconstructed gradients. Planned Chapter 20, Paged KV layout, will study logical-to-physical cache pages and partial-page waste while preserving cached logits."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import OnlineTiledAttentionDiagram from "../../../components/chapters/OnlineTiledAttentionDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+<div id="online-tiled-attention-worked-example" data-review-id="online-tiled-attention-worked-example">
+
+## Keep a summary instead of the whole attention grid
+
+The dense reference computes a score and a probability for every query-key
+coordinate. With twice as many sequence cells, each of those stored grids has
+four times as many values. Sharing K/V heads reduces the learned and cached
+K/V lanes; a local window restricts eligible keys. Neither change automatically
+removes the dense grids from that reference implementation.
+
+An attention output needs the normalized weighted sum of values. It need not
+retain every weight at once. We can consume keys and values in tiles, carrying
+a score maximum, a normalization sum and a weighted value vector from one tile
+to the next. Rescaling the two sums when the maximum changes preserves the
+relative weight of earlier keys.
+
+### Follow the last query through two tiles
+
+The content-only text `abcd` supplies four constructed feature rows at sequence
+cells $0,1,2,3$. There is one query/key feature and two value features per row:
+
+$$
+Q=\begin{pmatrix}1\\1\\1\\1\end{pmatrix},\qquad
+K=\begin{pmatrix}0\\1\\2\\3\end{pmatrix},\qquad
+V=\begin{pmatrix}1&10\\2&20\\3&30\\4&40\end{pmatrix}.
+$$
+
+Row $j$ of $K$ and $V$ belongs to the same text cell. The final query cell
+is $3$, whose query vector is $(1)$. Dividing its dot products with the four
+keys by $\sqrt{1}=1$ gives scores $(0,1,2,3)$. All four keys are causally
+eligible for that query. This raw attention example is separate from the
+configured RoPE decoder: its key width
+is $1$ and its value width is $2$, whereas the decoder's rotary head width
+remains even.
+
+Use query and key tile edges of $2$ cells. For the final query, the first key
+tile contains keys $0,1$. Subtracting its maximum $1$ gives exponential weights
+$\exp(-1)$ and $1$. The state after this tile is
+
+$$
+\begin{aligned}
+m&=1,\qquad \ell=\exp(-1)+1\approx1.367879,\\
+u&=\bigl(\exp(-1)+2,\;10\exp(-1)+20\bigr)\\
+ &\approx(2.367879,23.678794).
+\end{aligned}
+$$
+
+Here $\ell$ is the shifted exponential sum, and the two coordinates of $u$
+are the corresponding unnormalized weighted value sums. The second tile
+contains keys $2,3$, so the maximum rises to $3$. Earlier weights were measured
+relative to $1$; they must now be measured relative to $3$. Multiply both
+previous sums by $\alpha=\exp(1-3)\approx0.135335$, then add the new keys.
+Primes below mark the updated sums:
+
+$$
+\begin{aligned}
+\ell'&=\alpha\ell+\exp(-1)+1\approx1.553002,\\
+u'&=\alpha u+\exp(-1)(3,30)+(4,40)\\
+  &\approx(5.424096,54.240960).
+\end{aligned}
+$$
+
+Only after the final tile do we divide each weighted-sum coordinate by the
+normalizer. The result is approximately $(3.492653,34.926527)$. Rust reports
+tiled output <code style="overflow-wrap: anywhere; white-space: normal;">[3.492652734585769,34.9265273458577]</code> and dense output
+<code style="overflow-wrap: anywhere; white-space: normal;">[3.49265273458577,34.92652734585769]</code> for this row. Across all $8$ output
+coordinates, the maximum absolute difference is
+$7.105427357601002\times10^{-15}$, within the declared CPU `f64` absolute
+tolerance $10^{-10}$.
+
+<RustSource path="rust/demos/practical-ch19-online-tiled-attention/src/lib.rs"
+  region="online-attention-worked-example" captionId="online-tiled-attention-rust-example-caption"
+  caption="Construct the four content rows and record two successive key-tile summaries for their final query."
+  label="Rust: construct and compare the explained online attention example" />
+
+</div>
+
+{/* chapter-section:formula */}
+
+<div id="online-tiled-attention-recurrence" data-review-id="online-tiled-attention-recurrence">
+
+## Rescale earlier mass before adding a new tile
+
+Fix one active query vector $q$ with $d$ features. Key vector $k_j$ has the
+same positive feature count $d$; $j$ is its zero-based sequence-cell index.
+Their dimensionless score is $s_j=\langle q,k_j\rangle/\sqrt d$. Value vector
+$v_j$ has $d_v$ features, which may differ from $d$ in raw attention.
+
+Let $J$ be the nonempty set of eligible keys in the current tile and $a$ its
+largest score. Before the tile, $m$ is the maximum score seen, $\ell$ is the
+sum of exponential weights shifted by $m$, and $u$ is their weighted value
+sum. Start with $m=-\infty$, $\ell=0$ and the zero vector $u$. A prime marks
+the updated state. The complete rule is
+
+$$
+\begin{aligned}s_j&=\langle q,k_j\rangle/\sqrt d,\\a&=\max_{j\in J}s_j,\quad m'=\max(m,a),\\\alpha&=\exp(m-m'),\quad p_j=\exp(s_j-m'),\\\ell'&=\alpha\ell+\sum_{j\in J}p_j,\\u'&=\alpha u+\sum_{j\in J}p_jv_j,\\o&=u/\ell.\end{aligned}
+$$
+
+The factor $\alpha$ converts the previous sums to the new maximum. Each
+$p_j$ is an unnormalized shifted exponential, not a final probability.
+$\ell'$ is dimensionless and positive after a contributing tile; $u'$ and
+the final output $o$ have $d_v$ value coordinates. The last line uses the
+completed sums after all eligible tiles. Rust explicitly uses $\alpha=0$
+for the first contributing tile.
+
+For any already consumed key, the identity
+$\exp(s_j-m)\exp(m-m')=\exp(s_j-m')$ explains why rescaling preserves its
+relative mass. Applying the same factor to $u$ preserves its contribution to
+every output coordinate. Independently normalizing each tile and averaging
+its output would lose the relative normalization mass of the tiles.
+
+A tile with no eligible keys leaves all three state values unchanged. It
+does not compute $-\infty-(-\infty)$. Existing valid causal layouts include
+self for each active query, so its final normalizer is positive. Inactive
+padded query rows remain zero and undergo no division.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/online.rs"
+  region="online-normalizer-update" captionId="online-tiled-attention-rust-recurrence-caption"
+  caption="Rescale the normalizer and weighted value vector before adding the current tile's eligible contributions."
+  label="Rust: update the stable running attention summary" />
+
+In ideal real arithmetic this evaluates the same attention rule as the dense
+reference. `f64` reductions occur in a different order, so small rounding
+differences are expected. Very small exponentials can underflow to zero.
+Finite inputs also do not guarantee representable dot products or weighted
+sums; the operation refuses nonfinite results rather than returning a partial
+attention result.
+
+</div>
+
+{/* chapter-section:symbol-glossary */}
+
+<div id="online-tiled-attention-backward" data-review-id="online-tiled-attention-backward">
+
+## Reconstruct probabilities when a gradient needs them
+
+For zero-based query-row index $i$, retain its output vector $o_i$, final
+maximum $m_i$ and positive normalizer $\ell_i$. During backward, let $g_i$ be the upstream
+gradient with respect to $o_i$; it has the same $d_v$ coordinates. Recompute
+scores from the saved query and key vectors, then reconstruct the eligible
+probabilities:
+
+$$
+P_{ij}=\frac{\exp(s_{ij}-m_i)}{\ell_i}.
+$$
+
+$s_{ij}$ is the scaled score of query $i$ and key $j$; $P_{ij}$ is its
+dimensionless normalized probability. Masked coordinates have probability
+zero. For a scalar objective $L$, use the prefix $\mathrm d$ to denote a
+gradient of $L$ with respect to the following quantity. Define
+
+$$
+\begin{aligned}
+D_i&=\langle g_i,o_i\rangle,\\
+\mathrm dP_{ij}&=\langle g_i,v_j\rangle,\\
+\mathrm dS_{ij}&=P_{ij}(\mathrm dP_{ij}-D_i).
+\end{aligned}
+$$
+
+$D_i$ is one scalar per query row. $\mathrm dP_{ij}$ measures how the
+objective changes with that probability; $\mathrm dS_{ij}$ measures how it
+changes with the score. The softmax correction subtracts the row-wide
+weighted mean $D_i=\sum_jP_{ij}\mathrm dP_{ij}$, which can be obtained from
+the already saved output instead of storing a probability row.
+
+For a query/key tile, $Q$ and $K$ hold its row vectors, $V$ holds its value
+rows, and $G$ holds its upstream vectors. Matrices $P$, $\mathrm dP$ and
+$\mathrm dS$ have query rows and key columns. Accumulate
+
+$$
+\begin{aligned}
+\mathrm dQ&\mathrel{+}=\mathrm dS K/\sqrt d,\\
+\mathrm dK&\mathrel{+}=\mathrm dS^{\mathsf T}Q/\sqrt d,\\
+\mathrm dV&\mathrel{+}=P^{\mathsf T}G.
+\end{aligned}
+$$
+
+The superscript $\mathsf T$ transposes the tile. These gradients have the
+same shapes as their corresponding $Q$, $K$ and $V$ inputs. Excluded keys
+contribute zero. When several query heads read one shared K/V head, their
+key and value gradients add into that same shared head.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/online.rs"
+  region="tiled-attention-backward" captionId="online-tiled-attention-rust-backward-caption"
+  caption="Reconstruct each eligible probability tile and accumulate the requested input gradient with the existing matrix executor."
+  label="Rust: recompute tiled attention probabilities during backward" />
+
+The matrix $O$ contains the output rows $o_i$. The custom operation joins
+the existing autodiff tape. Its three parent edges share one immutable
+snapshot of $Q,K,V,O$, row maxima and normalizers,
+layout and tile settings through an owned `Rc`. No thread-local state is
+needed. Each operand edge currently reconstructs tiles separately; this
+repeats work in exchange for not saving quadratic probabilities. Ordinary
+model execution records no recurrence trace; the worked example explicitly
+selects just one query for tracing. Existing stale-parent and released-graph
+refusals still apply.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/online.rs"
+  region="tiled-attention-autograd" captionId="online-tiled-attention-rust-autograd-caption"
+  caption="Attach three operand edges to the existing tape while sharing one immutable saved attention snapshot."
+  label="Rust: save tiled attention state for the existing autodiff tape" />
+
+</div>
+
+{/* chapter-section:history */}
+
+<div id="online-tiled-attention-history" data-review-id="online-tiled-attention-history">
+
+## Separate running summaries from GPU memory movement
+
+Materialized attention stores a score and a probability for every query-key coordinate, so these intermediate grids grow quadratically with sequence length even though the output is a vector per query.
+This familiar reference makes every weight inspectable, but retaining those
+grids is an implementation choice rather than a requirement of the output.
+
+In [Online normalizer calculation for softmax, version 1 dated 8 May 2018](https://arxiv.org/abs/1805.02867v1),
+Milakov and Gimelshein's Algorithm 3 updates a running maximum and rescales the previous exponential normalizer when that maximum changes.
+That paper's normalizer supplies the scalar part of the recurrence; our
+attention calculation also carries a weighted value vector.
+
+[Rabe and Staats's attention paper](https://arxiv.org/abs/2112.05682v3)
+was initially released in 2021; the cited version 3 is dated 10 October 2022.
+Rabe and Staats describe stable weighted attention summaries, query/key chunking and recomputation of chunk intermediates during differentiation.
+Saving every intermediate summary for ordinary automatic differentiation
+would lose the intended storage saving, so their account makes recomputation
+part of the solution.
+
+In [FlashAttention, version 1 dated 27 May 2022](https://arxiv.org/abs/2205.14135v1),
+Dao and colleagues combine tiling, recomputation and fused GPU execution to reduce attention reads and writes between high-bandwidth memory and on-chip SRAM.
+That memory hierarchy and fused kernel are additional implementation choices;
+the course's host-backed primitive calls do not reproduce them. The cited
+Rabe/Staats revision is later than this FlashAttention edition.
+
+Stable running summaries allow attention to consume key/value tiles; reconstructing probabilities during backward avoids retaining their complete grid.
+Keep the existing dense attention as an inspectable reference and add output-oriented tiled evaluation through the same projections, layouts, tensor executor and autodiff tape.
+Evaluate the same decoder attention with smaller explicit intermediate buffers while keeping logical storage, GPU memory traffic and measured speed as separate claims.
+The course implements host-backed tiled attention and reports bounded CPU `f64` comparisons and logical payload counts. It does not reproduce a fused FlashAttention kernel or measure GPU traffic, speed or language quality.
+
+</div>
+
+{/* chapter-section:rust-implementation */}
+
+<div id="online-tiled-attention-rust" data-review-id="online-tiled-attention-rust">
+
+## Change attention evaluation inside the existing model
+
+The raw operation accepts $Q:[B,H_q,T,d]$, $K:[B,H_{kv},T,d]$ and
+$V:[B,H_{kv},T,d_v]$, producing $[B,H_q,T,d_v]$. Here $B$ counts batch
+rows, $T$ counts stored sequence cells, $H_q$ counts query heads and
+$H_{kv}$ counts shared key heads and, separately, value heads. Feature counts
+$d,d_v$ are positive, as are the head counts, and $H_q$ must be divisible by
+$H_{kv}$. Chapter 18's adjacent group map selects the same shared head in
+the dense layer, tiled forward and tiled backward. Compact K/V stay
+unexpanded.
+
+Common preparation still performs the learned projections, rotates $Q,K$ with
+RoPE, leaves $V$ unrotated and intersects the causal range with active lengths,
+packed-segment boundaries and any local window. The resulting interval determines which entries contribute to each query's
+attention sum; the implementation still reads and scores rectangular prefix
+tiles that can include excluded entries, then sets their weights to zero before
+the weighted value product. Sequence-row indices remain distinct from RoPE labels.
+Tiles change neither the direct causal context nor cache capacity or eviction.
+Head outputs still merge and pass through the existing output projection.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/attention/multi_head.rs"
+  region="compact-grouped-attention" captionId="online-tiled-attention-rust-grouped-caption"
+  caption="Reuse prepared projections, rotary positions and causal layout while passing compact shared K/V heads to tiled attention."
+  label="Rust: evaluate the existing grouped attention layer with tiles" />
+
+<code style="overflow-wrap: anywhere; white-space: normal;">TensorExecution::with_tiled_attention</code> selects this output-oriented path.
+The older inspectable attention APIs retain their dense reports; compact
+decoder reports omit block intermediates instead of inventing dense matrices.
+The initial tiled path requires explicit `f64` matrix arithmetic and refuses
+other precision policies before dispatch. Tile products reuse the existing
+CPU/CUDA primitive boundary. All results here are CPU results; CPU loading
+and use require no CUDA. Requesting unavailable CUDA is an error, with no
+silent CPU substitution.
+
+<RustSource path="rust/crates/llm-from-scratch-practical/src/tensor/execution.rs"
+  region="explicit-attention-execution" captionId="online-tiled-attention-rust-execution-caption"
+  caption="Select tiled output-oriented attention in the execution context while keeping learned-model settings unchanged."
+  label="Rust: select tiled attention as an explicit execution choice" />
+
+### Count numerical payload at the executed shapes
+
+The storage report runs $B=1$, $H_q=4$, $H_{kv}=2$, $d=d_v=2$, with
+query/key tile edges $2/2$, at three sequence lengths. Each `f64` value
+occupies $8$ bytes. The reference stores $BH_qT^2$ score values and the same
+number of probability values, one for each batch/head/query/key coordinate;
+each column below counts one such grid separately.
+
+<div id="online-tiled-attention-grid-counts" data-review-id="online-tiled-attention-grid-counts"
+  role="region" tabindex="0" aria-label="Dense score and probability grids versus the largest score tile: value counts">
+
+| Sequence cells $T$ | Dense score values | Dense probability values | Largest score-tile values |
+| --- | --- | --- | --- |
+| $8$ | $256$ | $256$ | $4$ |
+| $16$ | $1024$ | $1024$ | $4$ |
+| $32$ | $4096$ | $4096$ | $4$ |
+
+</div>
+
+The maximum score tile has shape $[2,2]$: $4$ values or $32$ bytes. The
+five simultaneously counted owned forward buffers are the query tile, key
+tile, value tile, score/weight tile and tile value-product. At these widths
+each contains $4$ values, for $20$ values or $160$ bytes altogether. That
+count describes these five buffers only.
+
+The operation also retains linear-size payloads. Its input count combines $Q$,
+$K$ and $V$; its output has shape $[B,H_q,T,d_v]$. Maxima and normalizers are
+two scalar arrays, each with shape $[B,H_q,T]$.
+
+<div id="online-tiled-attention-linear-counts" data-review-id="online-tiled-attention-linear-counts"
+  role="region" tabindex="0" aria-label="Query, key and value inputs, attention outputs and combined row statistics: value counts">
+
+| Sequence cells $T$ | Q/K/V input values | Output values | Maximum and normalizer values together |
+| --- | --- | --- | --- |
+| $8$ | $128$ | $64$ | $64$ |
+| $16$ | $256$ | $128$ | $128$ |
+| $32$ | $512$ | $256$ | $256$ |
+
+</div>
+
+These are logical numerical payloads, not peak-memory measurements. They
+exclude allocator, object and index metadata, temporary snapshots and tape
+alias accounting, primitive-internal or device workspaces, and model-wide
+activations. Retained-tape diagnostics conservatively count the shared saved
+snapshot once per operand edge, three times; that is not three physical
+copies or a process-RAM measurement. The columns above must not be added
+into a supposedly complete peak total.
+
+Avoiding quadratic intermediate grids does not remove the quadratic number
+of eligible query-key pairs in full causal attention. No timing, GPU traffic
+or throughput measurement follows from these payload counts.
+
+### Compare derivatives, then the same restored model
+
+The default report uses the nonuniform upstream seed shown in the next
+excerpt. It compares all $16$ input-gradient coordinates: $4$ query,
+$4$ key and $8$ value coordinates. Their observed maximum absolute errors
+are $2.220446049250313\times10^{-15}$,
+$5.551115123125783\times10^{-16}$ and
+$1.3877787807814457\times10^{-17}$ respectively, each within $10^{-10}$.
+
+<RustSource path="rust/demos/practical-ch19-online-tiled-attention/src/lib.rs"
+  region="online-attention-gradient-comparison" captionId="online-tiled-attention-rust-gradients-caption"
+  caption="Apply the same nonuniform upstream seed and compare every Q/K/V gradient coordinate with dense causal attention."
+  label="Rust: compare all input gradients for the worked attention rows" />
+
+Separate small-kernel tests finite-difference every $Q,K,V$ coordinate with
+shared heads, using step $10^{-6}$ and absolute tolerance $4\times10^{-6}$.
+They also cover MHA/GQA/MQA, uneven and wider-than-sequence tiles, large and
+equal scores, fully masked tiles, inactive queries and empty batches,
+invalid layouts or selectors, and stale/released parents. Nonfinite failure
+tests check that gradients and results are not partly committed. These are
+finite fixtures, not universal floating-point equivalence guarantees.
+
+The model comparison reuses Chapter 18's initialized four-query-head,
+two-KV-head, window-$2$ model. It saves and restores the existing portable
+archive, then compares dense and tiled full-prefix logits for all $6$ framed
+prefix lengths of `abcd`. Counting every position at each prefix gives
+$5418$ full-logit comparisons; comparing each final row with the existing
+incremental cache gives $1548$ cached-logit comparisons. Both maximum errors
+are $3.885780586188048\times10^{-16}$, within $10^{-10}$. No-grad outputs
+remain graph-free, and the embedding and text head retain one tied table.
+
+<RustSource path="rust/demos/practical-ch19-online-tiled-attention/src/lib.rs"
+  region="tiled-model-comparison" captionId="online-tiled-attention-rust-model-caption"
+  caption="Restore one portable text model and compare tiled full-prefix logits with its dense and cached computations."
+  label="Rust: compare three execution paths of the same restored text model" />
+
+The model ID before and after restoration is
+<code style="overflow-wrap: anywhere; white-space: normal;">234d9d80f5d63091842fbf7b3cef7ac867aefd20732853a1a463c5b594f3f1f2</code>.
+Device and tile choices are execution state, so they do not alter the portable
+learned-model identity. The source-independent backbone still accepts
+text-derived encoded vectors without requiring a tokenizer; the complete text
+model retains its tokenizer and tied head. This default example performs zero
+training updates and establishes no language-quality result.
+
+### Continue actual training under the same execution choices
+
+The second demo library test uses a separate seeded training fixture and
+Chapter 15's existing training loop through `advance_with_execution`. It
+trains a four-query-head, two-KV-head, window-$2$ model with
+dropout, two-microbatch accumulation, clipping, schedule, loss scaling and
+block recomputation. After update $1$ it saves a native checkpoint, restores
+it and advances both branches through update $2$. Their `state_record`
+values agree exactly.
+
+<RustSource path="rust/demos/practical-ch19-online-tiled-attention/src/tests.rs"
+  region="tiled-accumulated-resume" captionId="online-tiled-attention-rust-resume-caption"
+  caption="Resume accumulated dropout training with the same tiled execution and reject a mismatched tile-execution label."
+  label="Rust: continue the existing training job with tiled recomputation" />
+
+This exact continuation binds the same executable and CPU `f64` execution
+label `same-binary-scalar-cpu-f64-tiled-q2-k3-serial-v1`. The test refuses
+`same-binary-scalar-cpu-f64-tiled-q3-k2-serial-v1`. That narrow training
+envelope is separate from portable inference and from the tolerance-based
+dense comparisons above. The default report uses tile edges $2/2$; this
+continuation test deliberately uses $2/3$.
+
+</div>
+
+{/* chapter-section:visualization */}
+
+<div id="online-tiled-attention-visualization" data-review-id="online-tiled-attention-visualization">
+
+## Follow one state into the next
+
+The figure keeps the two summaries attached to the same final query. The
+second summary includes the first tile's rescaled contributions; it is not
+an independently normalized answer to average with the first. Divide each
+coordinate of the final weighted sum by the same final normalizer.
+
+export const onlineTiledAttentionLabels = {
+  title: "One query, two tiles, one final normalization",
+  description: "For the final query of the four-row example, the first card summarizes keys zero and one. The second card continues that same state: before adding keys two and three, it multiplies the previous normalizer and both weighted value sums by its reported rescaling factor. Dividing the completed weighted value sums by the final normalizer produces the tiled output. The coordinate cards compare that output with the dense reference for the same query.",
+  statesTitle: "Continue the final query across two key tiles",
+  statesBody: "Each card records the running state after its key tile has contributed. Key intervals include their start and exclude their end.",
+  firstTitle: "After the first key tile",
+  secondTitle: "After the second key tile",
+  intervalLabel: "Key interval: start included, end excluded",
+  maximumLabel: "Running score maximum",
+  rescaleLabel: "Factor applied to the previous state",
+  normalizerLabel: "Shifted exponential sum",
+  weightedLabel: "Unnormalized weighted value sum, coordinate",
+  transition: "The second card carries the first summary forward: rescale both the previous normalizer and weighted value vector, then add the new tile's contributions. The first card has no previous mass, so its rescaling factor is zero.",
+  outputsTitle: "Divide the final sums and compare the same output coordinates",
+  outputsBody: "Each tiled coordinate is its completed weighted value sum divided by the final normalizer. The dense reference uses all eligible keys in one stable row calculation.",
+  coordinateLabel: "Output coordinate",
+  tiledLabel: "Tiled output",
+  referenceLabel: "Dense reference output",
+  errorLabel: "Maximum absolute error over all output rows and coordinates",
+  toleranceLabel: "Declared absolute comparison tolerance",
+  scope: "Constructed content-only rows from abcd; one query/key feature and two value features. Values come from the CPU f64 report. These comparisons measure numerical agreement for the fixture, not GPU performance or model quality."
+};
+
+<OnlineTiledAttentionDiagram labels={onlineTiledAttentionLabels} />
+
+</div>
+
+{/* chapter-section:exercises */}
+
+<div id="online-tiled-attention-exercises" data-review-id="online-tiled-attention-exercises">
+
+## Reproduce the report and inspect its checks
+
+Run from the repository root with Docker and the existing course Docker
+setup available. All configuration, tokenizer and text fixtures are included;
+no downloaded model or external corpus is needed. The default CPU command is
+
+```bash
+COURSE_CORPUS=false ./course run cargo run --quiet --offline --locked -p practical-ch19-online-tiled-attention
+```
+
+It prints JSON with `worked_example`, `gradient_comparison`,
+`storage_comparisons` and `model_comparison`. It reports `Cpu`, `f64`, tile
+edges $2/2$ and `within_tolerance: true` for every comparison. The two
+successive summaries are in `worked_example.tile_summaries`.
+
+From the same working directory and Docker setup, run the two demo tests:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p practical-ch19-online-tiled-attention --lib
+```
+
+Exactly $2$ tests pass: the report checks and the actual accumulated-training
+continuation through update $2$. To run the small attention-kernel checks
+described above, use the same setup and working directory:
+
+```bash
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p llm-from-scratch-practical attention::online::tests --lib
+```
+
+Exactly $8$ tests pass, including the exhaustive small-coordinate finite
+differences and masked/inactive-row cases.
+
+### Optional inspection and explanation practice
+
+<ol id="online-tiled-attention-practice" data-review-id="online-tiled-attention-practice">
+  <li id="online-tiled-attention-practice-1" data-review-id="online-tiled-attention-practice-1">Use the default command's <code>tile_summaries</code> to explain why the second tile rescales both earlier sums. Identify the final division and explain why independently normalized tile outputs cannot simply be averaged.</li>
+  <li id="online-tiled-attention-practice-2" data-review-id="online-tiled-attention-practice-2">Inspect <code>storage_comparisons</code> from that report. Compare each dense grid with the largest score tile, then identify the input, output and row-statistic payloads excluded by a score-tile-only count.</li>
+  <li id="online-tiled-attention-practice-3" data-review-id="online-tiled-attention-practice-3">Inspect all three <code>gradient_comparison</code> entries and run the kernel-test command above. State the coordinate counts, numerical tolerances and the difference between a dense-gradient comparison and finite differences.</li>
+  <li id="online-tiled-attention-practice-4" data-review-id="online-tiled-attention-practice-4">Inspect <code>model_comparison</code> and run the two-demo-test command above. Explain the two logit counts, the preserved model identity and the narrower execution condition for exact training continuation.</li>
+</ol>
+
+<details id="online-tiled-attention-answers" data-review-id="online-tiled-attention-answers">
+<summary id="online-tiled-attention-answers-summary" data-review-id="online-tiled-attention-answers-summary">Checked answers: rescaling, payload counts, derivatives and model continuation</summary>
+
+<ol id="online-tiled-attention-answers-list">
+  <li id="online-tiled-attention-answer-1" data-review-id="online-tiled-attention-answer-1">The maximum changes from $1$ to $3$, so $\exp(-2)$ converts the previous normalizer and weighted value vector to the new score scale. The completed sums are divided only once. Tile outputs normalized separately omit their different relative masses; an unweighted average is not the full attention result.</li>
+  <li id="online-tiled-attention-answer-2" data-review-id="online-tiled-attention-answer-2">At $T=8,16,32$, each dense grid contains $256,1024,4096$ values, while the largest score tile has $4$ values, or $32$ bytes. Five counted temporary forward buffers contain $20$ values, or $160$ bytes. Inputs contain $128,256,512$ values; output and combined row statistics each contain $64,128,256$. Each value occupies $8$ bytes. These selected payloads exclude overhead and other workspaces, so they establish neither peak process RAM nor speed.</li>
+  <li id="online-tiled-attention-answer-3" data-review-id="online-tiled-attention-answer-3">The report compares $4$ query, $4$ key and $8$ value gradient coordinates with dense attention; all errors are within $10^{-10}$. This checks two analytic paths under the same upstream seed. The separate finite-difference test perturbs every small $Q,K,V$ coordinate, with step $10^{-6}$ and absolute tolerance $4\times10^{-6}$. The kernel command selects and passes $8$ tests.</li>
+  <li id="online-tiled-attention-answer-4" data-review-id="online-tiled-attention-answer-4">The six framed prefixes contribute $5418$ full-logit comparisons, including earlier positions again at later prefixes, and $1548$ last-row cached comparisons. Both maximum errors are $3.885780586188048\times10^{-16}$ within $10^{-10}$. The portable model ID and one tied table remain unchanged under tile selection. The default is untrained. Of the $2$ passing demo tests, the continuation test actually trains and restores through update $2$ under the same executable and CPU <code>f64</code> tile-$2/3$ label; it refuses tile-$3/2$. That exact-resume restriction does not make portable inference tile-dependent.</li>
+</ol>
+
+</details>
+
+</div>
+
+{/* chapter-section:decoder-connection */}
+
+<div id="online-tiled-attention-handoff" data-review-id="online-tiled-attention-handoff">
+
+## Keep the model while changing its intermediate work
+
+The existing text encoder, source-independent backbone, tied head and trainer
+can now evaluate attention with compact shared heads and reconstructed
+gradients. Running summaries replace complete intermediate score/probability
+grids in the output-oriented path while the dense reference remains available
+for inspection. Eligible keys and learned projections keep their existing
+meaning.
+
+Planned Chapter 20, Paged KV layout, will study logical-to-physical cache
+pages and partial-page waste while preserving cached logits. That future
+storage layout is separate from this chapter's attention tiles; no page
+allocator, serving scheduler or multi-tenant cache is introduced here.
+
+</div>

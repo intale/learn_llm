@@ -1702,7 +1702,8 @@ export function validatePracticalChapterDelegation(source, sourceName = 'practic
       ['15-save-load-resume-model', 'model-persistence-term'],
       ['16-language-model-evaluation', 'language-model-evaluation-term'],
       ['17-weight-quantization', 'weight-quantization-term'],
-      ['18-grouped-query-attention-context', 'grouped-query-attention-term']];
+      ['18-grouped-query-attention-context', 'grouped-query-attention-term'],
+      ['19-online-tiled-attention', 'online-tiled-attention-term']];
     let branch = conditional;
     for (const [chapterId, prefix] of pairs) {
       if (!ts.isConditionalExpression(branch) || !ts.isBinaryExpression(branch.condition) ||

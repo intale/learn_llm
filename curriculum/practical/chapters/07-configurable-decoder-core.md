@@ -2,7 +2,7 @@
 {
   "chapter_id":"07-configurable-decoder-core",
   "concept_id":"configurable-decoder-core",
-  "content_revision":3,
+  "content_revision":4,
   "order":7,
   "objective":{"en":"Use one checked model description and run record to plan decoder shapes and resources before construction, then preserve full and cached text through one shared decoder path."},
   "worked_inputs":{"en":"Derive the reference decoder's 1188 parameters from vocabulary 266, width four, one block, one query and KV head, feed-forward width four and context capacity four. Compare the bridge, laptop and production plans; inspect full inputs [0,99,100], repeated inputs [0,99,99], and cached prefill [0,99] followed by token 100."},

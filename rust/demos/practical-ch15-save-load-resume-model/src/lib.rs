@@ -102,6 +102,15 @@ pub fn checkpoint(
 /// Data and RNG cursors are explicit caller state. This fixture has no overflow.
 pub fn advance(job: &mut RestoredTraining, until: usize) -> ArchiveResult<Vec<Value>> {
     let execution = TensorExecution::cpu();
+    advance_with_execution(job, until, &execution)
+}
+
+/// Later numerical chapters select execution without duplicating this loop.
+pub fn advance_with_execution(
+    job: &mut RestoredTraining,
+    until: usize,
+    execution: &TensorExecution,
+) -> ArchiveResult<Vec<Value>> {
     let source = examples(Partition::Train)?;
     if job.progress.data_sha256 != data_id()?
         || job.progress.document_order.len() != source.len()
@@ -134,7 +143,7 @@ pub fn advance(job: &mut RestoredTraining, until: usize) -> ArchiveResult<Vec<Va
             &mut job.optimizer,
             &job.plan,
             step,
-            &execution,
+            execution,
             &mut job.scaler,
             &microbatches,
             |context, batch| {

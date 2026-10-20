@@ -1,4 +1,8 @@
 //! One full/cached transformer loop, independent of source encoding and output heads.
+#[cfg(test)]
+#[path = "online_attention_tests.rs"]
+mod online_attention_tests;
+
 use super::{
     decoder::{DecoderModelError, DecoderModelNorm},
     decoder_block::{DecoderBlock, DecoderBlockConfig, DecoderBlockError, DecoderBlockForward},
@@ -484,24 +488,48 @@ fn run(
                 } else {
                     context
                 };
-                let f = block
-                    .forward_with_layout_and_dropout(
-                        block_context,
-                        &current,
-                        0,
-                        layout.lengths,
-                        layout.starts,
-                        layout.positions,
-                        layer,
-                        dropout,
+                // Compact execution exposes hidden/output tensors, not a
+                // fabricated dense-probability report. All other block math is
+                // shared with the inspectable reference and checkpoint replay.
+                let (block_output, f) = if execution.attention_tiles().is_some() {
+                    (
+                        block
+                            .forward_output_with_layout_and_dropout(
+                                block_context,
+                                &current,
+                                0,
+                                layout.lengths,
+                                layout.starts,
+                                layout.positions,
+                                layer,
+                                dropout,
+                            )
+                            .map_err(|source| {
+                                CoreError::Full(DecoderModelError::Block { layer, source })
+                            })?,
+                        None,
                     )
-                    .map_err(|source| {
-                        CoreError::Full(DecoderModelError::Block { layer, source })
-                    })?;
+                } else {
+                    let f = block
+                        .forward_with_layout_and_dropout(
+                            block_context,
+                            &current,
+                            0,
+                            layout.lengths,
+                            layout.starts,
+                            layout.positions,
+                            layer,
+                            dropout,
+                        )
+                        .map_err(|source| {
+                            CoreError::Full(DecoderModelError::Block { layer, source })
+                        })?;
+                    (f.output().clone(), Some(f))
+                };
                 if checkpoint {
                     // Drop all inspectable intermediates. The recipe captures
                     // shared parameters, fixed RoPE tables, layout and tickets.
-                    let output = f.output().value_snapshot();
+                    let output = block_output.value_snapshot();
                     drop(f);
                     let replay = dropout
                         .last_block_replay()
@@ -529,14 +557,16 @@ fn run(
                     let positions = layout.positions.map(<[usize]>::to_vec);
                     current = TensorValue::checkpoint_with_context(context, &current, &parameters, output, recipe_tensor_values, move |boundary, context| {
                         let mut dropout = replay.execution();
-                        let forward = block.forward_with_layout_and_dropout(context, boundary, 0, lengths.as_deref(), starts.as_deref(), positions.as_deref(), layer, &mut dropout)
+                        let output = block.forward_output_with_layout_and_dropout(context, boundary, 0, lengths.as_deref(), starts.as_deref(), positions.as_deref(), layer, &mut dropout)
                             .map_err(|_| crate::autograd::tensor_core::TensorAutodiffError::Checkpoint { reason: "block forward or site replay failed during recomputation" })?;
                         dropout.finish_compact(None).map_err(|_| crate::autograd::tensor_core::TensorAutodiffError::Checkpoint { reason: "block replay did not consume its exact tickets" })?;
-                        Ok(forward.into_output())
+                        Ok(output)
                     }).map_err(|source| CoreError::Full(DecoderModelError::Autodiff { stage: super::decoder::DecoderModelStage::ActivationCheckpoint, source }))?;
                 } else {
-                    current = f.output().clone();
-                    blocks.push(f);
+                    current = block_output;
+                    if let Some(f) = f {
+                        blocks.push(f);
+                    }
                 }
             }
             Mode::Cached(caches) => {

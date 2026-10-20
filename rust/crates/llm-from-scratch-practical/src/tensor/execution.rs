@@ -6,6 +6,7 @@ use super::{
     storage::Tensor,
     view::TensorView,
 };
+use crate::attention::online::AttentionTiles;
 use llm_cuda_adapter::CudaExecutor;
 pub use llm_cuda_adapter::{ExecutionError, ExecutionStats};
 use std::rc::Rc;
@@ -25,6 +26,7 @@ pub enum ExecutionDevice {
 pub struct TensorExecution {
     cuda: Option<Rc<CudaExecutor>>,
     matmul_precision: MatmulPrecision,
+    attention_tiles: Option<AttentionTiles>,
 }
 
 impl TensorExecution {
@@ -37,6 +39,7 @@ impl TensorExecution {
         Self {
             cuda: None,
             matmul_precision,
+            attention_tiles: None,
         }
     }
 
@@ -45,6 +48,7 @@ impl TensorExecution {
         Ok(Self {
             cuda: Some(Rc::new(CudaExecutor::new(ordinal)?)),
             matmul_precision: MatmulPrecision::F64,
+            attention_tiles: None,
         })
     }
 
@@ -80,6 +84,7 @@ impl TensorExecution {
         Ok(Self {
             cuda: self.cuda.clone(),
             matmul_precision: precision,
+            attention_tiles: self.attention_tiles,
         })
     }
 
@@ -90,6 +95,19 @@ impl TensorExecution {
                 ordinal: c.ordinal(),
             })
     }
+
+    // region:explicit-attention-execution
+    /// Select compact, tiled full attention for output-oriented decoder paths.
+    /// Inspectable attention APIs retain their dense reference reports.
+    pub fn with_tiled_attention(mut self, tiles: AttentionTiles) -> Self {
+        self.attention_tiles = Some(tiles);
+        self
+    }
+
+    pub const fn attention_tiles(&self) -> Option<AttentionTiles> {
+        self.attention_tiles
+    }
+    // endregion:explicit-attention-execution
 
     pub fn matmul(
         &self,
@@ -138,7 +156,9 @@ impl TensorExecution {
 
 impl PartialEq for TensorExecution {
     fn eq(&self, other: &Self) -> bool {
-        if self.matmul_precision != other.matmul_precision {
+        if self.matmul_precision != other.matmul_precision
+            || self.attention_tiles != other.attention_tiles
+        {
             return false;
         }
         match (&self.cuda, &other.cuda) {

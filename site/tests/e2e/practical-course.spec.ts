@@ -15,7 +15,7 @@ const deploymentBase=normalizeSiteBase(process.env.SITE_BASE??'/');
 const deploymentPath=(path:string)=>sitePathForBase(path,deploymentBase);
 const practicalCourseRoute='/en/practical-llm-in-rust/';
 const prefix=deploymentPath(practicalCourseRoute);
-const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation','17-weight-quantization','18-grouped-query-attention-context'] as const;
+const ids=['00-course-structure','01-reference-core-handoff','02-corpus-preparation','03-scalable-bpe-tokenizer','04-padded-variable-batches','05-packed-sequence-masks','06-depth-stable-decoder','07-configurable-decoder-core','08-dropout-semantics','09-dependency-error-contract','10-input-encoding-boundary','11-accelerated-tensor-execution','12-mixed-precision-training','13-gradient-accumulation-recomputation','14-optimizer-schedules-clipping','15-save-load-resume-model','16-language-model-evaluation','17-weight-quantization','18-grouped-query-attention-context','19-online-tiled-attention'] as const;
 const documents=ids.map(id=>({id,path:prefix+id+'/',data:parseJsonFrontmatter(
   readFileSync(new URL('../../src/content/practical-chapters/en/'+id+'.mdx',import.meta.url),'utf8'),id).data}));
 const chapterLinks=documents.map(document=>({chapterId:document.id,href:document.path,order:document.data.order,title:document.data.title}));
@@ -41,7 +41,7 @@ const russianHome=JSON.parse(readFileSync(new URL('../../src/i18n/catalogs/ru.js
 const glossaryCopy=getCheatSheetCopy('en')!;
 const lessons=documents.slice(1).map(document=>({...document,
   figureId:document.data.visualization.id,
-  boxCount:document.id===ids[18]?6:document.id===ids[17]?5:document.id===ids[16]?6:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
+  boxCount:document.id===ids[19]?8:document.id===ids[18]?6:document.id===ids[17]?5:document.id===ids[16]?6:document.id===ids[15]?4:document.id===ids[14]?5:document.id===ids[13]?7:document.id===ids[12]?7:document.id===ids[11]?5:document.id===ids[10]?8:document.id===ids[1]?3:document.id===ids[2]?7:document.id===ids[3]?4+tokenizerTrace.rounds.length:document.id===ids[6]?7+depthTrace.fixtures.length:document.id===ids[7]?10:document.id===ids[8]?3:4,
   sheet:JSON.parse(readFileSync(new URL('../../src/content/practical-cheat-sheets/en/'+document.id+'.json',import.meta.url),'utf8'))}));
 const figureFor=(page:Page,id:string)=>page.locator('figure[data-visualization-id="'+id+'"]');
 const expectDepthScalar=async(owner:Locator,metric:string,value:number)=>{
@@ -136,7 +136,7 @@ test('English chooser and course indexes use independent current routes',async({
  await expect(page.locator('a[href^="'+deploymentPath('/en/course/40-')+'"]')).toHaveCount(0);
  await page.goto(deploymentPath('/en/course/39-end-to-end-llm/'));await expect(page.locator('a[rel="next"]')).toHaveCount(0);
  await page.goto(prefix);await expect(page.locator('h1')).toHaveText(home.practicalCourseTitle);
- expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
+ expect((await page.locator('.course-list .feature-number').allTextContents()).map(Number)).toEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
  for(const document of documents){
   const link=page.locator('a[href="'+document.path+'"]');await expect(link).toHaveCount(1);await expect(link).toHaveText(document.data.title);
   await expect(link.locator('xpath=ancestor::article')).toContainText(document.data.description);
@@ -180,8 +180,8 @@ test('Practical orientation @chapter:practical-00-course-structure has the compl
    await expect(row).toHaveAttribute('data-course-chapter-status','planned');await expect(row.locator('em')).toHaveText('Planned.');await expect(row.locator('a,[role="link"]')).toHaveCount(0);
   }
  }
- await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(18);
- await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(14);
+ await expect(article.locator('[data-course-chapter-status="published"] a')).toHaveCount(19);
+ await expect(article.locator('[data-course-chapter-status="planned"]')).toHaveCount(13);
  await expectOnlySharedDiagramClientScript(page);await expectOrderedChapterNavigation(page,'en',document.id,chapterLinks,prefix);
  await expect(page.locator('head link[hreflang="ru"]')).toHaveCount(0);
  await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href',deploymentPath('/ru/'));
@@ -238,7 +238,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
 });
 
  for(const lesson of lessons){
- const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':lesson.id===ids[16]?' @chapter:16-language-model-evaluation':lesson.id===ids[17]?' @chapter:17-weight-quantization':lesson.id===ids[18]?' @chapter:18-grouped-query-attention-context':'');
+ const testLabel='Practical '+lesson.id+(lesson.id===ids[4]?' @chapter:04-padded-variable-batches':lesson.id===ids[5]?' @chapter:05-packed-sequence-masks':lesson.id===ids[6]?' @chapter:06-depth-stable-decoder':lesson.id===ids[7]?' @chapter:07-configurable-decoder-core':lesson.id===ids[8]?' @chapter:08-dropout-semantics':lesson.id===ids[9]?' @chapter:09-dependency-error-contract':lesson.id===ids[10]?' @chapter:10-input-encoding-boundary':lesson.id===ids[11]?' @chapter:11-accelerated-tensor-execution':lesson.id===ids[12]?' @chapter:12-mixed-precision-training':lesson.id===ids[13]?' @chapter:13-gradient-accumulation-recomputation':lesson.id===ids[14]?' @chapter:14-optimizer-schedules-clipping':lesson.id===ids[15]?' @chapter:15-save-load-resume-model':lesson.id===ids[16]?' @chapter:16-language-model-evaluation':lesson.id===ids[17]?' @chapter:17-weight-quantization':lesson.id===ids[18]?' @chapter:18-grouped-query-attention-context':lesson.id===ids[19]?' @chapter:19-online-tiled-attention':'');
  test(testLabel+' built metadata formulas sources and evidence',async({page,request},testInfo)=>{
   const response=await request.get(lesson.path);expect(response.ok()).toBe(true);const html=await response.text();
   if(lesson.data.visualization.decision==='useful')expect(html).toContain('data-visualization-id="'+lesson.figureId+'"');
@@ -663,6 +663,18 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
     await testInfo.attach('programmatic-new18-native-table-and-inline-code',{body:JSON.stringify({route:lesson.path,viewport,storage,longInlineCode,tableAfter:await table.evaluate(node=>({scrollLeft:node.scrollLeft,active:document.activeElement===node}))}),contentType:'application/json'});
     expect(storage.box.left).toBeGreaterThanOrEqual(-2);expect(storage.box.right).toBeLessThanOrEqual(viewport.width+2);
    }
+   if(lesson.id===ids[19]){
+    const nativeTables=[];
+    for(const id of ['online-tiled-attention-grid-counts','online-tiled-attention-linear-counts']){
+     const table=page.locator('#'+id);await expect(table).toHaveAttribute('role','region');await expect(table).toHaveAttribute('tabindex','0');expect((await table.getAttribute('aria-label'))?.trim().length).toBeGreaterThan(0);
+     await table.focus();await expect(table).toBeFocused();
+     const before=await table.evaluate(node=>({box:node.getBoundingClientRect().toJSON(),clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,scrollLeft:node.scrollLeft,overflowX:getComputedStyle(node).overflowX,name:node.getAttribute('aria-label')}));
+     expect(before.overflowX).toBe('auto');expect(before.box.left).toBeGreaterThanOrEqual(-2);expect(before.box.right).toBeLessThanOrEqual(viewport.width+2);
+     if(before.scrollWidth>before.clientWidth+2){await page.keyboard.press('ArrowRight');await expect.poll(()=>table.evaluate(node=>node.scrollLeft)).toBeGreaterThan(before.scrollLeft);}
+     nativeTables.push({id,before,after:await table.evaluate(node=>({scrollLeft:node.scrollLeft,active:document.activeElement===node}))});
+    }
+    await testInfo.attach('programmatic-new19-native-table-keyboard',{body:JSON.stringify({route:lesson.path,viewport,nativeTables}),contentType:'application/json'});
+   }
    if(lesson.id===ids[17]&&viewport.width===320){
     const nativeTables=[];
     for(const id of ['weight-quantization-probe-errors','weight-quantization-model-storage','weight-quantization-model-nll']){
@@ -756,6 +768,7 @@ test('Practical orientation @chapter:practical-00-course-structure forced colors
    if(lesson.id===ids[17])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'weight-quantization-term-'+(index+1)));
    if(lesson.id===ids[17])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'weight-quantization-term-'+(index+1)));
    if(lesson.id===ids[18])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'grouped-query-attention-term-'+(index+1)));
+   if(lesson.id===ids[19])expect(await dialog.locator('.cheat-sheet-term').evaluateAll(nodes=>nodes.map(node=>node.id))).toEqual(terms.map((_,index)=>'online-tiled-attention-term-'+(index+1)));
    expect(geometry.errors).toEqual([]);expect(geometry.reachedEnd).toBe(true);
    await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await page.keyboard.press('Enter');await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expectNoPageOverflow(page);
   });

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "19-online-tiled-attention",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Accumulate attention without keeping the full grid",
+  "description": "Follow a stable running attention summary, reconstruct tiled gradients and compare numerical results and logical storage with the dense reference.",
+  "objective": "Compute causal attention with running maxima, normalization sums and value sums, then reconstruct tiled gradients while preserving the existing model."
+}

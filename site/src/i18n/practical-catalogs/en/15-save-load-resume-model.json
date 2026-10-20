@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "chapterId": "15-save-load-resume-model",
   "locale": "en",
-  "contentRevision": 2,
+  "contentRevision": 3,
   "title": "Save, load and resume the composed model",
   "description": "Preserve a tied text model for fresh-process CPU inference, then restore the extra state for bounded exact training continuation.",
   "objective": "Save the composed text model for fresh-process CPU inference, restore its single tied embedding, and distinguish portable learned state from the extra state and compatibility conditions needed for exact bounded training continuation."

@@ -2,7 +2,7 @@
   "schemaVersion":1,
   "chapterId":"04-padded-variable-batches",
   "locale":"en",
-  "contentRevision":1,
+  "contentRevision":2,
   "title":"Pad variable-length batches without adding predictions",
   "description":"Extend the Rust batch and decoder APIs with right padding, valid attention prefixes and a loss averaged over real targets.",
   "objective":"Extend the existing batch and decoder APIs to right-pad unequal document-local examples while excluding padding from embedding, attention, targets and token-weighted loss."

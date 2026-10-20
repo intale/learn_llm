@@ -407,10 +407,76 @@ impl DecoderBlock {
                 positions,
             )
             .map_err(DecoderBlockError::Attention)?;
+        let (after_attention, feed_forward_norm, feed_forward, output) =
+            self.finish_attention_residual(context, input, attention.output(), layer, dropout)?;
+
+        Ok(DecoderBlockForward {
+            attention_norm,
+            attention,
+            after_attention,
+            feed_forward_norm,
+            feed_forward,
+            output,
+        })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn forward_output_with_layout_and_dropout(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+        lengths: Option<&[usize]>,
+        starts: Option<&[usize]>,
+        positions: Option<&[usize]>,
+        layer: usize,
+        dropout: &mut DropoutExecution<'_>,
+    ) -> Result<TensorValue, DecoderBlockError> {
+        if context.execution().attention_tiles().is_none() {
+            return self
+                .forward_with_layout_and_dropout(
+                    context,
+                    input,
+                    position_offset,
+                    lengths,
+                    starts,
+                    positions,
+                    layer,
+                    dropout,
+                )
+                .map(DecoderBlockForward::into_output);
+        }
+        let normalized = self
+            .attention_norm
+            .forward_with_context(context, input)
+            .map_err(DecoderBlockError::AttentionNorm)?;
+        let attended = self
+            .attention
+            .forward_output_with_layout(
+                context,
+                &normalized,
+                position_offset,
+                lengths,
+                starts,
+                positions,
+            )
+            .map_err(DecoderBlockError::Attention)?;
+        self.finish_attention_residual(context, input, &attended, layer, dropout)
+            .map(|(_, _, _, output)| output)
+    }
+
+    fn finish_attention_residual(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        attention_output: &TensorValue,
+        layer: usize,
+        dropout: &mut DropoutExecution<'_>,
+    ) -> Result<(TensorValue, RmsNormForward, SwiGluForward, TensorValue), DecoderBlockError> {
         let branch = dropout
             .apply(
                 context,
-                attention.output(),
+                attention_output,
                 DropoutSiteId {
                     layer,
                     kind: DropoutSiteKind::AttentionOutput,
@@ -422,14 +488,7 @@ impl DecoderBlock {
         let (feed_forward_norm, feed_forward, output) =
             self.forward_feed_forward_path_and_dropout(context, &after_attention, layer, dropout)?;
 
-        Ok(DecoderBlockForward {
-            attention_norm,
-            attention,
-            after_attention,
-            feed_forward_norm,
-            feed_forward,
-            output,
-        })
+        Ok((after_attention, feed_forward_norm, feed_forward, output))
     }
 
     /// One FFN residual path, reused by full blocks and residual-site diagnostics.

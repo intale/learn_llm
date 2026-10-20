@@ -15,6 +15,9 @@ use crate::tensor::storage::{Tensor, TensorError, checked_row_major_layout};
 /// A rejected model-specific shape, selector, or allocation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ModelOpError {
+    OnlineAttention {
+        reason: &'static str,
+    },
     GatherTableRank {
         rank: usize,
     },
@@ -62,6 +65,7 @@ pub enum ModelOpError {
 impl fmt::Display for ModelOpError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::OnlineAttention { reason } => write!(formatter, "online attention: {reason}"),
             Self::GatherTableRank { rank } => {
                 write!(
                     formatter,
@@ -128,6 +132,10 @@ impl Error for ModelOpError {}
 /// Immutable forward evidence used by one model-operation parent edge.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ModelSavedContext {
+    OnlineAttention {
+        saved: std::rc::Rc<crate::attention::online::OnlineAttentionSaved>,
+        operand: crate::attention::online::AttentionOperand,
+    },
     MatmulLeft {
         right: Tensor,
         precision: crate::tensor::precision::MatmulPrecision,
@@ -190,6 +198,9 @@ impl ModelSavedContext {
     /// Owned f64 tensor lengths; shape/index/layout metadata is excluded.
     pub(super) fn tensor_values(&self) -> usize {
         match self {
+            // The snapshot is shared by three edges. This per-edge diagnostic
+            // conservatively counts its payload each time, rather than RAM.
+            Self::OnlineAttention { saved, .. } => saved.tensor_values(),
             Self::MatmulLeft { right, .. } => right.len(),
             Self::MatmulRight { left, .. } => left.len(),
             Self::Exp { output } => output.len(),
@@ -724,27 +735,12 @@ fn gather_rows_forward(
 
 // region:causal-softmax-forward
 // region:padding-aware-causal-softmax
-fn causal_softmax_forward_with_lengths(
-    input: &Tensor,
+pub(crate) fn validate_causal_layout(
+    grids: usize,
+    queries: usize,
     lengths: Option<&[usize]>,
     starts: Option<&[usize]>,
-) -> Result<Tensor, TensorAutodiffError> {
-    if input.rank() < 2 {
-        return Err(ModelOpError::CausalSoftmaxRank { rank: input.rank() }.into());
-    }
-    let queries = input.shape()[input.rank() - 2];
-    let keys = input.shape()[input.rank() - 1];
-    if queries != keys {
-        return Err(ModelOpError::CausalSoftmaxNonSquare { queries, keys }.into());
-    }
-    if queries == 0 {
-        return Err(ModelOpError::CausalSoftmaxEmptyTokens.into());
-    }
-
-    let grid_cells = queries
-        .checked_mul(keys)
-        .ok_or(TensorError::ShapeOverflow)?;
-    let grids = input.len() / grid_cells;
+) -> Result<(), TensorAutodiffError> {
     if let Some(lengths) = lengths {
         if lengths.len() != grids {
             return Err(ModelOpError::CausalLengthCount {
@@ -785,6 +781,30 @@ fn causal_softmax_forward_with_lengths(
             }
         }
     }
+    Ok(())
+}
+
+fn causal_softmax_forward_with_lengths(
+    input: &Tensor,
+    lengths: Option<&[usize]>,
+    starts: Option<&[usize]>,
+) -> Result<Tensor, TensorAutodiffError> {
+    if input.rank() < 2 {
+        return Err(ModelOpError::CausalSoftmaxRank { rank: input.rank() }.into());
+    }
+    let queries = input.shape()[input.rank() - 2];
+    let keys = input.shape()[input.rank() - 1];
+    if queries != keys {
+        return Err(ModelOpError::CausalSoftmaxNonSquare { queries, keys }.into());
+    }
+    if queries == 0 {
+        return Err(ModelOpError::CausalSoftmaxEmptyTokens.into());
+    }
+    let grid_cells = queries
+        .checked_mul(keys)
+        .ok_or(TensorError::ShapeOverflow)?;
+    let grids = input.len() / grid_cells;
+    validate_causal_layout(grids, queries, lengths, starts)?;
     let mut probabilities = zeros(input.shape())?;
     for grid in 0..grids {
         let valid = lengths.map_or(queries, |lengths| lengths[grid]);
@@ -884,6 +904,9 @@ pub(crate) fn apply_model_vjp(
     execution: &TensorExecution,
 ) -> Result<Tensor, TensorAutodiffError> {
     match saved {
+        ModelSavedContext::OnlineAttention { saved, operand } => {
+            crate::attention::online::backward(saved, *operand, upstream, execution)
+        }
         ModelSavedContext::MatmulLeft {
             right,
             precision,

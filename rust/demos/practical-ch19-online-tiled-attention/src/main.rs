@@ -1,0 +1,35 @@
+use clap::{Parser, ValueEnum};
+use llm_from_scratch_practical::tensor::execution::TensorExecution;
+use std::path::PathBuf;
+
+#[derive(Clone, Copy, ValueEnum)]
+enum Device {
+    Cpu,
+    Cuda,
+}
+
+#[derive(Parser)]
+#[command(about = "Inspect online attention summaries and compare tiled outputs and gradients")]
+struct Args {
+    #[arg(long)]
+    config: Option<PathBuf>,
+    #[arg(long, value_enum, default_value = "cpu")]
+    device: Device,
+    #[arg(long, default_value_t = 0)]
+    ordinal: usize,
+}
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = Args::parse();
+    let execution = match args.device {
+        Device::Cpu => TensorExecution::cpu(),
+        Device::Cuda => TensorExecution::cuda(args.ordinal)?,
+    };
+    let config = practical_ch19_online_tiled_attention::settings(args.config.as_deref())?;
+    println!(
+        "{}",
+        serde_json::to_string(&practical_ch19_online_tiled_attention::demonstrate(
+            &config, &execution
+        )?)?
+    );
+    Ok(())
+}
